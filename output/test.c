@@ -8,7 +8,7 @@ int foo(char *fmt, ...)	{
 	char *tmp = fmt;
 
 	var_init(&fmt);	
-
+	
 	while(*tmp) {
 		if(*tmp == '%') {
 			tmp++;
@@ -42,4 +42,3 @@ int main(){
 	foo("Hello!!\nx = %d y = %d\n", 100, 200);
 	return 0;
 }
-
