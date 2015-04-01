@@ -1,0 +1,43 @@
+Tue Mar 31 21:44:40 CST 2015
+
+It's a note about BIOS.
+
+Intel's spec says the first instruction starts at 0xFFFFFFF0,
+which beyond 1MB limit. How does it work? After reading some
+materials, i find that the chipset will map the top address to
+BIOS. Which means even we address 0xFFFFFFF0, but the chipset
+will auto map to BIOS ROM. The address makes us confusing cos 
+it's beyond 1MB, and the later mapping make it more tricky!
+You see how bad the BIOS design was!
+
+BIOS has become more and more complicated over this 20 years.
+To achieve such advanced functioning, BIOSes sometimes enter
+protected mode, but then return to real mode in order to be
+compatible with legacy boot loaders. 
+SeaBIOS do this, check the code.
+
+[Some conventions when transfer to bootloader:]
+1. The first sector of a drive contains its boot loader.
+
+2. One sector is 512 bytes - the last two bytes must be 0xAA55,
+or else the BIOS will treat the drive as unbootable.
+
+3. If everything is in order, said first sector will be placed at RAM address
+0000:7C00, and the BIOS's role is over as it transfers control to 0000:7C00.
+
+4. CS, DS and ES will be set to 0000.
+
+5. While standard routines installed by the BIOS are available to
+the bootloader, the operating system has not been loaded yet, and
+you cannot rely on loaders or OS memory management. Any data the
+boot loader needs must either be included in the first sector, 
+be careful not to execute it! Or manually loaded from another
+sector of the disk, to somewhere in RAM. Because the OS is not
+running yet, most of the RAM will be unused, however you must take
+care not to interfere with RAM that may be required by interrupts.
+
+6. The OS code itself (or the next bootloader) will need to loaded somewhere into RAM as well.
+
+7. The 512-byte stack allocated by the BIOS may be too small for
+some purposes (remember that unless interrupts are disabled, they can happen at any time).
+It may be necessary to create a larger stack.

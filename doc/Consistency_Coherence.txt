@@ -1,0 +1,40 @@
+2015/01/13
+
+Sorry, long time no see.
+Yesterday i took the Computer Architecture's final exam.
+What i wanna to say here is something about Memory Consistency
+and Cache Coherence.
+
+I have read a lot about Memory Consistency when i was in Beihang.
+However, i have not figure it out. Last days i reviewed this topic,
+and i find this:
+
+1.	Cache Coherence is NOT ATOMIC(in my opinion).
+
+	Why? Just think about this, Processor_1 change a shared variable x,
+	then Cache Coherence Protocol will do his job which include send Invalidate
+	message to Processor_2. However, in the meantime, Processor_2 may also
+	change the variable x just before Processor_2 receive the Invalidate message.
+
+	Cache Coherence Protocol(CCP) is not atomic(in my opinion). In the common cense, 
+	CCP can not	control each processors's behavior, neither can predict.
+
+2.	Memory Consistency correct the non-atomic behavior.
+
+	How? As mentioned above, CCP is not atomic, so how can we achive correctness?
+	The answer is Memory Consistency(There are many Consistency tpyes, but i will
+	not talk more about them. Suppose we use Sequential Consistency here.)
+	Continue to talk about Processor 1&2. Processor_1 will not walk on to next instruction
+	until the CCP finish the job(Invalidate or other dirty work). In Processor_2's 
+	program, we usually use, for example,  while(x==1) to test shared variable x.
+
+	So, Memory Consistency ensures that Processor_1 will not continue until Processor_2
+	see the Cache Coherence Protocol's Invalidate. The implementation of hardware is
+	complicated, but we can image a simple one in which we just add one signal line to
+	indicate whether CCP has finished his job.
+
+Is that clear?
+I define clear as: when i turn back reading this article N months later, 
+i can still understand what i was trying to say.
+
+Ok, there is one more question, is there some CPU with atomic CCP?

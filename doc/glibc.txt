@@ -1,0 +1,17 @@
+2014/11/26
+
+Today i'm reading manuls about
+GNU C Library(glibc), glib, Gnulib, GCC, gnu-c-manul.
+
+I was confused about ISO C, POSIX and glibc, that i couldn't figure out what's
+the difference between them. After reading the manuls, i know that, ISO C and
+POSIX are standard specifications which define the way people use C and how
+the functions was used. There are other standards like BSD, SunOS and so on.
+
+However, glibc(or glib) is an specific implementation of ISO C and POSIX.
+It's a Standard C Library which every programmer uses everyday.
+
+Gnulib is funny. 
+Why GNU not modify glibc to make it portable instead of creating Gnulib?
+
+Need_to_Learn: libtool, link, library...all this concepts.

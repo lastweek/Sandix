@@ -19,14 +19,6 @@
 	
 	.code16gcc
 	
-	.data
-BOOTSEG:
-	.word 0x07c0
-INITSEG:
-	.word 0x9000
-SYSSEG:
-	.word 0x1000
-	
 	.text
 	.globl start
 start:
@@ -40,12 +32,19 @@ start:
 	xor %di, %di
 	rep
 	movsw
-	jmp $0x9000, $go
+	jmp $INITSEG, $0x10
 go:
 	movw %cs, %ax
 	movw %ax, %ds
 	movw %ax, %es
 	movw %ax, %ss
 	movw $512, %sp	# arbitrary value >>512(Bigger than sector size.)
+	.data
+BOOTSEG:
+	.word 0x07c0
+INITSEG:
+	.word 0x9000
+SYSSEG:
+	.word 0x1000
 
 
