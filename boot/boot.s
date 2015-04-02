@@ -17,7 +17,7 @@
 #	boot.s MUST be assembled under 16bit mode.
 #########################################################################	
 	
-	.code16gcc
+	.code16
 	
 	.text
 	.globl start
@@ -32,7 +32,7 @@ start:
 	xor %di, %di
 	rep
 	movsw
-	jmp $INITSEG, $0x10
+	jmp $0x9000, $go
 go:
 	movw %cs, %ax
 	movw %ax, %ds
