@@ -1,7 +1,8 @@
-Tue Mar 31 21:44:40 CST 2015
+2015/04/01 Created by Shan Yizhou.
 
 It's a note about BIOS.
 
+#############################################################
 Intel's spec says the first instruction starts at 0xFFFFFFF0,
 which beyond 1MB limit. How does it work? After reading some
 materials, i find that the chipset will map the top address to
@@ -16,6 +17,7 @@ protected mode, but then return to real mode in order to be
 compatible with legacy boot loaders. 
 SeaBIOS do this, check the code.
 
+#############################################################
 [Some conventions when transfer to bootloader:]
 1. The first sector of a drive contains its boot loader.
 
@@ -41,3 +43,39 @@ care not to interfere with RAM that may be required by interrupts.
 7. The 512-byte stack allocated by the BIOS may be too small for
 some purposes (remember that unless interrupts are disabled, they can happen at any time).
 It may be necessary to create a larger stack.
+
+
+#############################################################
+The 640KB area marked "Low Memory" was the only random-access
+memory (RAM) that an early PC could use; in fact the very earliest
+PCs only could be configured with 16KB, 32KB, or 64KB of RAM!
+
++------------------+ <-0xFFFFFFFF(4GB)
+|		32-bit 		|
+|	memorymapped	|
+| 		devices 	|
+|					| 
+/\/\/\/\/\/\/\/\/\/\
+/\/\/\/\/\/\/\/\/\/\ 
+|					| 
+| 		Unused 		| 
+|					| 
++------------------+ <-dependsonamountofRAM
+|					|					 
+|					| 
+|	ExtendedMemory 	| 
+|					| 
+|					| 
++------------------+ <-0x00100000(1MB)
+| 	BIOS ROM 		| 
++------------------+ <-0x000F0000(960KB)
+| 16-bitdevices,	| 
+| expansionROMs 	| 
++------------------+ <-0x000C0000(768KB)
+| VGA Display 		| 
++------------------+ <-0x000A0000(640KB)
+|					| 
+| Low Memory 		| 
+|					| 
++------------------+ <-0x00000000
+
