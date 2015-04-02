@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "vaarg.h"
 
-
 int foo(char *fmt, ...)	{
 	int arg_int;
 	char arg_char;
@@ -39,6 +38,6 @@ int foo(char *fmt, ...)	{
 }
 
 int main(){
-	foo("Hello!!\nx = %d y = %d\n", 100, 200);
+	foo("Hello!!\nx = %c y = %d\n", 'A', 200);
 	return 0;
 }
