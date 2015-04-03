@@ -34,8 +34,14 @@ static void screenc(char c) {
 	*sc_addr_cur++ = c;
 	*sc_addr_cur++ = sc_attr_cur;
 
-	sc_row_cur++;
 	sc_col_cur++;
+	if (sc_col_cur > SC_MAX_COL) {
+		sc_row_cur++;
+		sc_col_cur = 1;
+	}
+	if (sc_row_cur > SC_MAX_ROW) {
+		// roll up one line.
+	}
 }
 
 
