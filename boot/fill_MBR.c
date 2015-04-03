@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
 	
 	//Padding the hole.
 	while (size < (MBR_SIZE - 2)) {
-		fputc(0x00, ifp);
+		fputc(0x90, ifp);
 		size++;
 	}
 	//Now the magic.
