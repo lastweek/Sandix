@@ -10,11 +10,13 @@
 
 #define SC_MAX_ROW	80
 #define SC_MAX_COL	25
+#define SC_MAX_PAGE	4
 
+char *max_map_addr  = 0x000B8F9F;	// upper address of mapped mempry.
 char *base_map_addr = 0x000B8000;	// base address of mapped memory.
 char *sc_addr_cur;	// current cursor address.
-char sc_attr_cur;	// current output attribute.
-int sc_row_cur, sc_col_cur;	// current cursor position, range: 1--80, 1--25
+char  sc_attr_cur;	// current output attribute.
+int   sc_row_cur, sc_col_cur;	// current cursor position, range: 1--80, 1--25
 
 void screen_init() {
 	sc_row_cur = 0;
