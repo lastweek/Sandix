@@ -39,6 +39,18 @@ go:
 	movw %ax, %es
 	movw %ax, %ss
 	movw $512, %sp	# arbitrary value >>512(Bigger than sector size.)
+	
+	movb $0x03, %ah	# read cursor pos
+	xor %bh, %bh
+	int 0x10
+	
+	movw $22, %cx
+	movw $0x0007, %bx	# page 0, attribute 7.
+	movw $msg1, %bp
+	movw $0x1301, %ax	# write string, move cursor
+	int 0x10
+	jmp end
+
 	.data
 BOOTSEG:
 	.word 0x07c0
@@ -46,5 +58,10 @@ INITSEG:
 	.word 0x9000
 SYSSEG:
 	.word 0x1000
-
+msg1:
+	.byte 13, 10
+	.ascii "Loading System ..."
+	.byte 13, 10
+end:
+	nop
 
