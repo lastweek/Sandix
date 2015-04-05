@@ -1,0 +1,13 @@
+2015/04/05 Created by Shan Yizhou.
+
+m4
+autoscan
+autoconf
+automake
+libtool
+
+The awful experience of building qemu on my MacOS give
+me the incentive to get through these tools.
+
+These tools are crucial to make your software portable.
+The recommended resource are the official manual.
