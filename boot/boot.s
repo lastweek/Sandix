@@ -20,19 +20,19 @@
 	.code16
 	
 	.text
-	.globl start
-start:
+	.globl _start
+_start:
 	# Relocation itself to INITSEG first.
-	movw BOOTSEG, %ax
+	movw $0x07c0, %ax
 	movw %ax, %ds
-	movw INITSEG, %ax
+	movw $0x9000, %ax
 	movw %ax, %es
 	movw $256, %cx
 	xor %si, %si
 	xor %di, %di
-	rep
-	movsw
-	jmp $0x9000, $go
+	cld
+	rep movsw
+	ljmp $0x9000, $go
 go:
 	movw %cs, %ax
 	movw %ax, %ds
@@ -42,26 +42,33 @@ go:
 	
 	movb $0x03, %ah	# read cursor pos
 	xor %bh, %bh
-	int 0x10
+	int $0x10
 	
 	movw $22, %cx
 	movw $0x0007, %bx	# page 0, attribute 7.
 	movw $msg1, %bp
 	movw $0x1301, %ax	# write string, move cursor
-	int 0x10
+	int $0x10
+	nop
+allcolor:
+	movw $0xb800, %ax
+	movw %ax, %ds		#set segment register
+	movb $0xff, %al		#attribute byte.
+	xor %bx, %bx
+loop:
+	movb $0x66, (%bx)	# char 'f'
+	addb $1, %bl
+	movb %al, (%bx)		# attribute
+	addb $1, %bl
+	subb $1, %al
+	cmpb $0x0, %al
+	jne loop
+	nop
 	jmp end
-
-	.data
-BOOTSEG:
-	.word 0x07c0
-INITSEG:
-	.word 0x9000
-SYSSEG:
-	.word 0x1000
 msg1:
 	.byte 13, 10
-	.ascii "Loading System ..."
+	.ascii "LOAdINg SysTem ..."
 	.byte 13, 10
 end:
 	nop
-
+	nop
