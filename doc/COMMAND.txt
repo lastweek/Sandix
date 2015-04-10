@@ -1,5 +1,0 @@
-I will use this file to list some interesting commands.
-
-1. machine, arch (2014/11/27)
-2. size, file, nm (2014/11/28)
-3. cpp, gcc, as, ld, ar, libtool (2014/11/28)
