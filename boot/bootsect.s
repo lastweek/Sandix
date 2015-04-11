@@ -1,70 +1,107 @@
 #########################################################################
-#	bootsect.s 
 #	2015/04/01. Created by Shan Yizhou.
+#
+#	bootsect.s: Bootloader for Sandix.
+#
 #########################################################################
-#	bootsect.s is loaded at 0x07c0:0x0000 by BIOS.
+#	bootsect.s is the conventional MBR sector of disk, which is loaded
+#	by BIOS. The tiny bootloader will load the 16-bit setup image and
+#	32-bit kernel image to memory. After a successful migration from
+#	memory, it just transfer control to 16-bit setup image.(2015/04/11)
 #########################################################################	
-	
+
+
+BOOTSEG = 0x07c0	# bootsect.s segment.
+INITSEG = 0x9000	# 16-bit setup image segment.
+SYSSEG  = 0X1000	# 32-bit kernel image segment.
+SETUP_OFFSET = 512	# offset of entry point in setup image.
+SECTORS = 4			# sectors of setup image(header.s).
+KERNELS = ?			# sectors of kernel image
+
 	.code16
 	
 	.text
-	.globl start
-start:
-#Step1: Relocation itself to INITSEG first.
-	movw $0x07c0, %ax
-	movw %ax, %ds
-	movw $0x9000, %ax
-	movw %ax, %es
-	movw $256, %cx
-	xor %si, %si
-	xor %di, %di
-	cld
-	rep movsw
-	ljmp $0x9000, $1f
-1:
-	movw %cs, %ax
+	.globl bs_start_msg
+bs_start_msg:
+	movw $BOOTSEG, %ax # indeed
 	movw %ax, %ds
 	movw %ax, %es
 	movw %ax, %ss
-	movw $512, %sp	# arbitrary value >>512(Bigger than sector size.)
 	
 	movb $0x03, %ah	# read cursor pos
 	xor %bh, %bh
 	int $0x10
 	
-	movw $23, %cx		# length of msg.
-	movw $0x0007, %bx	# page 0, attribute 7.
-	movw $msg1, %bp		# pointer to msg.
-	movw $0x1301, %ax	# write msg, move cursor.
+	movw $(setup_fail_msg-start_msg), %cx # length of msg.
+	movw $0x0007, %bx # page 0, attribute 7.
+	movw $start_msg, %bp # pointer to msg.
+	movw $0x1301, %ax # write msg, move cursor.
 	int $0x10
 
-color:
-	movw $0xb800, %ax
-	movw %ax, %ds		#set segment register
-	movb $0xff, %al		#attribute byte.
-	xor %bx, %bx
-1:
-	movb $0x66, (%bx)	# char 'f'
-	addb $1, %bl
-	movb %al, (%bx)		# attribute
-	addb $1, %bl
-	subb $1, %al
-	cmpb $0x0, %al
-	jne 1b
+bs_load_setup:
+	xor %ah, %ah	# reset FDC
+	xor %dl, %dl
+	int $0x13
+	
+	mov $INITSEG, %ax
+	mov %ax, %es
+	xor %bx, %bx	# dest mem-->es:bx
 
-#Step2: Load system image from disk
-load_sector:
+	mov $0x02, %ah		# service 2
+	mov $SECTORS, %al	# nr of sectors
+	xor %dx, %dx		# drive 0, head 0
+	mov $2, %cl			# sector 2, track 0
+	int $0x13
+	jc bs_setup_fail	# CF set on error, go die
 
-#Step: Transition to 32bit protected mode.
-transition32:
+bs_load_kernel:
+	xor %ah, %ah	# reset FDC
+	xor %dl, %dl
+	int $0x13
+	
+	/*
+	 * That's all for bootloader!
+	 * Go to 16bit setup!
+	 */
+	ljmp $INITSEG, $SETUP_OFFSET
 
-#Step: Go to the party.
-go_kernel:
+bs_setup_fail:
+	movw $BOOTSEG, %ax # why have to do this???
+	movw %ax, %ds
+	movw %ax, %es
+	
+	movb $0x03, %ah	
+	xor %bh, %bh
+	int $0x10	# read cursor pos
+	movw $(kernel_fail_msg-setup_fail_msg), %cx
+	movw $0x0007, %bx
+	movw $setup_fail_msg, %bp
+	movw $0x1301, %ax 
+	int $0x10	# write string
+	jmp bs_die
 
-msg1:
-	.byte 13, 10
-	.ascii "Hi, This is Sandix!"
-	.byte 13, 10
-end:
-	nop
+bs_kernel_fail:
+	movw $BOOTSEG, %ax # why have to do this???
+	movw %ax, %ds
+	movw %ax, %es
+	
+	movb $0x03, %ah	
+	xor %bh, %bh
+	int $0x10	# read cursor pos
+	movw $(bs_die-kernel_fail_msg), %cx
+	movw $0x0007, %bx
+	movw $kernel_fail_msg, %bp
+	movw $0x1301, %ax 
+	int $0x10	# write string
+	jmp bs_die
+	
+start_msg:
+	.ascii "\n\rMBR: Loading System..."
+setup_fail_msg:
+	.ascii "\n\rMBR: Loading setup fail..."
+kernel_fail_msg:
+	.ascii "\n\rMBR: Loading kernel fail..."
+bs_die:
+	hlt
+bs_end:
 	nop
