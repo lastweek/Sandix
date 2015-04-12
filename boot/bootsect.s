@@ -15,7 +15,7 @@ BOOTSEG = 0x07c0	# bootsect.s segment.
 INITSEG = 0x9000	# 16-bit setup image segment.
 SYSSEG  = 0X1000	# 32-bit kernel image segment.
 SETUP_OFFSET = 512	# offset of entry point in setup image.
-SECTORS = 2			# sectors of setup image(header.s).
+SECTORS = 2			# sectors of setup image need to be load
 #KERNELS = ?			# sectors of kernel image
 
 	.code16
@@ -43,6 +43,7 @@ bs_load_setup:
 	xor %dl, %dl
 	int $0x13
 	
+	# Load setup image
 	mov $INITSEG, %ax
 	mov %ax, %es
 	xor %bx, %bx	# dest mem-->es:bx
@@ -60,10 +61,13 @@ bs_load_kernel:
 	xor %dl, %dl
 	int $0x13
 	
-	/*
-	 * That's all for bootloader!
-	 * Go to 16bit setup!
-	 */
+	# Load kernel image.
+	
+	#############################
+	# That's all for bootloader!#
+	# Go to 16bit setup!		#
+	#############################
+bs_success_go:
 	ljmp $INITSEG, $SETUP_OFFSET
 
 bs_setup_fail:
@@ -104,5 +108,6 @@ kernel_fail_msg:
 	.ascii "\n\rMBR: Loading kernel fail..."
 bs_die:
 	hlt
+	jmp bs_die
 bs_end:
 	nop
