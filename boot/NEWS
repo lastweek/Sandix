@@ -1,0 +1,8 @@
+2015/04/14. 
+Call C functions from assemble is a little tricky.
+As designs, the bootsect do not need link. but header.s, main.c and so on need to
+be linked together to form the real-mode kernel image. Because the link process
+is done under 16-bit mode, maybe it's a little different from 32-bit linking.
+
+Tonight i tried to link header.o and main.o together with some difficult. So, in
+my opinion, i should try to learn ld scripts to get things done more efficency.
