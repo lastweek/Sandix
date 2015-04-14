@@ -16,3 +16,7 @@
  *	addresses. To avoid confusion, linear addresses are written using leading
  *	hex while segment addresses are written as segment:offset.
  */
+
+ void main(void){
+ 	
+ }

@@ -6,6 +6,10 @@ i386-elf-as -o header.o header.s
 i386-elf-objcopy -j .text  -O binary bootsect.o bootsect
 i386-elf-objcopy -j .text  -O binary header.o header
 
-rm *.o
-
 ./build 4
+
+# Clean and Rename
+rm *.o
+rm header
+mv bootsect bzimage
+
