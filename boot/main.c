@@ -16,7 +16,13 @@
  *	addresses. To avoid confusion, linear addresses are written using leading
  *	hex while segment addresses are written as segment:offset.
  */
-
- void main(void){
- 	
- }
+asm(".code16gcc");
+void main(void){
+ 	asm(
+		"movw $0x0007, %bx\n\t"
+		"movw $0x0001, %cx\n\t"
+		"movb $0x0e, %ah\n\t"
+		"movb $66, %al\n\t"
+		"int $0x10\n\t"
+	);	
+}

@@ -38,20 +38,23 @@ code32_start:
 ###########################
 
 start_of_setup:
+	# Print some message to indicate we are here.
 	movw $INITSEG, %ax
 	movw %ax, %ds
 	movw %ax, %es
 	movw %ax, %ss
-	
+	movw $512, %sp
 	movb $0x03, %ah	# read cursor pos
 	xor %bh, %bh
 	int $0x10
-	
 	movw $(fail_msg-Debug_msg), %cx # length of msg.
 	movw $0x0007, %bx # page 0, attribute 7.
 	movw $Debug_msg, %bp # pointer to msg.
 	movw $0x1301, %ax # write msg, move cursor.
 	int $0x10
+
+	# Now call C function.
+	call main
 die:
 	hlt
 	jmp die
