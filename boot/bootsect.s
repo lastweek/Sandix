@@ -56,6 +56,8 @@ bs_load_setup:
 	int $0x13
 	jc bs_setup_fail	# CF set on error, go die
 
+	ljmp $INITSEG, $SETUP_OFFSET
+
 bs_load_kernel:
 	xor %ah, %ah	# reset FDC
 	xor %dl, %dl

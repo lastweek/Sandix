@@ -31,12 +31,13 @@ void err(char *s) {
 /* just need output image size. */
 int main(int argc, char **argv) {
 	FILE *fp_bl, *fp_si, *fp_ki;	// Input three files
-	FILE *ofp;						// Output bzimage
+	FILE *fp_out;					// Output bzimage
 	int len_bl, len_si, len_ki;		// Input files's length
 	int image_size;					// 1M, 2M...
 	int i;
+	char c;
 
-	if (argc > 2) {
+	if (argc > 2)
 		err("Too many arguments\n");
 
 	if ((image_size = atoi(argv[argc-1])) == 0)
@@ -52,24 +53,26 @@ int main(int argc, char **argv) {
 	/* Step1: Padding the hole in bootloader. */
 	fseek(fp_bl, -1, SEEK_END);// Skip EOF in the end.
 	if ((len_bl = ftell(fp_bl)) > (SECTOR_SIZE - 2))
-		err("[bootsect] is too large to form MBR\n")
+		err("[bootsect] is too large to form MBR\n");
 	
 	//Padding the hole with NOP
 	while (len_bl < (SECTOR_SIZE - 2)) {
 		fputc(NOP, fp_bl);
 		len_bl++;
 	}
-	//Now the magic.
 	fputc(MAGIC_510, fp_bl);
 	fputc(MAGIC_511, fp_bl);
 
 	/* Step2: Put [header] in sector 2 after [bootloader] */
-	fseek(fp_si, -1, SEEK_END);
+	fseek(fp_si, 0, SEEK_END);
 	len_si = ftell(fp_si);
-	
-	
+	fseek(fp_si, 0, SEEK_SET);
+	for(i = 0; i < len_si; i++) {
+		c = fgetc(fp_si);
+		fputc(c, fp_bl);
+	}
+
 	fclose(fp_bl);
 	fclose(fp_si);
 	return 0;
 }
-

@@ -41,19 +41,22 @@ start_of_setup:
 	movw $INITSEG, %ax
 	movw %ax, %ds
 	movw %ax, %es
+	movw %ax, %ss
 	
 	movb $0x03, %ah	# read cursor pos
 	xor %bh, %bh
 	int $0x10
 	
-	movw $(end-fail_msg), %cx # length of msg.
+	movw $(fail_msg-Debug_msg), %cx # length of msg.
 	movw $0x0007, %bx # page 0, attribute 7.
-	movw $start_msg, %bp # pointer to msg.
+	movw $Debug_msg, %bp # pointer to msg.
 	movw $0x1301, %ax # write msg, move cursor.
 	int $0x10
 die:
 	hlt
 	jmp die
+Debug_msg:
+	.ascii "\n\rDebug: Now we are in header.s, going to main()"
 fail_msg:
 	.ascii "\n\rSetup signature missing/mismatch..."
 end:

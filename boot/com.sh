@@ -6,4 +6,6 @@ i386-elf-as -o header.o header.s
 i386-elf-objcopy -j .text  -O binary bootsect.o bootsect
 i386-elf-objcopy -j .text  -O binary header.o header
 
-./catenate 4
+rm *.o
+
+./build 4
