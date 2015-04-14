@@ -43,7 +43,7 @@ start_of_setup:
 	movw %ax, %ds
 	movw %ax, %es
 	movw %ax, %ss
-	movw $512, %sp
+	movw $20, %sp	# for C call
 	movb $0x03, %ah	# read cursor pos
 	xor %bh, %bh
 	int $0x10

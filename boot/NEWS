@@ -6,3 +6,6 @@ is done under 16-bit mode, maybe it's a little different from 32-bit linking.
 
 Tonight i tried to link header.o and main.o together with some difficult. So, in
 my opinion, i should try to learn ld scripts to get things done more efficency.
+
+When we met some fucking error that we tried very very hard to find, just read
+the dame fucking assemble code!

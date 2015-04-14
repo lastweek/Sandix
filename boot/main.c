@@ -16,7 +16,22 @@
  *	addresses. To avoid confusion, linear addresses are written using leading
  *	hex while segment addresses are written as segment:offset.
  */
+
+/*
+ * I'm using i386-elf-gcc-4.7.2 which do not support -m16 opinion.
+ * The -m16 opinion shows up in gcc-4.9+.
+ * So, insert this stub in the begining to generate 16-bit object
+ * code. Remember, gcc do NOT generate real 16-bit code, it only 
+ * generate 32-bit code. It's the assembler's job to add prefix
+ * like 0x66 before instructions which use 32-bit data or address.
+ */
 asm(".code16gcc");
+
+/*
+ * Before we get here, header has already set up stack.
+ * 2015/04/14 today i donot konw how large the stack needs to be,
+ * we will find a appropriate size for our stack in future.
+ */
 void main(void){
  	asm(
 		"movw $0x0007, %bx\n\t"
