@@ -27,6 +27,7 @@
  */
 asm(".code16");
 
+#include "boot.h"
 
 void bios_putchar(int ch)
 {
