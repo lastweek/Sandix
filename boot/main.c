@@ -30,10 +30,6 @@ asm(".code16");
 
 void bios_putchar(int ch)
 {
-	/*
-	 * [call near] only push ip whose size is 2 bytes
-	 * plus push %ebx, 2+4=6.
-	 */
 	asm(
 		"movb 8(%%ebp), %%al\n\t"
 		"movb $0x0e, %%ah\n\t"
@@ -60,6 +56,4 @@ void puts(const char *str)
 }
 
 void main(void){
-	puts("\nHello World!");
-	bios_putchar('A');
 }
