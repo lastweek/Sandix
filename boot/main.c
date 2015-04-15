@@ -25,19 +25,41 @@
  * generate 32-bit code. It's the assembler's job to add prefix
  * like 0x66 before instructions which use 32-bit data or address.
  */
-asm(".code16gcc");
+asm(".code16");
 
-/*
- * Before we get here, header has already set up stack.
- * 2015/04/14 today i donot konw how large the stack needs to be,
- * we will find a appropriate size for our stack in future.
- */
-void main(void){
- 	asm(
-		"movw $0x0007, %bx\n\t"
-		"movw $0x0001, %cx\n\t"
-		"movb $0x0e, %ah\n\t"
-		"movb $66, %al\n\t"
+
+void bios_putchar(int ch)
+{
+	/*
+	 * [call near] only push ip whose size is 2 bytes
+	 * plus push %ebx, 2+4=6.
+	 */
+	asm(
+		"movb 8(%%ebp), %%al\n\t"
+		"movb $0x0e, %%ah\n\t"
+		"movw $0x0007, %%bx\n\t"
+		"movw $0x0001, %%cx\n\t"
 		"int $0x10\n\t"
+		:
+		:
+		:"ebx"
 	);	
+}
+
+void putchar(int ch)
+{
+	if (ch == '\n')
+		putchar('\r'); /* \n --> \n\r */
+	bios_putchar(ch);
+}
+
+void puts(const char *str)
+{
+	while(*str != '\0')
+		putchar(*str++);
+}
+
+void main(void){
+	puts("\nHello World!");
+	bios_putchar('A');
 }
