@@ -71,5 +71,10 @@ intcall:
 	popw	%gs
 	popw	%fs
 	popfl
-	retl
+	
+	/* FIXME */
+	/* We are using call, not calll. */
+	/* The author use retl for reason, figure it out.*/
+	#retl
+	ret
 	.size	intcall, .-intcall

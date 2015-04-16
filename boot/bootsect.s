@@ -64,6 +64,7 @@ bs_load_kernel:
 	int $0x13
 	
 	# Load kernel image.
+	# FIXME
 	
 	#############################
 	# That's all for bootloader!#
