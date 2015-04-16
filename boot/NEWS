@@ -10,6 +10,7 @@ my opinion, i should try to learn ld scripts to get things done more efficency.
 When we met some fucking error that we tried very very hard to find, just read
 the dame fucking assemble code!
 
+
 2015/04/15
 Today i tried using i386-elf-gcc-4.72 to generate assemble file.
 In the fucking real-mode, a call instruction just push 2bytes into stack,
@@ -22,3 +23,11 @@ Before download gcc, i tried compile with my native gcc-4.9.2 -m16. It turns out
 use 8(%ebp) to get the argument.
 
 Maybe there are some other opinions about stack alignment.
+
+Problem solved: Use -mregparm=3. Got this from linux-3.18 kernel Makefile!!!!!
+
+2015/04/16
+New problem... gcc generate leave not leavel. leave pop 2bytes to bp, leavel pop 4bytes to ebp.
+We need leavel not leave!!!
+
+How to control gcc generate leavel instead of leave????

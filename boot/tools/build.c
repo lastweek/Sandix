@@ -18,10 +18,10 @@
 #define MAGIC_511		0xAA
 
 /* Filenames */
-const char *bootloader	= "../bootsect";
-const char *setup		= "../header";
-const char *kernel		= "../image";
-const char *bzimage		= "../bzimage";
+const char *bootloader	= "bootsect";
+const char *setup		= "header";
+const char *kernel		= "image";
+const char *bzimage		= "bzimage";
 
 void err(char *s) {
 	printf("%s", s);

@@ -30,6 +30,8 @@ asm(".code16");
 #include "boot.h"
 
 void main(void){
-	bios_putchar(A);
-	puts("Hello");
+	bios_putchar('A');
+	bios_putchar('B');
+	bios_putchar('C');
+	//puts("Hello\nWorld");
 }

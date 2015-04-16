@@ -96,11 +96,22 @@ struct biosregs {
 		};
 	};
 };
+
 void intcall(unsigned char int_no, const struct biosregs *ireg, struct biosregs *oreg);
  
 /*---------------------------------*/
 /* regs.c                          */
 /*---------------------------------*/
 void initregs(struct biosregs *regs);
+
+/*---------------------------------*/
+/* tty.c                           */
+/*---------------------------------*/
+void bios_putchar(int ch);
+void putchar(int ch);
+void puts(const char *str);
+int printf(const char *str, ...);
+
+
 
 #endif /* BOOT_BOOT_H */

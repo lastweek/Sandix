@@ -9,6 +9,7 @@
 #include "boot.h"
 #include "string.h"
 
+asm(".code16");
 /*
  * Note that this sets EFLAGS_CF in the input register set; this
  * makes it easier to catch functions which do nothing but don't
