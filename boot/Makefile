@@ -28,10 +28,10 @@ LDFLAGS = -e _start \
 OBJCOPYFLAGS = -j .text -j .rodata -O binary
 
 SOURCES_AS = header.S 
-SOURCES_CC = main.c
+SOURCES_CC = main.c tty.c regs.c
 OBJECTS = $(SOURCES_AS:.S=.o) $(SOURCES_CC:.c=.o)
 
-# FIXED
+# FIXME
 make:
 	$(AS) -o main.o main.s
 	$(AS) -o bootsect.o bootsect.S

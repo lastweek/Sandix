@@ -27,34 +27,7 @@
  */
 asm(".code16");
 
-#include <boot.h>
-
-void bios_putchar(int ch)
-{
-	asm(
-		"movb 8(%%ebp), %%al\n\t"
-		"movb $0x0e, %%ah\n\t"
-		"movw $0x0007, %%bx\n\t"
-		"movw $0x0001, %%cx\n\t"
-		"int $0x10\n\t"
-		:
-		:
-		:"ebx"
-	);	
-}
-
-void putchar(int ch)
-{
-	if (ch == '\n')
-		putchar('\r'); /* \n --> \n\r */
-	bios_putchar(ch);
-}
-
-void puts(const char *str)
-{
-	while(*str != '\0')
-		putchar(*str++);
-}
+#include "boot.h"
 
 void main(void){
 	bios_putchar(A);

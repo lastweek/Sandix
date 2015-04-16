@@ -1,17 +1,16 @@
 /*
- * 2015/04/14 Created by Shan Yizhou
+ *	2015/04/02 Created by Shan Yizhou.
  *
- * boot.h: Header file for real-mode kernel code.
+ *	boot.h: Header file for real-mode boot process.
  */
 
 #ifndef BOOT_BOOT_H
 #define BOOT_BOOT_H
- 
-#define STACK_SIZE 512	/* Minimum stack size needed */
 
-#include <sandix/types.h>
-
-/* These functions are used to reference data in other segments. */
+typedef unsigned int	u32;
+typedef unsigned short	u16;
+typedef unsigned char	u8;
+typedef unsigned int	size_t;
 
 static inline u16 ds(void)
 {
@@ -42,8 +41,21 @@ static inline u16 gs(void)
 	return seg;
 }
 
+/*
+pusha:-->
+ Push(EAX);
+ Push(ECX);
+ Push(EDX);
+ Push(EBX);
+ Push(ESP);
+ Push(EBP);
+ Push(ESI);
+ Push(EDI);
+*/
 
-/* bioscall.c */
+/*---------------------------------*/
+/* bioscall.S                      */
+/*---------------------------------*/
 struct biosregs {
 	union {
 		struct {
@@ -86,7 +98,9 @@ struct biosregs {
 };
 void intcall(unsigned char int_no, const struct biosregs *ireg, struct biosregs *oreg);
  
-/* regs.c */
+/*---------------------------------*/
+/* regs.c                          */
+/*---------------------------------*/
 void initregs(struct biosregs *regs);
 
 #endif /* BOOT_BOOT_H */

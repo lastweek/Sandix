@@ -6,15 +6,20 @@
  * regs.c: Helper function for initializing a register set.
  */
 
+#include "boot.h"
+#include "string.h"
+
 /*
  * Note that this sets EFLAGS_CF in the input register set; this
  * makes it easier to catch functions which do nothing but don't
  * explicitly set CF.
  */
 
-#include <boot.h>
-#include <string.h>
-
+/*
+ * sizeof *reg =--> sizeof(struct biosregs)
+ * Example:
+ * char *c; sizeof(*c) =--> 1; sizeof(char *) =--> 4;
+ */
 void initregs(struct biosregs *reg)
 {
 	memset(reg, 0, sizeof *reg);
