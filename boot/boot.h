@@ -4,9 +4,45 @@
  * boot.h: Header file for real-mode kernel code.
  */
 
- #ifndef BOOT_BOOT_H
- #define BOOT_BOOT_H
+#ifndef BOOT_BOOT_H
+#define BOOT_BOOT_H
  
+#define STACK_SIZE 512	/* Minimum stack size needed */
+
+#include <sandix/types.h>
+
+/* These functions are used to reference data in other segments. */
+
+static inline u16 ds(void)
+{
+	u16 seg;
+	__asm__("movw %%ds,%0" : "=rm" (seg));
+	return seg;
+}
+
+static inline void set_fs(u16 seg)
+{
+	__asm__ volatile("movw %0,%%fs" : : "rm" (seg));
+}
+static inline u16 fs(void)
+{
+	u16 seg;
+	__asm__ volatile("movw %%fs,%0" : "=rm" (seg));
+	return seg;
+}
+
+static inline void set_gs(u16 seg)
+{
+	__asm__ volatile("movw %0,%%gs" : : "rm" (seg));
+}
+static inline u16 gs(void)
+{
+	u16 seg;
+	__asm__ volatile("movw %%gs,%0" : "=rm" (seg));
+	return seg;
+}
+
+
 /* bioscall.c */
 struct biosregs {
 	union {
@@ -50,4 +86,7 @@ struct biosregs {
 };
 void intcall(unsigned char int_no, const struct biosregs *ireg, struct biosregs *oreg);
  
- #endif
+/* regs.c */
+void initregs(struct biosregs *regs);
+
+#endif /* BOOT_BOOT_H */

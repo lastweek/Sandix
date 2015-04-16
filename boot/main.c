@@ -27,7 +27,7 @@
  */
 asm(".code16");
 
-#include "boot.h"
+#include <boot.h>
 
 void bios_putchar(int ch)
 {
@@ -57,4 +57,6 @@ void puts(const char *str)
 }
 
 void main(void){
+	bios_putchar(A);
+	puts("Hello");
 }
