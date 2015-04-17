@@ -42,7 +42,6 @@ int main(int argc, char **argv) {
 
 	if ((image_size = atoi(argv[argc-1])) == 0)
 		err("Please specify a valid final image size.\n");
-	image_size = image_size*1024 - 512;// in bytes count.
 
 	if ((fp_bl = fopen(bootloader, "r+")) == NULL)
 		err("Open [bootsect] failed\n");
@@ -67,10 +66,17 @@ int main(int argc, char **argv) {
 	fseek(fp_si, 0, SEEK_END);
 	len_si = ftell(fp_si);
 	fseek(fp_si, 0, SEEK_SET);
-	for(i = 0; i < len_si; i++) {
+	for (i = 0; i < len_si; i++) {
 		c = fgetc(fp_si);
 		fputc(c, fp_bl);
 	}
+
+	/* Step3: Pad NOP after [header] */
+	/* 2015/04/16 We are still working on header, ignore 32-bit kernel. */
+	image_size *= 1024;// in bytes count.
+	image_size -= (len_si + len_bl);
+	for (i = 0; i < image_size; i++)
+		fputc(NOP, fp_bl);
 
 	fclose(fp_bl);
 	fclose(fp_si);

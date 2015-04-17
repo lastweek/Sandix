@@ -7,6 +7,8 @@
 #ifndef BOOT_BOOT_H
 #define BOOT_BOOT_H
 
+asm(".code16gcc");
+
 typedef unsigned int	u32;
 typedef unsigned short	u16;
 typedef unsigned char	u8;
@@ -97,7 +99,8 @@ struct biosregs {
 	};
 };
 
-void intcall(unsigned char int_no, const struct biosregs *ireg, struct biosregs *oreg);
+void intcall(unsigned char int_no, const struct biosregs *ireg, struct biosregs *oreg)
+__attribute__ ((regparm(3)));
  
 /*---------------------------------*/
 /* regs.c                          */

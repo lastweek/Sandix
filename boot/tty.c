@@ -9,30 +9,34 @@
  *	derived from linux-3.18 kernel.
  */
 
-asm(".code16");
+asm(".code16gcc");
 
 #include "boot.h"
 
+#ifndef NULL
 #define NULL	0
+#endif
 
 void bios_putchar(int ch)
-{	/*
+{	
 	struct biosregs ireg;
-
+	
 	initregs(&ireg);
 	ireg.bx = 0x0007;
 	ireg.cx = 0x0001;
 	ireg.ah = 0x0e;
 	ireg.al = ch;
 	intcall(0x10, &ireg, NULL);
-	*/
-
+	
+	/*
  	asm(
+		"movb 8(%ebp), %al\n\t"
 		"movw $0x0007, %bx\n\t"
 		"movw $0x0001, %cx\n\t"
 		"movb $0x0e, %ah\n\t"
 		"int $0x10\n\t"
 	);
+	*/
 }
 
 void putchar(int ch)
@@ -48,7 +52,9 @@ void puts(const char *str)
 		putchar(*str++);
 }
 
+/*
 int printf(const char *str, ...)
 {
 	return 0;
 }
+*/

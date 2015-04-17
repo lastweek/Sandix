@@ -1,10 +1,13 @@
 /* 
- * 2015/04/14 Created by Shan Yizhou.
+ *	2015/04/14 Created by Shan Yizhou.
+ *	Copyright 2009-2014 Intel Corporation; author H. Peter Anvin
  *
- * Copyright 2009-2014 Intel Corporation; author H. Peter Anvin
+ *	bioscall.S: "Glove box" for BIOS calls.  Avoids the constant
+ *	problems with BIOSes touching registers they shouldn't be.
  *
- * bioscall.S: "Glove box" for BIOS calls.  Avoids the constant
- * problems with BIOSes touching registers they shouldn't be.
+ *	Note by Shan Yizhou: The last instruction appeared in the 
+ *	original code was [retl]. Somehow, my GCC does not generate
+ *	the matching [calll]. Therefore, use [ret] instead.
  */
 
 	.code16
@@ -72,9 +75,5 @@ intcall:
 	popw	%fs
 	popfl
 	
-	/* FIXME */
-	/* We are using call, not calll. */
-	/* The author use retl for reason, figure it out.*/
-	#retl
-	ret
+	retl
 	.size	intcall, .-intcall

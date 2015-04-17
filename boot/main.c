@@ -25,13 +25,11 @@
  * generate 32-bit code. It's the assembler's job to add prefix
  * like 0x66 before instructions which use 32-bit data or address.
  */
-asm(".code16");
+asm(".code16gcc");
 
 #include "boot.h"
 
 void main(void){
-	bios_putchar('A');
-	bios_putchar('B');
-	bios_putchar('C');
-	//puts("Hello\nWorld");
+	putchar('\n');
+	puts("Hello World");
 }

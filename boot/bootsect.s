@@ -1,22 +1,22 @@
 #########################################################################
-#	2015/04/01. Created by Shan Yizhou.
+# 2015/04/01. Created by Shan Yizhou.
 #
-#	bootsect.s: Bootloader for Sandix.
+# bootsect.s: Bootloader for Sandix.
 #
 #########################################################################
-#	bootsect.s is the conventional MBR sector of disk, which is loaded
-#	by BIOS. The tiny bootloader will load the 16-bit setup image and
-#	32-bit kernel image to memory. After a successful migration from
-#	memory, it just transfer control to 16-bit setup image.(2015/04/11)
+# bootsect.s is the conventional MBR sector of disk, which is loaded
+# by BIOS. The tiny bootloader will load the 16-bit setup image and
+# 32-bit kernel image to memory. After a successful migration from
+# memory, it just transfer control to 16-bit setup image.(2015/04/11)
 #########################################################################	
 
 
-BOOTSEG = 0x07c0	# bootsect.s segment.
-INITSEG = 0x9000	# 16-bit setup image segment.
-SYSSEG  = 0X1000	# 32-bit kernel image segment.
-SETUP_OFFSET = 512	# offset of entry point in setup image.
-SECTORS = 2			# sectors of setup image need to be load
-#KERNELS = ?			# sectors of kernel image
+BOOTSEG = 0x07c0    # bootsect.s segment.
+INITSEG = 0x9000    # 16-bit setup image segment.
+SYSSEG  = 0X1000    # 32-bit kernel image segment.
+SETUP_OFFSET = 512  # offset of entry point in setup image.
+SECTORS = 6         # sectors of setup image need to be load
+#KERNELS = ?        # sectors of kernel image
 
 	.code16
 	

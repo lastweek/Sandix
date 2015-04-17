@@ -58,12 +58,10 @@ start_of_setup:
 	# The region (0x9000-end) belongs to header.s. The bad news is
 	# now we donot konw how much space main() will use. It means
 	# we have no idea what is the upper bound of 16-bit setup-image.
-	# So, just give a shot, set %sp=0x0000, which means the stack
-	# point now is locate at 0xA000, just below Video region.
-	movw $0x800, %sp
+	movw $0x1000, %sp
 
 	# Now call C function.
-	call main
+	calll main
 die:
 	hlt
 	jmp die
