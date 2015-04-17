@@ -58,15 +58,17 @@ start_of_setup:
 	# The region (0x9000-end) belongs to header.s. The bad news is
 	# now we donot konw how much space main() will use. It means
 	# we have no idea what is the upper bound of 16-bit setup-image.
+
+	# FIXME: Tentative
 	movw $0x1000, %sp
 
-	# Now call C function.
+	# GO PARTY
 	calll main
 die:
 	hlt
 	jmp die
 Debug_msg:
-	.ascii "\n\rDebug: Now we are in header.s, going to main()"
+	.ascii "\n\rDebug: Now we are in header.s, heading to main()...\n\r"
 fail_msg:
 	.ascii "\n\rHeader.s signature missing/mismatch..."
 end:
