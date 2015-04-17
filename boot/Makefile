@@ -49,7 +49,7 @@ s1:
 
 	$(LD) $(LDFLAGS) $(SOURCES_LD)
 
-	$(OBJCOPY) $(OBJCOPYFLAGS) header.out header
+	$(OBJCOPY) $(OBJCOPYFLAGS) $(LDOFILE) header
 	$(OBJCOPY) $(OBJCOPYFLAGS) bootsect.o bootsect
 	
 	$(CATENATE) $(REALMODE_IMAGESIZE)
@@ -62,4 +62,5 @@ clean:
 	rm -f *.o
 	rm -f *.dump
 	rm -f $(LDOFILE)
+	rm -f bzimage
 	rm -f header
