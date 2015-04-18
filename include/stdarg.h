@@ -16,7 +16,7 @@
 /* Stack alignment: 4 bytes.*/
 #define STACK_ALIGN	4
 
-typedef char * va_list
+typedef char * va_list;
 
 #define va_start(ap, last)	ap = (va_list)&last + STACK_ALIGN
 #define va_copy(dest, src)	dest = src

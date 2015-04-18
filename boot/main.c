@@ -30,6 +30,7 @@ asm(".code16gcc");
 #include "boot.h"
 
 void main(void){
-	putchar('\n');
-	puts("Hello World");
+	puts("Hello World\n");
+	
+	printf("%s, %c, %d", "string", 'c', 1234);
 }

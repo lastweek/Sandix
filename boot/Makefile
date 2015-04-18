@@ -44,18 +44,18 @@ SOURCES_LD = $(OBJECTS_CC)
 
 # FIXME ADD DEPENDENCE.
 s1:
+	# STEP1 ---> COMPILE
 	$(AS) -o bootsect.o bootsect.S
 	$(CC) $(REALMODE_CFLAGS) $(SOURCES_CC)
-
+	# STEP2 ---> LINK
 	$(LD) $(LDFLAGS) $(SOURCES_LD)
-
+	# STEP3 ---> OBJCOPY
 	$(OBJCOPY) $(OBJCOPYFLAGS) $(LDOFILE) header
 	$(OBJCOPY) $(OBJCOPYFLAGS) bootsect.o bootsect
-	
+	# STEP4 ---> CATENATE
 	$(CATENATE) $(REALMODE_IMAGESIZE)
 	mv bootsect bzimage
-
-dump:
+	# STEP5 ---> DUMP 
 	$(OBJDUMP) $(OBJDUMPFLAGS_REALMODE) $(LDOFILE) > $(LDOFILE).dump
 	ndisasm -b 16 bzimage > bzimage.dump
 clean:
