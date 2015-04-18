@@ -16,7 +16,7 @@ REALMODE_IMAGESIZE = 4
 # 1. Warn if a function is declared or defined without specifying the argument types.
 # 2. Prevent gcc from keeping the stack 16 byte aligned. Taken from i386.
 # 3. In a freestanding enviroment. No library, No builtin.
-REALMODE_CFLAGS = -c -Wall -Wextra -pipe -D__KERNEL__ -march=i386 \
+REALMODE_CFLAGS = -c -Wall -Wextra -pipe -D__RL__KERNEL__ -march=i386 \
 		-Wstrict-prototypes  \
 		-mpreferred-stack-boundary=2 \
 		-ffreestanding \
@@ -38,8 +38,8 @@ OBJDUMPFLAGS_REALMODE = -d -M i8086,att,suffix
 
 # FIXME TOO UGLY, some better way?
 # FIXME Does the order of files input to LD matters?
-SOURCES_CC = header.S main.c tty.c bioscall.S regs.c string.c
-OBJECTS_CC = header.o main.o tty.o bioscall.o regs.o string.o 
+SOURCES_CC = header.S main.c tty.c bioscall.S regs.c string.c printf.c
+OBJECTS_CC = header.o main.o tty.o bioscall.o regs.o string.o printf.o
 SOURCES_LD = $(OBJECTS_CC)
 
 # FIXME ADD DEPENDENCE.

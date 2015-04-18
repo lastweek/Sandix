@@ -110,11 +110,13 @@ void initregs(struct biosregs *regs);
 /*---------------------------------*/
 /* tty.c                           */
 /*---------------------------------*/
-void bios_putchar(int ch);
 void putchar(int ch);
 void puts(const char *str);
-int printf(const char *str, ...);
 
-
+/*---------------------------------*/
+/* printf.c                        */
+/*---------------------------------*/
+int sprintf(char *buf, const char *fmt, ...);
+int printf(const char *fmt, ...);
 
 #endif /* BOOT_BOOT_H */
