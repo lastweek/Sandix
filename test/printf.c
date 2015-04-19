@@ -10,7 +10,9 @@ int main()
 
 	printf("%x \n%X \n%o\n", p, p, p, p);
 	
-	s = *(char * *)q;
+	s = *(char * *)q;	// This is ok!
 	printf("%s\n",s);
+
+	printf("%x\n", 3476);
 	return 0;
 }

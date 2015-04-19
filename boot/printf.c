@@ -12,6 +12,40 @@
 #include <types.h>
 #include "boot.h"
 
+#define	__SIGN__		1
+#define __UNSIGN__		2
+#define MAX_LEN 		10
+
+static char *number(char *str, int base, int num, int type)
+{
+	int remainder, len;
+	u32 unum;
+	char reverse[MAX_LEN];
+	char ascii_nums[16] = "0123456789ABCDEF";
+
+	if (base == 10) {
+		if ((num & 0x80000000) && (type == __SIGN__)) {
+			*str++ = '-';
+			num = ~num + 1;
+		}
+	}
+
+	for (len = 0; ; len++) {
+		remainder = num % base;
+		num /= base;
+		if (!num && !remainder)
+			break;
+		reverse[len] = ascii_nums[remainder];
+	}
+	
+	while (len) {
+		*str++ = reverse[len-1];
+		len--;
+	}
+
+	return str;
+}
+
 int vsprintf(char *buf, const char *fmt, va_list args)
 {
 	int  sint, base;
@@ -39,21 +73,29 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 				continue;
 			case 'd':
 				sint = va_arg(args, int);
+				str = number(str, 10, sint, __SIGN__);
 				continue;
 			case 'u':
 				uint = va_arg(args, u32);
+				str = number(str, 10, uint, __UNSIGN__);
 				continue;
 			case 'p':
 				uint = va_arg(args, u32);
+				*str++ = '0';
+				*str++ = 'x';
+				str = number(str, 16, uint, __UNSIGN__);
 				continue;
 			case 'x':
 				uint = va_arg(args, u32);
+				str = number(str, 16, uint, __UNSIGN__);
 				continue;
 			case 'X':
 				uint = va_arg(args, u32);
+				str = number(str, 16, uint, __UNSIGN__);
 				continue;
 			case 'o':
 				uint = va_arg(args, u32);
+				str = number(str, 8, uint, __UNSIGN__);
 				continue;
 			case '%':
 				*str++ = '%';

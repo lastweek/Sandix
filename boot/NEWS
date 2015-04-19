@@ -72,3 +72,12 @@ MANY THANKS TO GNU ASSEMBLER AND .CODE16GCC
 4. Conclusion: problem raised yesterday is solved! Just use .code16gcc instead of .code16,
    we are free in Read-Mode C programming!!!
 
+
+2015/04/19
+
+As we are adding more code to 16-bit setup image, the image is fatter than before.
+We have to pay 100% attention to how to set [%sp], which can't too high nor too low.
+In addition, pay attention to bootsect.s, change the loading sector numbers of image.
+Make sure we have load all sectors of image to main memory.
+
+

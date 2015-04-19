@@ -54,13 +54,13 @@ start_of_setup:
 	int $0x10
 
 	# Before we call main(), we must set up %sp first.
-	# Here, stack_addr = %ss<<4:%sp, %ss=0x9000
-	# The region (0x9000-end) belongs to header.s. The bad news is
-	# now we donot konw how much space main() will use. It means
-	# we have no idea what is the upper bound of 16-bit setup-image.
+	# The region 0x9000 to (Lable: end) belongs to header.s.
+	# However, we don't konw how much space main() will take.
+	# It means we have no idea what is the upper bound of setup-image.
+	# For now, the plan is change the %sp whenever image enlarges.....
 
 	# FIXME: Tentative
-	movw $0x1000, %sp
+	movw $0x2000, %sp
 
 	# GO PARTY
 	calll main

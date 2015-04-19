@@ -15,7 +15,7 @@ BOOTSEG = 0x07c0    # bootsect.s segment.
 INITSEG = 0x9000    # 16-bit setup image segment.
 SYSSEG  = 0X1000    # 32-bit kernel image segment.
 SETUP_OFFSET = 512  # offset of entry point in setup image.
-SECTORS = 6         # sectors of setup image need to be load
+SECTORS = 7         # sectors of setup image need to be load
 #KERNELS = ?        # sectors of kernel image
 
 	.code16
