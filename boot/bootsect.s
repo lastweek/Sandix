@@ -11,11 +11,11 @@
 #########################################################################	
 
 
-BOOTSEG = 0x07c0    # bootsect.s segment.
-INITSEG = 0x9000    # 16-bit setup image segment.
-SYSSEG  = 0X1000    # 32-bit kernel image segment.
-SETUP_OFFSET = 512  # offset of entry point in setup image.
-SECTORS = 7         # sectors of setup image need to be load
+BOOTSEG			= 0x07c0	# bootsect.s segment.
+INITSEG			= 0x9000	# 16-bit setup image segment.
+SYSSEG			= 0X1000	# 32-bit kernel image segment.
+SETUP_OFFSET	= 512		# offset of entry point in setup image.
+SECTORS_HEADER	= 15		# sectors of setup image need to be load
 #KERNELS = ?        # sectors of kernel image
 
 	.code16
@@ -49,7 +49,7 @@ bs_load_setup:
 	xor %bx, %bx	# dest mem-->es:bx
 
 	mov $0x02, %ah		# service 2
-	mov $SECTORS, %al	# nr of sectors
+	mov $SECTORS_HEADER, %al	# nr of sectors
 	xor %dx, %dx		# drive 0, head 0
 	mov $0x80, %dl
 	mov $2, %cl			# sector 2, track 0

@@ -9,8 +9,8 @@ OBJCOPY = i386-elf-objcopy
 OBJDUMP = i386-elf-objdump
 CATENATE = $(PWD)/build
 
-# FIXME Tentative size: 4M
-REALMODE_IMAGESIZE = 4
+# FIXME Tentative size: 1M
+REALMODE_IMAGESIZE = 10
 
 # 0. -march=i386 works???
 # 1. Warn if a function is declared or defined without specifying the argument types.
@@ -20,6 +20,7 @@ REALMODE_CFLAGS = -c -Wall -Wextra -pipe -D__RL__KERNEL__ -march=i386 \
 		-Wstrict-prototypes  \
 		-mpreferred-stack-boundary=2 \
 		-ffreestanding \
+		-fno-common -fno-pic \
 		-I../include/
 
 # 0. LD Output FILE name is: header.ldout
@@ -34,7 +35,9 @@ LDFLAGS = -e _start -Ttext 0x0000 -o $(LDOFILE)
 OBJCOPYFLAGS = -j .text -j .rodata -O binary
 
 # 0. OBJDUMP flags for Real-Mode object files.
-OBJDUMPFLAGS_REALMODE = -d -M i8086,att,suffix
+# 1. CAVEAT: The objdump's result is not reliable under i8086!!
+#            Check the ndisasm's result!!!
+OBJDUMPFLAGS_REALMODE = -d -M i8086,intel
 
 # FIXME TOO UGLY, some better way?
 # FIXME Does the order of files input to LD matters?
@@ -68,6 +71,7 @@ s1:
 	#
 	$(OBJDUMP) $(OBJDUMPFLAGS_REALMODE) $(LDOFILE) > $(LDOFILE).dump
 	ndisasm -b 16 bzimage > bzimage.dump
+
 clean:
 	rm -f *.o
 	rm -f *.dump

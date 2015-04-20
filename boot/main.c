@@ -32,6 +32,9 @@ asm(".code16gcc");
 void main(void){
 	puts("Hello World\n");
 	
-	printf("%s, %c, %u \n", "string", 'c',  0xFFFFFFFF);
-	printf("%X, %o, %% \n", 3476, 61); //d94 75
+	printf("%u %d %u %d\n", 0xFFFFFFFF, 0xFFFFFFFF, 0x0000000F, 0x0);
+	
+	printf("Test %%p: %p\n", 0xABCDEF);
+	printf("%x %X %o %s %c \n",0xABCD,0xaBdc,255,"HELLO", 'A');
+	printf("%s %e \n");
 }

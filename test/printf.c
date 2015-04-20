@@ -2,17 +2,24 @@
 
 int main()
 {
+	unsigned int unum;
+	int num = 0xFFFFFFFF;
 	int x = 100;
 	int *p = &x;
 	char *s;
 	char *t = "asd";
 	char **q = &t;
 
-	printf("%x \n%X \n%o\n", p, p, p, p);
+	printf("%u \n%X \n%o\n", num, p, p, p);
 	
 	s = *(char * *)q;	// This is ok!
 	printf("%s\n",s);
 
-	printf("%x\n", 3476);
+	unum = (unsigned int)num;
+	printf("%X\n", unum);
+	
+	x = num/10;
+	printf("%d %u\n", x, x);
+	
 	return 0;
 }

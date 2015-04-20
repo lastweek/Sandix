@@ -54,15 +54,13 @@ start_of_setup:
 	int $0x10
 
 	# Before we call main(), we must set up %sp first.
-	# The region 0x9000 to (Lable: end) belongs to header.s.
-	# However, we don't konw how much space main() will take.
+	# For now, we don't konw how much space main() will take.
 	# It means we have no idea what is the upper bound of setup-image.
-	# For now, the plan is change the %sp whenever image enlarges.....
 
-	# FIXME: Tentative
-	movw $0x2000, %sp
+	# FIXME: Tentative %sp
+	movw $0x3000, %sp
 
-	# GO PARTY
+	# GO PARTY, never return!
 	calll main
 die:
 	hlt
@@ -72,4 +70,5 @@ Debug_msg:
 fail_msg:
 	.ascii "\n\rHeader.s signature missing/mismatch..."
 end:
+	hlt
 	nop

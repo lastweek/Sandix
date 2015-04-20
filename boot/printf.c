@@ -12,30 +12,45 @@
 #include <types.h>
 #include "boot.h"
 
-#define	__SIGN__		1
+#define __SIGN__		1
 #define __UNSIGN__		2
+#define __UHEX__		3
+#define __LHEX__		4
 #define MAX_LEN 		10
 
 static char *number(char *str, int base, int num, int type)
 {
 	int remainder, len;
-	u32 unum;
-	char reverse[MAX_LEN];
-	char ascii_nums[16] = "0123456789ABCDEF";
+	char reverse[MAX_LEN] = {'\0'};
+	char *digits;
+	char ASCII_NUMS[16] = "0123456789ABCDEF";
+	char ascii_nums[16] = "0123456789abcdef";
 
-	if (base == 10) {
-		if ((num & 0x80000000) && (type == __SIGN__)) {
+	if (type == __UHEX__)
+		digits = ASCII_NUMS;
+	else
+		digits = ascii_nums;
+	
+	//digits = (type == __UHEX__)? ASCII_NUMS : ascii_nums;
+
+	if (base == 10 && type == __SIGN__) {
+		if (num & 0x80000000) {
 			*str++ = '-';
 			num = ~num + 1;
 		}
 	}
 
+	if (!num) {
+		*str++ = '0';
+		return str;
+	}
+
 	for (len = 0; ; len++) {
-		remainder = num % base;
-		num /= base;
+		remainder = (u32)num % (u32)base;
+		num = (u32)num / (u32)base;
 		if (!num && !remainder)
 			break;
-		reverse[len] = ascii_nums[remainder];
+		reverse[len] = digits[remainder];
 	}
 	
 	while (len) {
@@ -67,6 +82,7 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 				*str++ = ch;
 				continue;
 			case 's':
+				/* FIXME Handle printf("%s", 'A'); */
 				s = va_arg(args, char *);
 				while (*s) /* if str overfill? */
 					*str++ = *s++;
@@ -79,23 +95,27 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 				uint = va_arg(args, u32);
 				str = number(str, 10, uint, __UNSIGN__);
 				continue;
+			case 'o':
+				uint = va_arg(args, u32);
+				str = number(str, 8, uint, __UNSIGN__);
+				continue;
 			case 'p':
 				uint = va_arg(args, u32);
 				*str++ = '0';
 				*str++ = 'x';
-				str = number(str, 16, uint, __UNSIGN__);
-				continue;
-			case 'x':
-				uint = va_arg(args, u32);
-				str = number(str, 16, uint, __UNSIGN__);
+				str = number(str, 16, uint, __LHEX__);
 				continue;
 			case 'X':
 				uint = va_arg(args, u32);
-				str = number(str, 16, uint, __UNSIGN__);
+				*str++ = '0';
+				*str++ = 'x';
+				str = number(str, 16, uint, __UHEX__);
 				continue;
-			case 'o':
+			case 'x':
 				uint = va_arg(args, u32);
-				str = number(str, 8, uint, __UNSIGN__);
+				*str++ = '0';
+				*str++ = 'x';
+				str = number(str, 16, uint, __LHEX__);
 				continue;
 			case '%':
 				*str++ = '%';

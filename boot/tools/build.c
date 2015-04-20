@@ -30,10 +30,12 @@ void err(char *s) {
 
 /* just need output image size. */
 int main(int argc, char **argv) {
-	FILE *fp_bl, *fp_si, *fp_ki;	// Input three files
-	FILE *fp_out;					// Output bzimage
+	FILE *fp_bl, *fp_si, *fp_ki;	// Input file handles
+	FILE *fp_out;					// Output file handle
 	int len_bl, len_si, len_ki;		// Input files's length
-	int image_size;					// 1M, 2M...
+	int image_size;					// 1KB, 2KB...
+	int sectors_header;				// Sectors of header
+	int lower_bound_of_sp;			// The lower bound of stack point, %sp
 	int i;
 	char c;
 
@@ -74,9 +76,16 @@ int main(int argc, char **argv) {
 	/* Step3: Pad NOP after [header] */
 	/* 2015/04/16 We are still working on header, ignore 32-bit kernel. */
 	image_size *= 1024;// in bytes count.
-	image_size -= (len_si + len_bl);
+	image_size -= (len_si + len_bl + 2);
 	for (i = 0; i < image_size; i++)
 		fputc(NOP, fp_bl);
+	
+	/* FIXME */
+	sectors_header = len_si / SECTOR_SIZE;
+	sectors_header++;
+	lower_bound_of_sp = 0x90000 + sectors_header * SECTOR_SIZE;
+	printf("\nCaveat: header's size is %d, need %d sectors.\n", len_si, sectors_header);
+	printf("Caveat: The lower bound of %%sp is %X\n\n", lower_bound_of_sp);
 
 	fclose(fp_bl);
 	fclose(fp_si);
