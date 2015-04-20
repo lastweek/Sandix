@@ -80,4 +80,10 @@ We have to pay 100% attention to how to set [%sp], which can't too high nor too 
 In addition, pay attention to bootsect.s, change the loading sector numbers of image.
 Make sure we have load all sectors of image to main memory.
 
+2015/04/20
+
+I spend 3 hours trying to find out what's the damn bug in my printf. It turns out that 
+it's not the bug's problem. It's my problem! I totally forgot what i said yerterday:
+Change the sectors of header need to be loaded into memory. The header this afternoon
+is about 3600 bytes, but bootsect.s only load 7 sectors, that's why.
 
