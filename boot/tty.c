@@ -9,8 +9,6 @@
  *	derived from linux-3.18 kernel.
  */
 
-asm(".code16gcc");
-
 #include <stdarg.h>
 #include <types.h>
 #include "boot.h"

@@ -17,26 +17,18 @@
  *	hex while segment addresses are written as segment:offset.
  */
 
-/*
- * I'm using i386-elf-gcc-4.7.2 which do not support -m16 opinion.
- * The -m16 opinion shows up in gcc-4.9+.
- * So, insert this stub in the begining to generate 16-bit object
- * code. Remember, gcc do NOT generate real 16-bit code, it only 
- * generate 32-bit code. It's the assembler's job to add prefix
- * like 0x66 before instructions which use 32-bit data or address.
- */
-asm(".code16gcc");
-
 #include "boot.h"
 
-
-void main(void){
-/*
-	puts("Hello World\n");
-	printf("%u %d %u %d\n", 0xFFFFFFFF, 0xFFFFFFFF, 0x0000000F, 0x0);
-	printf("Test %%p: %p\n", 0xABCDEF);
-	printf("%x %X %o %s %c \n",0xABCD,0xaBdc,255,"HELLO", 'A');
-*/
+void main(void)
+{
+	
 	puts("DEBUG: Now in main()...\n");
-	enable_a20_bios();
+	
+	if (!enable_a20())
+		puts("DEBUG: Enable A20 Line... Ok");
+	else
+		puts("DEBUG: Enable A20 Line... Fail");
+	
+
+
 }

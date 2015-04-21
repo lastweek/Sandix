@@ -16,8 +16,6 @@
 #include "boot.h"
 #include "string.h"
 
-asm(".code16gcc");
-
 void initregs(struct biosregs *reg)
 {
 	memset(reg, 0, sizeof(struct biosregs));

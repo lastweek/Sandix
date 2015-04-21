@@ -74,7 +74,7 @@ s1:
 
 clean:
 	rm -f *.o
-	rm -f *.dump
+	#rm -f *.dump
 	rm -f $(LDOFILE)
-	rm -f bzimage
+	#rm -f bzimage
 	rm -f header

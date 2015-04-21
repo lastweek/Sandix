@@ -6,8 +6,8 @@
  *	Copyright 2009-2014 Intel Corporation; author H. Peter Anvin
  *
  * 	Note: Segment register %fs and %gs are available under real
- *	mode x86 cpu. In addition, for sake of simplicity, this code
- *	enable a20 only in fast way, leave the slow way away.
+ *	mode x86 cpu. For sake of simplicity, this code
+ *	enable a20 line only in fast way, leave the slow way away.
  */
 
 #include "boot.h"
@@ -18,6 +18,7 @@
  *			AX = 2401h
  *	Return: CF clear if successful
  *			AH = 00h
+ * 	Note: Seabios use fast way to enable A20 line, too.
  */
 static int enable_a20_bios()
 {
@@ -37,15 +38,9 @@ static int enable_a20_bios()
 
 /*
  *	Bitfields for PS/2 system control port A:
- *	7-6	any bit set to 1 turns activity light on
- *	5	unused
- *	4	watchdog timout occurred
- *	3	=0 RTC/CMOS security lock (on password area) unlocked
- *		=1 CMOS locked (done by POST)
- *	2	unused
- *	1	A20 is active
- *	0	=0 system reset or write
- *		=1 pulse alternate reset pin (high-speed alternate CPU reset)
+ *	bit 1	A20 is active
+ *	bit 0	=0 system reset or write
+ *			=1 pulse alternate reset pin (high-speed alternate CPU reset)
  */
 static int enable_a20_fast(void)
 {
@@ -53,6 +48,17 @@ static int enable_a20_fast(void)
 
 	port_a = inb(0x92);	/* System control port A */
 	port_a |=  0x02;	/* Enable A20 */
+	port_a &= ~0x01;	/* Do not reset machine */
+	outb(port_a, 0x92);
+}
+
+/* For Debug */
+int disable_a20_fast(void)
+{
+	u8 port_a;
+
+	port_a = inb(0x92);	/* System control port A */
+	port_a &= ~0x02;	/* Disable A20 */
 	port_a &= ~0x01;	/* Do not reset machine */
 	outb(port_a, 0x92);
 }
@@ -67,7 +73,7 @@ static int enable_a20_fast(void)
  *	0x0000:0200 --> 0x000200
  *	0xffff:0210 --> 0x100200
  */
-static int a20_test(void)
+int a20_test(void)
 {
 	int ok = 0, loops = A20_TEST_LOOPS;
 	int saved, tmp;
@@ -84,15 +90,19 @@ static int a20_test(void)
 			break;
 	}
 
-	wrfs(saved, A20_TEST_ADDR);
+	wrfs32(saved, A20_TEST_ADDR);
 	return ok;
 }
 
-
+/* Return 0 on success */
 int enable_a20(void)
 {
 	int loops = A20_TEST_LOOPS;
-
+	
+	/* Note: The linux code walks long loops
+	 * to ensure the a20 line is enabled. So
+	 * i mimic what linux do.
+	 */
 	while (loops--) {
 		if (a20_test())
 			return 0;
@@ -103,5 +113,4 @@ int enable_a20(void)
 
 	return -1;
 }
-
 
