@@ -61,11 +61,16 @@ static int a20_test(int loops)
 	set_fs(0x0000);
 	set_gs(0xffff);
 
+	// 0x0000:0200
+	// 00200
 	saved = ctr = rdfs32(A20_TEST_ADDR);
 
 	while (loops--) {
 		wrfs32(++ctr, A20_TEST_ADDR);
 		io_delay();	/* Serialize and make delay constant */
+		// 0xffff:0210 ffff0
+		//			 +  0210
+		//			 =100200
 		ok = rdgs32(A20_TEST_ADDR+0x10) ^ ctr;
 		if (ok)
 			break;

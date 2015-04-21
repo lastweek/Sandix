@@ -104,7 +104,7 @@ bs_kernel_fail:
 	jmp bs_die
 	
 start_msg:
-	.ascii "\n\rMBR: Loading System..."
+	.ascii "\n\rDEBUG: Now in bootsect.s, Loading System..."
 setup_fail_msg:
 	.ascii "\n\rMBR: Loading setup fail..."
 kernel_fail_msg:

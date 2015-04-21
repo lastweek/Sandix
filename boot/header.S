@@ -66,7 +66,7 @@ die:
 	hlt
 	jmp die
 Debug_msg:
-	.ascii "\n\rDebug: Now we are in header.s, heading to main()...\n\r"
+	.ascii "\n\rDEBUG: Now in header.s, heading to main()...\n\r"
 fail_msg:
 	.ascii "\n\rHeader.s signature missing/mismatch..."
 end:

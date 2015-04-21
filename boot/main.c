@@ -29,12 +29,14 @@ asm(".code16gcc");
 
 #include "boot.h"
 
+
 void main(void){
+/*
 	puts("Hello World\n");
-	
 	printf("%u %d %u %d\n", 0xFFFFFFFF, 0xFFFFFFFF, 0x0000000F, 0x0);
-	
 	printf("Test %%p: %p\n", 0xABCDEF);
 	printf("%x %X %o %s %c \n",0xABCD,0xaBdc,255,"HELLO", 'A');
-	printf("%s %e \n");
+*/
+	puts("DEBUG: Now in main()...\n");
+	enable_a20_bios();
 }
