@@ -10,6 +10,7 @@
  *	pushed into stack by caller.
  */
 
+/* FIXME double float*/
 #ifndef STDC_STDARG_H
 #define STDC_STDARG_H
 

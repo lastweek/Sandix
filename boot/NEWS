@@ -95,3 +95,6 @@ Most systems use 0x80 to generate an IO delay. No matter read or write to this p
 it won't have reaction, and we will get about 1 microsecond delay. Someone say this
 port is used by BIOS in POST.
 
+2015/04/22
+
+Today's plan: Use INT 0x15 to detect memory layout. Setup struct boot_param!

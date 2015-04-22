@@ -2,6 +2,12 @@
  *	2015/04/21 Created by Shan Yizhou.
  *
  *	memory.c: Memory detection code.
+ *
+ *	Note: E820 is supported by nearly all BIOSes since 2002.
+ *	It's not wise to bypass BIOS and detect memory yourself
+ *	like what BIOS do. I don't konw if Linux detect memory
+ *	again after protected-mode kernel starts. But i think
+ *	Linux won't "believe" BIOS~~~
  */
 
 #include "boot.h"
