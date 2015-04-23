@@ -24,11 +24,10 @@ void main(void)
 	
 	puts("DEBUG: Now in main()...\n");
 	
-	if (!enable_a20())
-		puts("DEBUG: Enable A20 Line... Ok");
-	else
-		puts("DEBUG: Enable A20 Line... Fail");
-	
+	/* Enable A20 Line */
+	enable_a20();
 
+	/* Detect physical memory layout */
+	detect_memory();
 
 }

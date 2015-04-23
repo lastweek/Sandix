@@ -14,16 +14,18 @@
  */
 
 #include "boot.h"
-#include "string.h"
 
 void initregs(struct biosregs *reg)
-{
-	memset(reg, 0, sizeof(struct biosregs));
+{	
+	char *d = (char *)reg;
+	int i = 0;
+
+	while (i++ < sizeof(struct biosregs))
+		*d++ = 0;
+
 	reg->ds = ds();
 	reg->es = ds();
 	reg->fs = fs();
 	reg->gs = gs();
-	
-	reg->eflags |= 1;
-	//reg->eflags |= X86_EFLAGS_CF;
+	reg->eflags |= 1;/* Set CF */
 }

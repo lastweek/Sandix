@@ -42,7 +42,7 @@ static int enable_a20_bios()
  *	bit 0	=0 system reset or write
  *			=1 pulse alternate reset pin (high-speed alternate CPU reset)
  */
-static int enable_a20_fast(void)
+static void enable_a20_fast(void)
 {
 	u8 port_a;
 
@@ -53,7 +53,7 @@ static int enable_a20_fast(void)
 }
 
 /* For Debug */
-int disable_a20_fast(void)
+void disable_a20_fast(void)
 {
 	u8 port_a;
 
@@ -95,7 +95,7 @@ int a20_test(void)
 }
 
 /* Return 0 on success */
-int enable_a20(void)
+static int _enable_a20(void)
 {
 	int loops = A20_TEST_LOOPS;
 	
@@ -106,7 +106,7 @@ int enable_a20(void)
 	while (loops--) {
 		if (a20_test())
 			return 0;
-		if (enable_a20_bios)
+		if (enable_a20_bios())
 			return 0;
 		enable_a20_fast();
 	}
@@ -114,3 +114,10 @@ int enable_a20(void)
 	return -1;
 }
 
+void enable_a20(void)
+{
+	if (!_enable_a20())
+		puts("DEBUG: Enable A20 Line... OK\n");
+	else
+		puts("DEBUG: Enable A20 Line... FAIL\n");
+}

@@ -97,4 +97,57 @@ port is used by BIOS in POST.
 
 2015/04/22
 
-Today's plan: Use INT 0x15 to detect memory layout. Setup struct boot_param!
+0.	Intel software-developer-volume-3-part-1:
+	Chapter 3---Protected-mode memory management.
+
+	Consult this volume for more detailed information.
+
+1.	X86 Memory-management registers: GDTR and IDTR, LDTR and TR.
+	GDT and IDT are NOT considered to be segment.
+	LDT and TSS are     considered to be segment in GDT, they have segment descriptors.
+
+	X86 architecture defines two system [segment], the task-state segment(TSS) and LDT.
+	The GDT is not considered a segment because it is not accessed by means of a segment
+	selector or a segment descriptor! TSS and LDT have [segment descriptors] in GDT defined
+	for them!!!
+
+	###TSS and LDT are system SEGMENT!!! They have descriptors in GDT!!!###
+
+	An LDT is accessed with its segment selector. To eliminate address translations when
+	accessing the LDT, the segment selector, base linear address, limit, and access rights
+	of the LDT are stored in the LDTR register
+
+2.	Segment Descriptor: 8 bytes each. 
+
+	bit S    (1 bit):	Descriptor type (0 = system; 1 = code or data)
+	bit TYPE (4 bit):	Segment type
+	__________________________________________________________________
+	S = 1					|  Segment TYPE							 |
+	------------------------------------------------------------------
+	Non-System decriptors:	|* Code segment							 |
+							|* Data segment							 |
+	------------------------------------------------------------------
+	S = 0					|  Segment TYPE							 |
+	------------------------------------------------------------------
+	System descriptors:		|* LDT segment descriptor			 	 |
+							|* Task-state segment(TSS) descriptor	 |
+							|										 |
+							|* Call-gate Descriptor					 |
+							|* Interrupt-gate Descriptor			 |
+							|* Trap-gate descriptor					 |
+							|* Task-gate descriptor					 |
+	________________________|________________________________________|
+
+3.	Under protected mode, the CS and DS and SS must be loaded with valid segment selectors.
+	
+	Visable part(16 bit)		Hidden part(Descriptor cache; Shadow cache)
+	______________________________________________________________
+	| segment selector  | Base address, Limit, Access information |		CS
+	|___________________|_________________________________________|
+	______________________________________________________________
+	| segment selector  | Base address, Limit, Access information |		DS
+	|___________________|_________________________________________|
+	______________________________________________________________
+	| segment selector  | Base address, Limit, Access information |		SS ES FS GS
+	|___________________|_________________________________________|
+

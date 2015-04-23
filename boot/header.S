@@ -41,8 +41,10 @@ start_of_setup:
 	# Print some message to indicate we are here.
 	movw $INITSEG, %ax
 	movw %ax, %ds
-	movw %ax, %es
 	movw %ax, %ss
+	movw %ax, %es
+	movw %ax, %fs
+	movw %ax, %gs
 
 	movb $0x03, %ah	# read cursor pos
 	xor %bh, %bh

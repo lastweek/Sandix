@@ -17,11 +17,7 @@
  */
 asm(".code16gcc");
 
-typedef unsigned int	u32;
-typedef unsigned short	u16;
-typedef unsigned char	u8;
-typedef u32				size_t;
-typedef u32				addr_t;
+#include <types.h>
 
 /* Basic port I/O */
 static inline void outb(u8 v, u16 port)
@@ -240,12 +236,18 @@ int printf(const char *fmt, ...);
 /*---------------------------------*/
 /* a20.c                           */
 /*---------------------------------*/
-int a20_test(void);
-int disable_a20_fast(void);
-int enable_a20(void);
+int  a20_test(void);
+void disable_a20_fast(void);
+void enable_a20(void);
 
 
+/*---------------------------------*/
+/* memory.c                        */
+/*---------------------------------*/
+int detect_memory_e820(void);
+int detect_memory_e801(void);
+int detect_memory_88(void);
+void detect_memory(void);
 
 
-
-#endif /* BOOT_BOOT_H */
+#endif 

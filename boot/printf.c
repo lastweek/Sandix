@@ -4,7 +4,8 @@
  *	printf.c: Fotmat Output for Real-Mode debug.
  *	No qualifier, No alignment. Minimum supported
  *	modifiers: %c %s %d %u %p %x %X %o
- *
+ *	%z: hexicodecimal without leading 0x
+ *	
  *	Return Value: -1 means undefined modifier.
  */
 
@@ -115,6 +116,14 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 				uint = va_arg(args, u32);
 				*str++ = '0';
 				*str++ = 'x';
+				str = number(str, 16, uint, __LHEX__);
+				continue;
+			case 'Z':
+				uint = va_arg(args, u32);
+				str = number(str, 16, uint, __UHEX__);
+				continue;
+			case 'z':
+				uint = va_arg(args, u32);
 				str = number(str, 16, uint, __LHEX__);
 				continue;
 			case '%':

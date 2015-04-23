@@ -41,8 +41,8 @@ OBJDUMPFLAGS_REALMODE = -d -M i8086,intel
 
 # FIXME TOO UGLY, some better way?
 # FIXME Does the order of files input to LD matters?
-SOURCES_CC = header.S main.c tty.c bioscall.S regs.c string.c printf.c a20.c
-OBJECTS_CC = header.o main.o tty.o bioscall.o regs.o string.o printf.o a20.o
+SOURCES_CC = header.S main.c tty.c bioscall.S regs.c string.c printf.c a20.c memory.c
+OBJECTS_CC = header.o main.o tty.o bioscall.o regs.o string.o printf.o a20.o memory.o
 SOURCES_LD = $(OBJECTS_CC)
 
 # FIXME ADD DEPENDENCE.
@@ -66,15 +66,17 @@ s1:
 	#
 	$(CATENATE) $(REALMODE_IMAGESIZE)
 	mv bootsect bzimage
+
+dump:
 	#
-	# STEP5 ---> DUMP 
+	# STEP ---> DUMP 
 	#
 	$(OBJDUMP) $(OBJDUMPFLAGS_REALMODE) $(LDOFILE) > $(LDOFILE).dump
 	ndisasm -b 16 bzimage > bzimage.dump
-
+	
 clean:
 	rm -f *.o
-	#rm -f *.dump
+	rm -f *.dump
 	rm -f $(LDOFILE)
-	#rm -f bzimage
+	rm -f bzimage
 	rm -f header

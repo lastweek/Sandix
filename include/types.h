@@ -20,5 +20,5 @@ typedef signed   short	s16;
 typedef signed   char	s8;
 
 typedef unsigned int	size_t;
-
+typedef unsigned int 	addr_t;
 #endif
