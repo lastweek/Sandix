@@ -1,33 +1,51 @@
 /*
  *	2015/04/11. Created by Shan Yizhou.
  *
- *	main.c: 16-bit image main body, is responsible for getting the
- *	system data from the BIOS, and putting them into the appropriate
- *	places in system memory. 
+ *	main.c: Real-Mode kernel main body.
  *
- *	This code asks the bios for memory/disk/other parameters, and
- *	puts them in a "safe" place: 0x90000-0x901FF, ie where the
- *	boot-block used to be. It is then up to the protected mode
- *	system to read them from there before the area is overwritten
- *	for buffer-blocks.
+ *	This code asks the BIOS for memory/disk/other parameters, and
+ *	puts them in a "safe" place. After necessary preparation, control
+ *	will be transfered to protected-mode kernel.
  *	
- *	BIG FAT NOTE: We're in real mode using 64k segments.  Therefore segment
- *	addresses must be multiplied by 16 to obtain their respective linear
- *	addresses. To avoid confusion, linear addresses are written using leading
- *	hex while segment addresses are written as segment:offset.
  */
 
 #include "boot.h"
 
+/*
+ * Query the keyboard lock status as given by the BIOS, and
+ * set the keyboard repeat rate to maximum.  Unclear why the latter
+ * is done here; this might be possible to kill off as stale code.
+ */
+static void keyboard_init(void)
+{
+	struct biosregs ireg, oreg;
+	initregs(&ireg);
+
+	ireg.ah = 0x02;		/* Get keyboard status */
+	intcall(0x16, &ireg, &oreg);
+	boot_params.kbd_status = oreg.al;
+
+	ireg.ax = 0x0305;	/* Set keyboard repeat rate */
+	intcall(0x16, &ireg, NULL);
+}
+
 void main(void)
 {
+	puts("DEBUG: Now in Real-Mode main()...\n");
 	
-	puts("DEBUG: Now in main()...\n");
-	
+	/* Detect physical memory layout */
+	detect_memory();
+
+	/* Set keyboard repeat rate (why?) and query the lock flags */
+	keyboard_init();
+
 	/* Enable A20 Line */
 	enable_a20();
 
-	/* Detect physical memory layout */
-	detect_memory();
+	/* Set the video mode */
+	set_video();
+
+	/* Do the last things and invoke protected mode */
+	go_to_protected_mode();
 
 }
