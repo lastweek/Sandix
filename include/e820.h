@@ -11,15 +11,6 @@
 #define E820_NVS		4
 #define E820_UNUSABLE	5
 
-
-/*
- * reserved RAM used by kernel itself
- * if CONFIG_INTEL_TXT is enabled, memory of this type will be
- * included in the S3 integrity calculation and so should not include
- * any memory that BIOS might alter over the S3 transition
- */
-#define E820_RESERVED_KERN        128
-
 #include <types.h>
 
 struct e820entry {

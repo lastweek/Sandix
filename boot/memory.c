@@ -32,7 +32,7 @@ int detect_memory_e820(void)
 		intcall(0x15, &ireg, &oreg);
 		ireg.ebx = oreg.ebx; /* for next iteration */
 		
-		if (oreg.eflags & 1){
+		if (oreg.eflags & 1) {
 			puts("DEBUG: ERROR detect memory fail! EFLAGS.CF = 1\n");
 			break;
 		}
@@ -42,14 +42,31 @@ int detect_memory_e820(void)
 			puts("DEBUG: ERROR detect memory fail! EAX != SMAP\n");
 			break;
 		}
-	}while(ireg.ebx);
+		
+		printf("Base: %X End: %X Len: %X Type: %d \n",
+				buf.base_low, buf.base_low+buf.len_low, buf.len_low, buf.type);
+
+	} while (ireg.ebx);
 	
 	return count;
 }
 
 int detect_memory_e801(void)
 {
+	struct biosregs ireg, oreg;
+
+	initregs(&ireg);
+	ireg.ax = 0xE801;
+	intcall(0x15, &ireg, &oreg);
+
+	if (oreg.eflags & 1) {
+		puts("DEBUG: ERROR detect memory e801 CF fail\n");
+		return -1;
+	}
 	
+	printf("ax: %X bx: %X cx: %X dx: %X\n", oreg.ax, oreg.bx, oreg.cx, oreg.cx);
+
+	return 0;
 }
 
 int detect_memory_88(void)
@@ -57,22 +74,9 @@ int detect_memory_88(void)
 
 }
 
-int _detect_memory(void)
-{
-	int err = -1;
-	
-	if (detect_memory_e820 > 0)
-		err = 0;
-
-	return err;
-}
-
 void detect_memory(void)
 {
-	if (!_detect_memory())
-		printf("DEBUG: Memory detect...OK\n");
-	else
-		printf("DEBUG: Memory detect...FAIL\n");
+	detect_memory_e820();
+	detect_memory_e801();
 }
-
 

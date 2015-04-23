@@ -1,5 +1,5 @@
-#ifndef _ASM_X86_BOOTPARAM_H
-#define _ASM_X86_BOOTPARAM_H
+#ifndef _X86_BOOTPARAM_H
+#define _X86_BOOTPARAM_H
 
 /* setup_data types */
 #define SETUP_NONE			0
@@ -13,28 +13,6 @@
 #define RAMDISK_PROMPT_FLAG		0x8000
 #define RAMDISK_LOAD_FLAG		0x4000
 
-/* loadflags */
-#define LOADED_HIGH	(1<<0)
-#define QUIET_FLAG	(1<<5)
-#define KEEP_SEGMENTS	(1<<6)
-#define CAN_USE_HEAP	(1<<7)
-
-/* xloadflags */
-#define XLF_KERNEL_64			(1<<0)
-#define XLF_CAN_BE_LOADED_ABOVE_4G	(1<<1)
-#define XLF_EFI_HANDOVER_32		(1<<2)
-#define XLF_EFI_HANDOVER_64		(1<<3)
-#define XLF_EFI_KEXEC			(1<<4)
-
-#ifndef __ASSEMBLY__
-
-#include <linux/types.h>
-#include <linux/screen_info.h>
-#include <linux/apm_bios.h>
-#include <linux/edd.h>
-#include <asm/e820.h>
-#include <asm/ist.h>
-#include <video/edid.h>
 
 /* extensible setup data list node */
 struct setup_data {
@@ -98,16 +76,6 @@ struct olpc_ofw_header {
 	__u32 irq_desc_table;
 } __attribute__((packed));
 
-struct efi_info {
-	__u32 efi_loader_signature;
-	__u32 efi_systab;
-	__u32 efi_memdesc_size;
-	__u32 efi_memdesc_version;
-	__u32 efi_memmap;
-	__u32 efi_memmap_size;
-	__u32 efi_systab_hi;
-	__u32 efi_memmap_hi;
-};
 
 /* The so-called "zeropage" */
 struct boot_params {
@@ -165,6 +133,4 @@ enum {
 	X86_NR_SUBARCHS,
 };
 
-#endif /* __ASSEMBLY__ */
-
-#endif /* _ASM_X86_BOOTPARAM_H */
+#endif /* _X86_BOOTPARAM_H */
