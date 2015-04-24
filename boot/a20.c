@@ -20,7 +20,7 @@
  *			AH = 00h
  * 	Note: Seabios use fast way to enable A20 line, too.
  */
-static int enable_a20_bios()
+static int enable_a20_bios(void)
 {
 	struct biosregs ireg, oreg;
 	

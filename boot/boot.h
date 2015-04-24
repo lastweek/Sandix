@@ -250,4 +250,10 @@ int detect_memory_88(void);
 void detect_memory(void);
 
 
+/*---------------------------------*/
+/* video.c                         */
+/*---------------------------------*/
+void set_video(void);
+
+
 #endif 

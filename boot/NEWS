@@ -151,3 +151,11 @@ port is used by BIOS in POST.
 	| segment selector  | Base address, Limit, Access information |		SS ES FS GS
 	|___________________|_________________________________________|
 
+
+2015/04/24
+
+Memory			...Done
+Interrupt
+Keyboard
+Screen
+Disk

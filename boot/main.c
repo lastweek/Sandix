@@ -23,7 +23,7 @@ static void keyboard_init(void)
 
 	ireg.ah = 0x02;		/* Get keyboard status */
 	intcall(0x16, &ireg, &oreg);
-	boot_params.kbd_status = oreg.al;
+	//boot_params.kbd_status = oreg.al;
 
 	ireg.ax = 0x0305;	/* Set keyboard repeat rate */
 	intcall(0x16, &ireg, NULL);
@@ -37,18 +37,18 @@ void main(void)
 	detect_memory();
 
 	/* Set keyboard repeat rate (why?) and query the lock flags */
-	keyboard_init();
+	//keyboard_init();
 
 	/* Enable A20 Line */
 	enable_a20();
 	
 	/* Disk infomation */
-	tmp();
+	//tmp();
 
 	/* Set the video mode */
 	set_video();
 
 	/* Do the last things and invoke protected mode */
-	go_to_protected_mode();
+	//go_to_protected_mode();
 
 }

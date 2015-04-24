@@ -1,5 +1,5 @@
-#ifndef _X86_E820_H
-#define _X86_E820_H
+#ifndef _SANDIX_E820_H
+#define _SANDIX_E820_H
 
 #define E820MAP			0x2d0	/* our map */
 #define E820MAX			128		/* number of entries in E820MAP */
@@ -11,18 +11,18 @@
 #define E820_NVS		4
 #define E820_UNUSABLE	5
 
-#include <types.h>
+#include <sandix/types.h>
 
 struct e820entry {
-	u32 base_low;	/* start of memory segment */
-	u32 base_high;
-	u32 len_low;	/* length of memory segment */
-	u32 len_high;
-	u32 type;		/* type of memory segment */
+	__u32 base_low;	/* start of memory segment */
+	__u32 base_high;
+	__u32 len_low;	/* length of memory segment */
+	__u32 len_high;
+	__u32 type;		/* type of memory segment */
 } __attribute__((packed));
 
 struct e820_list {
-	u32 nr;
+	__u32 nr;
 	struct e820entry list[E820MAX];
 };
 
@@ -35,4 +35,4 @@ struct e820_list {
 #define BIOS_ROM_BASE		0xffe00000
 #define BIOS_ROM_END		0xffffffff
 
-#endif /* _X86_E820_H */
+#endif /* _SANDIX_E820_H */

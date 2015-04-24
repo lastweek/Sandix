@@ -1,5 +1,5 @@
-#ifndef _X86_BOOTPARAM_H
-#define _X86_BOOTPARAM_H
+#ifndef _SANDIX_BOOTPARAM_H
+#define _SANDIX_BOOTPARAM_H
 
 /* setup_data types */
 #define SETUP_NONE			0
@@ -133,4 +133,4 @@ enum {
 	X86_NR_SUBARCHS,
 };
 
-#endif /* _X86_BOOTPARAM_H */
+#endif /* _SANDIX_BOOTPARAM_H */
