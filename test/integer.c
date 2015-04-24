@@ -1,5 +1,12 @@
 #include <stdio.h>
 
+int get_mode()
+{
+	unsigned char c = 0x88;
+	int t = c;
+	return c;
+}
+
 int main()
 {
 	char c;
@@ -17,4 +24,7 @@ int main()
 	//uz = (unsigned int)(c-'\0');
 	sz = c;
 	printf("%x %x\n", uz, sz);
+
+	sz = get_mode();
+	printf("%X\n", sz);
 }

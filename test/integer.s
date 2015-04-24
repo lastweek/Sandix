@@ -1,3 +1,19 @@
+	.text
+	.globl _get_mode
+_get_mode:
+LFB1:
+	pushq	%rbp
+LCFI0:
+	movq	%rsp, %rbp
+LCFI1:
+	movb	$-120, -1(%rbp)
+	movzbl	-1(%rbp), %eax
+	movl	%eax, -8(%rbp)
+	movzbl	-1(%rbp), %eax
+	popq	%rbp
+LCFI2:
+	ret
+LFE1:
 	.cstring
 LC0:
 	.ascii "unsigned:\11%x %u\12\0"
@@ -5,14 +21,16 @@ LC1:
 	.ascii "signed  :\11%x %d\12\0"
 LC2:
 	.ascii "%x %x\12\0"
+LC3:
+	.ascii "%X\12\0"
 	.text
 	.globl _main
 _main:
-LFB1:
+LFB2:
 	pushq	%rbp
-LCFI0:
+LCFI3:
 	movq	%rsp, %rbp
-LCFI1:
+LCFI4:
 	subq	$16, %rsp
 	movl	$0, -4(%rbp)
 	movl	-4(%rbp), %eax
@@ -44,10 +62,18 @@ LCFI1:
 	leaq	LC2(%rip), %rdi
 	movl	$0, %eax
 	call	_printf
+	movl	$0, %eax
+	call	_get_mode
+	movl	%eax, -8(%rbp)
+	movl	-8(%rbp), %eax
+	movl	%eax, %esi
+	leaq	LC3(%rip), %rdi
+	movl	$0, %eax
+	call	_printf
 	leave
-LCFI2:
+LCFI5:
 	ret
-LFE1:
+LFE2:
 	.section __TEXT,__eh_frame,coalesced,no_toc+strip_static_syms+live_support
 EH_frame1:
 	.set L$set$0,LECIE1-LSCIE1
@@ -97,4 +123,33 @@ LASFDE1:
 	.byte	0x8
 	.align 3
 LEFDE1:
+LSFDE3:
+	.set L$set$6,LEFDE3-LASFDE3
+	.long L$set$6
+LASFDE3:
+	.long	LASFDE3-EH_frame1
+	.quad	LFB2-.
+	.set L$set$7,LFE2-LFB2
+	.quad L$set$7
+	.byte	0
+	.byte	0x4
+	.set L$set$8,LCFI3-LFB2
+	.long L$set$8
+	.byte	0xe
+	.byte	0x10
+	.byte	0x86
+	.byte	0x2
+	.byte	0x4
+	.set L$set$9,LCFI4-LCFI3
+	.long L$set$9
+	.byte	0xd
+	.byte	0x6
+	.byte	0x4
+	.set L$set$10,LCFI5-LCFI4
+	.long L$set$10
+	.byte	0xc
+	.byte	0x7
+	.byte	0x8
+	.align 3
+LEFDE3:
 	.subsections_via_symbols
