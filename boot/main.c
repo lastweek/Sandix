@@ -42,8 +42,8 @@ void main(void)
 	/* Enable A20 Line */
 	enable_a20();
 	
-	/* Disk infomation */
-	//tmp();
+	/* Query Disk Infomation */
+	edd();
 
 	/* Set the video mode */
 	set_video();

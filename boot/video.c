@@ -1,12 +1,12 @@
 /*
  *	2015/04/24 Created by Shan Yizhou.
  *
- *	video.c: Set video mode.
+ *	video.c: Set video mode. Store parameters.
  */
 
 #include "boot.h"
-#include <sandix/bootparam.h>
-#include <sandix/screen_info.h>
+//#include <sandix/bootparam.h>
+//#include <sandix/screen_info.h>
 
 static u8 get_video_mode_bios(void)
 {
@@ -19,33 +19,28 @@ static u8 get_video_mode_bios(void)
 	return oreg.al;	
 }
 
-static void set_video_mode_bios(u8 mode)
+static void set_video_mode_bios(void)
 {
 	struct biosregs ireg;
 
 	initregs(&ireg);
-	ireg.al = mode; /* Mode 3 */
+	ireg.al = 0x03; /* Mode 3 */
 	intcall(0x10, &ireg, NULL);
 }
 
-/*
- *	1. Get current video mode, cols and rows. Set mode 3.
- *	2. Store video mode and video segment base address.
- *	3. Mode 3 VGA can be 80x25 or 80x50, so get rows from BDA.
- */
 void set_video(void)
 {
 	u8 mode;
-	u16 cols, rows;
+	u8 rows;
+	u16 cols;
 	
 	mode = get_video_mode_bios();
 	if (mode != 3 && mode != 7)
-		mode = 3;
-	set_video_mode_bios(mode);
+		set_video_mode_bios();
 
 	/* Get cols and rows from BDA */
-
+	set_fs(0x0000);
+	rows = rdfs8(0x484) + 1;
+	cols = rdfs16(0x44A);
+	printf("DEBUG: Video mode=%d, cols=%d, rows=%d\n", mode, cols, rows);
 }
-
-
-

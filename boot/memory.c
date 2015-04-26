@@ -10,8 +10,8 @@
  */
 
 #include "boot.h"
-#include <e820.h>
-//#include <bootparam.h>
+#include <sandix/e820.h>
+//#include <sandix/bootparam.h>
 
 #define SMAP	0x534D4150	/* ASCII "SMAP" */
 
@@ -31,10 +31,6 @@ int detect_memory_e820(void)
 		intcall(0x15, &ireg, &oreg);
 		ireg.ebx = oreg.ebx; /* for next iteration */
 		
-		/* Note by autor:
-		   BIOSes which terminate the chain with CF = 1 as opposed
-		   to %ebx = 0 don't always report the SMAP signature on
-		   the final, failing, probe. */
 		if (oreg.eflags & 1) {
 			count = 0;
 			puts("DEBUG: ERROR detect memory fail! EFLAGS.CF = 1\n");

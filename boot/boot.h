@@ -7,14 +7,6 @@
 #ifndef BOOT_BOOT_H
 #define BOOT_BOOT_H
 
-/*
- * I'm using i386-elf-gcc-4.7.2 which do not support -m16 opinion.
- * The -m16 opinion shows up in gcc-4.9+.
- * So, insert this stub in the begining to generate 16-bit object
- * code. Remember, gcc do NOT generate real 16-bit code, it only 
- * generate 32-bit code. It's the assembler's job to add prefix
- * like 0x66 before instructions which use 32-bit data or address.
- */
 asm(".code16gcc");
 
 #include <types.h>
@@ -52,6 +44,7 @@ static inline u32 inl(u16 port)
 	asm volatile("inl %1,%0" : "=a" (v) : "dN" (port));
 	return v;
 }
+
 /* About 1 microsecond */
 static inline void io_delay(void)
 {
@@ -101,52 +94,26 @@ static inline u16 rdfs16(addr_t addr)
 	asm volatile("movw %%fs:%1,%0" : "=r" (v) : "m" (*(u16 *)addr));
 	return v;
 }
+
+/* movl %fs:(%eax),%ebx == mov dword ebx, [fs:eax]*/
+/* movl %fs:%eax, %ebx is nothing???? */
 static inline u32 rdfs32(addr_t addr)
 {
 	u32 v;
 	asm volatile("movl %%fs:%1,%0" : "=r" (v) : "m" (*(u32 *)addr));
 	return v;
 }
-
-static inline void wrfs8(u8 v, addr_t addr)
-{
-	asm volatile("movb %1,%%fs:%0" : "+m" (*(u8 *)addr) : "qi" (v));
-}
-static inline void wrfs16(u16 v, addr_t addr)
-{
-	asm volatile("movw %1,%%fs:%0" : "+m" (*(u16 *)addr) : "ri" (v));
-}
 static inline void wrfs32(u32 v, addr_t addr)
 {
 	asm volatile("movl %1,%%fs:%0" : "+m" (*(u32 *)addr) : "ri" (v));
 }
 
-static inline u8 rdgs8(addr_t addr)
-{
-	u8 v;
-	asm volatile("movb %%gs:%1,%0" : "=q" (v) : "m" (*(u8 *)addr));
-	return v;
-}
-static inline u16 rdgs16(addr_t addr)
-{
-	u16 v;
-	asm volatile("movw %%gs:%1,%0" : "=r" (v) : "m" (*(u16 *)addr));
-	return v;
-}
+
 static inline u32 rdgs32(addr_t addr)
 {
 	u32 v;
 	asm volatile("movl %%gs:%1,%0" : "=r" (v) : "m" (*(u32 *)addr));
 	return v;
-}
-
-static inline void wrgs8(u8 v, addr_t addr)
-{
-	asm volatile("movb %1,%%gs:%0" : "+m" (*(u8 *)addr) : "qi" (v));
-}
-static inline void wrgs16(u16 v, addr_t addr)
-{
-	asm volatile("movw %1,%%gs:%0" : "+m" (*(u16 *)addr) : "ri" (v));
 }
 static inline void wrgs32(u32 v, addr_t addr)
 {
@@ -244,9 +211,6 @@ void enable_a20(void);
 /*---------------------------------*/
 /* memory.c                        */
 /*---------------------------------*/
-int detect_memory_e820(void);
-int detect_memory_e801(void);
-int detect_memory_88(void);
 void detect_memory(void);
 
 
