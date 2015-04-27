@@ -178,13 +178,11 @@ struct biosregs {
 /*---------------------------------*/
 void intcall(u8 int_no, const struct biosregs *ireg, struct biosregs *oreg)
 __attribute__ ((regparm(3)));
- 
 
 /*---------------------------------*/
 /* regs.c                          */
 /*---------------------------------*/
 void initregs(struct biosregs *regs);
-
 
 /*---------------------------------*/
 /* tty.c                           */
@@ -192,13 +190,11 @@ void initregs(struct biosregs *regs);
 void putchar(int ch);
 void puts(const char *str);
 
-
 /*---------------------------------*/
 /* printf.c                        */
 /*---------------------------------*/
 int sprintf(char *buf, const char *fmt, ...);
 int printf(const char *fmt, ...);
-
 
 /*---------------------------------*/
 /* a20.c                           */
@@ -207,17 +203,22 @@ int  a20_test(void);
 void disable_a20_fast(void);
 void enable_a20(void);
 
-
 /*---------------------------------*/
 /* memory.c                        */
 /*---------------------------------*/
 void detect_memory(void);
 
-
 /*---------------------------------*/
 /* video.c                         */
 /*---------------------------------*/
 void set_video(void);
+
+/*---------------------------------*/
+/* pm.c & pmjump.S                 */
+/*---------------------------------*/
+void go_to_protected_mode(void);
+void protected_mode_jump(u32 code_addr, u32 param_addr)
+__attribute__ ((regparm(3)));
 
 
 #endif 

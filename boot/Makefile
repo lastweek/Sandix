@@ -32,7 +32,7 @@ LDFLAGS = -e _start -Ttext 0x0000 -o $(LDOFILE)
 # FIXME: some more sections to reserve?
 # 0. Reserve sections: .text .rodata
 # 1. Generate raw binary file.
-OBJCOPYFLAGS = -j .text -j .rodata -O binary
+OBJCOPYFLAGS = -j .text -j .text32 -j .rodata -O binary
 
 # 0. OBJDUMP flags for Real-Mode object files.
 # 1. CAVEAT: The objdump's result is not reliable under i8086!!
@@ -42,9 +42,9 @@ OBJDUMPFLAGS_REALMODE = -d -M i8086,intel
 # FIXME TOO UGLY, some better way?
 # FIXME Does the order of files input to LD matters?
 SOURCES_CC = header.S main.c tty.c bioscall.S regs.c string.c printf.c \
-			 a20.c memory.c video.c pm.c
+			 a20.c memory.c video.c pm.c pmjump.S
 OBJECTS_CC = header.o main.o tty.o bioscall.o regs.o string.o printf.o \
-			 a20.o memory.o video.o pm.o
+			 a20.o memory.o video.o pm.o pmjump.o
 SOURCES_LD = $(OBJECTS_CC)
 
 # FIXME ADD DEPENDENCE.

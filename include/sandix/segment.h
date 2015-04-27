@@ -15,7 +15,7 @@
 #define GDT_ENTRY_BOOT_CS	2
 #define GDT_ENTRY_BOOT_DS	3
 #define GDT_ENTRY_BOOT_TSS	4
-
+// * 8 equals to << 3
 #define __BOOT_CS		(GDT_ENTRY_BOOT_CS  * 8)
 #define __BOOT_DS		(GDT_ENTRY_BOOT_DS  * 8)
 #define __BOOT_TSS		(GDT_ENTRY_BOOT_TSS * 8)

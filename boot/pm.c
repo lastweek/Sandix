@@ -27,13 +27,13 @@ struct gdt_ptr {
 } __attribute__((packed));
 
 /* 
-	(See description in section 3.4.5 Segment descriptors.)
-	
-	CS: code, read/execute, 4 GB, base 0
-	DS: data, read/write, 4 GB, base 0 
-	TSS: 32-bit tss, 104 bytes, base 4096
-	We only have a TSS here to keep Intel VT happy;
-	we don't actually use it for anything.
+ *	(See description in section 3.4.5 Segment descriptors.)
+ *
+ *	CS: code, read/execute, 4 GB, base 0
+ *	DS: data, read/write, 4 GB, base 0 
+ *	TSS: 32-bit tss, 104 bytes, base 4096
+ *	We only have a TSS here to keep Intel VT happy;
+ *	we don't actually use it for anything.
 */
 static void setup_gdt(void)
 {
@@ -51,7 +51,6 @@ static void setup_gdt(void)
 	asm volatile("lgdtl %0" : : "m" (gdt));
 }
 
-/* Set up the IDT */
 static void setup_idt(void)
 {
 	static const struct gdt_ptr null_idt = {0, 0};
@@ -62,11 +61,11 @@ void go_to_protected_mode(void)
 {	
 	/* Turn off interrupts */
 	asm volatile("cli");
-	mask_all_interrupts();
+	mask_all_interrupts();/* why? */
 	
 	setup_idt();
 	setup_gdt();
-
-	//protected_mode_jump(boot_params.hdr.code32_start,
-	//		    (u32)&boot_params + (ds() << 4));
+	
+	/* Jump protected mode at 0x100000 */
+	protected_mode_jump(0x100000, NULL);
 }

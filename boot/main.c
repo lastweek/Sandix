@@ -43,12 +43,12 @@ void main(void)
 	enable_a20();
 	
 	/* Query Disk Infomation */
-	edd();
+	//edd();
 
 	/* Set the video mode */
 	set_video();
 
 	/* Do the last things and invoke protected mode */
-	//go_to_protected_mode();
+	go_to_protected_mode();
 
 }
