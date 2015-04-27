@@ -4,10 +4,6 @@
  *
  *	bioscall.S: "Glove box" for BIOS calls.  Avoids the constant
  *	problems with BIOSes touching registers they shouldn't be.
- *
- *	Note by Shan Yizhou: The last instruction appeared in the 
- *	original code was [retl]. Somehow, my GCC does not generate
- *	the matching [calll]. Therefore, use [ret] instead.
  */
 
 	.code16

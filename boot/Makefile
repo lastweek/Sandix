@@ -41,8 +41,10 @@ OBJDUMPFLAGS_REALMODE = -d -M i8086,intel
 
 # FIXME TOO UGLY, some better way?
 # FIXME Does the order of files input to LD matters?
-SOURCES_CC = header.S main.c tty.c bioscall.S regs.c string.c printf.c a20.c memory.c video.c
-OBJECTS_CC = header.o main.o tty.o bioscall.o regs.o string.o printf.o a20.o memory.o video.o
+SOURCES_CC = header.S main.c tty.c bioscall.S regs.c string.c printf.c \
+			 a20.c memory.c video.c pm.c
+OBJECTS_CC = header.o main.o tty.o bioscall.o regs.o string.o printf.o \
+			 a20.o memory.o video.o pm.o
 SOURCES_LD = $(OBJECTS_CC)
 
 # FIXME ADD DEPENDENCE.
