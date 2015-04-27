@@ -26,6 +26,9 @@ struct gdt_ptr {
 	u32 ptr;
 } __attribute__((packed));
 
+static struct gdt_ptr gdt;
+static struct gdt_ptr idt;
+
 /* 
  *	(See description in section 3.4.5 Segment descriptors.)
  *
@@ -43,7 +46,6 @@ static void setup_gdt(void)
 		[GDT_ENTRY_BOOT_DS]  = GDT_ENTRY(0xc093, 0, 0xfffff),
 		[GDT_ENTRY_BOOT_TSS] = GDT_ENTRY(0x0089, 4096, 103),
 	};
-	static struct gdt_ptr gdt;
 
 	gdt.len = sizeof(boot_gdt)-1;
 	gdt.ptr = (u32)&boot_gdt + (ds() << 4);
@@ -53,8 +55,7 @@ static void setup_gdt(void)
 
 static void setup_idt(void)
 {
-	static const struct gdt_ptr null_idt = {0, 0};
-	asm volatile("lidtl %0" : : "m" (null_idt));
+	asm volatile("lidtl %0" : : "m" (idt));
 }
 
 void go_to_protected_mode(void)

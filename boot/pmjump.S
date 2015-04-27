@@ -27,24 +27,28 @@ protected_mode_jump:
 
 	# Set Protected-mode bit in CR0
 	movl	%cr0, %edx
-	orb		$0x1, %dl	
+	orb		$0x1, %dl
 	movl	%edx, %cr0
 
 	# Long jump tp Protected-mode
-	.byte	0x66, 0xea		# ljmpl opcode
-2:	.long	in_pm32			# offset
-	.word	__BOOT_CS		# segment
+	.byte	0x66, 0xea			# ljmpl opcode
+2:	.long	in_pm32+0x90000		# offset
+	.word	__BOOT_CS			# segment
 
+/* ljmp should jmp rignt absolute address */
+/* jmp dword 0x10:0x1556  is wrong*/
+/* 0x1556+0x90000 = 0x91556 */
+/* jmp dword 0x10:0x91556 is rignt*/
 
+/* FIXME show we get here !!! */
 
 	.code32
 	.section ".text32","ax"
 	.type in_pm32, @function
 in_pm32:
-	# Put something on screen show we are here
-	movl	$0xB8010, %edx
-	movb	$0x66, (%edx)
-	movb	$0x66, (%edx)
+	movl	$0xB8000, %ebx
+	movb	$0x66, (%ebx)
+	movb	$0x66, 2(%ebx)
 1:
 	hlt
 	jmp 1b

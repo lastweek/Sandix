@@ -9,8 +9,8 @@ OBJCOPY = i386-elf-objcopy
 OBJDUMP = i386-elf-objdump
 CATENATE = $(PWD)/build
 
-# FIXME Tentative size: 1M
-REALMODE_IMAGESIZE = 10
+# FIXME Tentative size: 20k
+REALMODE_IMAGESIZE = 20
 
 # 0. -march=i386 works???
 # 1. Warn if a function is declared or defined without specifying the argument types.
@@ -32,12 +32,12 @@ LDFLAGS = -e _start -Ttext 0x0000 -o $(LDOFILE)
 # FIXME: some more sections to reserve?
 # 0. Reserve sections: .text .rodata
 # 1. Generate raw binary file.
-OBJCOPYFLAGS = -j .text -j .text32 -j .rodata -O binary
+OBJCOPYFLAGS = -j .text -j .text32 -j .rodata -j .data -O binary
 
 # 0. OBJDUMP flags for Real-Mode object files.
 # 1. CAVEAT: The objdump's result is not reliable under i8086!!
 #            Check the ndisasm's result!!!
-OBJDUMPFLAGS_REALMODE = -d -M i8086,intel
+OBJDUMPFLAGS_REALMODE = -d -M i8086,att
 
 # FIXME TOO UGLY, some better way?
 # FIXME Does the order of files input to LD matters?
