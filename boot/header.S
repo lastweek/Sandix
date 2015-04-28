@@ -17,7 +17,7 @@ INITSEG = 0X9000
 header_start:
 	# Information about system!
 	# Filled by main()???
-	# NEED FIXED
+	# FIXME
 	.space 512
 	
 ###########################
@@ -60,7 +60,7 @@ start_of_setup:
 	# It means we have no idea what is the upper bound of setup-image.
 
 	# FIXME: Tentative %sp
-	movw $0x3000, %sp
+	movw $0x4000, %sp
 
 	# GO PARTY, never return!
 	calll main

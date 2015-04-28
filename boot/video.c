@@ -35,8 +35,10 @@ void set_video(void)
 	u16 cols;
 	
 	mode = get_video_mode_bios();
-	if (mode != 3 && mode != 7)
+	if (mode != 3 && mode != 7) {
 		set_video_mode_bios();
+		printf("DEBUG: Set video mode 3\n");
+	}
 
 	/* Get cols and rows from BDA */
 	set_fs(0x0000);

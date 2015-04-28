@@ -14,14 +14,18 @@
 protected_mode_jump:
 	# Pointer to boot_params table
 	movl	%edx, %esi	
-
+	
+	# Self-modify the offset of ljmp
+	# Maybe we can just add 0x90000.
 	xorl	%ebx, %ebx
 	movw	%cs, %bx
 	shll	$4, %ebx
 	addl	%ebx, 2f
-	jmp	1f	# Short jump to serialize on 386/486
+	
+	# Short jump to serialize on 386/486
+	# why? ---syz
+	jmp	1f	
 1:
-
 	movw	$__BOOT_DS, %cx
 	movw	$__BOOT_TSS, %di
 
@@ -32,32 +36,34 @@ protected_mode_jump:
 
 	# Long jump tp Protected-mode
 	.byte	0x66, 0xea			# ljmpl opcode
-2:	.long	in_pm32+0x90000		# offset
+2:	.long	in_pm32				# offset
 	.word	__BOOT_CS			# segment
 
-/* ljmp should jmp rignt absolute address */
-/* jmp dword 0x10:0x1556  is wrong*/
-/* 0x1556+0x90000 = 0x91556 */
-/* jmp dword 0x10:0x91556 is rignt*/
-
-/* FIXME show we get here !!! */
 
 	.code32
 	.section ".text32","ax"
 	.type in_pm32, @function
 in_pm32:
-	movl	$0xB8000, %ebx
-	movb	$0x66, (%ebx)
-	movb	$0x66, 2(%ebx)
-1:
-	hlt
-	jmp 1b
-	# Set up data segments.
+	# Set up segments, FIRST!
+	# %ecx = __BOOT_DS
 	movl	%ecx, %ds
 	movl	%ecx, %es
 	movl	%ecx, %fs
 	movl	%ecx, %gs
 	movl	%ecx, %ss
+
+	# Print "Sandix" on screen
+	# Show we are here.
+	movl	$0xB8000, %ebx
+	movb	$0x53, (%ebx)
+	movb	$0x61, 2(%ebx)
+	movb	$0x6e, 4(%ebx)
+	movb	$0x64, 6(%ebx)
+	movb	$0x69, 8(%ebx)
+	movb	$0x78, 10(%ebx)
+1:
+	hlt
+	jmp 1b
 
 	# FIXME Choose %esp
 	addl	%ebx, %esp
@@ -76,5 +82,5 @@ in_pm32:
 	lldt	%cx
 
 	# Jump to the 32-bit entrypoint, 0x100000
-	jmpl	*%eax
+	#jmpl	*%eax
 

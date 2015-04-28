@@ -11,6 +11,14 @@ asm(".code16gcc");
 
 #include <types.h>
 
+static inline void die(void)
+{
+	asm volatile(
+		"1:\n\t"
+		"hlt\n\t"
+		"jmp 1b"
+	);
+}
 /* Basic port I/O */
 static inline void outb(u8 v, u16 port)
 {
@@ -119,6 +127,7 @@ static inline void wrgs32(u32 v, addr_t addr)
 {
 	asm volatile("movl %1,%%gs:%0" : "+m" (*(u32 *)addr) : "ri" (v));
 }
+
 
 /*
 pusha:-->
