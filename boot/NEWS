@@ -162,3 +162,11 @@ Disk
 
 Today's job: Get through video setup, save parameters or something
 			 Maybe store EDD information, if i got time.
+
+2015/04/28
+
+Transfer to pm successfully.
+But we still got some issues.
+
+In pm.c, when invoke setup_idt(), the printf() in setup_gdt() won't return.
+There must be something wrong. Maybe idtr can affect interrupt in rm mode?
