@@ -1,0 +1,15 @@
+2015/04/28
+
+Finally, we are in 32-bit CPU.
+NO BIOS, therefore, create some drivers FIRST!
+
+Basic:
+	Keyboard driver
+	screen driver(Use 0xB8000 area)
+	disk driver
+	
+	DMA
+	Timer
+	TLB
+	Paging...
+
