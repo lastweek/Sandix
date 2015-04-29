@@ -1,5 +1,5 @@
-#ifndef _SANDIX_E820_H
-#define _SANDIX_E820_H
+#ifndef _SANDIX_X86_E820_H
+#define _SANDIX_X86_E820_H
 
 #define E820MAP			0x2d0	/* our map */
 #define E820MAX			128		/* number of entries in E820MAP */
@@ -35,4 +35,4 @@ struct e820_list {
 #define BIOS_ROM_BASE		0xffe00000
 #define BIOS_ROM_END		0xffffffff
 
-#endif /* _SANDIX_E820_H */
+#endif /* _SANDIX_X86_E820_H */

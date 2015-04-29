@@ -1,8 +1,8 @@
-#ifndef _UAPI_ASM_X86_PROCESSOR_FLAGS_H
-#define _UAPI_ASM_X86_PROCESSOR_FLAGS_H
+#ifndef _SANDIX_X86_PROCESSOR_FLAGS_H
+#define _SANDIX_X86_PROCESSOR_FLAGS_H
 /* Various flags defined: can be included from assembler. */
 
-#include <linux/const.h>
+#include <sandix/const.h>
 
 /*
  * EFLAGS bits
@@ -150,4 +150,4 @@
 #define CX86_RCR_BASE	0xdc
 
 
-#endif /* _UAPI_ASM_X86_PROCESSOR_FLAGS_H */
+#endif /* _SANIDX_X86_PROCESSOR_FLAGS_H */

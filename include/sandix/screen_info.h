@@ -1,5 +1,5 @@
-#ifndef _SANDIX_SCREEN_INFO_H
-#define _SANDIX_SCREEN_INFO_H
+#ifndef _SANDIX_X86_SCREEN_INFO_H
+#define _SANDIX_X86_SCREEN_INFO_H
 
 #include <sandix/types.h>
 
@@ -73,4 +73,4 @@ struct screen_info {
 #define VIDEO_CAPABILITY_SKIP_QUIRKS	(1 << 0)
 
 
-#endif /* _SANDIX_SCREEN_INFO_H */
+#endif /* _SANDIX_X86_SCREEN_INFO_H */
