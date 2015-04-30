@@ -1,13 +1,14 @@
 #########################################################################
 #	2015/04/11. Created by Shan Yizhou.
-#
-#	header.s: 16-bit image header, prepare to go to main();
-#
-#########################################################################
-#
 #	Based on Linux/x86/boot/header.S
 #
+#	header.s: 16-bit image header.
+#	The first thing is moving Protected-mode kernel image to 0x100000.
+#	After that, this code will set up the %sp, then transfer to main()
+#	who is responsible for other dirty work.
+#
 #########################################################################
+
 BOOTSEG = 0x07C0
 INITSEG = 0X9000
 
@@ -55,12 +56,8 @@ start_of_setup:
 	movw $0x1301, %ax # write msg, move cursor.
 	int $0x10
 
-	# Before we call main(), we must set up %sp first.
-	# For now, we don't konw how much space main() will take.
-	# It means we have no idea what is the upper bound of setup-image.
-
 	# FIXME: Tentative %sp
-	movw $0x4000, %sp
+	movw $0x3000, %sp
 
 	# GO PARTY, never return!
 	calll main

@@ -2,6 +2,9 @@
 # 2015/04/01. Created by Shan Yizhou.
 #
 # bootsect.s: Bootloader for Sandix.
+# Load Real-mode kernel image at 0x90000, load Protected-mode kernel
+# image at 0x10000. It's Real-mode kernel image's job to move
+# Protected-mode kernel to 0x100000.
 #
 #########################################################################
 # bootsect.s is the conventional MBR sector of disk, which is loaded
