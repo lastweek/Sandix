@@ -33,30 +33,31 @@ int main(int argc, char **argv) {
 	FILE *fp_bl, *fp_si, *fp_ki;	// Input file handles
 	FILE *fp_out;					// Output file handle
 	int len_bl, len_si, len_ki;		// Input files's length
-	int image_size;					// 1KB, 2KB...
 	int sectors_header;				// Sectors of header
+	int sectors_image;				// Sectors of image
+	int sectors_bzimage;			// Sectors of bzimage
 	int lower_bound_of_sp;			// The lower bound of stack point, %sp
-	int i;
+	int i, pad;
 	char c;
-
-	if (argc > 2)
-		err("Too many arguments\n");
-
-	if ((image_size = atoi(argv[argc-1])) == 0)
-		err("Please specify a valid final image size.\n");
 
 	if ((fp_bl = fopen(bootloader, "r+")) == NULL)
 		err("Open [bootsect] failed\n");
 
 	if ((fp_si = fopen(setup, "r+")) == NULL)
 		err("Open [header] failed\n");
+	
+	if ((fp_ki = fopen(kernel, "r+")) == NULL)
+		err("Open [image] failed\n");
 
-	/* Step1: Padding the hole in bootloader. */
+	
+	/*
+	 * Step1: Put [bootloader] in MBR.
+	 */
 	fseek(fp_bl, -1, SEEK_END);// Skip EOF in the end.
 	if ((len_bl = ftell(fp_bl)) > (SECTOR_SIZE - 2))
 		err("[bootsect] is too large to form MBR\n");
 	
-	//Padding the hole with NOP
+	// Padding the hole with NOP and magic to 512 bytes.
 	while (len_bl < (SECTOR_SIZE - 2)) {
 		fputc(NOP, fp_bl);
 		len_bl++;
@@ -64,7 +65,9 @@ int main(int argc, char **argv) {
 	fputc(MAGIC_510, fp_bl);
 	fputc(MAGIC_511, fp_bl);
 
-	/* Step2: Put [header] in sector 2 after [bootloader] */
+	/*
+	 * Step2: Catenate [header] after [bootloader].
+	 */
 	fseek(fp_si, 0, SEEK_END);
 	len_si = ftell(fp_si);
 	fseek(fp_si, 0, SEEK_SET);
@@ -72,22 +75,48 @@ int main(int argc, char **argv) {
 		c = fgetc(fp_si);
 		fputc(c, fp_bl);
 	}
-
-	/* Step3: Pad NOP after [header] */
-	/* 2015/04/16 We are still working on header, ignore 32-bit kernel. */
-	image_size *= 1024;// in bytes count.
-	image_size -= (len_si + len_bl + 2);
-	for (i = 0; i < image_size; i++)
-		fputc(NOP, fp_bl);
 	
-	/* FIXME */
-	sectors_header = len_si / SECTOR_SIZE;
-	sectors_header++;
-	lower_bound_of_sp = 0x90000 + sectors_header * SECTOR_SIZE;
-	printf("\nCaveat: header's size is %d, need %d sectors.\n", len_si, sectors_header);
+	// Padding the hole with NOP, make [header] 512 byte alignment.
+	if (pad = len_si % SECTOR_SIZE) {
+		pad = SECTOR_SIZE - pad;
+		for (i = 0; i < pad; i++)
+			fputc(NOP, fp_bl);
+	}
+
+	/*
+	 * Step3: Catenate [image] after [header].
+	 */
+	 fseek(fp_ki, 0, SEEK_END);
+	 len_ki = ftell(fp_ki);
+	 fseek(fp_ki, 0, SEEK_SET);
+	 for (i = 0; i < len_ki; i++) {
+	 	c = fgetc(fp_ki);
+		fputc(c, fp_bl);
+	 }
+	
+	// Padding the hole with NOP, make [image] 512 byte alignment.
+	if (pad = len_ki % SECTOR_SIZE) {
+		pad = SECTOR_SIZE - pad;
+		for (i = 0; i < pad; i++)
+			fputc(NOP, fp_bl);
+	}
+
+	/*
+	 * Step4: Print some infomation.
+	 */
+	sectors_header    = (len_si % SECTOR_SIZE)? (len_si/SECTOR_SIZE+1): len_si/SECTOR_SIZE;
+	sectors_image     = (len_ki % SECTOR_SIZE)? (len_ki/SECTOR_SIZE+1): len_ki/SECTOR_SIZE;
+	sectors_bzimage   = sectors_header + sectors_image + 1;
+	lower_bound_of_sp = sectors_header * SECTOR_SIZE + 0x90000;
+
+	printf("\nCaveat: [header]'s size is %d bytes, need %d sectors.\n", len_si, sectors_header);
+	printf("Caveat: [image]'s size is %d bytes, need %d sectors.\n", len_ki, sectors_image);
+	printf("Caveat: [bzimage]'s size is %d bytes.\n", sectors_bzimage);
 	printf("Caveat: The lower bound of %%sp is %X\n\n", lower_bound_of_sp);
 
 	fclose(fp_bl);
 	fclose(fp_si);
+	fclose(fp_ki);
+
 	return 0;
 }

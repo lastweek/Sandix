@@ -9,18 +9,13 @@ OBJCOPY = i386-elf-objcopy
 OBJDUMP = i386-elf-objdump
 CATENATE = $(PWD)/build
 
-REALMODE_IMAGESIZE = 20
-
 # FLAGS
 REALMODE_CFLAGS = -c -Wall -Wextra -pipe -D__RL__KERNEL__ -march=i386 \
-		-Wstrict-prototypes  \
-		-mpreferred-stack-boundary=2 \
-		-ffreestanding \
-		-fno-common -fno-pic \
-		-I../include/
+		-Wstrict-prototypes -mpreferred-stack-boundary=2 -ffreestanding \
+		-fno-common -fno-pic -I../include/
 
 LDOFILE = header.ldout
-LDFLAGS = -M --script=setup.ld \
+LDFLAGS =  --script=setup.ld \
 		-e _start -Ttext 0x0000 -o $(LDOFILE)
 
 OBJCOPYFLAGS = -j .text -j .text32 -j .rodata -j .data -O binary
@@ -53,7 +48,7 @@ s1:
 	#
 	# STEP4 ---> CATENATE
 	#
-	$(CATENATE) $(REALMODE_IMAGESIZE)
+	$(CATENATE) 
 	mv bootsect bzimage
 
 dump:
