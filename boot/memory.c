@@ -37,7 +37,7 @@ int detect_memory_e820(void)
 			break;
 		}
 
-		/* Note by author:
+		/* Note by Linux author:
 		   Some BIOSes stop returning SMAP in the middle of
 		   the search loop.  We don't know exactly how the BIOS
 		   screwed up the map at that point, we might have a
