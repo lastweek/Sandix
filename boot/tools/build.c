@@ -111,7 +111,7 @@ int main(int argc, char **argv) {
 
 	printf("\nCaveat: [header]'s size is %d bytes, need %d sectors.\n", len_si, sectors_header);
 	printf("Caveat: [image]'s size is %d bytes, need %d sectors.\n", len_ki, sectors_image);
-	printf("Caveat: [bzimage]'s size is %d bytes.\n", sectors_bzimage);
+	printf("Caveat: [bzimage]'s size is %d bytes, total %d sectors.\n", sectors_bzimage*SECTOR_SIZE, sectors_bzimage);
 	printf("Caveat: The lower bound of %%sp is %X\n\n", lower_bound_of_sp);
 
 	fclose(fp_bl);

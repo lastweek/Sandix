@@ -13,4 +13,6 @@ pm_kernel_entry:
 	# Print something on screen
 	# Show we are here.
 	movl $0xB8000, %ebx
-	movl 
+	movl $0x41, (%ebx)
+head_end:
+	nop
