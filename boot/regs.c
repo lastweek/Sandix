@@ -18,7 +18,7 @@
 void initregs(struct biosregs *reg)
 {	
 	char *d = (char *)reg;
-	int i = 0;
+	size_t i = 0;
 
 	while (i++ < sizeof(struct biosregs))
 		*d++ = 0;

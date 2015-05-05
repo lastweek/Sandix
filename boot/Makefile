@@ -32,9 +32,8 @@ SOURCES_LD = $(OBJECTS_CC)
 
 
 # Time for work
-all: cat
+all: $(SOURCES_CC) cat
 
-# FIXME
 cat: objcp image
 	$(CATENATE) 
 	mv bootsect bzimage
@@ -43,7 +42,7 @@ objcp: ld bootsect
 	$(OBJCOPY) $(OBJCOPYFLAGS) $(LDOFILE) header
 	$(OBJCOPY) $(OBJCOPYFLAGS) bootsect.o bootsect
 
-ld: $(OBJECTS_CC)
+ld: $(SOURCES_LD)
 	$(LD) $(LDFLAGS) $(SOURCES_LD)
 
 $(OBJECTS_CC): boot.h string.h

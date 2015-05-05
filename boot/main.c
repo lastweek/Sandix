@@ -16,18 +16,20 @@
  * set the keyboard repeat rate to maximum.  Unclear why the latter
  * is done here; this might be possible to kill off as stale code.
  */
+/*
 static void keyboard_init(void)
 {
 	struct biosregs ireg, oreg;
 	initregs(&ireg);
 
-	ireg.ah = 0x02;		/* Get keyboard status */
+	ireg.ah = 0x02;		// Get keyboard status
 	intcall(0x16, &ireg, &oreg);
 	//boot_params.kbd_status = oreg.al;
 
-	ireg.ax = 0x0305;	/* Set keyboard repeat rate */
+	ireg.ax = 0x0305;	// Set keyboard repeat rate
 	intcall(0x16, &ireg, NULL);
 }
+*/
 
 void main(void)
 {

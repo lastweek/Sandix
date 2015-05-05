@@ -61,6 +61,8 @@ in_pm32:
 	movb	$0x64, 6(%ebx)
 	movb	$0x69, 8(%ebx)
 	movb	$0x78, 10(%ebx)
+	movl	$0x0A, %eax
+	cpuid
 1:
 	hlt
 	jmp 1b
