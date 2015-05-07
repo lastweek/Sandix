@@ -31,7 +31,7 @@ unsigned int eax_len_of_ebx_to_enumerate;
 unsigned int ebx_predefined_event_mask;
 unsigned int edx_nr_of_fixed_func_perf_counter;
 unsigned int edx_bit_width_of_fixed_func_perf_counter;
-o
+
 unsigned long long CPU_BASE_FREQUENCY;
 char CPU_BRAND[48];
 
