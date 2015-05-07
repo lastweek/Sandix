@@ -10,9 +10,12 @@
  .code32
 
 pm_kernel_entry:
-	# Print something on screen
+	# Print sth on screen, '@' in left-upper corner.
 	# Show we are here.
 	movl $0xB8000, %ebx
-	movl $0x41, (%ebx)
+	movl $0x40, (%ebx)
+
+	# Call Kernel Init. Never Return.
+	calll _kernel_init
 head_end:
 	nop
