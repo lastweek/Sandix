@@ -13,3 +13,35 @@ Basic:
 	TLB
 	Paging...
 
+
+Thu May  7 16:14:14 CST 2015
+
+The Linux-3.18 Kernel is too complicated, varies layers and varies code in
+different directory. Additionally, source code concern too much things which
+make it hard to read.
+
+In such a dilemma, i get some help from Linux-0.0.1 which is more concise.
+
+Today i read code about [TTY]. There are three layers in TTY, the first layer is
+[TTY Core] which communicate with user level via file_ops like write, read, etc.
+The second layer is [Line Discipline] which control some format or control signals
+between [TTY Core] layer and [TTY Driver] layer. The third layer is [TTY Driver]
+which communicate with hardware directly.
+
+The 1->3 stream works like: [TTY Core] get input string from user process, along
+with some sanitary check or something. Then [TTY Core] will pass the string down
+to [TTY Discipline] whose job is unkonw to me now. Then [TTY Discipline] pass string
+down to [TTY Driver] who will output the string to hardware, like Screen, RS232,etc.
+Of course, the second layer [TTY Discipline] can be bypassed, [TTY Core] and [TTY Drive]
+can communicate directly!
+
+There are varies hardware along with their [TTY Drivers]. So, Sandix's job is to define
+and maintain API between [TTY Core], [TTY Discipline], [TTY Driver], like what Linux do.
+
+Hence, it's quite clear that Screen output control module is the third layer, [TTY Driver].
+The Screen output module handle the memory region begins at 0xB8000, exhibit the action
+that Keyboard do.
+
+
+
+
