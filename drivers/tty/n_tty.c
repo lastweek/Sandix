@@ -2506,7 +2506,7 @@ struct tty_ldisc_ops tty_ldisc_N_TTY = {
 	.poll            = n_tty_poll,
 	.receive_buf     = n_tty_receive_buf,
 	.write_wakeup    = n_tty_write_wakeup,
-	.fasync		 = n_tty_fasync,
+	.fasync			 = n_tty_fasync,
 	.receive_buf2	 = n_tty_receive_buf2,
 };
 

@@ -1,8 +1,13 @@
 Naming convention:
 
-files under ./ are intended for what? library??
+*****
+files in ./  are intended for what? library??
 #ifndef SANDIX_FILENAME_H
 
-
-files under ./sandix are intended for kernel use.
+*****
+files in ./sandix are intended for kernel use.
 #ifndef _SANDIX_FILENAME_H
+
+*****
+files in ./asm are "bridges" between Hardware and C.
+#ifndef _ASM_FILENAME_H
