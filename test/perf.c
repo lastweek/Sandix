@@ -178,6 +178,7 @@ cpu_info_print(void)
 	printf("Number of general-purpose perf counter per cpu: %u\n", eax_nr_of_perf_counter_per_cpu);
 	printf("Bit width of general-purpose, perf counter reg: %u\n", eax_bit_width_of_perf_counter);
 	printf("Length of [EBX] bit vector to enumerate events: %u\n", eax_len_of_ebx_to_enumerate);
+	printf("EBX events not avaliable if 1: %x\n", ebx_predefined_event_mask);
 	
 	if (eax_arch_perf_version > 1) {
 		printf("Number of fixed-func perf counters:    %u\n", edx_nr_of_fixed_func_perf_counter);

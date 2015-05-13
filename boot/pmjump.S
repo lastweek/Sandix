@@ -24,6 +24,9 @@ protected_mode_jump:
 	
 	# Short jump to serialize on 386/486
 	# why? ---syz
+	# Cause above is self-modifying code,
+	# a serializing instruction[like cpuid] is needed
+	# before excute the new instruction.
 	jmp	1f	
 1:
 	movw	$__BOOT_DS, %cx

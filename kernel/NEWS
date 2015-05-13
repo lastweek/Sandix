@@ -13,9 +13,9 @@ Basic:
 	TLB
 	Paging...
 
-
+#############################
 Thu May  7 16:14:14 CST 2015
-
+#############################
 The Linux-3.18 Kernel is too complicated, varies layers and varies code in
 different directory. Additionally, source code concern too much things which
 make it hard to read.
@@ -43,5 +43,25 @@ The Screen output module handle the memory region begins at 0xB8000, exhibit the
 that Keyboard do.
 
 
+#############################
+Tue May 12 19:37:31 CST 2015
+#############################
+Review the details and differences between [interrupt gate] and [trap gate], and their DPL
+in descriptors.
 
+Question: What's the purpose of DPL in gate descriptors?
 
+Answer: The answer is: when some code using [INT n] instructions(this is trap), the processor will
+check the current CPL with DPL in gate descritors. The CPL must smaller than DPL.
+
+For example, when we invoke system call [INT 0x80] in user space, the CPL is 3, the DPL
+of 0x80 descriptor is 3, it works. If we invoke [INT 0x14](page fault) in user space,
+the CPL is 3, the DPL of 0x14 descriptor is 0, it fails.
+It means we cannot call [INT 0x14] in user space!
+
+However, if it's [external interrupt] or [processor generated exception],
+the processor won't check CPL and DPL, which means the page fault can be
+handled if the page fault exception happens in user space.
+
+Conclusion: The DPL field of gate descriptor is designed for prevent user space
+code call some interrupt or exception handler via [INT n]! For safety.
