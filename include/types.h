@@ -1,12 +1,5 @@
-/*
- *	2015/04/16 Created by Shan Yizhou.
- *
- *	types.h: Basic type definitions for x86 cpus.
- *
- */
-
-#ifndef SANDIX_TYPES_H
-#define SANDIX_TYPES_H
+#ifndef TYPES_H
+#define TYPES_H
 
 #ifndef NULL
 #define NULL	((void *)0)

@@ -1,18 +1,6 @@
-/*
- *	2015/03/28 Created by Shan Yizhou.
- *	
- *	stdarg.h: Variable arguments list manipulation header.
- *	The header <stdarg.h> provides facilities for stepping
- *	through a list of function arguments of unknow number
- *	and types.
- *
- *	Suppose [last] is the last named parameter of a function
- *	pushed into stack by caller.
- */
-
 /* FIXME double float*/
-#ifndef STDC_STDARG_H
-#define STDC_STDARG_H
+#ifndef STDARG_H
+#define STDARG_H
 
 /* Stack alignment: 4 bytes.*/
 #define STACK_ALIGN	4
@@ -31,4 +19,4 @@ typedef char * va_list;
 	ap += STACK_ALIGN; \
 	__re; })
 
-#endif	/* STDC_STDARG_H */
+#endif

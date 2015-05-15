@@ -1,10 +1,9 @@
-#ifndef _SANDIX_X86_SCREEN_INFO_H
-#define _SANDIX_X86_SCREEN_INFO_H
+#ifndef _SANDIX_X86_SCREEN_INFO_H_
+#define _SANDIX_X86_SCREEN_INFO_H_
 
 #include <sandix/types.h>
 
 /*
- *	Note: Copy from Linux, for future use.
  *	These are set up by the setup-routine at boot-time.
  *	setup-routine: boot/video.c
  */
@@ -73,4 +72,4 @@ struct screen_info {
 #define VIDEO_CAPABILITY_SKIP_QUIRKS	(1 << 0)
 
 
-#endif /* _SANDIX_X86_SCREEN_INFO_H */
+#endif /* _SANDIX_X86_SCREEN_INFO_H_ */

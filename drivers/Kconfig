@@ -1,0 +1,20 @@
+menu "Device Drivers"
+
+source "drivers/acpi/Kconfig"
+
+source "drivers/block/Kconfig"
+
+source "drivers/char/Kconfig"
+
+source "drivers/clocksource/Kconfig"
+
+source "drivers/clk/Kconfig"
+
+source "drivers/dma/Kconfig"
+
+source "drivers/input/Kconfig"
+
+source "drivers/video/Kconfig"
+
+source "drivers/tty/Kconfig"
+endmenu

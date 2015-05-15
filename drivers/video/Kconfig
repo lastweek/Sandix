@@ -1,55 +1,42 @@
 #
-# Video configuration
+# Video console configuration
 #
 
-menu "Graphics support"
-	depends on HAS_IOMEM
+menu "Console display driver support"
 
-config HAVE_FB_ATMEL
-	bool
+config VGA_CONSOLE
+	bool "VGA text console" if EXPERT || !X86
+	depends on !4xx && !8xx && !SPARC && !M68K && !PARISC && !FRV && \
+		!SUPERH && !BLACKFIN && !AVR32 && !MN10300 && !CRIS && \
+		(!ARM || ARCH_FOOTBRIDGE || ARCH_INTEGRATOR || ARCH_NETWINDER) && \
+		!ARM64
+	default y
+	help
+	  Saying Y here will allow you to use Linux in text mode through a
+	  display that complies with the generic VGA standard. Virtually
+	  everyone wants that.
 
-config SH_MIPI_DSI
-	tristate
-	depends on (SUPERH || ARCH_SHMOBILE) && HAVE_CLK
+	  The program SVGATextMode can be used to utilize SVGA video cards to
+	  their full potential in text mode. Download it from
+	  <ftp://ibiblio.org/pub/Linux/utils/console/>.
 
-config SH_LCD_MIPI_DSI
-	bool
+	  Say Y.
 
-source "drivers/char/agp/Kconfig"
+config MDA_CONSOLE
+	depends on !M68K && !PARISC && ISA
+	default n
+	tristate "MDA text console (dual-headed)"
+	---help---
+	  Say Y here if you have an old MDA or monochrome Hercules graphics
+	  adapter in your system acting as a second head ( = video card). You
+	  will then be able to use two monitors with your Linux system. Do not
+	  say Y here if your MDA card is the primary card in your system; the
+	  normal VGA driver will handle it.
 
-source "drivers/gpu/vga/Kconfig"
+	  To compile this driver as a module, choose M here: the
+	  module will be called mdacon.
 
-source "drivers/gpu/host1x/Kconfig"
-source "drivers/gpu/ipu-v3/Kconfig"
-
-menu "Direct Rendering Manager"
-source "drivers/gpu/drm/Kconfig"
-endmenu
-
-menu "Frame buffer Devices"
-source "drivers/video/fbdev/Kconfig"
-endmenu
-
-source "drivers/video/backlight/Kconfig"
-
-config VGASTATE
-       tristate
-       default n
-
-config VIDEOMODE_HELPERS
-	bool
-
-config HDMI
-	bool
-
-if VT
-	source "drivers/video/console/Kconfig"
-endif
-
-if FB || SGI_NEWPORT_CONSOLE
-	source "drivers/video/logo/Kconfig"
-
-endif
-
+	  If unsure, say N.
 
 endmenu
+

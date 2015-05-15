@@ -1,4 +1,6 @@
+#############################
 2015/04/28
+#############################
 
 Finally, we are in 32-bit CPU.
 NO BIOS, therefore, create some drivers FIRST!
@@ -12,6 +14,7 @@ Basic:
 	Timer
 	TLB
 	Paging...
+
 
 #############################
 Thu May  7 16:14:14 CST 2015
@@ -46,8 +49,9 @@ that Keyboard do.
 #############################
 Tue May 12 19:37:31 CST 2015
 #############################
+
 Review the details and differences between [interrupt gate] and [trap gate], and their DPL
-in descriptors.
+in descriptors.[Intel Developer Manual 3A]
 
 Question: What's the purpose of DPL in gate descriptors?
 
@@ -65,3 +69,134 @@ handled if the page fault exception happens in user space.
 
 Conclusion: The DPL field of gate descriptor is designed for prevent user space
 code call some interrupt or exception handler via [INT n]! For safety.
+
+
+#############################
+Wed May 13 08:59:42 CST 2015
+#############################
+
+OK, today is Wednesday! I get up NOT early!
+Today's job: Keep reading [Intel Develop Manual 3A], chapter 8
+Multiple-Processor Managerment. About memory-ordering, atomic write, etc.
+
+*** MEMORY-ORDERING PRINCIPLES:
+
+	1. Neither Loads Nor Stores Are Reordered with Like Operations.
+
+	   The Intel-64 memory-ordering model allows neither loads nor stores
+	   to be reordered with the same kind of operation. That is, it ensures
+	   that loads are seen in program order and that stores are seen in program order.
+
+	2. Stores Are Not Reordered With Earlier Loads
+
+	   The Intel-64 memory-ordering model ensures that a store by a
+	   processor may not occur before a previous load by the same processor.
+
+	3. Loads May Be Reordered with Earlier Stores to Different Locations.
+
+	   The Intel-64 memory-ordering model allows a load to be reordered with
+	   an earlier store to a different location. However, loads are not reordered
+	   with stores to the same location.
+
+	4. Intra-Processor Forwarding Is Allowed.
+
+	   The memory-ordering model allows concurrent stores by two processors
+	   to be seen in different orders by those two processors; specifically,
+	   each processor may perceive its own store occurring before that of the other.
+
+	   While a store is temporarily held in a processor's store buffer, it can
+	   satisfy the processor's own loads but is not visible to (and cannot satisfy)
+	   loads by other processors.
+
+	5. Stores Are Seen in a Consistent Order by Other Processors
+
+	   As noted in 4, the memory-ordering model allows stores
+	   by two processors to be seen in different orders by those two processors.
+	   However, any two stores must appear to execute in the same order to all
+	   processors other than those performing the stores.
+	
+	6. Locked Instructions Have a Total Order.
+
+	   The memory-ordering model ensures that all processors agree on a single
+	   execution order of all locked instructions, including those that are larger
+	   than 8 bytes or are not naturally aligned.
+
+	7. Loads and Stores Are Not Reordered with Locked Instructions
+	   
+	   The memory-ordering model prevents loads and stores from being reordered
+	   with locked instructions that execute earlier or later.
+
+*** EXECUTING MULTIPLE THREADS:
+
+	Upon completing the operating system boot-up procedure, the bootstrap processor (BSP)
+	executes operating system code. Other logical processors are placed in the halt state.
+	To execute a code stream (thread) on a halted logical processor, the operating system
+	issues an interprocessor interrupt (IPI) addressed to the halted logical processor.
+	In response to the IPI, the processor wakes up and begins executing the code identified
+	by the vector received as part of the IPI.
+
+	Logical processors send IPIs to other logical processors by writing to the ICR register of its local APIC.
+	Each logical processor has its own advanced programmable interrupt controller (APIC).
+
+	To manage execution of multiple threads on logical processors, an operating system can use
+	conventional symmetric multiprocessing (SMP) techniques. For example, the operating-system
+	can use a time-slice or load balancing mechanism to periodically interrupt each of the active
+	logical processors. Upon interrupting a logical processor, the operating system checks its run
+	queue for a thread waiting to be executed and dispatches the thread to the interrupted logical processor.
+
+
+*** INTEL® HYPER-THREADING TECHNOLOGY ARCHITECTURE:
+	
+	1. State of the Logical Processors
+
+	• Duplicated for each logical processor
+	• Shared by logical processors in a physical processor
+	• Shared or duplicated, depending on the implementation
+
+	2. APIC Functionality
+
+	   When a processor supporting Intel Hyper-Threading Technology support is initialized,
+	   each logical processor is assigned a local APIC ID. The local APIC ID serves as an ID
+	   for the logical processor and is stored in the logical processor’s APIC ID register.
+	   Software communicates with local processors using the APIC’s interprocessor interrupt (IPI).
+
+	3. Memory Type Range Registers (MTRR)
+
+	   MTRRs in a processor supporting Intel Hyper-Threading Technology are shared by logical processors.
+	   When one logical processor updates the setting of the MTRRs, settings are automatically shared with
+	   the other logical proces- sors in the same physical package.
+
+	   The Intel 64 and IA-32 architectures require that all MP systems (this includes logical processors)
+	   must use an identical MTRR memory map. This gives software a consistent view of memory, independent of
+	   the processor on which it is running. 
+
+	4. Performance Monitoring Counters
+
+	   Why make [Nerburst] special???
+
+	   Performance counters and their companion control MSRs are shared between the logical processors
+	   within a processor core for processors based on Intel NetBurst microarchitecture. As a result,
+	   software must manage the use of these resources. The performance counter interrupts, events,
+	   and precise event monitoring support can be set up and allocated on a per thread (per logical processor) basis.
+
+	5. .....
+
+*** MULTI-CORE ARCHITECTURE
+	
+	....Almost the same general info with HT-Architecture.
+
+*** Topology
+	
+	It's a little difficult but important point for Sandix.
+	As a OS, you have to observe the CPU hierarchical! Including how many packages, how many cores.
+	As the manual said, the Hierarchical Mapping of CPU can be distinguished by APIC ID and CPUID.0b leaf.
+
+
+
+
+
+
+
+
+
+
