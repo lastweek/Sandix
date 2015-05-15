@@ -5,25 +5,29 @@ NAME0 = Sandix
 NAME1 = Crape myrtle
 NAME2 = Lagerstroemia indica
 
-# Nowadays sandix don't support building in other directories.
-# But we use $(srctree) for future update!
+# Nowadays Sandix don't support building in other directories.
+# But we use these two variables for future development.
 srctree = .
+objtree = .
+export srctree objtree
 
 # SHELL used by build.
 CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
       else if [ -x /bin/bash ]; then echo /bin/bash; \
 	  else echo sh; fi ; fi)
 
-# Because i am using i386-elf-gcc toolchains in my macos.
-CROSS_COMPILE = i386-elf-
 
-# 1. Do not use make's built-in rules and variables
-# 	(this increases performance and avoids hard-to-debug behaviour);
-# 2. Look for make include files relative to root of kernel src
+# Do not use make's built-in rules and variables
+# (this increases performance and avoids hard-to-debug behaviour);
 MAKEFLAGS += -rR
+
+# Look for make include files relative to root of kernel src
 MAKEFLAGS += --include-dir=$(srctree)
 MAKEFLAGS += --print-directory
 
+
+# i386-elf-gcc toolchains in my macos.
+CROSS_COMPILE = i386-elf-
 
 #############################
 # Make variables (CC, etc...)
@@ -36,12 +40,12 @@ NM		= $(CROSS_COMPILE)nm
 STRIP	= $(CROSS_COMPILE)strip
 OBJCOPY	= $(CROSS_COMPILE)objcopy
 OBJDUMP	= $(CROSS_COMPILE)objdump
-MAKE    = make
-AWK		= awk
+MAKE	= make
+AWK 	= awk
 PERL	= perl
 PYTHON	= python
 
-KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+KBUILD_CFLAGS := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security \
@@ -52,25 +56,33 @@ export CC AS LD CPP AR NM STRIP OBJCOPY OBJDUMP
 export MAKE AWK PERL PYTHON
 export KBUILD_CFLAGS
 
+# FIXME what's this
 # We need some generic definitions (do not try to remake the file).
 #$(srctree)/scripts/Kbuild.include: ;
 include $(srctree)/scripts/Kbuild.include
 
 
-#############################
 # The default make target
-all: zsandix
-	@echo $(CONFIG_SHELL)
+PHONY := all
+all: vmsandix
+	@echo "Target: all now..."
 
+PHONY += vmsandix
+vmsandix:
+	@echo "Target: vmandix now..."
 
-zsandix:
-	@echo "zsandix"
-
+PHONY += help
 help:
-	@echo "Need to do"
+	@echo "Top Makefile of Sandix"
+	@echo "PHONYS: $(PHONY)"
 
+PHONY += clean
 clean:
 
+PHONY += FORCE
+FORCE:
 
-
-
+# There are two reasons to use a phony target:
+# to avoid a conflict with a file of the same name,
+# and to improve performance.
+.PHONY: $(PHONY)
