@@ -1,19 +1,21 @@
-Sandix
+						Sandix kernel project
 
 WHAT IS SANDIX?
 
-	-Sandix is the abbreviation for Sandy Unix.
-	
-	-Sandix is a clone of the operating system Unix, written based on Linux kernel.
+	-Sandix is a clone of the operating system Unix, written based
+	 on Linux kernel. Sandix is the abbreviation for Sandy Unix.
 
 WHAT IS THE DEVELOPMENT PLAN?
 
-	-The contributor is a graduate student who can code Sandix only in his spare time.
-	 There is not a accurate schedule for sandix development, but i do hope Sandix can
-	 have a robust body after about 6 months.
+	-The contributor is a graduate student who can code Sandix only
+	 in his spare time. There is not a accurate schedule for Sandix
+	 development, but i do hope Sandix can have a robust body after
+	 about 6 months.
 
 WHY CODING SANDIX?
 
-	-For personal interest.
-	-For fun.
-	-And, it's cool.
+	 :)
+	 It's personal interest.
+	 It's fun.
+	 It's cool.
+	 :)
