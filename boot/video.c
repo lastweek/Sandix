@@ -5,8 +5,8 @@
  */
 
 #include "boot.h"
-//#include <sandix/bootparam.h>
-//#include <sandix/screen_info.h>
+#include <sandix/bootparam.h>
+#include <sandix/screen_info.h>
 
 static u8 get_video_mode_bios(void)
 {
