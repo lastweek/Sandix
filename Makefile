@@ -45,23 +45,29 @@ AWK 	= awk
 PERL	= perl
 PYTHON	= python
 
-KBUILD_CFLAGS := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
-		   -fno-strict-aliasing -fno-common \
-		   -Werror-implicit-function-declaration \
-		   -Wno-format-security \
-		   -std=gnu89
+KBUILD_CFLAGS := \
+			-Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+			-fno-strict-aliasing -fno-common \
+			-Werror-implicit-function-declaration \
+			-Wno-format-security \
+			-std=gnu89
+
+KBUILD_CPPFLAGS := \
+			-D__KERNEL__
+
+KBUILD_AFLAGS := \
+			-D__ASSEMBLY__
 
 export VERSION PATCHLEVEL SUBLEVEL NAME0 NAME1 NAME2
 export CC AS LD CPP AR NM STRIP OBJCOPY OBJDUMP
 export MAKE AWK PERL PYTHON
-export KBUILD_CFLAGS
+export KBUILD_CFLAGS KBUILD_CPPFLAGS KBUILD_AFLAGS
 
-# FIXME what's this
 # We need some generic definitions (do not try to remake the file).
 #$(srctree)/scripts/Kbuild.include: ;
 include $(srctree)/scripts/Kbuild.include
 
-
+#############################
 # The default make target
 PHONY := all
 all: vmsandix
