@@ -55,13 +55,16 @@ KBUILD_CFLAGS := \
 KBUILD_CPPFLAGS := \
 			-D__KERNEL__
 
+KBUILD_LDFLAGS := \
+			
+
 KBUILD_AFLAGS := \
 			-D__ASSEMBLY__
 
 export VERSION PATCHLEVEL SUBLEVEL NAME0 NAME1 NAME2
 export CC AS LD CPP AR NM STRIP OBJCOPY OBJDUMP
 export MAKE AWK PERL PYTHON
-export KBUILD_CFLAGS KBUILD_CPPFLAGS KBUILD_AFLAGS
+export KBUILD_CFLAGS KBUILD_CPPFLAGS KBUILD_LDFLAGS  KBUILD_AFLAGS
 
 # We need some generic definitions (do not try to remake the file).
 #$(srctree)/scripts/Kbuild.include: ;
