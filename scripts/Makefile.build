@@ -1,43 +1,40 @@
-# ==========================================================================
-# Building
-# ==========================================================================
+#
+#	Makefile.build
+#	Building ;)
+#
+
+src := $(obj)
 
 ifndef obj
 $(warning kbuild: Makefile.build is included improperly)
 endif
 
-src := $(obj)
-
-# ===========================================================================
+# ---------------------------------------------------------------------------
 PHONY := __build
 __build:
-
-# Some generic definitions
-include scripts/Kbuild.include
 
 # Init all relevant variables used in kbuild files so
 # 1) they have correct type
 # 2) they do not inherit any value from the environment
 obj-y :=
-always :=
-targets :=
 subdir-y :=
-EXTRA_AFLAGS   :=
-EXTRA_CFLAGS   :=
-EXTRA_CPPFLAGS :=
-EXTRA_LDFLAGS  :=
-asflags-y  :=
-ccflags-y  :=
-cppflags-y :=
-ldflags-y  :=
-subdir-asflags-y :=
-subdir-ccflags-y :=
 
+# ---------------------------------------------------------------------------
+# Kbuild.include first, then directory's Makefile, then Makefile.lib
+# Keep this order. Asides, i think these three files make Linux(Oops, Sandix)
+# programmers writing beautiful, concise Makefiles. ;)
+include $(srctree)/scripts/Kbuild.include
+include $(srctree)/$(src)/Makefile
+include $(srctree)/scripts/Makefile.libb
+
+# ---------------------------------------------------------------------------
+ifneq ($(strip $(obj-y),))
 builtin-target := $(obj)/built-in.o
+endif
 
-# ===========================================================================
-__build: $(builtin-target) $(subdir-ym) $(always)
-	@echo $@ $^
+#__build: $(builtin-target) $(subdir-y)
+__build:
+	@echo $(builtin-target) $(subdir-y)
 
 
 # Compile C sources (.c)
@@ -46,30 +43,6 @@ __build: $(builtin-target) $(subdir-ym) $(always)
 # Default is built-in, unless we know otherwise
 modkern_cflags = $(KBUILD_CFLAGS_KERNEL) $(CFLAGS_KERNEL)
 quiet_modtag := $(empty)   $(empty)
-
-$(real-objs-m)        : part-of-module := y
-$(real-objs-m:.o=.i)  : part-of-module := y
-$(real-objs-m:.o=.s)  : part-of-module := y
-$(real-objs-m:.o=.lst): part-of-module := y
-
-$(real-objs-m)        : quiet_modtag := [M]
-$(real-objs-m:.o=.i)  : quiet_modtag := [M]
-$(real-objs-m:.o=.s)  : quiet_modtag := [M]
-$(real-objs-m:.o=.lst): quiet_modtag := [M]
-
-$(obj-m)              : quiet_modtag := [M]
-
-# Default for not multi-part modules
-modname = $(basetarget)
-
-$(multi-objs-m)         : modname = $(modname-multi)
-$(multi-objs-m:.o=.i)   : modname = $(modname-multi)
-$(multi-objs-m:.o=.s)   : modname = $(modname-multi)
-$(multi-objs-m:.o=.lst) : modname = $(modname-multi)
-$(multi-objs-y)         : modname = $(modname-multi)
-$(multi-objs-y:.o=.i)   : modname = $(modname-multi)
-$(multi-objs-y:.o=.s)   : modname = $(modname-multi)
-$(multi-objs-y:.o=.lst) : modname = $(modname-multi)
 
 quiet_cmd_cc_s_c = CC $(quiet_modtag)  $@
 cmd_cc_s_c       = $(CC) $(c_flags) $(DISABLE_LTO) -fverbose-asm -S -o $@ $<
