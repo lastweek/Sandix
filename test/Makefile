@@ -1,5 +1,10 @@
-cflags := "-Wall"
+#make
 
-export cflags
+core-y := kernel/ mm/nn
+
+n := $(filter-out %/, $(core-y))
+
 all:
-	env
+	@echo $(obj) $(origin obj)
+	@echo $(sort $(core-y))
+	@echo $(n)

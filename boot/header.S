@@ -2,11 +2,19 @@
 #	2015/04/11. Created by Shan Yizhou.
 #	Based on Linux/x86/boot/header.S
 #
-#	header.s: 16-bit image header.
+#	header.S: 16-bit image header.
 #	The first thing is moving Protected-mode kernel image to 0x100000.
 #	After that, this code will set up the %sp, then transfer to main()
 #	who is responsible for other dirty work.
 #
+#
+#	05/17
+#	Maybe we can use grub or lilo to boot! In that way we can put our
+#	kernel image in /boot directory, let grub to choose boot from Sandix
+#	or the original Linux.
+#	It's a better idea!!!!!
+#
+#	FIXME!!!!!
 #########################################################################
 
 BOOTSEG = 0x07C0
