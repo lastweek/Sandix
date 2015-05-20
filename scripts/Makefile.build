@@ -24,6 +24,10 @@ subdir-obj-y :=
 lib-y :=
 lib-target :=
 
+# Include these three Makefiles in order.
+# Kbuild.include: Various generic helpers
+# Makefile: Object .o
+# Makefile.lib: Initialize generic Variables
 include $(srctree)/scripts/Kbuild.include
 include $(srctree)/$(src)/Makefile
 include $(srctree)/scripts/Makefile.libb
