@@ -1,6 +1,6 @@
 #
 #	Makefile.lib
-#	Variables and Flags. ;)
+#	Variables and xFlags. ;)
 #
 
 # HANDLE OBJECTS IN SUBDIR
@@ -35,24 +35,15 @@ subdir-obj-y := $(addprefix $(obj)/, $(subdir-obj-y))
 # o If the value of ‘$@’ is dir/foo.o then ‘$(@F)’ is foo.o.
 #   ‘$(@F)’ is equivalent to ‘$(notdir $@)’.
 
-orig_c_flags   = $(KBUILD_CPPFLAGS) $(KBUILD_CFLAGS) $(CFLAGS_$(basetarget).o)
-_c_flags       = $(filter-out $(CFLAGS_REMOVE_$(basetarget).o), $(orig_c_flags))
-_a_flags       = $(KBUILD_CPPFLAGS) $(KBUILD_AFLAGS) $(AFLAGS_$(basetarget).o)
-_cpp_flags     = $(KBUILD_CPPFLAGS) $(CPPFLAGS_$(@F))
+orig_c_flags	= $(KBUILD_CPPFLAGS) $(KBUILD_CFLAGS) $(CFLAGS_$(basetarget).o)
 
-# ---------------------------------------------------------------------------
-# Sandix don't support building in separate objtree now. But keep this ;)
-# If building the kernel in a separate objtree expand all occurrences
-# of -Idir to -I$(srctree)/dir except for absolute paths (starting with '/').
+_c_flags		= $(filter-out $(CFLAGS_REMOVE_$(basetarget).o), $(orig_c_flags))
+_a_flags		= $(KBUILD_CPPFLAGS) $(KBUILD_AFLAGS) $(AFLAGS_$(basetarget).o)
+_cpp_flags		= $(KBUILD_CPPFLAGS) $(CPPFLAGS_$(@F))
 
-__c_flags	= $(_c_flags)
-__a_flags	= $(_a_flags)
-__cpp_flags	= $(_cpp_flags)
-
-# ---------------------------------------------------------------------------
-c_flags	= -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(__c_flags) 
-a_flags	= -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(__a_flags)
-cpp_flags	= -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(__cpp_flags)
+c_flags		= -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(_c_flags) 
+a_flags		= -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(_a_flags)
+cpp_flags	= -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(_cpp_flags)
 ld_flags	= $(LDFLAGS)
 
 
