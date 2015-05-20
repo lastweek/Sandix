@@ -15,17 +15,19 @@ obj-dirs :=
 lib-y :=
 lib-target :=
 
-# ---------------------------------------------------------------------------
+#^---------------------------------------------------------------------------
 # Including these three Makefiles in order. Do NOT change position.
 # o Kbuild.include: Some generic definitions.
 # o Makefile: Objects needed to compile.
 # o Makefile.lib: Initialize generic variables.
+
 include $(srctree)/scripts/Kbuild.include
 include $(srctree)/$(src)/Makefile
 include $(srctree)/scripts/Makefile.libb
+
 # After including these Makefiles, we are done with preparation.
 # Time for real WORK.
-# ---------------------------------------------------------------------------
+#^ ---------------------------------------------------------------------------
 
 ifneq ($(strip $(obj-y),),)
 builtin-target := $(obj)/built-in.o
@@ -41,17 +43,19 @@ endif
 #* Desc: Default target for building $(obj)/built-in.o
 # ---------------------------------------------------------------------------
 __build: $(builtin-target) $(subdir-y)
+	@echo __build__S
 	@echo $(builtin-target) 
 	@echo $(obj-y)
 	@echo $(obj-dirs)
 	@echo $(subdir-y)
 	@echo $(subdir-obj-y)
+	@echo __build__E
 
 
 # ---------------------------------------------------------------------------
 #* Target: $(builtin-target)
 #* Depend on: $(obj-y)
-#* Desc: Compile and link a set of .o files into one .o file
+#* Desc: Compile and link a set of .o files into built-in.o
 # ---------------------------------------------------------------------------
 ifdef builtin-target
 quiet_cmd_link_o_target = LD      $@
@@ -61,8 +65,9 @@ cmd_link_o_target = $(if $(strip $(obj-y)),\
 		      $(cmd_secanalysis),\
 		      rm -f $@; $(AR) rcs$(KBUILD_ARFLAGS) $@)
 
+#$(call if_changed,link_o_target)
 $(builtin-target): $(obj-y) FORCE
-	$(call if_changed,link_o_target)
+	@echo $(builtin-target)
 
 targets += $(builtin-target)
 endif
@@ -122,9 +127,10 @@ quiet_cmd_cc_o_c = CC $(quiet_modtag)  $@
 cmd_cc_o_c = $(CC) $(c_flags) -c -o $@ $<
 
 # Built-in and composite module parts
-$(obj)/%.o: $(src)/%.c $(recordmcount_source) FORCE
-	$(call cmd,force_checksrc)
-	$(call if_changed_rule,cc_o_c)
+#$(call cmd,force_checksrc)
+#$(call if_changed_rule,cc_o_c)
+$(obj)/%.o: $(src)/%.c FORCE
+	@echo $@ $<
 
 
 # ---------------------------------------------------------------------------
@@ -134,22 +140,21 @@ $(obj)/%.o: $(src)/%.c $(recordmcount_source) FORCE
 # ---------------------------------------------------------------------------
 modkern_aflags := $(KBUILD_AFLAGS_KERNEL) $(AFLAGS_KERNEL)
 
-$(real-objs-m)      : modkern_aflags := $(KBUILD_AFLAGS_MODULE) $(AFLAGS_MODULE)
-$(real-objs-m:.o=.s): modkern_aflags := $(KBUILD_AFLAGS_MODULE) $(AFLAGS_MODULE)
-
 quiet_cmd_as_s_S = CPP $(quiet_modtag) $@
 cmd_as_s_S       = $(CPP) $(a_flags)   -o $@ $<
 
 $(obj)/%.s: $(src)/%.S FORCE
-	$(call if_changed_dep,as_s_S)
+	#$(call if_changed_dep,as_s_S)
+	@echo $@ $<
 
 quiet_cmd_as_o_S = AS $(quiet_modtag)  $@
 cmd_as_o_S       = $(CC) $(a_flags) -c -o $@ $<
 
+#$(call if_changed_dep,as_o_S)
 $(obj)/%.o: $(src)/%.S FORCE
-	$(call if_changed_dep,as_o_S)
+	@echo $@ $<
 
-targets += $(real-objs-y) $(real-objs-m) $(lib-y)
+targets += $(lib-y)
 targets += $(extra-y) $(MAKECMDGOALS) $(always)
 
 
@@ -174,18 +179,23 @@ $(obj)/%.lds: $(src)/%.lds.S FORCE
 PHONY += FORCE
 FORCE:
 
+
+# ---------------------------------------------------------------------------
+#* Target: $(obj-y)
+#* Depend on:
+#* Desc: Include Pre that generated from GCC for $(obj-y).
 # ---------------------------------------------------------------------------
 # Read all saved command lines and dependencies for the $(targets) we
 # may be building above, using $(if_changed{,_dep}). As an
 # optimization, we don't need to read them if the target does not
 # exist, we will rebuild anyway in that case.
 # ---------------------------------------------------------------------------
-targets := $(wildcard $(sort $(targets)))
-cmd_files := $(wildcard $(foreach f,$(targets),$(dir $(f)).$(notdir $(f)).cmd))
+#targets := $(wildcard $(sort $(targets)))
+#cmd_files := $(wildcard $(foreach f,$(targets),$(dir $(f)).$(notdir $(f)).cmd))
 
-ifneq ($(cmd_files),)
-  include $(cmd_files)
-endif
+#ifneq ($(cmd_files),)
+#  include $(cmd_files)
+#endif
 
 # ---------------------------------------------------------------------------
 # Declare the contents of the .PHONY variable as phony.  We keep that

@@ -51,6 +51,7 @@ export quiet Q KBUILD_VERBOSE
 # ===========================================================================
 # Nowadays Sandix don't support building in other directories.
 # But we use these two variables for future development.
+
 srctree = .
 objtree = .
 export srctree objtree

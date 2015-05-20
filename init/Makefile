@@ -2,4 +2,4 @@
 #	Makefile for Sandix kernel.
 #
 
-obj-y	:= head.o main.o test/
+obj-y	:= head.o init.o 
