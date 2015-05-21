@@ -1,10 +1,7 @@
 #make
-
-core-y := kernel/ mm/nn
-
-n := $(filter-out %/, $(core-y))
+squote  := '
+escsq	= $(subst $(squote),'\$(squote)',$1)
 
 all:
-	@echo $(obj) $(origin obj)
-	@echo $(sort $(core-y))
-	@echo $(n)
+	echo $(call escsq, nsih'ao)
+	

@@ -1,6 +1,5 @@
 /*
  *	2015/04/02 Created by Shan Yizhou.
- *
  *	boot.h: Header file for real-mode boot process.
  */
 

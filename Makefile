@@ -32,22 +32,22 @@ NAME2 = Lagerstroemia indica
 # Use 'make V=1' to see the full commands
 
 ifeq ("$(origin V)", "command line")
-  KBUILD_VERBOSE = $(V)
+  KBUILD_VERBOSE=$(V)
 endif
+
 ifndef KBUILD_VERBOSE
-  KBUILD_VERBOSE = 0
+  KBUILD_VERBOSE=0
 endif
 
 ifeq ($(KBUILD_VERBOSE),1)
-  quiet =
-  Q =
+  quiet=
+  Q=
 else
   quiet=quiet_
-  Q = @
+  Q=@
 endif
 
 export quiet Q KBUILD_VERBOSE
-
 # ===========================================================================
 # Nowadays Sandix don't support building in other directories.
 # But we use these two variables for future development.
@@ -83,7 +83,7 @@ PYTHON	= python
 
 KBUILD_CFLAGS := \
 			-Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
-			-fno-strict-aliasing -fno-common \
+			-fno-strict-aliasing -fno-common -ffreestanding \
 			-Werror-implicit-function-declaration \
 			-Wno-format-security \
 			-std=gnu89
