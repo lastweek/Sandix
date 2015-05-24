@@ -37,13 +37,14 @@ subdir-obj-y := $(addprefix $(obj)/, $(subdir-obj-y))
 # o If the value of ‘$@’ is dir/foo.o then ‘$(@F)’ is foo.o.
 #   ‘$(@F)’ is equivalent to ‘$(notdir $@)’.
 
-orig_c_flags	= $(KBUILD_CPPFLAGS) $(KBUILD_CFLAGS) $(CFLAGS_$(basetarget).o)
+orig_c_flags = $(KBUILD_CPPFLAGS) $(KBUILD_CFLAGS) \
+			$(CFLAGS_$(basetarget).o) $(NOSTDINC_FLAGS) 
 
-_c_flags		= $(filter-out $(CFLAGS_REMOVE_$(basetarget).o), $(orig_c_flags))
-_a_flags		= $(KBUILD_CPPFLAGS) $(KBUILD_AFLAGS) $(AFLAGS_$(basetarget).o)
-_cpp_flags		= $(KBUILD_CPPFLAGS) $(CPPFLAGS_$(@F))
+_c_flags	= $(filter-out $(CFLAGS_REMOVE_$(basetarget).o), $(orig_c_flags))
+_a_flags	= $(KBUILD_CPPFLAGS) $(KBUILD_AFLAGS) $(AFLAGS_$(basetarget).o)
+_cpp_flags	= $(KBUILD_CPPFLAGS) $(CPPFLAGS_$(@F))
 
-c_flags		= -Wp,-MD,$(depfile),-MT,'$@' $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(_c_flags) 
+c_flags		= -Wp,-MD,$(depfile),-MT,'$@' $(SANDIXINCLUDE) $(_c_flags) 
 a_flags		= -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(_a_flags)
 cpp_flags	= -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(_cpp_flags)
 ld_flags	= $(LDFLAGS)

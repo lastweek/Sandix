@@ -48,6 +48,8 @@ else
 endif
 
 export quiet Q KBUILD_VERBOSE
+
+
 # ===========================================================================
 # Nowadays Sandix don't support building in other directories.
 # But we use these two variables for future development.
@@ -114,9 +116,9 @@ include $(srctree)/scripts/Kbuild.include
 
 # Dependencies of vmsandix
 boot-y			:= boot/
-init-y			:= init/
-core-y			:= kernel/ mm/ fs/ ipc/ block/
-drivers-y		:= drivers/
+#init-y			:= init/
+#core-y			:= kernel/ mm/ fs/ ipc/ block/
+#drivers-y		:= drivers/
 
 vmsandix-dirs	:= $(patsubst %/, %, $(boot-y) $(init-y) $(core-y) $(drivers-y))
 
@@ -168,7 +170,7 @@ help:
 # ---------------------------------------------------------------------------
 PHONY += clean
 clean:
-	@rm 
+	@echo "Do nothing now..."
 
 # ---------------------------------------------------------------------------
 #* Target: FORCE

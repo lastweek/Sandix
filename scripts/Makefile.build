@@ -10,7 +10,6 @@ $(warning kbuild: Makefile.build is included improperly)
 endif
 
 
-
 # PART 0
 # Init all relevant variables used in Makefiles so
 # 1) they have correct type
@@ -40,7 +39,6 @@ builtin-target := $(obj)/built-in.o
 endif
 
 
-
 # PART 1
 # ---------------------------------------------------------------------------
 #* Target: __build
@@ -48,14 +46,6 @@ endif
 #* Desc: Default target for building $(obj)/built-in.o
 # ---------------------------------------------------------------------------
 __build: $(builtin-target) $(subdir-y)
-	@echo __build__S
-	@echo $(builtin-target) 
-	@echo $(obj-y)
-	@echo $(obj-dirs)
-	@echo $(subdir-y)
-	@echo $(subdir-obj-y)
-	@echo __build__E
-
 
 
 # ---------------------------------------------------------------------------
@@ -132,14 +122,13 @@ endif
 
 
 
+
 # PART 2
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 # After define the rules and prerequisites between those "top" targets,
 # it's time to do the real dirty work: COMPILE and LINK SOURCE FILES.
 # We have two versions cmd, one for beautiful output, one for work. ;)
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-
 
 # .c --> .o
 # ---------------------------------------------------------------------------
