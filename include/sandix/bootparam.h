@@ -1,6 +1,8 @@
 #ifndef _SANDIX_X86_BOOTPARAM_H
 #define _SANDIX_X86_BOOTPARAM_H
 
+#include <sandix/types.h>
+
 /* setup_data types */
 #define SETUP_NONE			0
 #define SETUP_E820_EXT			1
