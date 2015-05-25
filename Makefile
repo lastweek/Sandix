@@ -116,7 +116,7 @@ include $(srctree)/scripts/Kbuild.include
 
 # Dependencies of vmsandix
 boot-y			:= boot/
-init-y			:= init/
+#init-y			:= init/
 #core-y			:= kernel/ mm/ fs/ ipc/ block/
 #drivers-y		:= drivers/
 

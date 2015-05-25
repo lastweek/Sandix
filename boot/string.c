@@ -4,6 +4,8 @@
  *	string.c: Simple string manipulate functions.
  */
 
+asm(".code16gcc");
+
 typedef unsigned int	size_t;
 
 // The memset() function writes len bytes of

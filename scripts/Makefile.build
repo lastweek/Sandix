@@ -5,11 +5,6 @@
 
 src := $(obj)
 
-ifndef obj
-$(warning kbuild: Makefile.build is included improperly)
-endif
-
-
 # PART 0
 # Init all relevant variables used in Makefiles so
 # 1) they have correct type
@@ -26,18 +21,14 @@ lib-target :=
 # o Kbuild.include: Some generic definitions.
 # o Makefile: Objects needed to compile.
 # o Makefile.lib: Initialize generic variables.
-
 include $(srctree)/scripts/Kbuild.include
 include $(srctree)/$(src)/Makefile
 include $(srctree)/scripts/Makefile.libb
-
-# After including these Makefiles, we are done with preparation.
 #^---------------------------------------------------------------------------
 
 ifneq ($(strip $(obj-y),),)
 builtin-target := $(obj)/built-in.o
 endif
-
 
 # PART 1
 # ---------------------------------------------------------------------------
@@ -61,8 +52,8 @@ quiet_cmd_link_o_target	=	LD $(SS) $@
 						$(cmd_secanalysis),\
 						rm -f $@; $(AR) rcs$(KBUILD_ARFLAGS) $@)
 
+#$(call if_changed,link_o_target)
 $(builtin-target): $(obj-y) FORCE
-	$(call if_changed,link_o_target)
 
 endif
 
