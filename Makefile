@@ -116,7 +116,7 @@ include $(srctree)/scripts/Kbuild.include
 
 # Dependencies of vmsandix
 boot-y			:= boot/
-#init-y			:= init/
+init-y			:= init/
 #core-y			:= kernel/ mm/ fs/ ipc/ block/
 #drivers-y		:= drivers/
 
@@ -147,11 +147,23 @@ vmsandix: $(vmsandix-deps)
 #* Depend on: $(vmsandix-dir)
 #* Desc: Descending into $(vmsandix-dir) to BUILD built-in.o
 # ---------------------------------------------------------------------------
-# Still doubt doning this ;)
 $(sort $(vmsandix-deps)): $(vmsandix-dirs) ;
 PHONY += $(vmsandix-dirs)
 $(vmsandix-dirs):
-	$(Q)$(MAKE) $(build)=$@
+	$(Q)$(MAKE) $(BUILD)=$@
+
+# ---------------------------------------------------------------------------
+#* Target: clean
+#* Depend on:
+#* Desc: Clean everything.
+# ---------------------------------------------------------------------------
+# Add prefix to avoid overriding the previous target.
+CLEAN_DIRS := $(addprefix __CLEAN__,$(vmsandix-dirs))
+PHONY += clean
+clean: $(CLEAN_DIRS)
+
+$(CLEAN_DIRS):
+	$(Q)$(MAKE) $(CLEAN)=$(patsubst __CLEAN__%,%,$@)
 
 # ---------------------------------------------------------------------------
 #* Target: help
@@ -162,15 +174,6 @@ PHONY += help
 help:
 	@echo "Top Makefile of Sandix Kernel"
 	@echo "PHONYS: $(PHONY)"
-
-# ---------------------------------------------------------------------------
-#* Target: clean
-#* Depend on:
-#* Desc: Clean generated files during building process.
-# ---------------------------------------------------------------------------
-PHONY += clean
-clean:
-	@echo "Do nothing now..."
 
 # ---------------------------------------------------------------------------
 #* Target: FORCE

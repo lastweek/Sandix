@@ -95,7 +95,7 @@ endif
 $(sort $(subdir-obj-y)): $(subdir-y) ;
 PHONY += $(subdir-y)
 $(subdir-y):
-	$(Q)$(MAKE) $(build)=$@
+	$(Q)$(MAKE) $(BUILD)=$@
 
 
 
@@ -107,15 +107,12 @@ $(subdir-y):
 # The first time we compile Sandix, we don't have dependency files for
 # each source file. After the "first blood" compile, we now have one dep file
 # for one source file. Next time we wanna rebuild Sandix again after we edit
-# some files, the dep file works
+# some header files, the dep file works
 # ---------------------------------------------------------------------------
 
 _dep_files := $(filter-out $(subdir-obj-y),$(obj-y))
 dep_files  := $(foreach f,$(_dep_files),$(dir $(f)).$(notdir $(f)).d)
 
-#FIXME Tricky also buggy!
-#Consider that if one have foo.o already, but .foo.o.d is removed
-#Then changes to foo.c won't lead foo.c to recompile
 ifneq ($(dep_files),)
   -include $(dep_files)
 endif
@@ -225,8 +222,6 @@ $(obj)/%.lds: $(src)/%.lds.S FORCE
 # ---------------------------------------------------------------------------
 PHONY += FORCE
 FORCE:
-
-
 
 # ---------------------------------------------------------------------------
 # Declare the contents of the .PHONY variable as phony.  We keep that

@@ -3,8 +3,6 @@
 #	Generic definitions. ;)
 #
 
-
-
 # ---------------------------------------------------------------------------
 # Convenient variables
 comma   := ,
@@ -14,6 +12,7 @@ empty   :=
 space   := $(empty) $(empty)
 SS      := \$(space)\$(space)\$(space)\$(space)\$(space)\$(space)
 
+# ---------------------------------------------------------------------------
 # Name of target with a '.' as filename prefix. foo/bar.o => foo/.bar.o
 dot-target = $(dir $@).$(notdir $@)
 
@@ -27,7 +26,16 @@ basetarget = $(basename $(notdir $@))
 # filename of first prerequisite with directory and extension stripped
 baseprereq = $(basename $(notdir $<))
 
+# ---------------------------------------------------------------------------
+# Shorthand for $(Q)$(MAKE) scripts/Makefile.clean obj=dir
+# Usage:
+# $(Q)$(MAKE) $(clean)=dir
+CLEAN := -f $(srctree)/scripts/Makefile.clean obj
 
+# Shorthand for $(Q)$(MAKE) -f scripts/Makefile.build obj=
+# Usage:
+# $(Q)$(MAKE) $(build)=dir
+BUILD := -f $(srctree)/scripts/Makefile.build obj
 
 
 # ---------------------------------------------------------------------------
@@ -57,8 +65,6 @@ define filechk
 		mv -f $@.tmp $@;		\
 	fi
 endef
-
-
 
 
 # ---------------------------------------------------------------------------
@@ -163,14 +169,7 @@ ld-version = $(shell $(LD) --version | $(srctree)/scripts/ld-version.sh)
 ld-ifversion = $(shell [ $(call ld-version) $(1) $(2) ] && echo $(3))
 
 
-
-
 # ---------------------------------------------------------------------------
-# Shorthand for $(Q)$(MAKE) -f scripts/Makefile.build obj=
-# Usage:
-# $(Q)$(MAKE) $(build)=dir
-build := -f $(srctree)/scripts/Makefile.build obj
-
 # echo command. Remember we have two versions. ;)
 echo-cmd = $(if $($(quiet)cmd_$(1)),echo $(SS)$($(quiet)cmd_$(1)));
 
@@ -183,8 +182,6 @@ any-prereq = $(filter-out $(PHONY),$?) $(filter-out $(PHONY) $(wildcard $^),$^)
 
 # Execute command if prerequisite(s) are updated.
 if_changed = $(if $(strip $(any-prereq)),@set -e;$(echo-cmd) $(cmd_$(1));)
-
-
 
 
 # ---------------------------------------------------------------------------
