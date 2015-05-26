@@ -11,12 +11,13 @@
 
 #include "boot.h"
 
+struct boot_params boot_params;
+
 /*
  * Query the keyboard lock status as given by the BIOS, and
  * set the keyboard repeat rate to maximum.  Unclear why the latter
  * is done here; this might be possible to kill off as stale code.
  */
-/*
 static void keyboard_init(void)
 {
 	struct biosregs ireg, oreg;
@@ -24,12 +25,11 @@ static void keyboard_init(void)
 
 	ireg.ah = 0x02;		// Get keyboard status
 	intcall(0x16, &ireg, &oreg);
-	//boot_params.kbd_status = oreg.al;
+	boot_params.kbd_status = oreg.al;
 
 	ireg.ax = 0x0305;	// Set keyboard repeat rate
 	intcall(0x16, &ireg, NULL);
 }
-*/
 
 void main(void)
 {
@@ -39,7 +39,7 @@ void main(void)
 	detect_memory();
 
 	/* Set keyboard repeat rate (why?) and query the lock flags */
-	//keyboard_init();
+	keyboard_init();
 
 	/* Enable A20 Line */
 	enable_a20();

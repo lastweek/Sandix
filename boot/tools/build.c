@@ -126,12 +126,12 @@ int main(int argc, char **argv)
 	sectors_bzimage   = sectors_header + sectors_image + 1;
 	lower_bound_of_sp = sectors_header * SECTOR_SIZE + 0x90000;
 	
-	printf("\n\n");
-	printf("Caveat: [bootloadr]'s size is %d bytes", len_bl);
-	printf("Caveat: [header]'s size is %d bytes, need %d sectors.\n", len_si, sectors_header);
-	printf("Caveat: [image]'s size is %d bytes, need %d sectors.\n", len_ki, sectors_image);
-	printf("Caveat: [vmsandix]'s size is %d bytes, total %d sectors.\n", sectors_bzimage*SECTOR_SIZE, sectors_bzimage);
-	printf("Caveat: The lower bound of %%sp is %X\n\n", lower_bound_of_sp);
+	printf("\n");
+	printf("[bootsect]    size: %d bytes\n", len_bl);
+	printf("[rmimage.bin] size: %d bytes (%d sectors)\n", len_si, sectors_header);
+	printf("[pmimage.bin] size: %d bytes (%d sectors)\n", len_ki, sectors_image);
+	printf("[vmsandix]    size: %d bytes (%d sectors)\n", sectors_bzimage*SECTOR_SIZE, sectors_bzimage);
+	printf("The lower bound of %%sp in header.S is %X\n\n", lower_bound_of_sp);
 
 	fclose(fp_bl);
 	fclose(fp_si);

@@ -1,6 +1,6 @@
 /*
  *	2015/04/29 Created by Shan Yizhou.
- *	init.c: Kernel Initial Module. Called by head.S
+ *	init.c: Init everything.
  */
 
 #include <sandix/const.h>

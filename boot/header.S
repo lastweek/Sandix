@@ -67,6 +67,15 @@ start_of_setup:
 	# FIXME: Tentative %sp
 	movw $0x3000, %sp
 
+	# Zero the bss
+	# __bss_start & RM_KERNEL_END defined in rm-image.ld
+    movw    $__bss_start, %di 
+	movw    $RM_KERNEL_END+3, %cx 
+	xorl    %eax, %eax
+	subw    %di, %cx 
+	shrw    $2, %cx 
+	rep; stosl
+	
 	# GO PARTY, never return!
 	calll main
 die:

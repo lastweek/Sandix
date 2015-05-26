@@ -14,9 +14,9 @@
 #########################################################################	
 
 
-BOOTSEG			= 0x07c0	# bootsect.s segment.
-INITSEG			= 0x9000	# 16-bit setup image segment.
-SYSSEG			= 0X1000	# 32-bit kernel image segment.
+BOOTSEG			= 0x07c0	# Bootloader Segment.
+INITSEG			= 0x9000	# Real-Mode Kernel Image Segment.
+SYSSEG			= 0x1000	# Protected-Mode Kernel Image Segment.
 
 # FIXME Change dynamiclly.
 SETUP_OFFSET	= 512		# offset of entry point in Real-mode image.
@@ -48,8 +48,8 @@ bs_load_setup:
 	xor %dl, %dl
 	int $0x13
 	
-	# Load setup image
-	mov $INITSEG, %ax
+	# Load RM kernel image
+	mov $INITSEG, %ax	#0x9000
 	mov %ax, %es
 	xor %bx, %bx				# dest mem-->es:bx
 
@@ -66,7 +66,7 @@ bs_load_kernel:
 	xor %dl, %dl
 	int $0x13
 
-	# Load kernel image.
+	# Load PM kernel image.
 	mov $SYSSEG, %ax	# 0x1000
 	mov %ax, %es
 	xor %bx, %bx

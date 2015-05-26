@@ -8,7 +8,10 @@
 
 asm(".code16gcc");
 
-#include <types.h>
+#include <sandix/types.h>
+
+extern struct setup_header hdr;
+extern struct boot_params boot_params;
 
 static inline void die(void)
 {

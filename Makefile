@@ -129,6 +129,14 @@ endif
 # o boot/CATENATE is responsible to catenate bootloader and rmimage and
 #   pmimage together.
 
+_RM_IMAGE := boot/rmimage
+_PM_IMAGE := boot/pmimage
+RM_IMAGE  := boot/rmimage.bin
+PM_IMAGE  := boot/pmimage.bin
+VMSANDIX  := boot/vmsandix
+RM_LD_CMD := scripts/rm-image.ld
+PM_LD_CMD := scripts/pm-image.ld
+
 boot-y			:= boot/
 init-y			:= init/
 #core-y			:= kernel/ mm/ fs/ ipc/ block/
@@ -152,14 +160,6 @@ include $(srctree)/scripts/Kbuild.include
 PHONY := all
 all: vmsandix
 
-
-_RM_IMAGE := boot/rmimage
-_PM_IMAGE := boot/pmimage
-RM_IMAGE  := boot/rmimage.bin
-PM_IMAGE  := boot/pmimage.bin
-VMSANDIX  := boot/vmsandix
-RM_LD_CMD := scripts/rm-image.ld
-PM_LD_CMD := scripts/pm-image.ld
 
 quiet_cmd_link_rm := LD $(SS) $(_RM_IMAGE)
       cmd_link_rm := $(LD) -T $(RM_LD_CMD) -o $(_RM_IMAGE) $(KBUILD_VMSANDIX_BOOT)

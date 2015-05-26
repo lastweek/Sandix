@@ -11,18 +11,19 @@
 
 #include "boot.h"
 #include <sandix/e820.h>
-//#include <sandix/bootparam.h>
+#include <sandix/bootparam.h>
 
 #define SMAP	0x534D4150	/* ASCII "SMAP" */
 
-int detect_memory_e820(void)
+static int detect_memory_e820(void)
 {
 	int count = 0;
 	struct biosregs ireg, oreg;
-	struct e820entry buf;
+	struct e820entry *desc = boot_params.e820_map;
+	struct e820entry buf = {0,0,0};
 
 	initregs(&ireg);
-	ireg.ax  = 0xE820;
+	ireg.ax  = 0xe820;
 	ireg.cx  = sizeof(struct e820entry);
 	ireg.edx = SMAP;
 	ireg.di  = (size_t)&buf;
@@ -33,29 +34,26 @@ int detect_memory_e820(void)
 		
 		if (oreg.eflags & 1) {
 			count = 0;
-			puts("DEBUG: ERROR detect memory fail! EFLAGS.CF = 1\n");
 			break;
 		}
 
-		/* Note by Linux author:
-		   Some BIOSes stop returning SMAP in the middle of
-		   the search loop.  We don't know exactly how the BIOS
-		   screwed up the map at that point, we might have a
-		   partial map, the full map, or complete garbage, so
-		   just return failure. */
+		/**
+		 * Some BIOSes stop returning SMAP in the middle of
+		 * the search loop.  We don't know exactly how the BIOS
+		 * screwed up the map at that point, we might have a
+		 * partial map, the full map, or complete garbage, so
+		 * just return failure.
+		 **/
 		if (oreg.eax != SMAP) {
 			count = 0;
-			puts("DEBUG: ERROR detect memory fail! EAX != SMAP\n");
 			break;
 		}
 		
-		printf("Base: %X End: %X Len: %X Type: %d \n",
-				buf.base_low, buf.base_low+buf.len_low, buf.len_low, buf.type);
+		*desc++ = buf;
 		count++;
-
-	} while (ireg.ebx);
+	} while (ireg.ebx && count < E820MAX);
 	
-	return count;
+	return boot_params.e820_entries = count;
 }
 
 void detect_memory(void)

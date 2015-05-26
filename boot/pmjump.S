@@ -63,11 +63,6 @@ in_pm32:
 	movb	$0x64, 6(%ebx)
 	movb	$0x69, 8(%ebx)
 	movb	$0x78, 10(%ebx)
-	movl	$0x0A, %eax
-	cpuid
-1:
-	hlt
-	jmp 1b
 
 	# FIXME Choose %esp
 	addl	%ebx, %esp
@@ -85,6 +80,5 @@ in_pm32:
 	# Set up LDTR to make Intel VT happy
 	lldt	%cx
 
-	# Jump to the 32-bit entrypoint, 0x100000
-	#jmpl	*%eax
-
+	# Jump to the 32-bit entrypoint, 0x10000
+	jmpl	*%eax

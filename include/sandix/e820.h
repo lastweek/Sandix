@@ -1,6 +1,8 @@
 #ifndef _SANDIX_X86_E820_H
 #define _SANDIX_X86_E820_H
 
+#include <sandix/types.h>
+
 #define E820MAP			0x2d0	/* our map */
 #define E820MAX			128		/* number of entries in E820MAP */
 #define E820NR			0x1e8	/* # entries in E820MAP */
@@ -11,19 +13,16 @@
 #define E820_NVS		4
 #define E820_UNUSABLE	5
 
-#include <sandix/types.h>
 
 struct e820entry {
-	__u32 base_low;	/* start of memory segment */
-	__u32 base_high;
-	__u32 len_low;	/* length of memory segment */
-	__u32 len_high;
-	__u32 type;		/* type of memory segment */
+	__u64 addr;	/* start of memory segment */
+	__u64 size;	/* size of memory segment */
+	__u32 type;	/* type of memory segment */
 } __attribute__((packed));
 
-struct e820_list {
-	__u32 nr;
-	struct e820entry list[E820MAX];
+struct e820map {
+	__u32 nr_map;
+	struct e820entry map[E820MAX];
 };
 
 #define ISA_START_ADDRESS	0xa0000

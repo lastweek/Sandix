@@ -58,5 +58,5 @@ void go_to_protected_mode(void)
 	asm volatile("cli");
 	setup_idt();
 	setup_gdt();
-	protected_mode_jump((u32)0x100000, (u32)NULL);
+	protected_mode_jump((u32)0x10000, (u32)NULL);
 }
