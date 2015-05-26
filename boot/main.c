@@ -1,23 +1,26 @@
 /*
  *	2015/04/11. Created by Shan Yizhou.
- *
  *	main.c: Real-Mode kernel main body.
  *
  *	This code asks the BIOS for memory/disk/other parameters, and
  *	puts them in a "safe" place. After necessary preparation, control
  *	will be transfered to protected-mode kernel.
- *	
  */
 
 #include "boot.h"
+#include <sandix/bootparam.h>
 
+/**
+ * bss section
+ * &boot_params == __bss_start
+ **/
 struct boot_params boot_params;
 
-/*
+/**
  * Query the keyboard lock status as given by the BIOS, and
  * set the keyboard repeat rate to maximum.  Unclear why the latter
  * is done here; this might be possible to kill off as stale code.
- */
+ **/
 static void keyboard_init(void)
 {
 	struct biosregs ireg, oreg;
@@ -33,23 +36,9 @@ static void keyboard_init(void)
 
 void main(void)
 {
-	puts("DEBUG: Now in Real-Mode main()...\n");
-	
-	/* Detect physical memory layout */
-	detect_memory();
-
-	/* Set keyboard repeat rate (why?) and query the lock flags */
 	keyboard_init();
-
-	/* Enable A20 Line */
+	detect_memory();
 	enable_a20();
-	
-	/* Query Disk Infomation */
-	//edd();
-
-	/* Set the video mode */
 	set_video();
-
-	/* Do the last things and invoke protected mode */
 	go_to_protected_mode();
 }

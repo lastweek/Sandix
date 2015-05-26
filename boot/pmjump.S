@@ -1,6 +1,5 @@
 /*
  *	2014/04/27 Created by Shan Yizhou.
- *
  *	pmjump.S: The actual transition into protected mode
  */
 
@@ -47,7 +46,6 @@ protected_mode_jump:
 	.type in_pm32, @function
 in_pm32:
 	# Set up segments, FIRST!
-	# %ecx = __BOOT_DS
 	movl	%ecx, %ds
 	movl	%ecx, %es
 	movl	%ecx, %fs

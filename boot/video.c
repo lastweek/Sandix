@@ -1,6 +1,5 @@
 /*
  *	2015/04/24 Created by Shan Yizhou.
- *
  *	video.c: Set video mode. Store parameters.
  */
 
@@ -8,41 +7,64 @@
 #include <sandix/bootparam.h>
 #include <sandix/screen_info.h>
 
-static u8 get_video_mode_bios(void)
-{
-	struct biosregs ireg, oreg;
-
-	initregs(&ireg);
-	ireg.ah = 0x0F;
-	intcall(0x10, &ireg, &oreg);
-	
-	return oreg.al;	
-}
-
-static void set_video_mode_bios(void)
+static void set_video_mode(u8 mode)
 {
 	struct biosregs ireg;
 
 	initregs(&ireg);
-	ireg.al = 0x03; /* Mode 3 */
+	ireg.al = mode; /* AH=00 Set Video Mode */
 	intcall(0x10, &ireg, NULL);
+}
+
+static void store_cursor_position(void)
+{
+	struct biosregs ireg, oreg;
+
+	initregs(&ireg);
+	ireg.ah = 0x03;
+	intcall(0x10, &ireg, &oreg);
+
+	boot_params.screen_info.orig_x = oreg.dl;
+	boot_params.screen_info.orig_y = oreg.dh;
+}
+
+static void store_video_mode(void)
+{
+	struct biosregs ireg, oreg;
+
+	initregs(&ireg);
+	ireg.ah = 0x0f;
+	intcall(0x10, &ireg, &oreg);
+
+	/* Not all BIOSes are clean with respect to the top bit */
+	boot_params.screen_info.orig_video_mode = oreg.al & 0x7f;
+	boot_params.screen_info.orig_video_page = oreg.bh;
+}
+
+static void store_mode_params(void)
+{
+	u16 font_size;
+	int x, y;
+
+	store_cursor_position();
+	store_video_mode();
+
+	set_fs(0x0);
+	font_size = rdfs16(0x485); /* Font size, BIOS Data Area */
+	boot_params.screen_info.orig_video_points = font_size;
+
+	x = rdfs16(0x44a);
+	y = rdfs8(0x484)+1; /* Convention */
+	boot_params.screen_info.orig_video_cols  = x;
+	boot_params.screen_info.orig_video_lines = y;
 }
 
 void set_video(void)
 {
-	u8 mode;
-	u8 rows;
-	u16 cols;
-	
-	mode = get_video_mode_bios();
-	if (mode != 3 && mode != 7) {
-		set_video_mode_bios();
-		printf("DEBUG: Set video mode 3\n");
-	}
+	store_mode_params();
 
-	/* Get cols and rows from BDA */
-	set_fs(0x0000);
-	rows = rdfs8(0x484) + 1;
-	cols = rdfs16(0x44A);
-	printf("DEBUG: Video mode=%d, cols=%d, rows=%d\n", mode, cols, rows);
+	if (boot_params.screen_info.orig_video_mode != 0x03) {
+		printf("DEBUG: Sorry, we are not in video mode 3\n");
+		die();
+	}
 }

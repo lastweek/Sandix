@@ -117,11 +117,11 @@ bs_kernel_fail:
 	jmp bs_die
 	
 start_msg:
-	.ascii "\n\rDEBUG: Now in bootsect.s, Loading System..."
+	.ascii "\n\rDEBUG: Bootloader Loading System ..."
 setup_fail_msg:
-	.ascii "\n\rMBR: Loading setup fail..."
+	.ascii "\n\rMBR: Loading Real-Mode Kernel Image Fail ..."
 kernel_fail_msg:
-	.ascii "\n\rMBR: Loading kernel fail..."
+	.ascii "\n\rMBR: Loading Protected-Mode Kernel Image Kernel Fail ..."
 bs_die:
 	hlt
 	jmp bs_die

@@ -31,7 +31,6 @@ struct gdt_ptr {
 	u32 ptr;
 } __attribute__((packed));
 
-/* Initialize them, avoid .bss section */
 static struct gdt_ptr gdt = {1, 1};
 static struct gdt_ptr idt = {1, 1};
 
@@ -40,9 +39,6 @@ static void setup_gdt(void)
 {
 	gdt.len = sizeof(boot_gdt)-1;
 	gdt.ptr = (u32)&boot_gdt + 0x90000;
-
-	printf("DEBUG: GDT len=%d, addr=%X\n", gdt.len, gdt.ptr);
-
 	asm volatile("lgdtl %0" : : "m" (gdt));
 }
 
@@ -58,5 +54,11 @@ void go_to_protected_mode(void)
 	asm volatile("cli");
 	setup_idt();
 	setup_gdt();
-	protected_mode_jump((u32)0x10000, (u32)NULL);
+	
+	/**
+	 * Go to PM, never return
+	 **/
+	protected_mode_jump((u32)0x10000, (u32)&boot_params + 0x90000);
 }
+
+

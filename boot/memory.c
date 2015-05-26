@@ -58,9 +58,8 @@ static int detect_memory_e820(void)
 
 void detect_memory(void)
 {
-	if (!detect_memory_e820())
-		puts("DEBUG: Detect Memory...FAIL\n");
-	else
-		puts("DEBUG: Detect Memory...OK\n");
+	int err = detect_memory_e820();
+	
+	if (!err)
+		puts("DEBUG: Get e820 Map ... FAIL\n");
 }
-

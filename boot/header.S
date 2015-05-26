@@ -82,7 +82,7 @@ die:
 	hlt
 	jmp die
 Debug_msg:
-	.ascii "\n\rDEBUG: Now in header.s, heading to main()...\n\r"
+	.ascii "\n\rDEBUG: RM Kernel header.S, going to main() ...\n\r"
 fail_msg:
 	.ascii "\n\rHeader.s signature missing/mismatch..."
 end:

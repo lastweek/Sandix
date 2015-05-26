@@ -1,8 +1,6 @@
 /*
  *	2015/04/20 Created by Shan Yizhou.
- *
  *	a20.c: Enable A20 gate.
- *	
  *	Copyright 2009-2014 Intel Corporation; author H. Peter Anvin
  *
  * 	Note: Segment register %fs and %gs are available under real
@@ -94,8 +92,7 @@ int a20_test(void)
 	return ok;
 }
 
-/* Return 0 on success */
-static int _enable_a20(void)
+void enable_a20(void)
 {
 	int loops = A20_TEST_LOOPS;
 	
@@ -105,19 +102,11 @@ static int _enable_a20(void)
 	 */
 	while (loops--) {
 		if (a20_test())
-			return 0;
+			return;
 		if (enable_a20_bios())
-			return 0;
+			return;
 		enable_a20_fast();
 	}
 
-	return -1;
-}
-
-void enable_a20(void)
-{
-	if (!_enable_a20())
-		puts("DEBUG: Enable A20 Line... OK\n");
-	else
-		puts("DEBUG: Enable A20 Line... FAIL\n");
+	puts("DEBUG: Enable A20 Line ... FAIL\n");
 }
