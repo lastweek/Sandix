@@ -62,10 +62,12 @@ export srctree objtree
 #   this increases performance and avoids hard-to-debug behaviour.
 # o Look for make include files relative to root of kernel src
 MAKEFLAGS += -rR --include-dir=$(srctree)
-#MAKEFLAGS += --print-directory
 
 # FIXME i386-elf-gcc toolchains in my macos.
 CROSS_COMPILE = i386-elf-
+
+# Some generic definitions
+include $(srctree)/scripts/Kbuild.include
 
 # ===========================================================================
 # Make variables (CC, etc...)
@@ -83,12 +85,12 @@ AWK 	= awk
 PERL	= perl
 PYTHON	= python
 
-KBUILD_CFLAGS := \
-			-Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
-			-fno-strict-aliasing -fno-common -ffreestanding \
-			-Werror-implicit-function-declaration \
-			-Wno-format-security \
-			-std=gnu89
+KBUILD_CFLAGS := -std=gnu89 -pipe -Wall -Wundef \
+		-fno-strict-aliasing -fno-common \
+		-Wno-format-security
+KBUILD_CFLAGS += -Wdeclaration-after-statement
+KBUILD_CFLAGS += -Werror=strict-prototypes
+KBUILD_CFLAGS += -Werror=implicit-function-declaration
 
 KBUILD_CPPFLAGS	:= -D__KERNEL__
 KBUILD_LDFLAGS	:= 
@@ -96,12 +98,15 @@ KBUILD_AFLAGS	:= -D__ASSEMBLY__
 SANDIXINCLUDE	:= -I$(srctree)/include/
 NOSTDINC_FLAGS	:= -nostdinc
 
+OBJCOPYFLAGS	:= -j .text -j .text32 -j .rodata -j .data -O binary
+OBJDUMPFLAGS	:= -d -M att
+
 export VERSION PATCHLEVEL SUBLEVEL NAME0 NAME1 NAME2
 export CC AS LD CPP AR NM STRIP OBJCOPY OBJDUMP
 export MAKE AWK PERL PYTHON
 export KBUILD_CFLAGS KBUILD_CPPFLAGS KBUILD_LDFLAGS KBUILD_AFLAGS
 export SANDIXINCLUDE NOSTDINC_FLAGS
-
+export OBJCOPYFLAGS OBJDUMPFLAGS
 
 # ---------------------------------------------------------------------------
 #* Target: all
@@ -111,8 +116,26 @@ export SANDIXINCLUDE NOSTDINC_FLAGS
 PHONY := all
 all: vmsandix
 
-# Some generic definitions
-include $(srctree)/scripts/Kbuild.include
+CONFIG_X86_32=y
+ifeq ($(CONFIG_X86_32),y)
+    KBUILD_AFLAGS += -m32 
+    KBUILD_CFLAGS += -m32
+
+    KBUILD_CFLAGS += -mregparm=3 -freg-struct-return
+
+    # Never want PIC in a 32-bit kernel, prevent breakage with GCC built
+    # with nonstandard options
+    KBUILD_CFLAGS += -fno-pic
+
+    # prevent gcc from keeping the stack 16 byte aligned
+    KBUILD_CFLAGS += -mpreferred-stack-boundary=2
+    
+	# prevent gcc from generating any FP code by mistake
+    KBUILD_CFLAGS += -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx
+
+    KBUILD_CFLAGS += -ffreestanding
+endif
+
 
 # Dependencies of vmsandix
 boot-y			:= boot/
@@ -152,11 +175,7 @@ PHONY += $(vmsandix-dirs)
 $(vmsandix-dirs):
 	$(Q)$(MAKE) $(BUILD)=$@
 
-# ---------------------------------------------------------------------------
-#* Target: clean
-#* Depend on:
-#* Desc: Clean everything.
-# ---------------------------------------------------------------------------
+
 # Add prefix to avoid overriding the previous target.
 CLEAN_DIRS := $(addprefix __CLEAN__,$(vmsandix-dirs))
 PHONY += clean
@@ -165,21 +184,11 @@ clean: $(CLEAN_DIRS)
 $(CLEAN_DIRS):
 	$(Q)$(MAKE) $(CLEAN)=$(patsubst __CLEAN__%,%,$@)
 
-# ---------------------------------------------------------------------------
-#* Target: help
-#* Depend on:
-#* Desc: Print help information about Makefile usage.
-# ---------------------------------------------------------------------------
 PHONY += help
 help:
 	@echo "Top Makefile of Sandix Kernel"
 	@echo "PHONYS: $(PHONY)"
 
-# ---------------------------------------------------------------------------
-#* Target: FORCE
-#* Depend on:
-#* Desc: Add FORCE to force a target to be always rebuilt.
-# ---------------------------------------------------------------------------
 PHONY += FORCE
 FORCE:
 

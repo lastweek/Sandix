@@ -16,7 +16,7 @@
 #define _SANDIX_X86_APM_H
 
 
-#include <linux/types.h>
+#include <sandix/types.h>
 
 typedef unsigned short	apm_event_t;
 typedef unsigned short	apm_eventinfo_t;
@@ -125,11 +125,6 @@ struct apm_bios_info {
 #define APM_CAP_RESUME_SUSPEND_RING	0x0020 /* Resume on Ring fr suspend */
 #define APM_CAP_RESUME_STANDBY_PCMCIA	0x0040 /* Resume on PCMCIA Ring	*/
 #define APM_CAP_RESUME_SUSPEND_PCMCIA	0x0080 /* Resume on PCMCIA Ring	*/
-
-/*
- * ioctl operations
- */
-#include <linux/ioctl.h>
 
 #define APM_IOC_STANDBY		_IO('A', 1)
 #define APM_IOC_SUSPEND		_IO('A', 2)

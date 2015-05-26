@@ -1,8 +1,3 @@
-#
-#	Kbuild.include
-#	Generic definitions. ;)
-#
-
 # ---------------------------------------------------------------------------
 # Convenient variables
 comma   := ,
@@ -39,48 +34,8 @@ BUILD := -f $(srctree)/scripts/Makefile.build obj
 
 
 # ---------------------------------------------------------------------------
-# filechk is used to check if the content of a generated file is updated.
-# Sample usage:
-# define filechk_sample
-#	echo $KERNELRELEASE
-# endef
-# version.h : Makefile
-#	$(call filechk,sample)
-# The rule defined shall write to stdout the content of the new file.
-# The existing file will be compared with the new one.
-# - If no file exist it is created
-# - If the content differ the new file is used
-# - If they are equal no change, and no timestamp update
-# - stdin is piped in from the first prerequisite ($<) so one has
-#   to specify a valid file as first prerequisite (often the kbuild file)
-define filechk
-	$(Q)set -e;				\
-	$(kecho) '  CHK     $@';		\
-	mkdir -p $(dir $@);			\
-	$(filechk_$(1)) < $< > $@.tmp;		\
-	if [ -r $@ ] && cmp -s $@ $@.tmp; then	\
-		rm -f $@.tmp;			\
-	else					\
-		$(kecho) '  UPD     $@';	\
-		mv -f $@.tmp $@;		\
-	fi
-endef
-
-
-# ---------------------------------------------------------------------------
 # gcc support functions
 # See documentation in Documentation/kbuild/makefiles.txt
-
-# cc-cross-prefix
-# Usage: CROSS_COMPILE := $(call cc-cross-prefix, m68k-linux-gnu- m68k-linux-)
-# Return first prefix where a prefix$(CC) is found in PATH.
-# If no $(CC) found in PATH with listed prefixes return nothing
-cc-cross-prefix =  \
-	$(word 1, $(foreach c,$(1),                                   \
-		$(shell set -e;                                       \
-		if (which $(strip $(c))$(CC)) > /dev/null 2>&1 ; then \
-			echo $(c);                                    \
-		fi)))
 
 # output directory for tests below
 TMPOUT := $(if $(KBUILD_EXTMOD),$(firstword $(KBUILD_EXTMOD))/)
@@ -182,44 +137,3 @@ any-prereq = $(filter-out $(PHONY),$?) $(filter-out $(PHONY) $(wildcard $^),$^)
 
 # Execute command if prerequisite(s) are updated.
 if_changed = $(if $(strip $(any-prereq)),@set -e;$(echo-cmd) $(cmd_$(1));)
-
-
-# ---------------------------------------------------------------------------
-# why - tell why a a target got build
-#       enabled by make V=2
-#       Output (listed in the order they are checked):
-#          (1) - due to target is PHONY
-#          (2) - due to target missing
-#          (3) - due to: file1.h file2.h
-#          (4) - due to command line change
-#          (5) - due to missing .cmd file
-#          (6) - due to target not in $(targets)
-# (1) PHONY targets are always build
-# (2) No target, so we better build it
-# (3) Prerequisite is newer than target
-# (4) The command line stored in the file named dir/.target.cmd
-#     differed from actual command line. This happens when compiler
-#     options changes
-# (5) No dir/.target.cmd file (used to store command line)
-# (6) No dir/.target.cmd file and target not listed in $(targets)
-#     This is a good hint that there is a bug in the kbuild file
-ifeq ($(KBUILD_VERBOSE),2)
-why =                                                                        \
-    $(if $(filter $@, $(PHONY)),- due to target is PHONY,                    \
-        $(if $(wildcard $@),                                                 \
-            $(if $(strip $(any-prereq)),- due to: $(any-prereq),             \
-                $(if $(arg-check),                                           \
-                    $(if $(cmd_$@),- due to command line change,             \
-                        $(if $(filter $@, $(targets)),                       \
-                            - due to missing .cmd file,                      \
-                            - due to $(notdir $@) not in $$(targets)         \
-                         )                                                   \
-                     )                                                       \
-                 )                                                           \
-             ),                                                              \
-             - due to target missing                                         \
-         )                                                                   \
-     )
-
-echo-why = $(call escsq, $(strip $(why)))
-endif

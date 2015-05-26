@@ -26,6 +26,10 @@ obj-y		 := $(addprefix $(obj)/, $(obj-y))
 obj-dirs	 := $(addprefix $(obj)/, $(obj-dirs))
 subdir-obj-y := $(addprefix $(obj)/, $(subdir-obj-y))
 
+loader-y	 := $(addprefix $(obj)/, $(loader-y))
+objcopy-y	 := $(addprefix $(obj)/, $(objcopy-y))
+objdump-y	 := $(addprefix $(obj)/, $(objdump-y))
+
 
 # GENERAL FLAGS FOR COMPILING
 # ---------------------------------------------------------------------------
@@ -46,8 +50,10 @@ _cpp_flags	= $(KBUILD_CPPFLAGS) $(CPPFLAGS_$(@F))
 c_flags		= -Wp,-MD,$(depfile),-MT,'$@' $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(_c_flags) 
 a_flags		= -Wp,-MD,$(depfile),-MT,'$@' $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(_a_flags)
 cpp_flags	= -Wp,-MD,$(depfile),-MT,'$@' $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(_cpp_flags)
-ld_flags	= $(LDFLAGS)
+ld_flags	= $(KBUILD_LDFLAGS)
 
+objcopy_flags = $(OBJCOPYFLAGS)
+objdump_flags = $(OBJDUMPFLAGS)
 
 # Commands useful for building a boot image
 # ---------------------------------------------------------------------------
@@ -65,11 +71,5 @@ ld_flags	= $(LDFLAGS)
 # ---------------------------------------------------------------------------
 
 quiet_cmd_ld = LD      $@
-cmd_ld = $(LD) $(LDFLAGS) $(ldflags-y) $(LDFLAGS_$(@F)) \
+cmd_ld = $(LD) $(KBUILD_LDFLAGS) $(LDFLAGS_$(@F)) \
 	       $(filter-out FORCE,$^) -o $@
-
-# Objcopy
-# ---------------------------------------------------------------------------
-
-quiet_cmd_objcopy = OBJCOPY $@
-cmd_objcopy = $(OBJCOPY) $(OBJCOPYFLAGS) $(OBJCOPYFLAGS_$(@F)) $< $@

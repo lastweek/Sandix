@@ -2,6 +2,10 @@
 #define _SANDIX_X86_BOOTPARAM_H
 
 #include <sandix/types.h>
+#include <sandix/apm_bios.h>
+#include <sandix/e820.h>
+#include <sandix/edd.h>
+#include <sandix/screen_info.h>
 
 /* setup_data types */
 #define SETUP_NONE			0
@@ -85,7 +89,7 @@ struct boot_params {
 	struct apm_bios_info apm_bios_info;		/* 0x040 */
 	__u8  _pad2[4];					/* 0x054 */
 	__u64  tboot_addr;				/* 0x058 */
-	struct ist_info ist_info;			/* 0x060 */
+	//struct ist_info ist_info;			/* 0x060 */
 	__u8  _pad3[16];				/* 0x070 */
 	__u8  hd0_info[16];	/* obsolete! */		/* 0x080 */
 	__u8  hd1_info[16];	/* obsolete! */		/* 0x090 */
@@ -95,8 +99,8 @@ struct boot_params {
 	__u32 ext_ramdisk_size;				/* 0x0c4 */
 	__u32 ext_cmd_line_ptr;				/* 0x0c8 */
 	__u8  _pad4[116];				/* 0x0cc */
-	struct edid_info edid_info;			/* 0x140 */
-	struct efi_info efi_info;			/* 0x1c0 */
+	//struct edid_info edid_info;			/* 0x140 */
+	//struct efi_info efi_info;			/* 0x1c0 */
 	__u32 alt_mem_k;				/* 0x1e0 */
 	__u32 scratch;		/* Scratch field! */	/* 0x1e4 */
 	__u8  e820_entries;				/* 0x1e8 */

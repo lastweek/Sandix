@@ -50,13 +50,13 @@ static void setup_idt(void)
 {
 	idt.len = 0;
 	idt.ptr = 0;
-	asm volatile("lidtl %0" : : "m" (idt));
+	//asm volatile("lidtl %0" : : "m" (idt));
 }
 
 void go_to_protected_mode(void)
 {
 	asm volatile("cli");
-	//setup_idt();
+	setup_idt();
 	setup_gdt();
-	protected_mode_jump(0x100000, NULL);
+	protected_mode_jump((u32)0x100000, (u32)NULL);
 }

@@ -64,7 +64,7 @@ static char *number(char *str, int base, int num, int type)
 
 int vsprintf(char *buf, const char *fmt, va_list args)
 {
-	int  sint, base;
+	int  sint;
 	u8   ch;
 	u32  uint;
 	char *s;

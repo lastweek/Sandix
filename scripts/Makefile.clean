@@ -14,16 +14,18 @@ include $(srctree)/$(src)/Makefile
 include $(srctree)/scripts/Makefile.libb
 
 # object file and dependency file generated from GCC
-obj-y		:=	$(filter-out %/builtin-in, $(obj-y))
-clean-files	:=	$(foreach f, $(obj-y), $(dir $f).$(notdir $f).d)
-clean-files	+=	$(obj-y) $(src)/built-in.o
-clean-dirs	:=	$(subdir-y)
+obj-y		:=	$(filter-out %/built-in.o, $(obj-y))
 
-# Two versions command
+clean-files :=	$(obj-y)
+clean-files	+=	$(foreach f, $(obj-y), $(dir $f).$(notdir $f).d)
+clean-files +=	$(loader-y)
+clean-files +=	$(dir $(loader-y)).$(notdir $(loader-y)).d
+clean-files	+=	$(obj)/built-in.o
+clean-files +=	$(patsubst %,%-objcopy,$(objcopy-y))
+clean-files +=	$(patsubst %,%-objdump,$(objdump-y))
+
 quiet_cmd_clean    = CLEAN   $(obj)
       cmd_clean    = rm -f $(clean-files)
-quiet_cmd_cleandir = CLEAN   $(clean-dirs)
-      cmd_cleandir = rm -rf $(clean-dirs)
 
 __clean: $(subdir-y)
 ifneq ($(strip $(clean-files)),)
@@ -34,6 +36,5 @@ endif
 PHONY += $(subdir-y)
 $(subdir-y):
 	$(Q)$(MAKE) $(CLEAN)=$@
-
 
 .PHONY: $(PHONY)

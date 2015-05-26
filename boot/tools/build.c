@@ -18,7 +18,7 @@
 #define MAGIC_511		0xAA
 
 /* Filenames */
-const char *bootloader	= "bootsect";
+const char *bootloader	= "bootsect.o-objcopy";
 const char *setup		= "header";
 const char *kernel		= "image";
 const char *bzimage		= "bzimage";
