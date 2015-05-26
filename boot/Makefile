@@ -11,7 +11,7 @@ obj-y += string.o tty.o video.o
 obj-y += memory.o printf.o regs.o
 obj-y += pm.o pmjump.o 
 
-#objcopy-y := bootsect.o built-in.o
+objcopy-y := bootsect.o
 #objdump-y := bootsect.o built-in.o
 
 M16_CFLAGS := $(call cc-option,-m16)

@@ -21,7 +21,7 @@ clean-files	+=	$(foreach f, $(obj-y), $(dir $f).$(notdir $f).d)
 clean-files +=	$(loader-y)
 clean-files +=	$(dir $(loader-y)).$(notdir $(loader-y)).d
 clean-files	+=	$(obj)/built-in.o
-clean-files +=	$(patsubst %,%-objcopy,$(objcopy-y))
+clean-files +=	$(patsubst %.o,%.bin,$(objcopy-y))
 clean-files +=	$(patsubst %,%-objdump,$(objdump-y))
 
 quiet_cmd_clean    = CLEAN $(SS) $(obj)

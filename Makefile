@@ -125,8 +125,9 @@ endif
 # BIT FAT NOTE:
 # o Link $(init-y) $(core-y) $(drivers-y) together to form protected-mode
 #   kernel image. Move and rename the pm kernel image to boot/pmimage
-# o boot/CATENATE is responsible to catenate bootloader and $(boot-y) and
-#   protected-mode kernel image together.
+# o Real-Mode kernel image is boot/rmimage
+# o boot/CATENATE is responsible to catenate bootloader and rmimage and
+#   pmimage together.
 
 boot-y			:= boot/
 init-y			:= init/
@@ -152,28 +153,37 @@ PHONY := all
 all: vmsandix
 
 
-RM_IMAGE  := boot/rmimage
-PM_IMAGE  := boot/pmimage
+_RM_IMAGE := boot/rmimage
+_PM_IMAGE := boot/pmimage
+RM_IMAGE  := boot/rmimage.bin
+PM_IMAGE  := boot/pmimage.bin
+VMSANDIX  := boot/vmsandix
 RM_LD_CMD := scripts/rm-image.ld
 PM_LD_CMD := scripts/pm-image.ld
 
-quiet_cmd_objcopy := OBJCOPY $(SS) $@
-      cmd_objcopy := $(OBJCOPY) $(OBJCOPYFLAGS) $< $@
+quiet_cmd_link_rm := LD $(SS) $(_RM_IMAGE)
+      cmd_link_rm := $(LD) -T $(RM_LD_CMD) -o $(_RM_IMAGE) $(KBUILD_VMSANDIX_BOOT)
 
-quiet_cmd_link_rmimage := LD $(SS) $(RM_IMAGE)
-      cmd_link_rmimage := $(LD) -T $(RM_LD_CMD) -o $(RM_IMAGE) $(KBUILD_VMSANDIX_BOOT)
+quiet_cmd_link_pm := LD $(SS) $(_PM_IMAGE)
+      cmd_link_pm := $(LD) -T $(PM_LD_CMD) -o $(_PM_IMAGE) $(KBUILD_VMSANDIX_MAIN)
 
-quiet_cmd_link_pmimage := LD $(SS) $(PM_IMAGE)
-      cmd_link_pmimage := $(LD) -T $(PM_LD_CMD) -o $(PM_IMAGE) $(KBUILD_VMSANDIX_MAIN)
+quiet_cmd_bin_rm := OBJCOPY $(SS) $(RM_IMAGE)
+      cmd_bin_rm := $(OBJCOPY) $(OBJCOPYFLAGS) $(_RM_IMAGE) $(RM_IMAGE)
 
-quiet_cmd_complete := COMPLETE $(SS) boot/vmsandix
+quiet_cmd_bin_pm := OBJCOPY $(SS) $(PM_IMAGE)
+      cmd_bin_pm := $(OBJCOPY) $(OBJCOPYFLAGS) $(_PM_IMAGE) $(PM_IMAGE)
+
+quiet_cmd_complete := COMPLETE $(SS) $(VMSANDIX)
       cmd_complete := ./boot/CATENATE
 
 PHONY += vmsandix
-vmsandix: $(vmsandix-deps)
-	$(call if_changed,link_rmimage)
-	$(call if_changed,link_pmimage)
+vmsandix: $(vmsandix-deps) 
+	$(call if_changed,link_rm)
+	$(call if_changed,link_pm)
+	$(call if_changed,bin_rm)
+	$(call if_changed,bin_pm)
 	$(call if_changed,complete)
+	@chmod +x $(VMSANDIX)
 
 $(sort $(vmsandix-deps)): $(vmsandix-dirs) ;
 
@@ -190,9 +200,9 @@ CLEAN_DIRS := $(addprefix __CLEAN__,$(vmsandix-dirs))
 
 PHONY += clean
 clean: $(CLEAN_DIRS)
-	@rm -f boot/rmimage
-	@rm -f boot/pmimage
-	@rm -f boot/vmsandix
+	@rm -f $(_RM_IMAGE) $(RM_IMAGE)
+	@rm -f $(_PM_IMAGE) $(PM_IMAGE)
+	@rm -f $(VMSANDIX)
 
 $(CLEAN_DIRS):
 	$(Q)$(MAKE) $(CLEAN)=$(patsubst __CLEAN__%,%,$@)

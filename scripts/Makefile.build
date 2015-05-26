@@ -20,6 +20,7 @@ obj-dirs :=
 lib-y :=
 lib-target :=
 loader-y :=
+objcopy-y :=
 objdump-y :=
 
 # Initialize all relevant variables
@@ -30,6 +31,10 @@ include $(srctree)/scripts/Makefile.libb
 # Now figure out what $(srctree)/$(src)/Makefile want.
 ifneq ($(strip $(obj-y)),)
 builtin-target := $(obj)/built-in.o
+endif
+
+ifneq ($(strip $(objcopy-y)),)
+objcopy-target := $(patsubst %.o,%.bin,$(objcopy-y))
 endif
 
 ifneq ($(strip $(objdump-y)),)
@@ -43,7 +48,7 @@ endif
 
 # Default target has to depend on everything ;)
 __build: $(builtin-target) $(subdir-y) $(loader-target) \
-		 $(objdump-target) $(lib-target)
+		 $(objcopy-target) $(objdump-target) $(lib-target)
 
 
 # If the list is empty, create an empty built-in.o
@@ -66,6 +71,14 @@ quiet_cmd_loader = AS $(SS) $@
 
 $(loader-target): $(patsubst %.o,%.S,$(loader-y)) 
 	$(call if_changed,loader)
+endif
+
+ifdef objcopy-target
+quiet_cmd_objcopy = OBJCOPY $(SS) $@
+      cmd_objcopy = $(OBJCOPY) $(objcopy_flags) $< $@
+
+$(objcopy-target): $(objcopy-y) FORCE
+	$(call if_changed,objcopy)
 endif
 
 ifdef objdump-target
