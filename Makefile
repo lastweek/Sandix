@@ -1,4 +1,3 @@
-# Base on Linux Makefile ;)
 VERSION = 1
 PATCHLEVEL = 0
 SUBLEVEL = 0
@@ -50,10 +49,7 @@ endif
 export quiet Q KBUILD_VERBOSE
 
 
-# ===========================================================================
-# Nowadays Sandix don't support building in other directories.
-# But we use these two variables for future development.
-
+# We don't support building in other directories.
 srctree = .
 objtree = .
 export srctree objtree
@@ -65,9 +61,6 @@ MAKEFLAGS += -rR --include-dir=$(srctree)
 
 # FIXME i386-elf-gcc toolchains in my macos.
 CROSS_COMPILE = i386-elf-
-
-# Some generic definitions
-include $(srctree)/scripts/Kbuild.include
 
 # ===========================================================================
 # Make variables (CC, etc...)
@@ -108,14 +101,7 @@ export KBUILD_CFLAGS KBUILD_CPPFLAGS KBUILD_LDFLAGS KBUILD_AFLAGS
 export SANDIXINCLUDE NOSTDINC_FLAGS
 export OBJCOPYFLAGS OBJDUMPFLAGS
 
-# ---------------------------------------------------------------------------
-#* Target: all
-#* Depend on: vmsandix
-#* Desc: Useless
-# ---------------------------------------------------------------------------
-PHONY := all
-all: vmsandix
-
+# CFLAGS for x86_32
 CONFIG_X86_32=y
 ifeq ($(CONFIG_X86_32),y)
     KBUILD_AFLAGS += -m32 
@@ -123,8 +109,7 @@ ifeq ($(CONFIG_X86_32),y)
 
     KBUILD_CFLAGS += -mregparm=3 -freg-struct-return
 
-    # Never want PIC in a 32-bit kernel, prevent breakage with GCC built
-    # with nonstandard options
+    # Never want PIC in a 32-bit kernel
     KBUILD_CFLAGS += -fno-pic
 
     # prevent gcc from keeping the stack 16 byte aligned
@@ -137,53 +122,84 @@ ifeq ($(CONFIG_X86_32),y)
 endif
 
 
-# Dependencies of vmsandix
+# BIT FAT NOTE:
+# o Link $(init-y) $(core-y) $(drivers-y) together to form protected-mode
+#   kernel image. Move and rename the pm kernel image to boot/pmimage
+# o boot/CATENATE is responsible to catenate bootloader and $(boot-y) and
+#   protected-mode kernel image together.
+
 boot-y			:= boot/
-#init-y			:= init/
+init-y			:= init/
 #core-y			:= kernel/ mm/ fs/ ipc/ block/
 #drivers-y		:= drivers/
-
 vmsandix-dirs	:= $(patsubst %/, %, $(boot-y) $(init-y) $(core-y) $(drivers-y))
 
 boot-y			:= $(patsubst %/, %/built-in.o, $(boot-y))
 init-y			:= $(patsubst %/, %/built-in.o, $(init-y))
 core-y			:= $(patsubst %/, %/built-in.o, $(core-y))
 drivers-y		:= $(patsubst %/, %/built-in.o, $(drivers-y))
+vmsandix-deps	:= $(boot-y) $(init-y) $(core-y) $(drivers-y)
 
-KBUILD_VMSANDIX_INIT := $(boot-y) $(init-y)
-KBUILD_VMSANDIX_MAIN := $(core-y) $(drivers-y)
+KBUILD_VMSANDIX_BOOT := $(boot-y)
+KBUILD_VMSANDIX_MAIN := $(init-y) $(core-y) $(drivers-y)
 
-vmsandix-deps := $(KBUILD_VMSANDIX_INIT) $(KBUILD_VMSANDIX_MAIN)
+# Some generic definitions
+include $(srctree)/scripts/Kbuild.include
 
-export KBUILD_VMSANDIX_INIT KBUILD_VMSANDIX_MAIN
+# BUILD
+# ===========================================================================
+PHONY := all
+all: vmsandix
 
-# ---------------------------------------------------------------------------
-#* Target: vmsandix
-#* Depend on: $(vmsandix-deps), like fs/built-in.o init/built-in.o ...
-#* Desc: Build Sandix kernel image.
-# ---------------------------------------------------------------------------
+
+RM_IMAGE  := boot/rmimage
+PM_IMAGE  := boot/pmimage
+RM_LD_CMD := scripts/rm-image.ld
+PM_LD_CMD := scripts/pm-image.ld
+
+quiet_cmd_objcopy := OBJCOPY $(SS) $@
+      cmd_objcopy := $(OBJCOPY) $(OBJCOPYFLAGS) $< $@
+
+quiet_cmd_link_rmimage := LD $(SS) $(RM_IMAGE)
+      cmd_link_rmimage := $(LD) -T $(RM_LD_CMD) -o $(RM_IMAGE) $(KBUILD_VMSANDIX_BOOT)
+
+quiet_cmd_link_pmimage := LD $(SS) $(PM_IMAGE)
+      cmd_link_pmimage := $(LD) -T $(PM_LD_CMD) -o $(PM_IMAGE) $(KBUILD_VMSANDIX_MAIN)
+
+quiet_cmd_complete := COMPLETE $(SS) boot/vmsandix
+      cmd_complete := ./boot/CATENATE
+
 PHONY += vmsandix
 vmsandix: $(vmsandix-deps)
+	$(call if_changed,link_rmimage)
+	$(call if_changed,link_pmimage)
+	$(call if_changed,complete)
 
-# ---------------------------------------------------------------------------
-#* Target: $(vmsandix-deps)
-#* Depend on: $(vmsandix-dir)
-#* Desc: Descending into $(vmsandix-dir) to BUILD built-in.o
-# ---------------------------------------------------------------------------
 $(sort $(vmsandix-deps)): $(vmsandix-dirs) ;
+
+# Descending into sub-directory
 PHONY += $(vmsandix-dirs)
 $(vmsandix-dirs):
 	$(Q)$(MAKE) $(BUILD)=$@
 
+# CLEAN
+# ===========================================================================
 
 # Add prefix to avoid overriding the previous target.
 CLEAN_DIRS := $(addprefix __CLEAN__,$(vmsandix-dirs))
+
 PHONY += clean
 clean: $(CLEAN_DIRS)
+	@rm -f boot/rmimage
+	@rm -f boot/pmimage
+	@rm -f boot/vmsandix
 
 $(CLEAN_DIRS):
 	$(Q)$(MAKE) $(CLEAN)=$(patsubst __CLEAN__%,%,$@)
 
+
+# HELP
+# ===========================================================================
 PHONY += help
 help:
 	@echo "Top Makefile of Sandix Kernel"
@@ -191,6 +207,7 @@ help:
 
 PHONY += FORCE
 FORCE:
+
 
 # ---------------------------------------------------------------------------
 # There are two reasons to use a phony target:

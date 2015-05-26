@@ -1,12 +1,7 @@
-/*
- *	2015/04/28 Created by Shan Yizhou
- *	setup.ld
- *	Linker script for Real-mode HEADER image
- */
-
+ENTRY(_start)
 SECTIONS
 {
-	. = 0;
+	. = 0x0;
 	.text		: { *(.text) }
 	.text32		: { *(.text32)}
 	
@@ -17,5 +12,5 @@ SECTIONS
 	.rodata		: { *(.rodata*)}
 	
 	. = ALIGN(16);
-	_end = .;
+	RM_KERNEL_END = .;
 }

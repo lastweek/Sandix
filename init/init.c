@@ -4,7 +4,7 @@
  */
 
 #include <sandix/const.h>
-#include <sandix/type.h>
+#include <sandix/types.h>
 #include <sandix/screen_info.h>
 #include <sandix/e820.h>
 #include <sandix/bootparam.h>

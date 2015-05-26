@@ -8,12 +8,12 @@ src := $(obj)
 PHONY := __clean
 __clean:
 
-# General include
+# All the information about files which need to clean
+# is in $(srctree)/$(src)/Makefile.
 include $(srctree)/scripts/Kbuild.include
 include $(srctree)/$(src)/Makefile
 include $(srctree)/scripts/Makefile.libb
 
-# object file and dependency file generated from GCC
 obj-y		:=	$(filter-out %/built-in.o, $(obj-y))
 
 clean-files :=	$(obj-y)
@@ -24,7 +24,7 @@ clean-files	+=	$(obj)/built-in.o
 clean-files +=	$(patsubst %,%-objcopy,$(objcopy-y))
 clean-files +=	$(patsubst %,%-objdump,$(objdump-y))
 
-quiet_cmd_clean    = CLEAN   $(obj)
+quiet_cmd_clean    = CLEAN $(SS) $(obj)
       cmd_clean    = rm -f $(clean-files)
 
 __clean: $(subdir-y)

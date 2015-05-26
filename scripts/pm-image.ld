@@ -1,0 +1,16 @@
+ENTRY(pm_kernel_entry)
+SECTIONS
+{
+	. = 0x0;
+	.text	: { *(.text) }
+
+	. = ALIGN(16);
+	.data	: { *(.data*)}
+
+	. = ALIGN(16);
+	.rodata	: { *(.rodata*)}
+
+	. = ALIGN(16);
+
+	PM_KERNEL_END = .;
+}

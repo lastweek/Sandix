@@ -27,7 +27,6 @@ obj-dirs	 := $(addprefix $(obj)/, $(obj-dirs))
 subdir-obj-y := $(addprefix $(obj)/, $(subdir-obj-y))
 
 loader-y	 := $(addprefix $(obj)/, $(loader-y))
-objcopy-y	 := $(addprefix $(obj)/, $(objcopy-y))
 objdump-y	 := $(addprefix $(obj)/, $(objdump-y))
 
 
@@ -50,26 +49,7 @@ _cpp_flags	= $(KBUILD_CPPFLAGS) $(CPPFLAGS_$(@F))
 c_flags		= -Wp,-MD,$(depfile),-MT,'$@' $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(_c_flags) 
 a_flags		= -Wp,-MD,$(depfile),-MT,'$@' $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(_a_flags)
 cpp_flags	= -Wp,-MD,$(depfile),-MT,'$@' $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(_cpp_flags)
-ld_flags	= $(KBUILD_LDFLAGS)
 
-objcopy_flags = $(OBJCOPYFLAGS)
+ld_flags	= $(KBUILD_LDFLAGS) $(LDFLAGS)
+
 objdump_flags = $(OBJDUMPFLAGS)
-
-# Commands useful for building a boot image
-# ---------------------------------------------------------------------------
-# ---------------------------------------------------------------------------
-#
-#	Use as following:
-#
-#	target: source(s) FORCE
-#		$(if_changed,ld/objcopy/gzip)
-#
-#	and add target to extra-y so that we know we have to
-#	read in the saved command line
-
-# Linking
-# ---------------------------------------------------------------------------
-
-quiet_cmd_ld = LD      $@
-cmd_ld = $(LD) $(KBUILD_LDFLAGS) $(LDFLAGS_$(@F)) \
-	       $(filter-out FORCE,$^) -o $@

@@ -16,6 +16,6 @@ pm_kernel_entry:
 	movl $0x40, (%ebx)
 
 	# Call Kernel Init. Never Return.
-	calll _kernel_init
+	calll kernel_init
 head_end:
 	nop

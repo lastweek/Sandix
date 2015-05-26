@@ -1,6 +1,9 @@
 #
-#	Makefile.build
-#	Sub-Building ;)
+#	Makefile.build --- Warehouse
+#	
+#	This file contains various building target.
+#	Some specific targets will be build only if Makefile which
+#	in building directory directs to do.
 #
 
 src := $(obj)
@@ -8,43 +11,44 @@ src := $(obj)
 PHONY += __build
 __build:
 
+# Clear all relevant variables
+# Avoid them inherit from enviroment or something.
 obj-y :=
 subdir-obj-y :=
 subdir-y :=
 obj-dirs :=
-
 lib-y :=
 lib-target :=
-
 loader-y :=
-objcopy-y :=
 objdump-y :=
 
+# Initialize all relevant variables
 include $(srctree)/scripts/Kbuild.include
 include $(srctree)/$(src)/Makefile
 include $(srctree)/scripts/Makefile.libb
 
+# Now figure out what $(srctree)/$(src)/Makefile want.
 ifneq ($(strip $(obj-y)),)
 builtin-target := $(obj)/built-in.o
-endif
-
-ifneq ($(strip $(objcopy-y)),)
-objcopy-target := $(patsubst %,%-objcopy,$(objcopy-y))
 endif
 
 ifneq ($(strip $(objdump-y)),)
 objdump-target := $(patsubst %,%-objdump,$(objdump-y))
 endif
 
+# bootloader
 ifneq ($(strip $(loader-y)),)
 loader-target := $(loader-y)
 endif
 
-# Default target
+# Default target has to depend on everything ;)
 __build: $(builtin-target) $(subdir-y) $(loader-target) \
-		 $(objcopy-target) $(objdump-target) $(lib-target)
+		 $(objdump-target) $(lib-target)
+
 
 # If the list is empty, create an empty built-in.o
+# Caveat: %(ld_flags) contains -r which direct linker to
+# generate relocatable objects.
 ifdef builtin-target
 quiet_cmd_link_o_target = LD $(SS) $@
       cmd_link_o_target = \
@@ -56,7 +60,6 @@ $(builtin-target): $(obj-y) FORCE
 	$(call if_changed,link_o_target)
 endif
 
-
 ifdef loader-target
 quiet_cmd_loader = AS $(SS) $@
       cmd_loader = $(CC) $(a_flags) -c -o $@ $<
@@ -65,22 +68,12 @@ $(loader-target): $(patsubst %.o,%.S,$(loader-y))
 	$(call if_changed,loader)
 endif
 
-
-ifdef objcopy-target
-quiet_cmd_objcopy = OBJCOPY $(SS) $@
-      cmd_objcopy = $(OBJCOPY) $(objcopy_flags) $(patsubst %-objcopy,%,$@) $@
-
-$(objcopy-target): FORCE
-	$(call cmd,objcopy)
-endif
-
-
 ifdef objdump-target
 quiet_cmd_objdump = OBJDUMP $(SS) $@
       cmd_objdump = $(OBJDUMP) $(objdump_flags) $(patsubst %-objdump,%,$@) >$@
 
-$(objdump-target): FORCE
-	$(call cmd,objdump)
+$(objdump-target): $(objdump-y) FORCE
+	$(call if_changed,objdump)
 endif
 
 ifneq ($(strip $(lib-target)),)
@@ -91,6 +84,7 @@ $(lib-target): $(lib-y) FORCE
 	$(call if_changed,link_l_target)
 endif
 
+
 # Descending into sub-directory
 $(sort $(subdir-obj-y)): $(subdir-y) ;
 PHONY += $(subdir-y)
@@ -99,22 +93,13 @@ $(subdir-y):
 
 
 # include dependencies
-_dep_files := $(filter-out $(subdir-obj-y),$(obj-y))
+_dep_files := $(filter-out $(subdir-obj-y),$(obj-y) $(loader-y))
 dep_files  := $(foreach f,$(_dep_files),$(dir $(f)).$(notdir $(f)).d)
 
 ifneq ($(dep_files),)
   -include $(dep_files)
 endif
 
-
-
-
-# PART 2
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-# After define the rules and prerequisites between those "top" targets,
-# it's time to do the real dirty work: COMPILE and LINK SOURCE FILES.
-# We have two versions cmd, one for beautiful output, one for work. ;)
-# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 # .c --> .o
 # ---------------------------------------------------------------------------

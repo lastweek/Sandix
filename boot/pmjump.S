@@ -16,7 +16,6 @@ protected_mode_jump:
 	movl	%edx, %esi	
 	
 	# Self-modify the offset of ljmp
-	# Maybe we can just add 0x90000.
 	xorl	%ebx, %ebx
 	movw	%cs, %bx
 	shll	$4, %ebx
