@@ -3,15 +3,18 @@
  *	boot.h: Header file for real-mode boot process.
  */
 
-#ifndef BOOT_BOOT_H
-#define BOOT_BOOT_H
+#ifndef _BOOT_BOOT_H_
+#define _BOOT_BOOT_H_
 
 asm(".code16gcc");
 
 #include <sandix/types.h>
 
-extern struct setup_header hdr;
-extern struct boot_params boot_params;
+/* header.S */
+extern struct setup_header	hdr;
+
+/* main.c */
+extern struct boot_params	boot_params;
 
 static inline void die(void)
 {
@@ -232,4 +235,4 @@ void protected_mode_jump(u32 code_addr, u32 param_addr)
 __attribute__ ((regparm(3)));
 
 
-#endif 
+#endif /* _BOOT_BOOT_H */

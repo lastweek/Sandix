@@ -1,6 +1,6 @@
 /*
  *	2015/04/11. Created by Shan Yizhou.
- *	main.c: Real-Mode kernel main body.
+ *	main.c: Real-Mode Kernel main body.
  *
  *	This code asks the BIOS for memory/disk/other parameters, and
  *	puts them in a "safe" place. After necessary preparation, control
@@ -36,9 +36,19 @@ static void keyboard_init(void)
 
 void main(void)
 {
+	/* Copy setup_header to boot_params */
+	boot_params.hdr = hdr;
+
+	/* Various setup routines */
 	keyboard_init();
 	detect_memory();
 	enable_a20();
+	
+	/* Don't print anything after set_video() */
 	set_video();
+
+	/* RM kernel finale, transfer to PM */
 	go_to_protected_mode();
 }
+
+

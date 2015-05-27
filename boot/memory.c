@@ -53,7 +53,7 @@ static int detect_memory_e820(void)
 		count++;
 	} while (ireg.ebx && count < E820MAX);
 	
-	return boot_params.e820_entries = count;
+	return boot_params.e820_entries_nr = count;
 }
 
 void detect_memory(void)

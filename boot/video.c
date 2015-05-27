@@ -1,6 +1,6 @@
 /*
  *	2015/04/24 Created by Shan Yizhou.
- *	video.c: Set video mode. Store parameters.
+ *	video.c: Store parameters of screen and set video mode.
  */
 
 #include "boot.h"
@@ -63,8 +63,9 @@ void set_video(void)
 {
 	store_mode_params();
 
-	if (boot_params.screen_info.orig_video_mode != 0x03) {
-		printf("DEBUG: Sorry, we are not in video mode 3\n");
-		die();
+	/* FIXME Should not print */
+	if (boot_params.screen_info.orig_video_mode != 0x3) {
+		set_video_mode(0x3);
+		puts("Warning: Original video is not mode 3\n");
 	}
 }

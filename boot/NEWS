@@ -170,3 +170,16 @@ But we still got some issues.
 
 In pm.c, when invoke setup_idt(), the printf() in setup_gdt() won't return.
 There must be something wrong. Maybe idtr can affect interrupt in rm mode?
+
+
+2015/05/27
+
+Aha! Long time no see!
+Yesterday i build the Build System of Sandix. Now we can add/delete source
+files freely! After that, i changed some stuff in boot/*.c, like boot_params
+and linker scripts etc.
+
+Today i finished storing parameters in boot_params, which including e820map,
+video parameters and so on. With boot_params and robust build system, we are
+now free to program Protected-Mode Kernel Image.
+

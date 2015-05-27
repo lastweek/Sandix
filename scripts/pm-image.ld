@@ -1,4 +1,4 @@
-ENTRY(pm_kernel_entry)
+ENTRY(_start)
 SECTIONS
 {
 	. = 0x0;

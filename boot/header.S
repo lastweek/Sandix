@@ -24,28 +24,38 @@ INITSEG = 0X9000
 	.text
 	.global header_start
 header_start:
-	# Information about system!
-	# Filled by main()???
-	# FIXME
+	
+	# For future use...
 	.space 512
 	
-###########################
-# OFFSET 512, ENTRY POINT #
-###########################
+#------------------------------------------------------------
+# OFFSET 512, ENTRY POINT
 	.global _start
 _start:
 	jmp start_of_setup
-#------------------------------------------------------------#
-# START of setup header										 #
-#------------------------------------------------------------#
-header:
-	.ascii "SANDIX15"		# header signature
-	.word 0x0001			# header version number 0.1
+
+#------------------------------------------------------------
+# START of setup_header
+	
+	.globl hdr
+hdr:
+header_version:
+	.long 0x1				# header version number 0.0.0.1
 code32_start:
-	.long 0x100000			# 0x100000 = default for kernel
-#------------------------------------------------------------#
-# END   of setup header										 #
-#------------------------------------------------------------#
+	.long 0x10000			# Entry of Protected-Mode Kernel
+video_mode:
+	.long 0x3				# Video mode that kernel supports
+rm_kernel_sects:
+	.long 0x0				# Sections of RM Kernel Image
+pm_kernel_sects:
+	.long 0x0				# Sections of PM kernel Image
+header_signature:
+	.ascii "_SANDIX_"		# header signature
+
+# END   of setup_header
+#------------------------------------------------------------
+
+# Real start entry point
 start_of_setup:
 	# Print some message to indicate we are here.
 	movw $INITSEG, %ax
@@ -58,7 +68,7 @@ start_of_setup:
 	movb $0x03, %ah	# read cursor pos
 	xor %bh, %bh
 	int $0x10
-	movw $(fail_msg-Debug_msg), %cx # length of msg.
+	movw $(end-Debug_msg), %cx # length of msg.
 	movw $0x0007, %bx # page 0, attribute 7.
 	movw $Debug_msg, %bp # pointer to msg.
 	movw $0x1301, %ax # write msg, move cursor.
@@ -76,15 +86,13 @@ start_of_setup:
 	shrw    $2, %cx 
 	rep; stosl
 	
-	# GO PARTY, never return!
+	# Go RM kernel, should not return ...
 	calll main
 die:
 	hlt
 	jmp die
 Debug_msg:
-	.ascii "\n\rDEBUG: RM Kernel header.S, going to main() ...\n\r"
-fail_msg:
-	.ascii "\n\rHeader.s signature missing/mismatch..."
+	.ascii "\n\rDEBUG: RM header.S, going to RM main() ...\n\r"
 end:
 	hlt
 	nop

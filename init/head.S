@@ -8,7 +8,7 @@
 
  .code32
 
-pm_kernel_entry:
+_start:
 	# Print sth on screen, '@' in left-upper corner.
 	# Show we are here.
 	movl $0xB8000, %ebx
