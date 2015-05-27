@@ -1,13 +1,13 @@
-/*
- *	2015/04/29 Created by Shan Yizhou.
- *
- *	head.S: 32-bit kernel entrypoint; only used by the boot CPU.
- *	On entry, %esi points to the real-mode code as a 32-bit pointer.
- *	CS and DS must be 4 GB flat segments.
- */
-
  .code32
+ .text
 
+/*
+ * 32-bit kernel entrypoint; only used by the boot CPU.  On entry,
+ * %esi points to the real-mode code as a 32-bit pointer.
+ * CS and DS must be 4 GB flat segments, but we don't depend on
+ * any particular GDT layout, because we load our own as soon as we
+ * can.
+ */
 _start:
 	
 	# Print '@' in left-upper corner.

@@ -8,12 +8,12 @@
 /* %esi points to boot_params struct. */
 struct boot_params boot_params;
 
-__u64 GDT_KERNEL[GDT_ENTRIES] __attribute__((aligned(16))) =
+u64 GDT_KERNEL[GDT_ENTRIES] __attribute__((aligned(16))) =
 {
-	[GDT_ENTRY_KERNEL_CS]	= GDT_ENTRY(),
-	[GDT_ENTRY_KERNEL_DS]	= GDT_ENTRY(),
-	[GDT_ENTRY_USER_CS]		= GDT_ENTRY(),
-	[GDT_ENTRY_USER_DS]		= GDT_ENTRY(),
+	[GDT_ENTRY_KERNEL_CS]	= GDT_ENTRY(0xc09b, 0, 0xfffff),
+	[GDT_ENTRY_KERNEL_DS]	= GDT_ENTRY(0xc093, 0, 0xfffff),
+	[GDT_ENTRY_USER_CS]		= GDT_ENTRY(0xc09b, 0, 0xfffff),
+	[GDT_ENTRY_USER_DS]		= GDT_ENTRY(0xc093, 0, 0xfffff),
 	[GDT_ENTRY_KERNEL_TSS]	= GDT_ENTRY(),
 	[GDT_ENTRY_KERNEL_LDT]	= GDT_ENTRY(),
 };

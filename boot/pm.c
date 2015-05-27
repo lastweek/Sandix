@@ -26,6 +26,12 @@ static const u64 boot_gdt[] __attribute__((aligned(16))) = {
 	[GDT_ENTRY_BOOT_TSS] = GDT_ENTRY(0x0089, 4096, 103),
 };
 
+/*
+ * The IDT and GDT 'descriptors' are a strange 48-bit object
+ * only used by the lidt and lgdt instructions. They are not
+ * like usual segment descriptors - they consist of a 16-bit
+ * segment size, and 32-bit linear address value:
+ */
 struct gdt_ptr {
 	u16 len;
 	u32 ptr;
