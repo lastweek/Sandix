@@ -36,7 +36,7 @@ static void keyboard_init(void)
 
 void main(void)
 {
-	/* Copy setup_header to boot_params */
+	/* Copy setup_header in header.S to boot_params */
 	boot_params.hdr = hdr;
 
 	/* Various setup routines */
@@ -45,9 +45,10 @@ void main(void)
 	enable_a20();
 	
 	/* Don't print anything after set_video() */
+	/* Because we have stored cursor position etc. already */
 	set_video();
 
-	/* RM kernel finale, transfer to PM */
+	/* RM Kernel finale. Transfer to PM Kernel*/
 	go_to_protected_mode();
 }
 
