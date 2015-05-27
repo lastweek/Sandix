@@ -1,0 +1,12 @@
+2015/05/27
+
+When i really turn to PM kernel, i find there are many difficults
+before coding PM. I should have planned what to do first, the task?
+the filesystem?...
+
+I have to say now we have all the resources and freedom to do everything
+we want. Now we have 32-bit CPU, boot_params, and so on.
+
+Maybe we can start by traps and interrupts, like keyboard and timer. After that
+we can build task and filesystem?
+

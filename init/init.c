@@ -15,7 +15,9 @@
  *	pass them to corresponding initial function.
  */
 
+struct boot_params *boot_params;
+
 void kernel_init(void)
 {
-	
+
 }

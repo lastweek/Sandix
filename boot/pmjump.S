@@ -11,8 +11,9 @@
 	.globl protected_mode_jump
 	.type protected_mode_jump, @function
 protected_mode_jump:
-	# Pointer to boot_params table
-	movl	%edx, %esi	
+
+	# Pointer to boot_params struct
+	movl	%edx, %esi
 	
 	# Self-modify the offset of ljmp
 	xorl	%ebx, %ebx
@@ -21,7 +22,6 @@ protected_mode_jump:
 	addl	%ebx, 2f
 	
 	# Short jump to serialize on 386/486
-	# why? ---syz
 	# Cause above is self-modifying code,
 	# a serializing instruction[like cpuid] is needed
 	# before excute the new instruction.
@@ -45,30 +45,21 @@ protected_mode_jump:
 	.section ".text32","ax"
 	.type in_pm32, @function
 in_pm32:
-	# Set up segments, FIRST!
+
+	# Set up segments
 	movl	%ecx, %ds
 	movl	%ecx, %es
 	movl	%ecx, %fs
 	movl	%ecx, %gs
 	movl	%ecx, %ss
 
-	# Print "Sandix" on screen
-	# Show we are here.
-	movl	$0xB8000, %ebx
-	movb	$0x53, (%ebx)
-	movb	$0x61, 2(%ebx)
-	movb	$0x6e, 4(%ebx)
-	movb	$0x64, 6(%ebx)
-	movb	$0x69, 8(%ebx)
-	movb	$0x78, 10(%ebx)
-
-	# FIXME Choose %esp
+	# The 32-bit code sets up its own stack, but this way we do have
+	# a valid stack if some debugging hack wants to use it.
 	addl	%ebx, %esp
 
 	# Set up TR to make Intel VT happy
 	ltr	%di
 
-	# FIXME Dont need?
 	xorl	%ebx, %ebx
 	xorl	%ecx, %ecx
 	xorl	%edx, %edx

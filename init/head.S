@@ -9,12 +9,15 @@
  .code32
 
 _start:
-	# Print sth on screen, '@' in left-upper corner.
+	
+	# Print '@' in left-upper corner.
 	# Show we are here.
 	movl $0xB8000, %ebx
 	movb $0x40, (%ebx)
 
-	# Call Kernel Init. Never Return.
+	# Already have a valid %esp
+
+	# Call kernel_init, should not return...
 	calll kernel_init
 
 end:

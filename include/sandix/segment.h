@@ -15,12 +15,12 @@
 #define GDT_ENTRY_BOOT_CS	2
 #define GDT_ENTRY_BOOT_DS	3
 #define GDT_ENTRY_BOOT_TSS	4
+
 // * 8 equals to << 3
 #define __BOOT_CS		(GDT_ENTRY_BOOT_CS  * 8)
 #define __BOOT_DS		(GDT_ENTRY_BOOT_DS  * 8)
 #define __BOOT_TSS		(GDT_ENTRY_BOOT_TSS * 8)
 
-#ifdef CONFIG_X86_32
 /*
  * The layout of the per-CPU GDT under Sandix:
  *
@@ -49,14 +49,6 @@
  *  15 - default user DS
  *  16 - TSS
  *  17 - LDT
- *  18 - PNPBIOS support (16->32 gate)
- *  19 - PNPBIOS support
- *  20 - PNPBIOS support
- *  21 - PNPBIOS support
- *  22 - PNPBIOS support
- *  23 - APM BIOS support
- *  24 - APM BIOS support
- *  25 - APM BIOS support
  *
  *  26 - ESPFIX small SS
  *  27 - per-cpu			[ offset to per-cpu data area ]
@@ -108,20 +100,6 @@
  */
 #define GDT_ENTRIES 32
 
-/* The PnP BIOS entries in the GDT */
-#define GDT_ENTRY_PNPBIOS_CS32		(GDT_ENTRY_PNPBIOS_BASE + 0)
-#define GDT_ENTRY_PNPBIOS_CS16		(GDT_ENTRY_PNPBIOS_BASE + 1)
-#define GDT_ENTRY_PNPBIOS_DS		(GDT_ENTRY_PNPBIOS_BASE + 2)
-#define GDT_ENTRY_PNPBIOS_TS1		(GDT_ENTRY_PNPBIOS_BASE + 3)
-#define GDT_ENTRY_PNPBIOS_TS2		(GDT_ENTRY_PNPBIOS_BASE + 4)
-
-/* The PnP BIOS selectors */
-#define PNP_CS32   (GDT_ENTRY_PNPBIOS_CS32 * 8)	/* segment for calling fn */
-#define PNP_CS16   (GDT_ENTRY_PNPBIOS_CS16 * 8)	/* code segment for BIOS */
-#define PNP_DS     (GDT_ENTRY_PNPBIOS_DS * 8)	/* data segment for BIOS */
-#define PNP_TS1    (GDT_ENTRY_PNPBIOS_TS1 * 8)	/* transfer data segment */
-#define PNP_TS2    (GDT_ENTRY_PNPBIOS_TS2 * 8)	/* another data segment */
-
 /* Bottom two bits of selector give the ring privilege level */
 #define SEGMENT_RPL_MASK	0x3
 /* Bit 2 is table indicator (LDT/GDT) */
@@ -132,53 +110,6 @@
 /* LDT segment has TI set, GDT has it cleared */
 #define SEGMENT_LDT		0x4
 #define SEGMENT_GDT		0x0
-
-/*
- * Matching rules for certain types of segments.
- */
-
-/* Matches PNP_CS32 and PNP_CS16 (they must be consecutive) */
-#define SEGMENT_IS_PNP_CODE(x)   (((x) & 0xf4) == GDT_ENTRY_PNPBIOS_BASE * 8)
-
-
-#else
-
-#define GDT_ENTRY_KERNEL32_CS 1
-#define GDT_ENTRY_KERNEL_CS 2
-#define GDT_ENTRY_KERNEL_DS 3
-
-#define __KERNEL32_CS   (GDT_ENTRY_KERNEL32_CS * 8)
-
-/*
- * we cannot use the same code segment descriptor for user and kernel
- * -- not even in the long flat mode, because of different DPL /kkeil
- * The segment offset needs to contain a RPL. Grr. -AK
- * GDT layout to get 64bit syscall right (sysret hardcodes gdt offsets)
- */
-#define GDT_ENTRY_DEFAULT_USER32_CS 4
-#define GDT_ENTRY_DEFAULT_USER_DS 5
-#define GDT_ENTRY_DEFAULT_USER_CS 6
-#define __USER32_CS   (GDT_ENTRY_DEFAULT_USER32_CS*8+3)
-#define __USER32_DS	__USER_DS
-
-#define GDT_ENTRY_TSS 8	/* needs two entries */
-#define GDT_ENTRY_LDT 10 /* needs two entries */
-#define GDT_ENTRY_TLS_MIN 12
-#define GDT_ENTRY_TLS_MAX 14
-
-#define GDT_ENTRY_PER_CPU 15	/* Abused to load per CPU data from limit */
-#define __PER_CPU_SEG	(GDT_ENTRY_PER_CPU * 8 + 3)
-
-/* TLS indexes for 64bit - hardcoded in arch_prctl */
-#define FS_TLS 0
-#define GS_TLS 1
-
-#define GS_TLS_SEL ((GDT_ENTRY_TLS_MIN+GS_TLS)*8 + 3)
-#define FS_TLS_SEL ((GDT_ENTRY_TLS_MIN+FS_TLS)*8 + 3)
-
-#define GDT_ENTRIES 16
-
-#endif
 
 #define __KERNEL_CS	(GDT_ENTRY_KERNEL_CS*8)
 #define __KERNEL_DS	(GDT_ENTRY_KERNEL_DS*8)
@@ -206,68 +137,5 @@
 #define GDT_SIZE (GDT_ENTRIES * 8)
 #define GDT_ENTRY_TLS_ENTRIES 3
 #define TLS_SIZE (GDT_ENTRY_TLS_ENTRIES * 8)
-
-#ifdef __KERNEL__
-#ifndef __ASSEMBLY__
-extern const char early_idt_handlers[NUM_EXCEPTION_VECTORS][2+2+5];
-#ifdef CONFIG_TRACING
-#define trace_early_idt_handlers early_idt_handlers
-#endif
-
-/*
- * Load a segment. Fall back on loading the zero
- * segment if something goes wrong..
- */
-#define loadsegment(seg, value)						\
-do {									\
-	unsigned short __val = (value);					\
-									\
-	asm volatile("						\n"	\
-		     "1:	movl %k0,%%" #seg "		\n"	\
-									\
-		     ".section .fixup,\"ax\"			\n"	\
-		     "2:	xorl %k0,%k0			\n"	\
-		     "		jmp 1b				\n"	\
-		     ".previous					\n"	\
-									\
-		     _ASM_EXTABLE(1b, 2b)				\
-									\
-		     : "+r" (__val) : : "memory");			\
-} while (0)
-
-/*
- * Save a segment register away
- */
-#define savesegment(seg, value)				\
-	asm("mov %%" #seg ",%0":"=r" (value) : : "memory")
-
-/*
- * x86_32 user gs accessors.
- */
-#ifdef CONFIG_X86_32
-#ifdef CONFIG_X86_32_LAZY_GS
-#define get_user_gs(regs)	(u16)({unsigned long v; savesegment(gs, v); v;})
-#define set_user_gs(regs, v)	loadsegment(gs, (unsigned long)(v))
-#define task_user_gs(tsk)	((tsk)->thread.gs)
-#define lazy_save_gs(v)		savesegment(gs, (v))
-#define lazy_load_gs(v)		loadsegment(gs, (v))
-#else	/* X86_32_LAZY_GS */
-#define get_user_gs(regs)	(u16)((regs)->gs)
-#define set_user_gs(regs, v)	do { (regs)->gs = (v); } while (0)
-#define task_user_gs(tsk)	(task_pt_regs(tsk)->gs)
-#define lazy_save_gs(v)		do { } while (0)
-#define lazy_load_gs(v)		do { } while (0)
-#endif	/* X86_32_LAZY_GS */
-#endif	/* X86_32 */
-
-static inline unsigned long get_limit(unsigned long segment)
-{
-	unsigned long __limit;
-	asm("lsll %1,%0" : "=r" (__limit) : "r" (segment));
-	return __limit + 1;
-}
-
-#endif /* !__ASSEMBLY__ */
-#endif /* __KERNEL__ */
 
 #endif /* _SANDIX_X86_SEGMENT_H */
