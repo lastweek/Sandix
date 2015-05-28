@@ -20,22 +20,21 @@ kernel_start:
 	
 	# Print '@' in left-upper corner.
 	# Show we are here.
-	movl $0xB8000, %ebx
+	movl $0xb8000, %ebx
 	movb $0x40, (%ebx)
 
 	# Already have a valid %esp
 	# TODO
 
 
-
-
 	call kernel_init
-end:
+die:
 	hlt
-	jmp end
+	jmp die
 
 
 ENTRY(early_idt_handlers)
+	movl %eax, %ebx
 	movl %eax, %ebx
 ENDPROC(early_idt_handlers)
 
@@ -44,7 +43,6 @@ ENTRY(early_idt_handler)
 	#TODO
 	movl %eax, %ebx
 ENDPROC(early_idt_handler)
-
 
 /*
  * The IDT and GDT 'descriptors' are a strange 48-bit object

@@ -3,10 +3,20 @@
  *	Various entry points for traps or interrupts or else.
  **/
 
-.macro SAVE_ALL
-	#TODO
-.endm
+#include <sandix/linkage.h>
 
-.macro RESTORE_ALL
+ENTRY(SAVE_ALL)
 	#TODO
-.endm
+	push %eax
+	push %ebx
+	push %ecx
+	push %edx
+END(SAVE_ALL)
+
+ENTRY(RESTORE_ALL)
+	#TODO
+	push %eax
+	push %ebx
+	push %ecx
+	push %edx
+END(RESTORE_ALL)

@@ -11,6 +11,12 @@
 /* GNU AS newline separator */
 #define	ASM_NL	;
 
+/* Pad with NOP in x86 */
+#ifndef ALIGN
+#define ALIGN \
+		.align 4, 0x90
+#endif
+
 #ifndef WEAK
 #define WEAK(name) \
 		.weak name ASM_NL \
@@ -26,7 +32,7 @@
 #ifndef ENTRY
 #define ENTRY(name) \
 		.globl name ASM_NL \
-		.align 4 ASM_NL \
+		ALIGN ASM_NL \
 		name:
 #endif
 
