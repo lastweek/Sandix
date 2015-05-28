@@ -18,6 +18,7 @@ SECTIONS
 		*(.bss)
 		__bss_end = .;
 	}
+
 	. = ALIGN(16);
 	RM_KERNEL_END = .;
 }

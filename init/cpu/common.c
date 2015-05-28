@@ -1,47 +1,3 @@
-#include <linux/bootmem.h>
-#include <linux/linkage.h>
-#include <linux/bitops.h>
-#include <linux/kernel.h>
-#include <linux/module.h>
-#include <linux/percpu.h>
-#include <linux/string.h>
-#include <linux/delay.h>
-#include <linux/sched.h>
-#include <linux/init.h>
-#include <linux/kprobes.h>
-#include <linux/kgdb.h>
-#include <linux/smp.h>
-#include <linux/io.h>
-
-#include <asm/stackprotector.h>
-#include <asm/perf_event.h>
-#include <asm/mmu_context.h>
-#include <asm/archrandom.h>
-#include <asm/hypervisor.h>
-#include <asm/processor.h>
-#include <asm/tlbflush.h>
-#include <asm/debugreg.h>
-#include <asm/sections.h>
-#include <asm/vsyscall.h>
-#include <linux/topology.h>
-#include <linux/cpumask.h>
-#include <asm/pgtable.h>
-#include <linux/atomic.h>
-#include <asm/proto.h>
-#include <asm/setup.h>
-#include <asm/apic.h>
-#include <asm/desc.h>
-#include <asm/i387.h>
-#include <asm/fpu-internal.h>
-#include <asm/mtrr.h>
-#include <linux/numa.h>
-#include <asm/asm.h>
-#include <asm/cpu.h>
-#include <asm/mce.h>
-#include <asm/msr.h>
-#include <asm/pat.h>
-#include <asm/microcode.h>
-#include <asm/microcode_intel.h>
 
 #ifdef CONFIG_X86_LOCAL_APIC
 #include <asm/uv/uv.h>
@@ -92,56 +48,12 @@ static const struct cpu_dev default_cpu = {
 static const struct cpu_dev *this_cpu = &default_cpu;
 
 DEFINE_PER_CPU_PAGE_ALIGNED(struct gdt_page, gdt_page) = { .gdt = {
-#ifdef CONFIG_X86_64
-	/*
-	 * We need valid kernel segments for data and code in long mode too
-	 * IRET will check the segment types  kkeil 2000/10/28
-	 * Also sysret mandates a special GDT layout
-	 *
-	 * TLS descriptors are currently at a different place compared to i386.
-	 * Hopefully nobody expects them at a fixed place (Wine?)
-	 */
-	[GDT_ENTRY_KERNEL32_CS]		= GDT_ENTRY_INIT(0xc09b, 0, 0xfffff),
-	[GDT_ENTRY_KERNEL_CS]		= GDT_ENTRY_INIT(0xa09b, 0, 0xfffff),
-	[GDT_ENTRY_KERNEL_DS]		= GDT_ENTRY_INIT(0xc093, 0, 0xfffff),
-	[GDT_ENTRY_DEFAULT_USER32_CS]	= GDT_ENTRY_INIT(0xc0fb, 0, 0xfffff),
-	[GDT_ENTRY_DEFAULT_USER_DS]	= GDT_ENTRY_INIT(0xc0f3, 0, 0xfffff),
-	[GDT_ENTRY_DEFAULT_USER_CS]	= GDT_ENTRY_INIT(0xa0fb, 0, 0xfffff),
-#else
 	[GDT_ENTRY_KERNEL_CS]		= GDT_ENTRY_INIT(0xc09a, 0, 0xfffff),
 	[GDT_ENTRY_KERNEL_DS]		= GDT_ENTRY_INIT(0xc092, 0, 0xfffff),
 	[GDT_ENTRY_DEFAULT_USER_CS]	= GDT_ENTRY_INIT(0xc0fa, 0, 0xfffff),
 	[GDT_ENTRY_DEFAULT_USER_DS]	= GDT_ENTRY_INIT(0xc0f2, 0, 0xfffff),
-	/*
-	 * Segments used for calling PnP BIOS have byte granularity.
-	 * They code segments and data segments have fixed 64k limits,
-	 * the transfer segment sizes are set at run time.
-	 */
-	/* 32-bit code */
-	[GDT_ENTRY_PNPBIOS_CS32]	= GDT_ENTRY_INIT(0x409a, 0, 0xffff),
-	/* 16-bit code */
-	[GDT_ENTRY_PNPBIOS_CS16]	= GDT_ENTRY_INIT(0x009a, 0, 0xffff),
-	/* 16-bit data */
-	[GDT_ENTRY_PNPBIOS_DS]		= GDT_ENTRY_INIT(0x0092, 0, 0xffff),
-	/* 16-bit data */
-	[GDT_ENTRY_PNPBIOS_TS1]		= GDT_ENTRY_INIT(0x0092, 0, 0),
-	/* 16-bit data */
-	[GDT_ENTRY_PNPBIOS_TS2]		= GDT_ENTRY_INIT(0x0092, 0, 0),
-	/*
-	 * The APM segments have byte granularity and their bases
-	 * are set at run time.  All have 64k limits.
-	 */
-	/* 32-bit code */
-	[GDT_ENTRY_APMBIOS_BASE]	= GDT_ENTRY_INIT(0x409a, 0, 0xffff),
-	/* 16-bit code */
-	[GDT_ENTRY_APMBIOS_BASE+1]	= GDT_ENTRY_INIT(0x009a, 0, 0xffff),
-	/* data */
-	[GDT_ENTRY_APMBIOS_BASE+2]	= GDT_ENTRY_INIT(0x4092, 0, 0xffff),
 
-	[GDT_ENTRY_ESPFIX_SS]		= GDT_ENTRY_INIT(0xc092, 0, 0xfffff),
 	[GDT_ENTRY_PERCPU]		= GDT_ENTRY_INIT(0xc092, 0, 0xfffff),
-	GDT_STACK_CANARY_INIT
-#endif
 } };
 EXPORT_PER_CPU_SYMBOL_GPL(gdt_page);
 
@@ -1159,117 +1071,6 @@ DEFINE_PER_CPU(unsigned long, kernel_stack) =
 	(unsigned long)&init_thread_union + THREAD_SIZE;
 EXPORT_PER_CPU_SYMBOL(kernel_stack);
 
-#ifdef CONFIG_X86_64
-struct desc_ptr idt_descr = { NR_VECTORS * 16 - 1, (unsigned long) idt_table };
-struct desc_ptr debug_idt_descr = { NR_VECTORS * 16 - 1,
-				    (unsigned long) debug_idt_table };
-
-DEFINE_PER_CPU_FIRST(union irq_stack_union,
-		     irq_stack_union) __aligned(PAGE_SIZE) __visible;
-
-/*
- * The following percpu variables are hot.  Align current_task to
- * cacheline size such that they fall in the same cacheline.
- */
-DEFINE_PER_CPU(struct task_struct *, current_task) ____cacheline_aligned =
-	&init_task;
-EXPORT_PER_CPU_SYMBOL(current_task);
-
-DEFINE_PER_CPU(char *, irq_stack_ptr) =
-	init_per_cpu_var(irq_stack_union.irq_stack) + IRQ_STACK_SIZE - 64;
-
-DEFINE_PER_CPU(unsigned int, irq_count) __visible = -1;
-
-DEFINE_PER_CPU(int, __preempt_count) = INIT_PREEMPT_COUNT;
-EXPORT_PER_CPU_SYMBOL(__preempt_count);
-
-DEFINE_PER_CPU(struct task_struct *, fpu_owner_task);
-
-/*
- * Special IST stacks which the CPU switches to when it calls
- * an IST-marked descriptor entry. Up to 7 stacks (hardware
- * limit), all of them are 4K, except the debug stack which
- * is 8K.
- */
-static const unsigned int exception_stack_sizes[N_EXCEPTION_STACKS] = {
-	  [0 ... N_EXCEPTION_STACKS - 1]	= EXCEPTION_STKSZ,
-	  [DEBUG_STACK - 1]			= DEBUG_STKSZ
-};
-
-static DEFINE_PER_CPU_PAGE_ALIGNED(char, exception_stacks
-	[(N_EXCEPTION_STACKS - 1) * EXCEPTION_STKSZ + DEBUG_STKSZ]);
-
-/* May not be marked __init: used by software suspend */
-void syscall_init(void)
-{
-	/*
-	 * LSTAR and STAR live in a bit strange symbiosis.
-	 * They both write to the same internal register. STAR allows to
-	 * set CS/DS but only a 32bit target. LSTAR sets the 64bit rip.
-	 */
-	wrmsrl(MSR_STAR,  ((u64)__USER32_CS)<<48  | ((u64)__KERNEL_CS)<<32);
-	wrmsrl(MSR_LSTAR, system_call);
-
-#ifdef CONFIG_IA32_EMULATION
-	wrmsrl(MSR_CSTAR, ia32_cstar_target);
-	/*
-	 * This only works on Intel CPUs.
-	 * On AMD CPUs these MSRs are 32-bit, CPU truncates MSR_IA32_SYSENTER_EIP.
-	 * This does not cause SYSENTER to jump to the wrong location, because
-	 * AMD doesn't allow SYSENTER in long mode (either 32- or 64-bit).
-	 */
-	wrmsrl_safe(MSR_IA32_SYSENTER_CS, (u64)__KERNEL_CS);
-	wrmsrl_safe(MSR_IA32_SYSENTER_ESP, 0ULL);
-	wrmsrl_safe(MSR_IA32_SYSENTER_EIP, (u64)ia32_sysenter_target);
-#else
-	wrmsrl(MSR_CSTAR, ignore_sysret);
-	wrmsrl_safe(MSR_IA32_SYSENTER_CS, (u64)GDT_ENTRY_INVALID_SEG);
-	wrmsrl_safe(MSR_IA32_SYSENTER_ESP, 0ULL);
-	wrmsrl_safe(MSR_IA32_SYSENTER_EIP, 0ULL);
-#endif
-
-	/* Flags to clear on syscall */
-	wrmsrl(MSR_SYSCALL_MASK,
-	       X86_EFLAGS_TF|X86_EFLAGS_DF|X86_EFLAGS_IF|
-	       X86_EFLAGS_IOPL|X86_EFLAGS_AC|X86_EFLAGS_NT);
-}
-
-/*
- * Copies of the original ist values from the tss are only accessed during
- * debugging, no special alignment required.
- */
-DEFINE_PER_CPU(struct orig_ist, orig_ist);
-
-static DEFINE_PER_CPU(unsigned long, debug_stack_addr);
-DEFINE_PER_CPU(int, debug_stack_usage);
-
-int is_debug_stack(unsigned long addr)
-{
-	return __this_cpu_read(debug_stack_usage) ||
-		(addr <= __this_cpu_read(debug_stack_addr) &&
-		 addr > (__this_cpu_read(debug_stack_addr) - DEBUG_STKSZ));
-}
-NOKPROBE_SYMBOL(is_debug_stack);
-
-DEFINE_PER_CPU(u32, debug_idt_ctr);
-
-void debug_stack_set_zero(void)
-{
-	this_cpu_inc(debug_idt_ctr);
-	load_current_idt();
-}
-NOKPROBE_SYMBOL(debug_stack_set_zero);
-
-void debug_stack_reset(void)
-{
-	if (WARN_ON(!this_cpu_read(debug_idt_ctr)))
-		return;
-	if (this_cpu_dec_return(debug_idt_ctr) == 0)
-		load_current_idt();
-}
-NOKPROBE_SYMBOL(debug_stack_reset);
-
-#else	/* CONFIG_X86_64 */
 
 DEFINE_PER_CPU(struct task_struct *, current_task) = &init_task;
 EXPORT_PER_CPU_SYMBOL(current_task);
@@ -1285,12 +1086,6 @@ DEFINE_PER_CPU(struct task_struct *, fpu_owner_task);
 DEFINE_PER_CPU(unsigned long, cpu_current_top_of_stack) =
 	(unsigned long)&init_thread_union + THREAD_SIZE;
 EXPORT_PER_CPU_SYMBOL(cpu_current_top_of_stack);
-
-#ifdef CONFIG_CC_STACKPROTECTOR
-DEFINE_PER_CPU_ALIGNED(struct stack_canary, stack_canary);
-#endif
-
-#endif	/* CONFIG_X86_64 */
 
 /*
  * Clear all 6 debug registers:
@@ -1308,19 +1103,6 @@ static void clear_all_debug_regs(void)
 	}
 }
 
-#ifdef CONFIG_KGDB
-/*
- * Restore debug regs if using kgdbwait and you have a kernel debugger
- * connection established.
- */
-static void dbg_restore_debug_regs(void)
-{
-	if (unlikely(kgdb_connected && arch_kgdb_ops.correct_hw_break))
-		arch_kgdb_ops.correct_hw_break();
-}
-#else /* ! CONFIG_KGDB */
-#define dbg_restore_debug_regs()
-#endif /* ! CONFIG_KGDB */
 
 static void wait_for_master_cpu(int cpu)
 {
@@ -1342,110 +1124,6 @@ static void wait_for_master_cpu(int cpu)
  * 'CPU state barrier', nothing should get across.
  * A lot of state is already set up in PDA init for 64 bit
  */
-#ifdef CONFIG_X86_64
-
-void cpu_init(void)
-{
-	struct orig_ist *oist;
-	struct task_struct *me;
-	struct tss_struct *t;
-	unsigned long v;
-	int cpu = stack_smp_processor_id();
-	int i;
-
-	wait_for_master_cpu(cpu);
-
-	/*
-	 * Initialize the CR4 shadow before doing anything that could
-	 * try to read it.
-	 */
-	cr4_init_shadow();
-
-	/*
-	 * Load microcode on this cpu if a valid microcode is available.
-	 * This is early microcode loading procedure.
-	 */
-	load_ucode_ap();
-
-	t = &per_cpu(cpu_tss, cpu);
-	oist = &per_cpu(orig_ist, cpu);
-
-#ifdef CONFIG_NUMA
-	if (this_cpu_read(numa_node) == 0 &&
-	    early_cpu_to_node(cpu) != NUMA_NO_NODE)
-		set_numa_node(early_cpu_to_node(cpu));
-#endif
-
-	me = current;
-
-	pr_debug("Initializing CPU#%d\n", cpu);
-
-	cr4_clear_bits(X86_CR4_VME|X86_CR4_PVI|X86_CR4_TSD|X86_CR4_DE);
-
-	/*
-	 * Initialize the per-CPU GDT with the boot GDT,
-	 * and set up the GDT descriptor:
-	 */
-
-	switch_to_new_gdt(cpu);
-	loadsegment(fs, 0);
-
-	load_current_idt();
-
-	memset(me->thread.tls_array, 0, GDT_ENTRY_TLS_ENTRIES * 8);
-	syscall_init();
-
-	wrmsrl(MSR_FS_BASE, 0);
-	wrmsrl(MSR_KERNEL_GS_BASE, 0);
-	barrier();
-
-	x86_configure_nx();
-	x2apic_setup();
-
-	/*
-	 * set up and load the per-CPU TSS
-	 */
-	if (!oist->ist[0]) {
-		char *estacks = per_cpu(exception_stacks, cpu);
-
-		for (v = 0; v < N_EXCEPTION_STACKS; v++) {
-			estacks += exception_stack_sizes[v];
-			oist->ist[v] = t->x86_tss.ist[v] =
-					(unsigned long)estacks;
-			if (v == DEBUG_STACK-1)
-				per_cpu(debug_stack_addr, cpu) = (unsigned long)estacks;
-		}
-	}
-
-	t->x86_tss.io_bitmap_base = offsetof(struct tss_struct, io_bitmap);
-
-	/*
-	 * <= is required because the CPU will access up to
-	 * 8 bits beyond the end of the IO permission bitmap.
-	 */
-	for (i = 0; i <= IO_BITMAP_LONGS; i++)
-		t->io_bitmap[i] = ~0UL;
-
-	atomic_inc(&init_mm.mm_count);
-	me->active_mm = &init_mm;
-	BUG_ON(me->mm);
-	enter_lazy_tlb(&init_mm, me);
-
-	load_sp0(t, &current->thread);
-	set_tss_desc(cpu, t);
-	load_TR_desc();
-	load_LDT(&init_mm.context);
-
-	clear_all_debug_regs();
-	dbg_restore_debug_regs();
-
-	fpu_init();
-
-	if (is_uv_system())
-		uv_cpu_init();
-}
-
-#else
 
 void cpu_init(void)
 {
@@ -1497,15 +1175,6 @@ void cpu_init(void)
 
 	fpu_init();
 }
-#endif
-
-#ifdef CONFIG_X86_DEBUG_STATIC_CPU_HAS
-void warn_pre_alternatives(void)
-{
-	WARN(1, "You're using static_cpu_has before alternatives have run!\n");
-}
-EXPORT_SYMBOL_GPL(warn_pre_alternatives);
-#endif
 
 inline bool __static_cpu_has_safe(u16 bit)
 {

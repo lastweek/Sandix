@@ -1,4 +1,4 @@
-ENTRY(_start)
+ENTRY(kernel_start)
 SECTIONS
 {
 	. = 0x0;
@@ -11,6 +11,13 @@ SECTIONS
 	.rodata	: { *(.rodata*)}
 
 	. = ALIGN(16);
-
+	.bss		:
+	{
+		__bss_start = .;
+		*(.bss)
+		__bss_end = .;
+	}
+	
+	. = ALIGN(16);
 	PM_KERNEL_END = .;
 }

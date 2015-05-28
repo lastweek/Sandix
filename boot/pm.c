@@ -37,9 +37,9 @@ struct gdt_ptr {
 	u32 ptr;
 } __attribute__((packed));
 
+/* Avoid bss ;)*/
 static struct gdt_ptr gdt = {1, 1};
 static struct gdt_ptr idt = {1, 1};
-
 
 static void setup_gdt(void)
 {
@@ -57,13 +57,13 @@ static void setup_idt(void)
 
 void go_to_protected_mode(void)
 {
+	/* Disable interrupts */
 	asm volatile("cli");
-	setup_idt();
+
 	setup_gdt();
+	setup_idt();
 	
-	/**
-	 * Go to PM, never return
-	 **/
+	/* Go to PM, should not return */
 	protected_mode_jump((u32)0x10000, (u32)&boot_params + 0x90000);
 }
 

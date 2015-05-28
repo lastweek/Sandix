@@ -8,22 +8,25 @@
 /* %esi points to boot_params struct. */
 struct boot_params boot_params;
 
-u64 GDT_KERNEL[GDT_ENTRIES] __attribute__((aligned(16))) =
+u64 gdt_table[GDT_ENTRIES] __attribute__((aligned(16))) =
 {
-	[GDT_ENTRY_KERNEL_CS]	= GDT_ENTRY(0xc09b, 0, 0xfffff),
-	[GDT_ENTRY_KERNEL_DS]	= GDT_ENTRY(0xc093, 0, 0xfffff),
-	[GDT_ENTRY_USER_CS]		= GDT_ENTRY(0xc09b, 0, 0xfffff),
-	[GDT_ENTRY_USER_DS]		= GDT_ENTRY(0xc093, 0, 0xfffff),
-	[GDT_ENTRY_KERNEL_TSS]	= GDT_ENTRY(),
-	[GDT_ENTRY_KERNEL_LDT]	= GDT_ENTRY(),
+	[GDT_ENTRY_KERNEL_CS]	= GDT_ENTRY(0xc09a, 0, 0xfffff),
+	[GDT_ENTRY_KERNEL_DS]	= GDT_ENTRY(0xc092, 0, 0xfffff),
+	
+	[GDT_ENTRY_USER_CS]		= GDT_ENTRY(0xc0fa, 0, 0xfffff),
+	[GDT_ENTRY_USER_DS]		= GDT_ENTRY(0xc0f2, 0, 0xfffff),
+
+	[GDT_ENTRY_PERCPU]		= GDT_ENTRY(0xc092, 0, 0xfffff);
 };
 
-static void setup_gdt(void)
+u64 idt_table[IDT_ENTRIES] __attribute((aligned(16))) = {0};
+
+static void early_setup_gdt(void)
 {
 
 }
 
-static void setup_idt(void)
+static void early_setup_idt(void)
 {
 	
 }

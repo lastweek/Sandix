@@ -1,20 +1,8 @@
+/*
+ *	This file setup Paging, GDT, IDT
+ */
+
 .text
-#include <linux/threads.h>
-#include <linux/init.h>
-#include <linux/linkage.h>
-#include <asm/segment.h>
-#include <asm/page_types.h>
-#include <asm/pgtable_types.h>
-#include <asm/cache.h>
-#include <asm/thread_info.h>
-#include <asm/asm-offsets.h>
-#include <asm/setup.h>
-#include <asm/processor-flags.h>
-#include <asm/msr-index.h>
-#include <asm/cpufeature.h>
-#include <asm/percpu.h>
-#include <asm/nops.h>
-#include <asm/bootparam.h>
 
 /* Physical address */
 #define pa(X) ((X) - __PAGE_OFFSET)
