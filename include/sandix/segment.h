@@ -1,5 +1,5 @@
-#ifndef _SANDIX_X86_SEGMENT_H
-#define _SANDIX_X86_SEGMENT_H
+#ifndef _SANDIX_X86_SEGMENT_H_
+#define _SANDIX_X86_SEGMENT_H_
 
 #include <sandix/const.h>
 
@@ -79,6 +79,7 @@
 #define GDT_ENTRY_PERCPU		27
 
 #define GDT_ENTRIES				32
+
 #define GDT_SIZE		(GDT_ENTRIES*8)
 #define TLS_SIZE		(GDT_ENTRY_TLS_ENTRIES*8)
 
@@ -111,8 +112,10 @@
 #define SEGMENT_GDT		0x0
 
 #define IDT_ENTRIES 256
+
 #define NUM_EXCEPTION_VECTORS 32
+
 /* Bitmask of exception vectors which push an error code on the stack */
 #define EXCEPTION_ERRCODE_MASK  0x00027d00
 
-#endif /* _SANDIX_X86_SEGMENT_H */
+#endif /* _SANDIX_X86_SEGMENT_H_ */

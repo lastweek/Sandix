@@ -1,28 +1,48 @@
-#ifndef _SANDIX_LINKAGE_H
-#define _SANDIX_LINKAGE_H
+#ifndef _SANDIX_LINKAGE_H_
+#define _SANDIX_LINKAGE_H_
+
+/**
+ * <sandix/linkage.h>:
+ * Generic macros for assembly and C attributes.
+ **/
 
 #define asmlinkage __atrribute__((regparm(0)))
 
-#define ASM_NL	;
+/* GNU AS newline separator */
+#define	ASM_NL	;
 
+#ifndef WEAK
+#define WEAK(name) \
+		.weak name ASM_NL \
+		name:
+#endif
+
+#ifndef GLOBAL
 #define GLOBAL(name) \
 		.globl name ASM_NL \
 		name:
+#endif
 
+#ifndef ENTRY
 #define ENTRY(name) \
 		.globl name ASM_NL \
 		.align 4 ASM_NL \
 		name:
+#endif
 
+#ifndef END
 #define END(name) \
 		.size name, .-name
+#endif
 
+/**
+ *	If symbol 'name' is treated as a subroutine (gets called, and returns)
+ *	then please use ENDPROC to mark 'name' as STT_FUNC.(For future use...)
+ **/
+#ifndef ENDPROC
 #define ENDPROC(name) \
 		.type name, @function ASM_NL \
 		END(name)
+#endif
 
-#define WEAK(name) \
-		.weak name ASM_NL \
-		name:
-
-#endif /* _SANDIX_LINKAGE_H */
+#endif /* _SANDIX_LINKAGE_H_ */

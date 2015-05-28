@@ -11,6 +11,7 @@
  **/
 
 #include <sandix/linkage.h>
+#include <sandix/segment.h>
 
 	.code32
 	.text
@@ -35,11 +36,13 @@ end:
 
 
 ENTRY(early_idt_handlers)
-	#TODO
+	movl %eax, %ebx
 ENDPROC(early_idt_handlers)
+
 
 ENTRY(early_idt_handler)
 	#TODO
+	movl %eax, %ebx
 ENDPROC(early_idt_handler)
 
 
