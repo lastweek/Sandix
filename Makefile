@@ -78,20 +78,27 @@ AWK 	= awk
 PERL	= perl
 PYTHON	= python
 
-KBUILD_CFLAGS := -std=gnu89 -pipe -Wall -Wundef \
-		-fno-strict-aliasing -fno-common \
-		-Wno-format-security
+# Generic CFLAGS.
+KBUILD_CFLAGS := -std=gnu89 -pipe -Wall -Wundef
+KBUILD_CFLAGS += -fno-strict-aliasing -fno-common
+KBUILD_CFLAGS += -Wno-format-security
 KBUILD_CFLAGS += -Wdeclaration-after-statement
 KBUILD_CFLAGS += -Werror=strict-prototypes
 KBUILD_CFLAGS += -Werror=implicit-function-declaration
 
 KBUILD_CPPFLAGS	:= -D__KERNEL__
+
 KBUILD_LDFLAGS	:= 
+
 KBUILD_AFLAGS	:= -D__ASSEMBLY__
+
 SANDIXINCLUDE	:= -I$(srctree)/include/
+
 NOSTDINC_FLAGS	:= -nostdinc
 
+# Output binary object
 OBJCOPYFLAGS	:= -j .text -j .text32 -j .rodata -j .data -O binary
+
 OBJDUMPFLAGS	:= -d -M att
 
 export VERSION PATCHLEVEL SUBLEVEL NAME0 NAME1 NAME2
@@ -127,7 +134,7 @@ endif
 #   kernel image. Move and rename the pm kernel image to boot/pmimage
 # o Real-Mode kernel image is boot/rmimage
 # o boot/CATENATE is responsible to catenate bootloader and rmimage and
-#   pmimage together.
+#   pmimage together to form vmsandix
 
 _RM_IMAGE := boot/rmimage
 _PM_IMAGE := boot/pmimage
@@ -173,11 +180,11 @@ quiet_cmd_bin_rm := OBJCOPY $(SS) $(RM_IMAGE)
 quiet_cmd_bin_pm := OBJCOPY $(SS) $(PM_IMAGE)
       cmd_bin_pm := $(OBJCOPY) $(OBJCOPYFLAGS) $(_PM_IMAGE) $(PM_IMAGE)
 
-quiet_cmd_complete := COMPLETE $(SS) $(VMSANDIX)
+quiet_cmd_complete := CAT $(SS) $(VMSANDIX)
       cmd_complete := ./boot/CATENATE
 
 PHONY += vmsandix
-vmsandix: $(vmsandix-deps) 
+vmsandix: $(vmsandix-deps)
 	$(call if_changed,link_rm)
 	$(call if_changed,link_pm)
 	$(call if_changed,bin_rm)
@@ -212,8 +219,7 @@ $(CLEAN_DIRS):
 # ===========================================================================
 PHONY += help
 help:
-	@echo "Top Makefile of Sandix Kernel"
-	@echo "PHONYS: $(PHONY)"
+	@echo "Build Sandix Kernel"
 
 PHONY += FORCE
 FORCE:
