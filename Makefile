@@ -165,8 +165,7 @@ include $(srctree)/scripts/Kbuild.include
 # BUILD
 # ===========================================================================
 PHONY := all
-all: vmsandix
-
+all: bzImage vmsandix
 
 quiet_cmd_link_rm := LD $(SS) $(_RM_IMAGE)
       cmd_link_rm := $(LD) -T $(RM_LD_CMD) -o $(_RM_IMAGE) $(KBUILD_VMSANDIX_BOOT)
@@ -183,14 +182,18 @@ quiet_cmd_bin_pm := OBJCOPY $(SS) $(PM_IMAGE)
 quiet_cmd_complete := CAT $(SS) $(VMSANDIX)
       cmd_complete := ./boot/CATENATE
 
-PHONY += vmsandix
-vmsandix: $(vmsandix-deps)
-	$(call if_changed,link_rm)
-	$(call if_changed,link_pm)
-	$(call if_changed,bin_rm)
-	$(call if_changed,bin_pm)
+# bzImage is runnable OS image.
+bzImage: vmsandix
 	$(call if_changed,complete)
 	@chmod +x $(VMSANDIX)
+
+# vmsandix is Protected-Mode Kernel Image
+# FIXME boot/ should be separated from deps
+vmsandix: $(vmsandix-deps)
+	$(call if_changed,link_pm)
+	$(call if_changed,link_rm)
+	$(call if_changed,bin_pm)
+	$(call if_changed,bin_rm)
 
 $(sort $(vmsandix-deps)): $(vmsandix-dirs) ;
 

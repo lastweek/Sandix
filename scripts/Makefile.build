@@ -29,6 +29,7 @@ include $(srctree)/$(src)/Makefile
 include $(srctree)/scripts/Makefile.libb
 
 # Now figure out what $(srctree)/$(src)/Makefile want.
+
 ifneq ($(strip $(obj-y)),)
 builtin-target := $(obj)/built-in.o
 endif
