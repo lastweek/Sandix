@@ -1,33 +1,40 @@
 /**
  *	head.S --- Protected-Mode Kernel Image Entrypoint.
- *
- *	Here we enable paging, init CR3, reload GDTR & IDTR on
- *	boot cpu(BP, boot processor). Asides, ignore APIC or i8259
- *	for now, we initialize them later. After all this, control
- *	transferred to kernel_init() which do residual work.
- *
- *	NOTE: We should finish initializing the boot cpu at first palce!
- *	Until everything is settled then we can talk about SMP, right?
+ *	Based on linux/arch/x86/kernel/head_32.S
  **/
 
 #include <sandix/linkage.h>
 #include <sandix/segment.h>
 
-	.code32
-	.text
-	.globl kernel_start
-kernel_start:
+.code32
+.text
+
+/**
+ *	32-bit kernel entrypoint; only used by the boot CPU.  On entry,
+ *	%esi points to the real-mode code as a 32-bit pointer.
+ *	CS and DS must be 4 GB flat segments, but we don't depend on
+ *	any particular GDT layout, coz we load our own as soon as we can.
+ **/
+ENTRY(startup_32)
 	
-	# Print '@' in left-upper corner.
+	# '@' in left-upper corner.
 	# Show we are here.
 	movl $0xb8000, %ebx
 	movb $0x40, (%ebx)
 
-	# Already have a valid %esp
-	# TODO
+/**
+ *	Clear BSS first
+ *	so that there are no surprises...
+ **/
 
+/**
+ *	Initialize page tables.
+ **/
 
-	call kernel_init
+/**
+ *	Initialize IDT and GDT
+ **/
+
 die:
 	hlt
 	jmp die
@@ -43,6 +50,11 @@ ENTRY(early_idt_handler)
 	#TODO
 	movl %eax, %ebx
 ENDPROC(early_idt_handler)
+
+
+ENTRY(ignore_int)
+	iret
+ENDPROC(ignore_int)
 
 /*
  * The IDT and GDT 'descriptors' are a strange 48-bit object

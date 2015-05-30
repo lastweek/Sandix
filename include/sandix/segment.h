@@ -3,9 +3,6 @@
 
 #include <sandix/const.h>
 
-/**
- * Constructor for a segment GDT/LDT entry
- **/
 #define GDT_ENTRY(flags, base, limit)			\
 	((((base)  & _AC(0xff000000,ULL)) << 32) |	\
 	 (((flags) & _AC(0x0000f0ff,ULL)) << 40) |	\
@@ -13,6 +10,11 @@
 	 (((base)  & _AC(0x00ffffff,ULL)) << 16) |	\
 	 (((limit) & _AC(0x0000ffff,ULL))))
 
+#define IDT_ENTRY(flags, select, offset)		\
+	((((offset) & _AC(0xffff0000,ULL)) << 32) |	\
+	 (((flags)  & _AC(0x0000ff80,ULL)) << 32) |	\
+	 (((select) & _AC(0xffff0000,ULL)))       |	\
+	 (((offset) & _AC(0x0000ffff,ULL))))
 
 /*               GDT FOR BOOT ONLY                     */
 /*******************************************************/

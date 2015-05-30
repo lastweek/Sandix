@@ -141,6 +141,7 @@ _PM_IMAGE := boot/pmimage
 RM_IMAGE  := boot/rmimage.bin
 PM_IMAGE  := boot/pmimage.bin
 VMSANDIX  := boot/vmsandix
+BZIMAGE   := boot/bzImage
 RM_LD_CMD := scripts/rm-image.ld
 PM_LD_CMD := scripts/pm-image.ld
 
@@ -162,10 +163,6 @@ KBUILD_VMSANDIX_MAIN := $(init-y) $(core-y) $(drivers-y)
 # Some generic definitions
 include $(srctree)/scripts/Kbuild.include
 
-# BUILD
-# ===========================================================================
-PHONY := all
-all: bzImage vmsandix
 
 quiet_cmd_link_rm := LD $(SS) $(_RM_IMAGE)
       cmd_link_rm := $(LD) -T $(RM_LD_CMD) -o $(_RM_IMAGE) $(KBUILD_VMSANDIX_BOOT)
@@ -179,13 +176,20 @@ quiet_cmd_bin_rm := OBJCOPY $(SS) $(RM_IMAGE)
 quiet_cmd_bin_pm := OBJCOPY $(SS) $(PM_IMAGE)
       cmd_bin_pm := $(OBJCOPY) $(OBJCOPYFLAGS) $(_PM_IMAGE) $(PM_IMAGE)
 
-quiet_cmd_complete := CAT $(SS) $(VMSANDIX)
-      cmd_complete := ./boot/CATENATE
+quiet_cmd_catenate := CAT $(SS) $(VMSANDIX)
+      cmd_catenate := ./boot/CATENATE
+
+
+# BUILD
+# ===========================================================================
+PHONY := all
+all: bzImage vmsandix
 
 # bzImage is runnable OS image.
 bzImage: vmsandix
-	$(call if_changed,complete)
+	$(call if_changed,catenate)
 	@chmod +x $(VMSANDIX)
+	@mv $(VMSANDIX) $(BZIMAGE)
 
 # vmsandix is Protected-Mode Kernel Image
 # FIXME boot/ should be separated from deps
@@ -212,7 +216,7 @@ PHONY += clean
 clean: $(CLEAN_DIRS)
 	@rm -f $(_RM_IMAGE) $(RM_IMAGE)
 	@rm -f $(_PM_IMAGE) $(PM_IMAGE)
-	@rm -f $(VMSANDIX)
+	@rm -f $(VMSANDIX) $(BZIMAGE)
 
 $(CLEAN_DIRS):
 	$(Q)$(MAKE) $(CLEAN)=$(patsubst __CLEAN__%,%,$@)
