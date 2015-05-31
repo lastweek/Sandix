@@ -1,7 +1,7 @@
-/**
- *	head.S --- Protected-Mode Kernel Image Entrypoint.
- *	Based on linux/arch/x86/kernel/head_32.S
- **/
+#
+#	head.S --- 32-bit Kernel Image Entrypoint.
+#	Based on linux/arch/x86/kernel/head_32.S
+#
 
 #include <sandix/linkage.h>
 #include <sandix/segment.h>
