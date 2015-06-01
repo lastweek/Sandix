@@ -7,8 +7,8 @@
 #include <sandix/segment.h>
 
 .code32
-.text
 
+	.text
 /**
  *	32-bit kernel entrypoint; only used by the boot CPU.  On entry,
  *	%esi points to the real-mode code as a 32-bit pointer.
@@ -63,7 +63,7 @@ ENTRY(ignore_int)
 	iret
 ENDPROC(ignore_int)
 
-/*
+/**
  * The IDT and GDT 'descriptors' are a strange 48-bit object
  * only used by the lidt and lgdt instructions. They are not
  * like usual segment descriptors - they consist of a 16-bit
@@ -71,17 +71,15 @@ ENDPROC(ignore_int)
  *
  * idt_table and gdt_table are initialized on init/init.c
  * early_gdt/idt_descr are used by boot cpu only.
- */
+ **/
 	.data
-	.globl early_gdt_descr
-	.globl early_idt_descr
 
-	.align 16
+	ALIGN
 
-early_idt_descr:
+ENTRY(early_idt_descr):
 	.word IDT_ENTRIES*8-1
 	.long idt_table
 	
-early_gdt_descr:
+ENTRY(early_gdt_descr):
 	.word GDT_ENTRIES*8-1
 	.long gdt_table
