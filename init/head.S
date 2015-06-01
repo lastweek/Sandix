@@ -26,6 +26,13 @@ ENTRY(startup_32)
  *	Clear BSS first
  *	so that there are no surprises...
  **/
+ 	cld
+	xorl %eax, %eax
+	movl $__bss_start, %edi
+	movl $__bss_stop, %ecx
+	subl %edi, %ecx
+	shrl $2 %ecx
+	rep ; stosl
 
 /**
  *	Initialize page tables.
