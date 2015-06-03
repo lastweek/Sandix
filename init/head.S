@@ -63,6 +63,13 @@ ENTRY(ignore_int)
 	iret
 ENDPROC(ignore_int)
 
+	.data
+
+	.align 8
+	.globl idt_table
+idt_table:
+	.fill IDT_ENTRIES, 8, 0xfff
+
 /**
  * The IDT and GDT 'descriptors' are a strange 48-bit object
  * only used by the lidt and lgdt instructions. They are not
@@ -72,10 +79,7 @@ ENDPROC(ignore_int)
  * idt_table and gdt_table are initialized on init/init.c
  * early_gdt/idt_descr are used by boot cpu only.
  **/
-	.data
-
 	ALIGN
-
 ENTRY(early_idt_descr):
 	.word IDT_ENTRIES*8-1
 	.long idt_table

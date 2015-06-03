@@ -22,11 +22,6 @@ u64 gdt_table[GDT_ENTRIES] __attribute__((aligned(16))) =
 	[GDT_ENTRY_PERCPU]		= GDT_ENTRY(0xc092, 0, 0xfffff),
 };
 
-/**
- * IDT contains 256 gate decriptors.
- **/
-u64 idt_table[IDT_ENTRIES] __attribute((aligned(16))) = {0};
-
 void kernel_init(void)
 {
 
