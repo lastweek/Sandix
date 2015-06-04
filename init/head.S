@@ -47,10 +47,14 @@ die:
 	jmp die
 
 
-ENTRY(early_idt_handlers)
+ENTRY(init_idt_desc)
 	movl %eax, %ebx
 	movl %eax, %ebx
-ENDPROC(early_idt_handlers)
+ENDPROC(init_idt_desc)
+
+ENTRY(init_gdt_desc)
+	movl %eax, %ebx
+ENDPROC(init_gdt_desc)
 
 
 ENTRY(early_idt_handler)
@@ -64,11 +68,6 @@ ENTRY(ignore_int)
 ENDPROC(ignore_int)
 
 	.data
-
-	.align 8
-	.globl idt_table
-idt_table:
-	.fill IDT_ENTRIES, 8, 0xfff
 
 /**
  * The IDT and GDT 'descriptors' are a strange 48-bit object
