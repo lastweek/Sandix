@@ -6,15 +6,16 @@
 #include <sandix/linkage.h>
 #include <sandix/segment.h>
 
-.code32
+	.code32
 
 	.text
-/**
- *	32-bit kernel entrypoint; only used by the boot CPU.  On entry,
- *	%esi points to the real-mode code as a 32-bit pointer.
- *	CS and DS must be 4 GB flat segments, but we don't depend on
- *	any particular GDT layout, coz we load our own as soon as we can.
- **/
+	
+	/**
+	*	32-bit kernel entrypoint; only used by the boot CPU.  On entry,
+	*	%esi points to the real-mode code as a 32-bit pointer.
+	*	CS and DS must be 4 GB flat segments, but we don't depend on
+	*	any particular GDT layout, coz we load our own as soon as we can.
+	**/
 ENTRY(startup_32)
 	
 	# '@' in left-upper corner.
@@ -22,10 +23,10 @@ ENTRY(startup_32)
 	movl $0xb8000, %ebx
 	movb $0x40, (%ebx)
 
-/**
- *	Clear BSS first
- *	so that there are no surprises...
- **/
+	/**
+	*	Clear BSS first
+	*	so that there are no surprises...
+	**/
  	cld
 	xorl %eax, %eax
 	movl $__bss_start, %edi
@@ -34,13 +35,14 @@ ENTRY(startup_32)
 	shrl $2 %ecx
 	rep ; stosl
 
-/**
- *	Initialize page tables.
- **/
+	/**
+	*	Initialize page tables.
+	**/
 
-/**
- *	Initialize IDT and GDT
- **/
+
+	/**
+	*	Initialize IDT and GDT
+	**/
 
 die:
 	hlt
@@ -69,15 +71,16 @@ ENDPROC(ignore_int)
 
 	.data
 
-/**
- * The IDT and GDT 'descriptors' are a strange 48-bit object
- * only used by the lidt and lgdt instructions. They are not
- * like usual segment descriptors - they consist of a 16-bit
- * segment size, and 32-bit linear address value:
- *
- * idt_table and gdt_table are initialized on init/init.c
- * early_gdt/idt_descr are used by boot cpu only.
- **/
+	/**
+	* The IDT and GDT 'descriptors' are a strange 48-bit object
+	* only used by the lidt and lgdt instructions. They are not
+	* like usual segment descriptors - they consist of a 16-bit
+	* segment size, and 32-bit linear address value:
+	*
+	* idt_table and gdt_table are initialized on init/init.c
+	* early_gdt/idt_descr are used by boot cpu only.
+	**/
+	
 	ALIGN
 ENTRY(early_idt_descr):
 	.word IDT_ENTRIES*8-1
