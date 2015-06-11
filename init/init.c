@@ -8,9 +8,6 @@
 /* %esi points to boot_params struct. */
 struct boot_params boot_params;
 
-/**
- * GDT contains 32 descriptors.
- **/
 u64 gdt_desc[GDT_ENTRIES] __attribute__((aligned(16))) =
 {
 	[GDT_ENTRY_KERNEL_CS]	= GDT_ENTRY(0xc09a, 0, 0xfffff),
@@ -18,7 +15,8 @@ u64 gdt_desc[GDT_ENTRIES] __attribute__((aligned(16))) =
 	
 	[GDT_ENTRY_USER_CS]		= GDT_ENTRY(0xc0fa, 0, 0xfffff),
 	[GDT_ENTRY_USER_DS]		= GDT_ENTRY(0xc0f2, 0, 0xfffff),
-
+	
+	/* For future use... */
 	[GDT_ENTRY_PERCPU]		= GDT_ENTRY(0xc092, 0, 0xfffff),
 };
 
