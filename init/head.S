@@ -30,9 +30,9 @@ ENTRY(startup_32)
  	cld
 	xorl %eax, %eax
 	movl $__bss_start, %edi
-	movl $__bss_stop, %ecx
+	movl $__bss_end, %ecx
 	subl %edi, %ecx
-	shrl $2 %ecx
+	shrl $2, %ecx
 	rep ; stosl
 
 	/**
@@ -82,10 +82,10 @@ ENDPROC(ignore_int)
 	**/
 	
 	ALIGN
-ENTRY(early_idt_descr):
+ENTRY(early_idt_descr)
 	.word IDT_ENTRIES*8-1
-	.long idt_table
+	.long idt_desc
 	
-ENTRY(early_gdt_descr):
+ENTRY(early_gdt_descr)
 	.word GDT_ENTRIES*8-1
-	.long gdt_table
+	.long gdt_desc

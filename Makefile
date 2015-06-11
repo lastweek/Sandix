@@ -5,8 +5,8 @@ NAME0 = Sandix
 NAME1 = Crape myrtle
 NAME2 = Lagerstroemia indica
 
-# ===========================================================================
 # Beautify output
+# ===========================================================================
 # Normally, we echo the whole command before executing it. By making
 # that echo $($(quiet)$(cmd)), we now have the possibility to set
 # $(quiet) to choose other forms of output instead, e.g.
@@ -62,8 +62,8 @@ MAKEFLAGS += -rR --include-dir=$(srctree)
 # FIXME i386-elf-gcc toolchains in my macos.
 CROSS_COMPILE = i386-elf-
 
+# VARIABLES
 # ===========================================================================
-# Make variables (CC, etc...)
 CC		= $(CROSS_COMPILE)gcc
 AS		= $(CROSS_COMPILE)as
 LD		= $(CROSS_COMPILE)ld
@@ -78,7 +78,6 @@ AWK 	= awk
 PERL	= perl
 PYTHON	= python
 
-# Generic CFLAGS.
 KBUILD_CFLAGS := -std=gnu89 -pipe -Wall -Wundef
 KBUILD_CFLAGS += -fno-strict-aliasing -fno-common
 KBUILD_CFLAGS += -Wno-format-security
@@ -87,18 +86,13 @@ KBUILD_CFLAGS += -Werror=strict-prototypes
 KBUILD_CFLAGS += -Werror=implicit-function-declaration
 
 KBUILD_CPPFLAGS	:= -D__KERNEL__
-
-KBUILD_LDFLAGS	:= 
-
 KBUILD_AFLAGS	:= -D__ASSEMBLY__
+KBUILD_LDFLAGS	:=
 
 SANDIXINCLUDE	:= -I$(srctree)/include/
-
 NOSTDINC_FLAGS	:= -nostdinc
 
-# Output binary object
 OBJCOPYFLAGS	:= -j .text -j .text32 -j .rodata -j .data -O binary
-
 OBJDUMPFLAGS	:= -d -M att
 
 export VERSION PATCHLEVEL SUBLEVEL NAME0 NAME1 NAME2
@@ -108,7 +102,6 @@ export KBUILD_CFLAGS KBUILD_CPPFLAGS KBUILD_LDFLAGS KBUILD_AFLAGS
 export SANDIXINCLUDE NOSTDINC_FLAGS
 export OBJCOPYFLAGS OBJDUMPFLAGS
 
-# CFLAGS for x86_32
 CONFIG_X86_32=y
 ifeq ($(CONFIG_X86_32),y)
     KBUILD_AFLAGS += -m32 
@@ -128,23 +121,6 @@ ifeq ($(CONFIG_X86_32),y)
     KBUILD_CFLAGS += -ffreestanding
 endif
 
-
-# BIT FAT NOTE:
-# o Link $(init-y) $(core-y) $(drivers-y) together to form protected-mode
-#   kernel image. Move and rename the pm kernel image to boot/pmimage
-# o Real-Mode kernel image is boot/rmimage
-# o boot/CATENATE is responsible to catenate bootloader and rmimage and
-#   pmimage together to form vmsandix
-
-_RM_IMAGE := boot/rmimage
-_PM_IMAGE := boot/pmimage
-RM_IMAGE  := boot/rmimage.bin
-PM_IMAGE  := boot/pmimage.bin
-VMSANDIX  := boot/vmsandix
-BZIMAGE   := boot/bzImage
-RM_LD_CMD := scripts/rm-image.ld
-PM_LD_CMD := scripts/pm-image.ld
-
 boot-y			:= boot/
 init-y			:= init/
 #core-y			:= kernel/ mm/ fs/ ipc/ block/
@@ -160,10 +136,32 @@ vmsandix-deps	:= $(boot-y) $(init-y) $(core-y) $(drivers-y)
 KBUILD_VMSANDIX_BOOT := $(boot-y)
 KBUILD_VMSANDIX_MAIN := $(init-y) $(core-y) $(drivers-y)
 
-# Some generic definitions
+export KBUILD_VMSANDIX_BOOT KBUILD_VMSANDIX_MAIN
+
+# BIT FAT NOTE:
+# o Link $(init-y) $(core-y) $(drivers-y) together to form protected-mode
+#   kernel image. Move and rename the pm kernel image to boot/pmimage
+# o Real-Mode kernel image is boot/rmimage
+# o boot/CATENATE is responsible to catenate bootloader and rmimage and
+#   pmimage together to form vmsandix
+
+_RM_IMAGE := boot/rmimage
+_PM_IMAGE := boot/pmimage
+RM_IMAGE  := boot/rmimage.bin
+PM_IMAGE  := boot/pmimage.bin
+
+VMSANDIX  := boot/vmsandix
+BZIMAGE   := boot/bzImage
+
+RM_LD_CMD := scripts/rm-image.ld
+PM_LD_CMD := scripts/pm-image.ld
+
+# Some generic definitions and variables
 include $(srctree)/scripts/Kbuild.include
 
 
+# COMMANDS
+# ===========================================================================
 quiet_cmd_link_rm := LD $(SS) $(_RM_IMAGE)
       cmd_link_rm := $(LD) -T $(RM_LD_CMD) -o $(_RM_IMAGE) $(KBUILD_VMSANDIX_BOOT)
 
@@ -185,19 +183,18 @@ quiet_cmd_catenate := CAT $(SS) $(VMSANDIX)
 PHONY := all
 all: bzImage vmsandix
 
-# bzImage is runnable OS image.
 bzImage: vmsandix
-	$(call if_changed,catenate)
-	@chmod +x $(VMSANDIX)
 	@mv $(VMSANDIX) $(BZIMAGE)
 
-# vmsandix is Protected-Mode Kernel Image
 # FIXME boot/ should be separated from deps
 vmsandix: $(vmsandix-deps)
+	echo $?
 	$(call if_changed,link_pm)
 	$(call if_changed,link_rm)
 	$(call if_changed,bin_pm)
 	$(call if_changed,bin_rm)
+	$(call if_changed,catenate)
+	@chmod +x $(VMSANDIX)
 
 $(sort $(vmsandix-deps)): $(vmsandix-dirs) ;
 
@@ -205,6 +202,7 @@ $(sort $(vmsandix-deps)): $(vmsandix-dirs) ;
 PHONY += $(vmsandix-dirs)
 $(vmsandix-dirs):
 	$(Q)$(MAKE) $(BUILD)=$@
+
 
 # CLEAN
 # ===========================================================================
@@ -231,10 +229,7 @@ help:
 PHONY += FORCE
 FORCE:
 
-
-# ---------------------------------------------------------------------------
 # There are two reasons to use a phony target:
 # 1) to avoid a conflict with a file of the same name,
 # 2) to improve performance.
-# ---------------------------------------------------------------------------
 .PHONY: $(PHONY)

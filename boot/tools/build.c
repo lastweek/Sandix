@@ -127,11 +127,12 @@ int main(int argc, char **argv)
 	lower_bound_of_sp = sectors_header * SECTOR_SIZE + 0x90000;
 	
 	printf("\n");
-	printf("[bootsect]    size: %d bytes\n", len_bl);
-	printf("[rmimage.bin] size: %d bytes (%d sectors)\n", len_si, sectors_header);
-	printf("[pmimage.bin] size: %d bytes (%d sectors)\n", len_ki, sectors_image);
-	printf("[vmsandix]    size: %d bytes (%d sectors)\n", sectors_bzimage*SECTOR_SIZE, sectors_bzimage);
-	printf("The lower bound of %%sp in header.S is %X\n\n", lower_bound_of_sp);
+	printf("[bootsect]    : %d bytes (1 sector)\n", len_bl);
+	printf("[rmimage.bin] : %d bytes (%d sectors)\n", len_si, sectors_header);
+	printf("[pmimage.bin] : %d bytes (%d sectors)\n", len_ki, sectors_image);
+	printf("[bzImage]     : %d bytes (%d sectors)\n", sectors_bzimage*SECTOR_SIZE, sectors_bzimage);
+	printf("The lower bound of %%sp in boot/header.S is %X", lower_bound_of_sp);
+	printf("Remember change the sector number in boot/bootsect.S!\n");
 
 	fclose(fp_bl);
 	fclose(fp_si);

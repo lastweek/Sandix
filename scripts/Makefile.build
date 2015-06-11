@@ -54,7 +54,8 @@ __build: $(builtin-target) $(subdir-y) $(loader-target) \
 
 # If the list is empty, create an empty built-in.o
 # Caveat: %(ld_flags) contains -r which direct linker to
-# generate relocatable objects.
+# generate relocatable objects. The final executable object
+# file is generated in top Makefile.
 ifdef builtin-target
 quiet_cmd_link_o_target = LD $(SS) $@
       cmd_link_o_target = \

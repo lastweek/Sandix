@@ -22,7 +22,7 @@ u64 gdt_desc[GDT_ENTRIES] __attribute__((aligned(16))) =
 	[GDT_ENTRY_PERCPU]		= GDT_ENTRY(0xc092, 0, 0xfffff),
 };
 
-u64 idt_desc[IDT_ENTRIES] __attibute__((aligned(16)));
+u64 idt_desc[IDT_ENTRIES] __attribute__((aligned(16)));
 
 void kernel_init(void)
 {
