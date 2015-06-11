@@ -17,7 +17,9 @@ ENTRY(startup_32)
 	movl $0xb8000, %ebx
 	movb $0x40, (%ebx)
 
-	# Clear BSS
+/*
+ * Clear BSS to avoid abnormal things.
+ */
  	cld
 	xorl %eax, %eax
 	movl $__bss_start, %edi
@@ -27,47 +29,13 @@ ENTRY(startup_32)
 	rep ; stosl
 
 /*
- * Initialize page tables.  This creates a PDE and a set of page
- * tables, which are located immediately beyond __brk_base.  The variable
- * _brk_end is set up to point to the first "safe" location.
- * Mappings are created both at virtual address 0 (identity mapping)
- * and PAGE_OFFSET for up to _end.
+ * Initialize early page directory and page tables.
  */
-page_pde_offset = (__PAGE_OFFSET >> 20);
-
-	movl $pa(__brk_base), %edi
-	movl $pa(initial_page_table), %edx
-	movl $PTE_IDENT_ATTR, %eax
-10:
-	leal PDE_IDENT_ATTR(%edi),%ecx		/* Create PDE entry */
-	movl %ecx,(%edx)			/* Store identity PDE entry */
-	movl %ecx,page_pde_offset(%edx)		/* Store kernel PDE entry */
-	addl $4,%edx
-	movl $1024, %ecx
-11:
-	stosl
-	addl $0x1000,%eax
-	loop 11b
-	/*
-	 * End condition: we must map up to the end + MAPPING_BEYOND_END.
-	 */
-	movl $pa(_end) + MAPPING_BEYOND_END + PTE_IDENT_ATTR, %ebp
-	cmpl %ebp,%eax
-	jb 10b
-	addl $__PAGE_OFFSET, %edi
-	movl %edi, pa(_brk_end)
-	shrl $12, %eax
-	movl %eax, pa(max_pfn_mapped)
-
-	/* Do early initialization of the fixmap area */
-	movl $pa(initial_pg_fixmap)+PDE_IDENT_ATTR,%eax
-	movl %eax,pa(initial_page_table+0xffc)
+ 	# FIXME
+	movl early_page_dir, %cr3
 
 /*
- * Set up a idt with 256 entries pointing to ignore_int,
- * interrupt gates. It doesn't actually load idt - that needs
- * to be done on each CPU. Interrupts are enabled elsewhere,
- * when we can be relatively sure everything is ok.
+ * Setup idt pointing to ignore_int, interrupt gates.
  */
 	movl $idt_table,%edi
 	movl $early_idt_handlers,%eax
@@ -116,21 +84,17 @@ ENDPROC(ignore_int)
 
 	.data
 
-/**
-* The IDT and GDT 'descriptors' are a strange 48-bit object
-* only used by the lidt and lgdt instructions. They are not
-* like usual segment descriptors - they consist of a 16-bit
-* segment size, and 32-bit linear address value:
-*
-* idt_table and gdt_table are initialized on init/init.c
-* early_gdt/idt_descr are used by boot cpu only.
-**/
-
-	ALIGN
-ENTRY(early_idt_descr)
+ENTRY(idt_descr)
 	.word IDT_ENTRIES*8-1
 	.long idt_desc
 	
-ENTRY(early_gdt_descr)
+ENTRY(gdt_descr)
 	.word GDT_ENTRIES*8-1
 	.long gdt_desc
+
+
+	.align 4096
+ENTRY(early_page_dir):
+	.fill 1024,4,0
+ENTRY(early_page_table):
+	.fill 1024,4,0

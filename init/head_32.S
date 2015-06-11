@@ -313,40 +313,12 @@ is_nmi:
 	iret
 ENDPROC(early_idt_handler)
 
-/* This is the default interrupt "handler" :-) */
 	ALIGN
 ignore_int:
 	cld
-#ifdef CONFIG_PRINTK
-	pushl %eax
-	pushl %ecx
-	pushl %edx
-	pushl %es
-	pushl %ds
-	movl $(__KERNEL_DS),%eax
-	movl %eax,%ds
-	movl %eax,%es
-	cmpl $2,early_recursion_flag
-	je hlt_loop
-	incl early_recursion_flag
-	pushl 16(%esp)
-	pushl 24(%esp)
-	pushl 32(%esp)
-	pushl 40(%esp)
-	pushl $int_msg
-	call printk
-
-	call dump_stack
-
-	addl $(5*4),%esp
-	popl %ds
-	popl %es
-	popl %edx
-	popl %ecx
-	popl %eax
-#endif
 	iret
 ENDPROC(ignore_int)
+
 __INITDATA
 	.align 4
 early_recursion_flag:
@@ -372,33 +344,6 @@ ENTRY(empty_zero_page)
 	.fill 4096,1,0
 ENTRY(swapper_pg_dir)
 	.fill 1024,4,0
-
-/*
- * This starts the data section.
- */
-#ifdef CONFIG_X86_PAE
-__PAGE_ALIGNED_DATA
-	/* Page-aligned for the benefit of paravirt? */
-	.align PAGE_SIZE
-ENTRY(initial_page_table)
-	.long	pa(initial_pg_pmd+PGD_IDENT_ATTR),0	/* low identity map */
-# if KPMDS == 3
-	.long	pa(initial_pg_pmd+PGD_IDENT_ATTR),0
-	.long	pa(initial_pg_pmd+PGD_IDENT_ATTR+0x1000),0
-	.long	pa(initial_pg_pmd+PGD_IDENT_ATTR+0x2000),0
-# elif KPMDS == 2
-	.long	0,0
-	.long	pa(initial_pg_pmd+PGD_IDENT_ATTR),0
-	.long	pa(initial_pg_pmd+PGD_IDENT_ATTR+0x1000),0
-# elif KPMDS == 1
-	.long	0,0
-	.long	0,0
-	.long	pa(initial_pg_pmd+PGD_IDENT_ATTR),0
-# else
-#  error "Kernel PMDs should be 1, 2 or 3"
-# endif
-	.align PAGE_SIZE		/* needs to be page-sized too */
-#endif
 
 .data
 .balign 4
