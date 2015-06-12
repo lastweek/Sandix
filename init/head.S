@@ -5,10 +5,12 @@
 	.text
 	
 /**
- *	32-bit kernel entrypoint.
- *	Only used by the boot CPU.
- *	Remember, startup_32 initialize page table and idt via boot CPU.
+ *	32-bit kernel entrypoint. Only used by the boot CPU(BP).
+ *
+ *	Remember, startup_32 initialize page table and idt structures
+ *	which only have exact one copy in memory respectively via boot CPU.
  *	However paging enable and lgdt and lidt must be done on each CPU.
+ *
  *	Also, on entry, %esi points to the boot_params struct as a pointer.
  **/
 ENTRY(startup_32)
@@ -30,8 +32,12 @@ ENTRY(startup_32)
 
 /*
  * Initialize early page directory and page tables.
+ * A page_directory and several page_tables(the number of
+ * page tables depend on Sandix's kernel image size).
  */
- 	# FIXME
+ 	movl early_page_dir, %eax
+	movl early_page_table+7, (%eax)		#PRESENT R/W U/S
+	
 	movl early_page_dir, %cr3
 
 /*
@@ -64,8 +70,7 @@ ENTRY(startup_32)
 
 
 /*
- * startup_32_smp:
- * Non-boot CPU entry point.
+ * Non-boot CPU(AP) entry point.
  */
 ENTRY(startup_32_smp)
 

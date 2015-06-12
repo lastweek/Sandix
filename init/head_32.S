@@ -3,7 +3,6 @@
 /* Physical address */
 #define pa(X) ((X) - __PAGE_OFFSET)
 
-
 /*
  * This is how much memory in addition to the memory covered up to
  * and including _end we need mapped initially.
@@ -46,44 +45,7 @@ __HEAD
 
 
 ENTRY(startup_32)
-	movl pa(stack_start),%ecx
-	
-	/* test KEEP_SEGMENTS flag to see if the bootloader is asking
-		us to not reload segments */
-	testb $KEEP_SEGMENTS, BP_loadflags(%esi)
-	jnz 2f
 
-/*
- * Set segments to known values.
- */
-	lgdt pa(boot_gdt_descr)
-	movl $(__BOOT_DS),%eax
-	movl %eax,%ds
-	movl %eax,%es
-	movl %eax,%fs
-	movl %eax,%gs
-	movl %eax,%ss
-2:
-	leal -__PAGE_OFFSET(%ecx),%esp
-
-/*
- * Clear BSS first so that there are no surprises...
- */
-	cld
-	xorl %eax,%eax
-	movl $pa(__bss_start),%edi
-	movl $pa(__bss_stop),%ecx
-	subl %edi,%ecx
-	shrl $2,%ecx
-	rep ; stosl
-
-/*
- * Initialize page tables.  This creates a PDE and a set of page
- * tables, which are located immediately beyond __brk_base.  The variable
- * _brk_end is set up to point to the first "safe" location.
- * Mappings are created both at virtual address 0 (identity mapping)
- * and PAGE_OFFSET for up to _end.
- */
 page_pde_offset = (__PAGE_OFFSET >> 20);
 
 	movl $pa(__brk_base), %edi
@@ -109,11 +71,6 @@ page_pde_offset = (__PAGE_OFFSET >> 20);
 	movl %edi, pa(_brk_end)
 	shrl $12, %eax
 	movl %eax, pa(max_pfn_mapped)
-
-	/* Do early initialization of the fixmap area */
-	movl $pa(initial_pg_fixmap)+PDE_IDENT_ATTR,%eax
-	movl %eax,pa(initial_page_table+0xffc)
-	
 
 	jmp default_entry
 
