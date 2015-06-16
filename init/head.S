@@ -41,7 +41,7 @@ ENTRY(startup_32)
 	movl early_page_table+7, (%eax)		#PRESENT R/W U/S
 	
 	movl early_page_table, %edi
-	movl $7, %eax		#PRESENT R/W U/S
+	movl $7, %eax	#PRESENT R/W U/S
 	movl $1024, %ecx
 1:
 	stosl
@@ -69,34 +69,70 @@ ENTRY(startup_32)
  */
 	jmp default_entry
 
-/*
+/**
  * Non-boot CPU(AP) entry point.
- */
+ **/
 ENTRY(startup_32_smp)
+	# Something to do...
+
+
+#define PG	0x80000000
+#define PE	0x00000001
+#define CR0_STATE	PG|PE
 
 default_entry:
+	# Clear EFLAGS
+	pushl $0
+	popfl
+
+	# Enable paging
+	movl $early_page_dir, %eax
+	movl $eax, %cr3
+	movl $CR0_STATE, %eax
+	movl %eax, %cr0
+	ljmp $__BOOT_CS, $1f		# Clear prefetch and normalize %eip
+1:
+	add $0, %esp				# Shift sp to a virtual address
+
+	# Reload some stuff
+	lgdt gdt_descr
+	lidt idt_descr
+	ljmp $(__KERNEL_CS), $1f
+1:
+	movl $(__KERNEL_DS), %eax	# Eeload all the segment registers
+	movl %eax, %ss				# after changing gdt.
+
+	movl $(__USER_DS), %eax		# DS/ES contains default USER segment
+	movl %eax, %ds
+	movl %eax, %es
+
+	movl $(__KERNEL_PERCPU), %eax
+	movl %eax,%fs				# Set this cpu's percpu
+
+	calll kernel_init
 
 die:
 	hlt
 	jmp die
 
-
-# An default interrupt handler does nothing.
+/**
+ * Default interrupt handler does nothing.
+ **/
 ENTRY(ignore_int)
 	incb 0xb8000
 	iret
 ENDPROC(ignore_int)
 
+
 	.data
 
-ENTRY(lidt_descr)
+ENTRY(idt_descr)
 	.word IDT_ENTRIES*8-1
-	.long idt_desc
+	.long idt_table
 	
-ENTRY(lgdt_descr)
+ENTRY(gdt_descr)
 	.word GDT_ENTRIES*8-1
-	.long gdt_desc
-
+	.long gdt_table
 
 	.align 4096
 ENTRY(early_page_dir)

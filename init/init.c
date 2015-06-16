@@ -1,14 +1,11 @@
-#include <sandix/bootparam.h>
 #include <sandix/const.h>
-#include <sandix/e820.h>
-#include <sandix/screen_info.h>
-#include <sandix/segment.h>
 #include <sandix/types.h>
+#include <sandix/segment.h>
+#include <sandix/bootparam.h>
 
-/* %esi points to boot_params struct. */
 struct boot_params boot_params;
 
-u64 gdt_desc[GDT_ENTRIES] __attribute__((aligned(16))) =
+static u64 gdt_table[GDT_ENTRIES] __attribute__((aligned(16))) =
 {
 	[GDT_ENTRY_KERNEL_CS]	= GDT_ENTRY(0xc09a, 0, 0xfffff),
 	[GDT_ENTRY_KERNEL_DS]	= GDT_ENTRY(0xc092, 0, 0xfffff),
@@ -16,13 +13,20 @@ u64 gdt_desc[GDT_ENTRIES] __attribute__((aligned(16))) =
 	[GDT_ENTRY_USER_CS]		= GDT_ENTRY(0xc0fa, 0, 0xfffff),
 	[GDT_ENTRY_USER_DS]		= GDT_ENTRY(0xc0f2, 0, 0xfffff),
 	
-	/* For future use... */
 	[GDT_ENTRY_PERCPU]		= GDT_ENTRY(0xc092, 0, 0xfffff),
 };
 
-u64 idt_desc[IDT_ENTRIES] __attribute__((aligned(16)));
+u64 idt_table[IDT_ENTRIES] __attribute__((aligned(16)));
 
+static void x86_cpu_init(void)
+{
+	
+}
+
+/**
+ * Yeah, here comes the init guy.
+ **/
 void kernel_init(void)
 {
-
+	x86_cpu_init();
 }
