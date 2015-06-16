@@ -3,13 +3,22 @@
 
 
 /**
- * PLEASE BE CAREFUL ABOUT
+ * BIG FAT NOTE ABOUT
  * Virtual and Physical address translation!
- * DO NOT MESS IT UP!
+ * Our kernel image's virtual address is assigned in
+ * linker script, our kernel image's physical address
+ * is based on segment offset which is 0x10000.
+ * Uh, Just be careful about address usage. ;)
  **/
+#define __PAGE_OFFSET	0x00000000
 #define SYSSEG		0x1000
 #define SEGOFFSET	0x10000
-#define pa(X)		((X) + SEGOFFSET)
+#define pa(X)		((X) - __PAGE_OFFSET + SEGOFFSET)
+
+#define PG	0x80000000
+#define MP  0x00000002
+#define PE	0x00000001
+#define CR0_STATE	PG|MP|PE
 
 
 	.code32
@@ -24,14 +33,12 @@
  *	Also, on entry, %esi points to the boot_params struct.
  **/
 ENTRY(startup_32)
-	
-	# show '@' in left-upper corner.
+
+	# Show '@' in left-upper corner.
 	movl $0xb8000, %ebx
 	movb $0x40, (%ebx)
 
-/*
- * Clear BSS to avoid abnormal things.
- */
+	# Clear BSS to avoid abnormal things.
  	cld
 	xorl %eax, %eax
 	movl $pa(__bss_start), %edi
@@ -43,8 +50,8 @@ ENTRY(startup_32)
 /*
  * Initialize early_page_directory and early_page_table.
  * For now, only one page_table is present, which means
- * kernel image is confined beyond 4 MB.
- * Fix this later with ld script variable.
+ * now pm kernel image size is confined beyond 4 MB.
+ * Fix this later with ld script variable?
  */
 	movl $pa(early_page_table), %edi
 	addl $7, %edi		#PRESENT R/W U/S
@@ -70,14 +77,11 @@ ENTRY(startup_32)
 1:
 	movl %eax, (%edi)
 	movl %eax, 4(%edi)
-	/* interrupt gate, dpl=0, present */
+	# interrupt gate, dpl=0, present
 	movl $(0x8E000000 + __KERNEL_CS), 2(%edi)
 	addl $8, %edi
 	loop 1b
 	
-/*
- * Now go to default_entry prepared for all cpus!
- */
 	jmp default_entry
 
 /**
@@ -88,11 +92,9 @@ ENTRY(startup_32_smp)
 	# Something to do...
 
 
-#define PG	0x80000000
-#define MP  0x00000002
-#define PE	0x00000001
-#define CR0_STATE	PG|MP|PE
-
+/**
+ * Prepared for all cpus.
+ **/
 default_entry:
 	
 	# Clear EFLAGS
@@ -140,6 +142,7 @@ ENTRY(ignore_int)
 ENDPROC(ignore_int)
 
 	.data
+	ALIGN
 ENTRY(idt_descr)
 	.word IDT_ENTRIES*8-1
 	.long pa(idt_table)

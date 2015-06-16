@@ -13,6 +13,7 @@ we can build task and filesystem?
 
 2015/06/16
 
+From Intel SDM:
 The only difference between an interrupt gate and a trap gate is
 the way the processor handles the IF flag in the EFLAGS register.
 When accessing an exception- or interrupt-handling procedure through
@@ -21,3 +22,9 @@ interrupts from interfering with the current interrupt handler.
 A subsequent IRET instruction restores the IF flag to its value in
 the saved contents of the EFLAGS register on the stack. Accessing
 a handler procedure through a trap gate does not affect the IF flag.
+
+head.S: Page enabled, gdt_table and idt_table reloaded.
+
+And, pay attention to pa() which translate VA to PA. In the future,
+we may change the base address of kernel to 0xC0000000, so, remember to
+fix macro pa().
