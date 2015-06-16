@@ -24,6 +24,10 @@ SECTIONS
 		__bss_end = .;
 	}
 	
+	/DISCARD/ : { *(.note*) }
+	/DISCARD/ : { *(.eh_frame) }
+	/DISCARD/ : { *(.comment) }
+	
 	. = ALIGN(16);
 	PM_KERNEL_END = .;
 }

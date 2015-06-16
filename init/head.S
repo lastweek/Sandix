@@ -1,18 +1,27 @@
 #include <sandix/linkage.h>
 #include <sandix/segment.h>
 
+
+/**
+ * PLEASE BE CAREFUL ABOUT
+ * Virtual and Physical address translation!
+ * DO NOT MESS IT UP!
+ **/
+#define SYSSEG		0x1000
+#define SEGOFFSET	0x10000
+#define pa(X)		((X) + SEGOFFSET)
+
+
 	.code32
 	.text
-	
 /**
  *	32-bit kernel entrypoint. Only used by the boot CPU(BP).
- *
- *	Remember, startup_32 initialize page directory, page table and
- *	interrupt descriptor table(idt), which only have exact one copy
- *	in memory respectively via boot CPU. Caveat: paging enable and
+ *	startup_32 initialize page directory, page table and
+ *	interrupt descriptor table(idt), which have exact only
+ *	one copy in memory respectively. Caveat: paging and
  *	lgdt and lidt must be done on each CPU.
  *
- *	Also, on entry, %esi points to the boot_params struct as a pointer.
+ *	Also, on entry, %esi points to the boot_params struct.
  **/
 ENTRY(startup_32)
 	
@@ -25,8 +34,8 @@ ENTRY(startup_32)
  */
  	cld
 	xorl %eax, %eax
-	movl $__bss_start, %edi
-	movl $__bss_end, %ecx
+	movl $pa(__bss_start), %edi
+	movl $pa(__bss_end), %ecx
 	subl %edi, %ecx
 	shrl $2, %ecx
 	rep ; stosl
@@ -37,15 +46,17 @@ ENTRY(startup_32)
  * kernel image is confined beyond 4 MB.
  * Fix this later with ld script variable.
  */
- 	movl early_page_dir, %eax
-	movl early_page_table+7, (%eax)		#PRESENT R/W U/S
+	movl $pa(early_page_table), %edi
+	addl $7, %edi		#PRESENT R/W U/S
+ 	movl $pa(early_page_dir), %eax
+	movl %edi, (%eax)
 	
-	movl early_page_table, %edi
-	movl $7, %eax	#PRESENT R/W U/S
+	movl $pa(early_page_table), %edi
+	movl $7, %eax		#PRESENT R/W U/S
 	movl $1024, %ecx
 1:
 	stosl
-	addl 0x1000, %eax
+	addl $0x1000, %eax
 	loop 1b
 
 /*
@@ -53,9 +64,9 @@ ENTRY(startup_32)
  * need to be done on each cpu. Interrupts are enabled
  * elsewhere, when we sure everything is ok!!
  */
-	movl $idt_table, %edi
-	movl $ignore_int, %eax
-	movl $idt_entries, %ecx
+	movl $pa(idt_table), %edi
+	movl $pa(ignore_int), %eax
+	movl $IDT_ENTRIES, %ecx
 1:
 	movl %eax, (%edi)
 	movl %eax, 4(%edi)
@@ -71,45 +82,50 @@ ENTRY(startup_32)
 
 /**
  * Non-boot CPU(AP) entry point.
+ * Be here in 16-bit mode?
  **/
 ENTRY(startup_32_smp)
 	# Something to do...
 
 
 #define PG	0x80000000
+#define MP  0x00000002
 #define PE	0x00000001
-#define CR0_STATE	PG|PE
+#define CR0_STATE	PG|MP|PE
 
 default_entry:
+	
 	# Clear EFLAGS
 	pushl $0
 	popfl
 
-	# Enable paging
-	movl $early_page_dir, %eax
-	movl $eax, %cr3
+	# Enable Paging
+	movl $pa(early_page_dir), %eax
+	movl %eax, %cr3
 	movl $CR0_STATE, %eax
 	movl %eax, %cr0
-	ljmp $__BOOT_CS, $1f		# Clear prefetch and normalize %eip
+
+	# Clear prefetch and normalize %eip
+	ljmp $__BOOT_CS, $pa(1f)
 1:
 	add $0, %esp				# Shift sp to a virtual address
 
 	# Reload some stuff
-	lgdt gdt_descr
-	lidt idt_descr
-	ljmp $(__KERNEL_CS), $1f
+	lgdt pa(gdt_descr)
+	lidt pa(idt_descr)
+	ljmp $(__KERNEL_CS), $pa(1f)
 1:
-	movl $(__KERNEL_DS), %eax	# Eeload all the segment registers
+	movl $(__KERNEL_DS), %eax	# Reload all the segment registers
 	movl %eax, %ss				# after changing gdt.
 
-	movl $(__USER_DS), %eax		# DS/ES contains default USER segment
+#	movl $(__USER_DS), %eax		# DS/ES contains default USER segment
 	movl %eax, %ds
 	movl %eax, %es
 
 	movl $(__KERNEL_PERCPU), %eax
 	movl %eax,%fs				# Set this cpu's percpu
 
-	calll kernel_init
+	call kernel_init
 
 die:
 	hlt
@@ -123,16 +139,14 @@ ENTRY(ignore_int)
 	iret
 ENDPROC(ignore_int)
 
-
 	.data
-
 ENTRY(idt_descr)
 	.word IDT_ENTRIES*8-1
-	.long idt_table
+	.long pa(idt_table)
 	
 ENTRY(gdt_descr)
 	.word GDT_ENTRIES*8-1
-	.long gdt_table
+	.long pa(gdt_table)
 
 	.align 4096
 ENTRY(early_page_dir)

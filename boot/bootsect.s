@@ -18,10 +18,9 @@ BOOTSEG			= 0x07c0	# Bootloader Segment.
 INITSEG			= 0x9000	# Real-Mode Kernel Image Segment.
 SYSSEG			= 0x1000	# Protected-Mode Kernel Image Segment.
 
-# FIXME Change dynamiclly.
 SETUP_OFFSET	= 512		# offset of entry point in Real-mode image.
 SECTORS_HEADER	= 13		# sectors of Real-mode image
-SECTORS_KERNEL	= 1        	# sectors of Protected-mode image
+SECTORS_KERNEL	= 33       	# sectors of Protected-mode image
 
 	.code16
 	

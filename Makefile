@@ -92,7 +92,7 @@ KBUILD_LDFLAGS	:=
 SANDIXINCLUDE	:= -I$(srctree)/include/
 NOSTDINC_FLAGS	:= -nostdinc
 
-OBJCOPYFLAGS	:= -j .text -j .text32 -j .rodata -j .data -O binary
+OBJCOPYFLAGS	:= -j .text -j .text32 -j .data -j .rodata -O binary
 OBJDUMPFLAGS	:= -d -M att
 
 export VERSION PATCHLEVEL SUBLEVEL NAME0 NAME1 NAME2
@@ -188,7 +188,6 @@ bzImage: vmsandix
 
 # FIXME boot/ should be separated from deps
 vmsandix: $(vmsandix-deps)
-	echo $?
 	$(call if_changed,link_pm)
 	$(call if_changed,link_rm)
 	$(call if_changed,bin_pm)
