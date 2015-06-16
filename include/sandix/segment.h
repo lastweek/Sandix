@@ -114,7 +114,6 @@
 #define SEGMENT_GDT		0x0
 
 #define IDT_ENTRIES 256
-
 #define NUM_EXCEPTION_VECTORS 32
 
 /* Bitmask of exception vectors which push an error code on the stack */

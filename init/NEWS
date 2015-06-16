@@ -10,3 +10,14 @@ we want. Now we have 32-bit CPU, boot_params, and so on.
 Maybe we can start by traps and interrupts, like keyboard and timer. After that
 we can build task and filesystem?
 
+
+2015/06/16
+
+The only difference between an interrupt gate and a trap gate is
+the way the processor handles the IF flag in the EFLAGS register.
+When accessing an exception- or interrupt-handling procedure through
+an interrupt gate, the processor clears the IF flag to prevent other
+interrupts from interfering with the current interrupt handler.
+A subsequent IRET instruction restores the IF flag to its value in
+the saved contents of the EFLAGS register on the stack. Accessing
+a handler procedure through a trap gate does not affect the IF flag.
