@@ -5,6 +5,18 @@
 #define NULL	((void *)0)
 #endif
 
+#ifndef bool
+#define bool	int
+#endif
+
+#ifndef true
+#define true	1
+#endif
+
+#ifndef false
+#define false	0
+#endif
+
 typedef unsigned long long	__u64;
 typedef unsigned int		__u32;
 typedef unsigned short		__u16;
