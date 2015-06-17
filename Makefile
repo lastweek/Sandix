@@ -139,20 +139,17 @@ KBUILD_VMSANDIX_MAIN := $(init-y) $(core-y) $(drivers-y)
 export KBUILD_VMSANDIX_BOOT KBUILD_VMSANDIX_MAIN
 
 # BIT FAT NOTE:
+# o Real-Mode kernel image is boot/rmimage.
 # o Link $(init-y) $(core-y) $(drivers-y) together to form protected-mode
-#   kernel image. Move and rename the pm kernel image to boot/pmimage
-# o Real-Mode kernel image is boot/rmimage
-# o boot/CATENATE is responsible to catenate bootloader and rmimage and
-#   pmimage together to form vmsandix
-
+#   kernel image. Move and rename the pm kernel image to boot/pmimage.
+# o boot/CATENATE is used to catenate bootloader, rmimage and
+#   pmimage together to form bzImage.
 _RM_IMAGE := boot/rmimage
 _PM_IMAGE := boot/pmimage
 RM_IMAGE  := boot/rmimage.bin
 PM_IMAGE  := boot/pmimage.bin
-
 VMSANDIX  := boot/vmsandix
 BZIMAGE   := boot/bzImage
-
 RM_LD_CMD := scripts/rm-image.ld
 PM_LD_CMD := scripts/pm-image.ld
 
@@ -160,7 +157,7 @@ PM_LD_CMD := scripts/pm-image.ld
 include $(srctree)/scripts/Kbuild.include
 
 
-# COMMANDS
+# COMMANDS FOR BZIMAGE
 # ===========================================================================
 quiet_cmd_link_rm := LD $(SS) $(_RM_IMAGE)
       cmd_link_rm := $(LD) -T $(RM_LD_CMD) -o $(_RM_IMAGE) $(KBUILD_VMSANDIX_BOOT)
@@ -206,7 +203,7 @@ $(vmsandix-dirs):
 # CLEAN
 # ===========================================================================
 
-# Add prefix to avoid overriding the previous target.
+# Add prefix to avoid overriding the previous targets.
 CLEAN_DIRS := $(addprefix __CLEAN__,$(vmsandix-dirs))
 
 PHONY += clean

@@ -1,9 +1,11 @@
 #
 #	Makefile.build --- Warehouse
 #	
-#	This file contains various building target.
-#	Some specific targets will be build only if Makefile which
-#	in building directory directs to do.
+#	This file contains various building targets.
+#	Some specific targets will be build only if Makefile
+#	that in building directory directs to do.
+#
+#	2015/06/17 Makefile is a game with words.
 #
 
 src := $(obj)
@@ -23,13 +25,16 @@ loader-y :=
 objcopy-y :=
 objdump-y :=
 
+#
 # Initialize all relevant variables
+#
 include $(srctree)/scripts/Kbuild.include
 include $(srctree)/$(src)/Makefile
 include $(srctree)/scripts/Makefile.libb
 
-# Now figure out what $(srctree)/$(src)/Makefile want.
-
+#
+# Figure out what $(srctree)/$(src)/Makefile want.
+#
 ifneq ($(strip $(obj-y)),)
 builtin-target := $(obj)/built-in.o
 endif
@@ -47,7 +52,9 @@ ifneq ($(strip $(loader-y)),)
 loader-target := $(loader-y)
 endif
 
+#
 # Default target has to depend on everything ;)
+#
 __build: $(builtin-target) $(subdir-y) $(loader-target) \
 		 $(objcopy-target) $(objdump-target) $(lib-target)
 
