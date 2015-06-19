@@ -10,6 +10,7 @@
  * is based on segment offset which is 0x10000.
  * Uh, Just be careful about address usage. ;)
  **/
+
 #define __PAGE_OFFSET	0x00000000
 #define SYSSEG		0x1000
 #define SEGOFFSET	0x10000
