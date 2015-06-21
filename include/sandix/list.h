@@ -15,6 +15,11 @@
  *	using the generic single-entry routines.
  */
 
+struct list_head {
+	struct list_head *next;
+	struct list_head *prev;
+};
+
 #define LIST_HEAD_INIT(name) { &(name), &(name) }
 
 #define LIST_HEAD(name) \
@@ -136,13 +141,34 @@ list_empty(const struct list_head *head)
 
 /**
  *	list_entry - get the struct for this entry
- *	@ptr: the &struct list_head pointer.
+ *	@ptr: the &(struct list_head) pointer.
  *	@type: the type of the struct this is embedded in.
  *	@member: the name of the list_head within the struct.
  */
 #define list_entry(ptr, type, member) \
 		container_of(ptr, type, member)
 
+/**
+ * list_first_entry - get the first element from a list
+ * @ptr:	the list head to take the element from.
+ * @type:	the type of the struct this is embedded in.
+ * @member:	the name of the list_head within the struct.
+ *
+ * Note, that list is expected to be not empty.
+ */
+#define list_first_entry(ptr, type, member) \
+	list_entry((ptr)->next, type, member)
+
+/**
+ * list_last_entry - get the last element from a list
+ * @ptr:	the list head to take the element from.
+ * @type:	the type of the struct this is embedded in.
+ * @member:	the name of the list_head within the struct.
+ *
+ * Note, that list is expected to be not empty.
+ */
+#define list_last_entry(ptr, type, member) \
+	list_entry((ptr)->prev, type, member)
 
 
 #endif /* _SANDIX_LIST_H */
