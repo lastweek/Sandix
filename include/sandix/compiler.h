@@ -1,5 +1,5 @@
-#ifndef __LINUX_COMPILER_H
-#define __LINUX_COMPILER_H
+#ifndef _SANDIX_COMPILER_H
+#define _SANDIX_COMPILER_H
 
 #ifndef __ASSEMBLY__
 
@@ -444,12 +444,4 @@ static __always_inline void __write_once_size(volatile void *p, void *res, int s
 	(volatile typeof(x) *)&(x); })
 #define ACCESS_ONCE(x) (*__ACCESS_ONCE(x))
 
-/* Ignore/forbid kprobes attach on very low level functions marked by this attribute: */
-#ifdef CONFIG_KPROBES
-# define __kprobes	__attribute__((__section__(".kprobes.text")))
-# define nokprobe_inline	__always_inline
-#else
-# define __kprobes
-# define nokprobe_inline	inline
-#endif
-#endif /* __LINUX_COMPILER_H */
+#endif /* _SANDIX_COMPILER_H_ */

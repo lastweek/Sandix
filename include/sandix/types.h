@@ -37,4 +37,7 @@ typedef signed   char		s8;
 typedef unsigned int	size_t;
 typedef unsigned int 	addr_t;
 
+/* process id */
+typedef unsigned int	pit_t;
+
 #endif /* _SANDIX_TYPES_H_ */
