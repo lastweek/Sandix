@@ -1,5 +1,5 @@
 #include <sandix/linkage.h>
-#include <sandix/segment.h>
+#include <asm/segment.h>
 
 
 /**

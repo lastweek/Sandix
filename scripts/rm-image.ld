@@ -1,3 +1,8 @@
+/**
+ *	Real-Mode Kernel Image Linker Scripts
+ **/
+
+/* _start located in boot/header.S */
 ENTRY(_start)
 SECTIONS
 {
@@ -19,6 +24,10 @@ SECTIONS
 		__bss_end = .;
 	}
 
+	/DISCARD/ : { *(.note*) }
+	/DISCARD/ : { *(.eh_frame) }
+	/DISCARD/ : { *(.comment) }
+	
 	. = ALIGN(16);
 	RM_KERNEL_END = .;
 }

@@ -1,6 +1,6 @@
-/*
- * Protected-Mode Kernel Image Linker Scripts
- */
+/**
+ *	Protected-Mode Kernel Image Linker Scripts
+ **/
 
 /* startup_32 located in init/head.S */
 ENTRY(startup_32)

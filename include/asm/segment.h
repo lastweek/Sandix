@@ -1,5 +1,5 @@
-#ifndef _SANDIX_X86_SEGMENT_H_
-#define _SANDIX_X86_SEGMENT_H_
+#ifndef _ASM_SEGMENT_H_
+#define _ASM_SEGMENT_H_
 
 #include <sandix/const.h>
 
@@ -78,7 +78,7 @@
 #define GDT_ENTRY_KERNEL_TSS	16
 #define GDT_ENTRY_KERNEL_LDT	17
 
-#define GDT_ENTRY_PERCPU		27
+#define GDT_ENTRY_KERNEL_PERCPU		27
 
 #define GDT_ENTRIES				32
 
@@ -119,4 +119,4 @@
 /* Bitmask of exception vectors which push an error code on the stack */
 #define EXCEPTION_ERRCODE_MASK  0x00027d00
 
-#endif /* _SANDIX_X86_SEGMENT_H_ */
+#endif /* _ASM_SEGMENT_H_ */

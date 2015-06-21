@@ -3,7 +3,7 @@
  *	pmjump.S: The actual transition into protected mode
  */
 
-#include <sandix/segment.h>
+#include <asm/segment.h>
 
 	.text
 	.code16

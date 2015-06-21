@@ -1,5 +1,5 @@
-#ifndef _SANDIX_X86_PROCESSOR_FLAGS_H
-#define _SANDIX_X86_PROCESSOR_FLAGS_H
+#ifndef _ASM_PROCESSOR_FLAGS_H
+#define _ASM_PROCESSOR_FLAGS_H
 /* Various flags defined: can be included from assembler. */
 
 #include <sandix/const.h>
@@ -121,33 +121,5 @@
 #define X86_CR4_SMAP_BIT	21 /* enable SMAP support */
 #define X86_CR4_SMAP		_BITUL(X86_CR4_SMAP_BIT)
 
-/*
- * x86-64 Task Priority Register, CR8
- */
-#define X86_CR8_TPR		_AC(0x0000000f,UL) /* task priority register */
 
-/*
- * AMD and Transmeta use MSRs for configuration; see <asm/msr-index.h>
- */
-
-/*
- *      NSC/Cyrix CPU configuration register indexes
- */
-#define CX86_PCR0	0x20
-#define CX86_GCR	0xb8
-#define CX86_CCR0	0xc0
-#define CX86_CCR1	0xc1
-#define CX86_CCR2	0xc2
-#define CX86_CCR3	0xc3
-#define CX86_CCR4	0xe8
-#define CX86_CCR5	0xe9
-#define CX86_CCR6	0xea
-#define CX86_CCR7	0xeb
-#define CX86_PCR1	0xf0
-#define CX86_DIR0	0xfe
-#define CX86_DIR1	0xff
-#define CX86_ARR_BASE	0xc4
-#define CX86_RCR_BASE	0xdc
-
-
-#endif /* _SANIDX_X86_PROCESSOR_FLAGS_H */
+#endif /* _ASM_PROCESSOR_FLAGS_H */
