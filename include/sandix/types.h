@@ -40,4 +40,9 @@ typedef unsigned int 	addr_t;
 /* process id */
 typedef unsigned int	pit_t;
 
+struct list_head {
+	struct list_head *next;
+	struct list_head *prev;
+};
+
 #endif /* _SANDIX_TYPES_H_ */
