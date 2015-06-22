@@ -2,8 +2,14 @@
 #define _SANDIX_SCHED_H_
 
 #include <asm/processor.h>
-#include <sandix/thread_info.h>
 #include <sandix/mm.h>
+
+struct thread_info {
+	struct task_struct *task;	/* main task structure */
+	unsigned int flags;			/* low level flags */
+	unsigned int status;		/* thread synchronous flags */
+	unsigned int cpu;			/* current cpu */
+};
 
 #define TASK_RUNNING			0
 #define TASK_INTERRUPTIBLE		1
@@ -57,30 +63,38 @@ union thread_union {
 #define task_thread_info(task)	((struct thread_info *)(task)->stack)
 #define task_stack_page(task)	((task)->stack)
 
-static inline unsigned int *
+static inline struct thread_info *
 current_thread_info()
 {
-	unsigned int *p;
+	struct thread_info *__tip;
 	asm volatile (
-		""
+		"movl %1, %ecx\n\t"
+		"andl %esp, %ecx\n\t"
+		"movl %ecx, %0\n\t"
+		:"=r"(__tip)
+		:"i"(CURRENT_MASK)
+		:"%ecx"
 	);
 
-	return p;
+	return __tip;
 }
 
-#define current					\
-({								\
-	unsigned int *p;			\
-	asm volatile				\
-	(							\
-		"movl __CURMASK, %%ecx"	\
-		"andl %%esp, %%ecx"		\
-		"movl %%ecx, %0"		\
-		:						\
-		:						\
-		:ecx					\
-	);							\
-	p;							\
+/*
+ * current is not a variable
+ * current is specific to each cpu
+ */
+#define current							\
+({										\
+	struct task_struct *__tsp;			\
+	asm volatile (						\
+		"movl %1, %%ecx\n\t"			\
+		"andl %%esp, %%ecx\n\t"			\
+		"movl (%%ecx), %0\n\t"			\
+		:"=r"(__tsp)					\
+		:"i"(CURRENT_MASK)				\
+		:"%ecx"							\
+	);									\
+	__tsp;								\
 })				
 
 #define next_task(p)	\
