@@ -49,9 +49,9 @@ __list_del(struct list_head *prev, struct list_head *next)
 }
 
 /**
- *	list_add - add a new entry after head
- *	@new: new entry to be added
- *	@head: list head to add it after
+ * list_add - add a new entry after head
+ * @new: new entry to be added
+ * @head: list head to add it after
  */
 static inline void
 list_add(struct list_head *new, struct list_head *head)
@@ -60,9 +60,9 @@ list_add(struct list_head *new, struct list_head *head)
 }
 
 /**
- *	list_add_tail - add a new entry to tail
- *	@new: new entry to be added
- *	@head: list head to add it before
+ * list_add_tail - add a new entry to tail
+ * @new: new entry to be added
+ * @head: list head to add it before
  */
 static inline void
 list_add_tail(struct list_head *new, struct list_head *head)
@@ -71,8 +71,8 @@ list_add_tail(struct list_head *new, struct list_head *head)
 }
 
 /**
- *	list_del - delete a entry from list
- *	@entry: entry to be deleted
+ * list_del - delete a entry from list
+ * @entry: entry to be deleted
  */
 static inline void
 list_del(struct list_head *entry)
@@ -81,8 +81,8 @@ list_del(struct list_head *entry)
 }
 
 /**
- *	list_del_init - deletes entry from list and reinitialized it
- *	@entry: the element to delete from the list
+ * list_del_init - deletes entry from list and reinitialized it
+ * @entry: the element to delete from the list
  */
 static inline void
 list_del_init(struct list_head *entry)
@@ -92,9 +92,9 @@ list_del_init(struct list_head *entry)
 }
 
 /**
- *	list_replace - replace old entry by new one
- *	@old: the element to be replaced
- *	@new: the new element to insert
+ * list_replace - replace old entry by new one
+ * @old: the element to be replaced
+ * @new: the new element to insert
  */
 static inline void
 list_replace(struct list_head *old, struct list_head *new)
@@ -106,15 +106,39 @@ list_replace(struct list_head *old, struct list_head *new)
 }
 
 /**
- *	list_replace_init - replace old by new and reinitialized old
- *	@old: the element to be replaced
- *	@new: the new element to insert
+ * list_replace_init - replace old by new and reinitialized old
+ * @old: the element to be replaced
+ * @new: the new element to insert
  */
 static inline void
 list_replace_init(struct list_head *old, struct list_head *new)
 {
 	list_replace(old, new);
 	INIT_LIST_HEAD(old);
+}
+
+/**
+ * list_move - delete from one list and add as another's head
+ * @list: the entry to move
+ * @head: the head that will precede our entry
+ */
+static inline void
+list_move(struct list_head *list, struct list_head *head)
+{
+	list_del(list);
+	list_add(list, head);
+}
+
+/**
+ * list_move_tail - delete from one list and add as another's tail
+ * @list: the entry to move
+ * @head: the head that will follow our entry
+ */
+static inline void
+list_move_tail(struct list_head *list, struct list_head *head)
+{
+	list_del(list);
+	list_add_tail(list, head);
 }
 
 /**
@@ -126,6 +150,16 @@ static inline int
 list_is_last(const struct list_head *list, const struct list_head *head)
 {
 	return list->next == head;
+}
+
+/**
+ * list_is_singular - tests whether a list has just one entry.
+ * @head: the list to test.
+ */
+static inline int
+list_is_singular(const struct list_head *head)
+{
+	return !list_empty(head) && (head->next == head->prev);
 }
 
 /**
@@ -169,6 +203,44 @@ list_empty(const struct list_head *head)
  */
 #define list_last_entry(ptr, type, member) \
 	list_entry((ptr)->prev, type, member)
+
+/**
+ * list_for_each	-	iterate over a list
+ * @pos:	the &struct list_head to use as a loop cursor.
+ * @head:	the head for your list.
+ */
+#define list_for_each(pos, head) \
+	for (pos = (head)->next; pos != (head); pos = pos->next)
+
+/**
+ * list_for_each_prev	-	iterate over a list backwards
+ * @pos:	the &struct list_head to use as a loop cursor.
+ * @head:	the head for your list.
+ */
+#define list_for_each_prev(pos, head) \
+	for (pos = (head)->prev; pos != (head); pos = pos->prev)
+
+/**
+ * list_for_each_entry	-	iterate over list of given type
+ * @pos:	the type * to use as a loop cursor.
+ * @head:	the head for your list.
+ * @member:	the name of the list_head within the struct.
+ */
+#define list_for_each_entry(pos, head, member)				\
+	for (pos = list_first_entry(head, typeof(*pos), member);	\
+	     &pos->member != (head);					\
+	     pos = list_next_entry(pos, member))
+
+/**
+ * list_for_each_entry_reverse - iterate backwards over list of given type.
+ * @pos:	the type * to use as a loop cursor.
+ * @head:	the head for your list.
+ * @member:	the name of the list_head within the struct.
+ */
+#define list_for_each_entry_reverse(pos, head, member)			\
+	for (pos = list_last_entry(head, typeof(*pos), member);		\
+	     &pos->member != (head); 					\
+	     pos = list_prev_entry(pos, member))
 
 
 #endif /* _SANDIX_LIST_H */

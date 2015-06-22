@@ -98,9 +98,6 @@ struct thread_struct {
 	__u32		ip;
 	__u32		gs;
 	
-	/* Save middle states of ptrace breakpoints */
-	struct perf_event	*ptrace_bps[HBP_NUM];
-	
 	/* Debug status used for traps, single steps, etc... */
 	__u32           debugreg6;
 	
