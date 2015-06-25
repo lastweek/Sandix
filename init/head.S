@@ -1,20 +1,15 @@
 #include <sandix/linkage.h>
 #include <asm/segment.h>
 
+/*
+ * VA is defined in linker script, which is 0x0
+ * PA depends on segment offset, which is 0x10000
+ */
 
-/**
- * BIG FAT NOTE ABOUT
- * Virtual and Physical address translation!
- * Our kernel image's virtual address is assigned in
- * linker script, our kernel image's physical address
- * is based on segment offset which is 0x10000.
- * Uh, Just be careful about address usage. ;)
- **/
-
-#define __PAGE_OFFSET	0x00000000
-#define SYSSEG		0x1000
-#define SEGOFFSET	0x10000
-#define pa(X)		((X) - __PAGE_OFFSET + SEGOFFSET)
+#define SYSSEG			0x1000
+#define SYSSEG_OFFSET	0x10000
+#define KERNEL_OFFSET	0x00000000
+#define pa(X)	((X) - KERNEL_OFFSET + SYSSEG_OFFSET)
 
 #define PG	0x80000000
 #define MP  0x00000002
@@ -24,6 +19,7 @@
 
 	.code32
 	.text
+
 /**
  *	32-bit kernel entrypoint. Only used by the boot CPU(BP).
  *	startup_32 initialize page directory, page table and
@@ -85,17 +81,14 @@ ENTRY(startup_32)
 	
 	jmp default_entry
 
+
 /**
  * Non-boot CPU(AP) entry point.
  * Be here in 16-bit mode?
  **/
 ENTRY(startup_32_smp)
-	# Something to do...
 
 
-/**
- * Prepared for all cpus.
- **/
 default_entry:
 	
 	# Clear EFLAGS
@@ -125,10 +118,11 @@ default_entry:
 	movl %eax, %ds
 	movl %eax, %es
 
-	movl $(__KERNEL_PERCPU), %eax
-	movl %eax,%fs				# Set this cpu's percpu
+	#movl $(__KERNEL_PERCPU), %eax
+	#movl %eax, %fs				# Set this cpu's percpu
 
-	call kernel_init
+	int $0x1
+	#call kernel_init
 
 die:
 	hlt

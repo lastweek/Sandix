@@ -70,12 +70,11 @@ current_thread_info()
 	asm volatile (
 		"movl %1, %ecx\n\t"
 		"andl %esp, %ecx\n\t"
-		"movl %ecx, %0\n\t"
+		"movl %ecx, %0"
 		:"=r"(__tip)
 		:"i"(CURRENT_MASK)
 		:"%ecx"
 	);
-
 	return __tip;
 }
 
@@ -89,7 +88,7 @@ current_thread_info()
 	asm volatile (						\
 		"movl %1, %%ecx\n\t"			\
 		"andl %%esp, %%ecx\n\t"			\
-		"movl (%%ecx), %0\n\t"			\
+		"movl (%%ecx), %0"				\
 		:"=r"(__tsp)					\
 		:"i"(CURRENT_MASK)				\
 		:"%ecx"							\

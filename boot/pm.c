@@ -10,7 +10,7 @@
  */
 
 #include "boot.h"
-#include <sandix/segment.h>
+#include <asm/segment.h>
 
 /* 
  *	CS  code, read/execute, 4 GB, base 0

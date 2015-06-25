@@ -8,10 +8,10 @@
 #undef bool
 #define bool	int
 
-#undef
+#undef true
 #define true	1
 
-#undef
+#undef false
 #define false	0
 
 typedef unsigned	long long	__u64;

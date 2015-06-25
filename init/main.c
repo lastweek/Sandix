@@ -19,8 +19,8 @@ u64 gdt_table[GDT_ENTRIES] __attribute__((aligned(16))) =
 	/* Present, DPL=3, Read/Write */
 	[GDT_ENTRY_USER_DS]		= GDT_ENTRY(0xc0f2, 0, 0xfffff),
 
-	[GDT_ENTRY_KERNEL_TSS]
-	[GDT_ENTRY_KERNEL_LDT]
+	//[GDT_ENTRY_KERNEL_TSS]	=
+	//[GDT_ENTRY_KERNEL_LDT]
 	
 	[GDT_ENTRY_KERNEL_PERCPU]		= GDT_ENTRY(0xc092, 0, 0xfffff),
 };
@@ -37,5 +37,5 @@ void cpu_init(void)
  **/
 void kernel_init(void)
 {
-	x86_cpu_init();
+	cpu_init();
 }
