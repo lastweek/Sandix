@@ -1,6 +1,9 @@
 #ifndef _ASM_DESCRIPTOR_H_
 #define _ASM_DESCRIPTOR_H_
 
+#include <asm/segment.h>
+#include <sandix/const.h>
+
 /*
  * NOTE 1:
  *
@@ -20,35 +23,58 @@
  *	to prevent other interrupts from interfering with the current
  *	interrupt handler. A subsequent IRET instruction restores
  *	the IF flag to its value in the saved contents of the EFLAGS
- *	register on the stack.
+ *	register on the stack. (The IF flag does not affect the
+ *	generation of exceptions or NMI interrupts).
  *
  *	Through a trap gate, it does not affect the IF flag.
  */
 
+struct desc_struct {
+	union {
+		struct {
+			unsigned int a;
+			unsigned int b;
+		};
+		struct {
+			unsigned short limit0;
+			unsigned short base0;
+			unsigned base1:8, type:4, s:1, dpl:2, p:1;
+			unsigned limit1:4, avl:1, l:1, d:1, g:1, base2:8;
+		};
+	};
+};
+
+#define GATE_INTERRUPT_TYPE		0xE
+#define GATE_TRAP_TYPE			0xF
+
 static inline void
-_set_gate(unsigned int n, unsigned int addr, int type, int dpl)
+_set_gate(int gate, int addr, int type, int dpl, int ss)
 {
-	asm volatile (
-		
-	);
+	struct desc_struct s;
+	
+	s.a = (ss << 16) | (addr & 0xFFFF);
+	s.b = (addr & 0xFFFF0000) | 0x8000 | (dpl << 13) | (type <<8);
+	
+	/* Now write gate descriptor into idt_table */
+	idt_table[gate] = s;
 }
 
 static inline void
-set_trap_gate(unsigned int n, unsigned int addr)
+set_trap_gate(int gate, int addr)
 {
-	_set_gate();
+	_set_gate(gate, addr, GATE_TRAP_TYPE, 0, __KERNEL_CS);
 }
 
 static inline void
-set_interrupt_gate(unsigned int n, unsigned int addr)
+set_interrupt_gate(int gate, int addr)
 {
-	_set_gate();
+	_set_gate(gate, addr, GATE_INTERRUPT_TYPE, 0, __KERNEL_CS);
 }
 
 static inline void
-set_system_trap_gate(unsigned int n, unsigned int addr)
+set_system_trap_gate(int gate, int addr)
 {
-	_set_gate();
+	_set_gate(gate, addr, GATE_TRAP_TYPE, 3, __KERNEL_CS);
 }
 
 #endif /* _ASM_DESCRIPTOR_H_*/

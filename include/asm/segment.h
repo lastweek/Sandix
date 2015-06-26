@@ -2,6 +2,10 @@
 #define _ASM_SEGMENT_H_
 
 #include <sandix/const.h>
+#include <asm/descriptor.h>
+
+extern struct desc_struct idt_table[IDT_ENTRIES];
+extern struct desc_struct gdt_table[GDT_ENTRIES];
 
 #define GDT_ENTRY(flags, base, limit)			\
 	((((base)  & _AC(0xff000000,ULL)) << 32) |	\

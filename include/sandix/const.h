@@ -1,7 +1,9 @@
-/* const.h: Macros for dealing with constants.  */
-
 #ifndef _SANDIX_CONST_H
 #define _SANDIX_CONST_H
+
+/*
+ * Macros for dealing with constants.
+ */
 
 /* Y is suffix of const type */
 #define __AC(X,Y)	(X##Y)

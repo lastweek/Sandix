@@ -6,7 +6,7 @@
 
 struct boot_params boot_params;
 
-u64 gdt_table[GDT_ENTRIES] __attribute__((aligned(16))) =
+unsigned long long gdt_table[GDT_ENTRIES] __attribute__((aligned(16))) =
 {
 	/* NOTE! accessed type useless! So we do not use! */
 	/* Present, DPL=0, Execute/Read */
@@ -25,7 +25,7 @@ u64 gdt_table[GDT_ENTRIES] __attribute__((aligned(16))) =
 	[GDT_ENTRY_KERNEL_PERCPU]		= GDT_ENTRY(0xc092, 0, 0xfffff),
 };
 
-u64 idt_table[IDT_ENTRIES] __attribute__((aligned(16)));
+unsigned long long idt_table[IDT_ENTRIES] __attribute__((aligned(16)));
 
 void cpu_init(void)
 {

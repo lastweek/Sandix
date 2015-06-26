@@ -106,7 +106,7 @@ default_entry:
 1:
 	add $0, %esp				# Shift sp to a virtual address
 
-	# Reload some stuff
+	# Reload system registers
 	lgdt pa(gdt_descr)
 	lidt pa(idt_descr)
 	ljmp $(__KERNEL_CS), $pa(1f)
