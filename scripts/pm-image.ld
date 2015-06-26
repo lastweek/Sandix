@@ -1,20 +1,22 @@
-/**
+/*
  *	Protected-Mode Kernel Image Linker Scripts
- **/
+ */
 
-/* startup_32 located in init/head.S */
+/* startup_32(init/head.S) */
 ENTRY(startup_32)
 
 SECTIONS
 {
-	. = 0x0;
+	. = 0x10000;
 	.text	: { *(.text) }
+	__end_text = .
 
 	. = ALIGN(16);
 	.data	: { *(.data*)}
 
 	. = ALIGN(16);
 	.rodata	: { *(.rodata*)}
+	__end_data = .
 
 	. = ALIGN(16);
 	.bss		:
@@ -29,5 +31,5 @@ SECTIONS
 	/DISCARD/ : { *(.comment) }
 	
 	. = ALIGN(16);
-	PM_KERNEL_END = .;
+	__end = .;
 }

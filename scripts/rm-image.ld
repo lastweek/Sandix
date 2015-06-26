@@ -2,7 +2,7 @@
  *	Real-Mode Kernel Image Linker Scripts
  **/
 
-/* _start located in boot/header.S */
+/* _start(boot/header.S) */
 ENTRY(_start)
 SECTIONS
 {
@@ -29,5 +29,5 @@ SECTIONS
 	/DISCARD/ : { *(.comment) }
 	
 	. = ALIGN(16);
-	RM_KERNEL_END = .;
+	__end = .;
 }

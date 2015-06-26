@@ -1,11 +1,11 @@
 #ifndef _ASM_SEGMENT_H_
 #define _ASM_SEGMENT_H_
 
-#include <sandix/const.h>
-#include <asm/descriptor.h>
+/*
+ * X86 segment definitons.
+ */
 
-extern struct desc_struct idt_table[IDT_ENTRIES];
-extern struct desc_struct gdt_table[GDT_ENTRIES];
+#include <sandix/const.h>
 
 #define GDT_ENTRY(flags, base, limit)			\
 	((((base)  & _AC(0xff000000,ULL)) << 32) |	\
@@ -26,23 +26,21 @@ extern struct desc_struct gdt_table[GDT_ENTRIES];
 #define GDT_ENTRY_BOOT_DS	3
 #define GDT_ENTRY_BOOT_TSS	4
 
-/* Left shift 3 bits equals mutiple 8 */
 #define __BOOT_CS	(GDT_ENTRY_BOOT_CS*8)
 #define __BOOT_DS	(GDT_ENTRY_BOOT_DS*8)
 #define __BOOT_TSS	(GDT_ENTRY_BOOT_TSS*8)
 
 
-/*               GDT FOR SANDIX                        */
-/*******************************************************/
-/*
+/*               GDT IN SANDIX                        
+ ***********************************************************
  * The layout of the per-CPU GDT:
  *
- *   0 - null
+ *   0 - null			<==== cacheline 0
  *   1 - reserved
  *   2 - reserved
  *   3 - reserved
  *
- *   4 - unused			<==== new cacheline
+ *   4 - unused			<==== cacheline 1
  *   5 - unused
  *
  *  ------- start of TLS (Thread-Local Storage) segments:
@@ -56,11 +54,11 @@ extern struct desc_struct gdt_table[GDT_ENTRIES];
  *
  *  ------- start of kernel segments:
  *
- *  12 - kernel code segment		<==== new cacheline
+ *  12 - kernel code segment		<==== cacheline 3
  *  13 - kernel data segment
  *  14 - user code segment
  *  15 - user data segment
- *  16 - TSS
+ *  16 - TSS						<==== cacheline 4
  *  17 - LDT
  *
  *  27 - per-cpu			[ offset to per-cpu data area ]
@@ -68,8 +66,8 @@ extern struct desc_struct gdt_table[GDT_ENTRIES];
  *  29 - unused
  *  30 - unused
  *  31 - unused
- **/
-
+ ***********************************************************
+ */
 
 #define GDT_ENTRY_TLS_ENTRIES	3
 #define GDT_ENTRY_TLS_MIN		6
@@ -82,12 +80,12 @@ extern struct desc_struct gdt_table[GDT_ENTRIES];
 #define GDT_ENTRY_KERNEL_TSS	16
 #define GDT_ENTRY_KERNEL_LDT	17
 
-#define GDT_ENTRY_KERNEL_PERCPU		27
+#define GDT_ENTRY_KERNEL_PERCPU	27
 
 #define GDT_ENTRIES				32
 
-#define GDT_SIZE		(GDT_ENTRIES*8)
-#define TLS_SIZE		(GDT_ENTRY_TLS_ENTRIES*8)
+#define GDT_SIZE			(GDT_ENTRIES*8)
+#define TLS_SIZE			(GDT_ENTRY_TLS_ENTRIES*8)
 
 #define __KERNEL_CS			(GDT_ENTRY_KERNEL_CS*8)
 #define __KERNEL_DS			(GDT_ENTRY_KERNEL_DS*8)
@@ -95,30 +93,29 @@ extern struct desc_struct gdt_table[GDT_ENTRIES];
 #define __USER_CS			(GDT_ENTRY_USER_CS*8)
 #define __KERNEL_TSS		(GDT_ENTRY_TSS*8)
 #define __KERNEL_LDT		(GDT_ENTRY_LDT*8)
-#define __KERNEL_PERCPU		(GDT_ENTRY_PERCPU*8)
+#define __KERNEL_PERCPU		(GDT_ENTRY_KERNEL_PERCPU*8)
 
 
-/*******************************************************/
 /*
- *	Selector 16 bits layout:
+ *	Segment Selector (16 bits) Layout:
  *
  *	Bit 1-0		Ring Privilege Level 
  *	Bit 2		Table Indicator (LDT/GDT)
  *	Bit 15-3	Index
  **/
 
-#define SEGMENT_RPL_MASK	0x3
-#define SEGMENT_TI_MASK		0x4
+#define SEGMENT_RPL_MASK		0x3
+#define SEGMENT_TI_MASK			0x4
 
-#define USER_RPL		0x3
-#define KERNEL_RPL		0x0
+#define USER_RPL				0x3
+#define KERNEL_RPL				0x0
 
 /* LDT segment has TI set, GDT has it cleared */
-#define SEGMENT_LDT		0x4
-#define SEGMENT_GDT		0x0
+#define SEGMENT_LDT				0x4
+#define SEGMENT_GDT				0x0
 
-#define IDT_ENTRIES 256
-#define NUM_EXCEPTION_VECTORS 32
+#define IDT_ENTRIES 			256
+#define NUM_EXCEPTION_VECTORS	32
 
 /* Bitmask of exception vectors which push an error code on the stack */
 #define EXCEPTION_ERRCODE_MASK  0x00027d00

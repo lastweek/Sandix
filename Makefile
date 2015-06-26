@@ -84,6 +84,7 @@ KBUILD_CFLAGS += -Wno-format-security
 KBUILD_CFLAGS += -Wdeclaration-after-statement
 KBUILD_CFLAGS += -Werror=strict-prototypes
 KBUILD_CFLAGS += -Werror=implicit-function-declaration
+KBUILD_CFLAGS += -O2
 
 KBUILD_CPPFLAGS	:= -D__KERNEL__
 KBUILD_AFLAGS	:= -D__ASSEMBLY__
