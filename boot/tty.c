@@ -9,8 +9,8 @@
  *	derived from linux-3.18 kernel.
  */
 
+#include <sandix/types.h>
 #include <stdarg.h>
-#include <types.h>
 #include "boot.h"
 
 static void bios_putchar(int ch)

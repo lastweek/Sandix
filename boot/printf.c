@@ -9,8 +9,8 @@
  *	Return Value: -1 means undefined modifier.
  */
 
+#include <sandix/types.h>
 #include <stdarg.h>
-#include <types.h>
 #include "boot.h"
 
 #define __SIGN__		1

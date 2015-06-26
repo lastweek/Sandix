@@ -1,6 +1,5 @@
-#ifndef _ASM_PROCESSOR_FLAGS_H
-#define _ASM_PROCESSOR_FLAGS_H
-/* Various flags defined: can be included from assembler. */
+#ifndef _ASM_PROCESSOR_FLAGS_H_
+#define _ASM_PROCESSOR_FLAGS_H_
 
 #include <sandix/const.h>
 
@@ -122,4 +121,4 @@
 #define X86_CR4_SMAP		_BITUL(X86_CR4_SMAP_BIT)
 
 
-#endif /* _ASM_PROCESSOR_FLAGS_H */
+#endif /* _ASM_PROCESSOR_FLAGS_H_ */
