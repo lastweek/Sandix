@@ -30,6 +30,13 @@ struct desc_ptr {
 extern struct desc_struct idt_table[];
 extern struct desc_struct gdt_table[];
 
+#define GDT_ENTRY_INIT(flags, base, limit)								\
+	{																	\
+		.a = ((limit) & 0xffff) | (((base) & 0xffff) << 16),			\
+		.b = (((base) & 0xff0000) >> 16) | (((flags) & 0xf0ff) << 8) |	\
+			((limit) & 0xf0000) | ((base) & 0xff000000),				\
+	}
+
 /*
  * IDT NOTE 1:
  *
@@ -81,12 +88,5 @@ __set_gate(int gate, int addr, int type, int dpl, int ss)
 #define set_system_call_gate(GATE, ADDR) \
 	__set_gate(GATE, ADDR, __GATE_TRAP, __DPL_USER, __KERNEL_CS);
 
-
-#define GDT_ENTRY_INIT(flags, base, limit)								\
-	{																	\
-		.a = ((limit) & 0xffff) | (((base) & 0xffff) << 16),			\
-		.b = (((base) & 0xff0000) >> 16) | (((flags) & 0xf0ff) << 8) |	\
-			((limit) & 0xf0000) | ((base) & 0xff000000),				\
-	}
 
 #endif /* _ASM_DESCRIPTOR_H_*/

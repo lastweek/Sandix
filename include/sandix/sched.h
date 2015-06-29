@@ -3,6 +3,7 @@
 
 #include <asm/processor.h>
 #include <sandix/mm.h>
+#include <sandix/page.h>
 
 struct thread_info {
 	struct task_struct *task;	/* main task structure */
