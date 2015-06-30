@@ -2,15 +2,9 @@
 #define _SANDIX_SCHED_H_
 
 #include <asm/processor.h>
+#include <asm/sched.h>
 #include <sandix/mm.h>
 #include <sandix/page.h>
-
-struct thread_info {
-	struct task_struct *task;	/* main task structure */
-	unsigned int flags;			/* low level flags */
-	unsigned int status;		/* thread synchronous flags */
-	unsigned int cpu;			/* current cpu */
-};
 
 #define TASK_RUNNING			0
 #define TASK_INTERRUPTIBLE		1
@@ -26,7 +20,7 @@ struct thread_info {
 #define CURRENT_MASK			0xFFFFE000
 
 struct task_struct {
-	volatile int state;						/* -1 unrunnable, 0 runnable, >0 stopped */
+	volatile long state;					/* -1 unrunnable, 0 runnable, >0 stopped */
 	
 	void *stack;							/* kernel-mode stack */
 	
@@ -48,6 +42,7 @@ struct task_struct {
 
 	struct task_struct *real_parent;		/* real original parent process */
 	struct task_struct *parent;				/* recipient of SIGCHLD, wait4() reports */
+	
 	struct list_head children;				/* list of my children */
 	struct list_head sibling;				/* list of my parent's children */
 	
@@ -56,46 +51,23 @@ struct task_struct {
 	struct mm_struct *mm;					/* memory management struct */
 };
 
+struct thread_info {
+	struct task_struct *task;	/* main task structure */
+	unsigned int flags;			/* low level flags */
+	unsigned int status;		/* thread synchronous flags */
+	unsigned int cpu;			/* current cpu */
+};
+
 union thread_union {
 	struct thread_info thread_info;
 	unsigned int stack[THREAD_SIZE/sizeof(int)];
 };
 
+#define current					native_current
+#define current_thread_info()	native_current_thread_info()
+
 #define task_thread_info(task)	((struct thread_info *)(task)->stack)
 #define task_stack_page(task)	((task)->stack)
-
-static inline struct thread_info *
-current_thread_info()
-{
-	struct thread_info *__tip;
-	asm volatile (
-		"movl %1, %ecx\n\t"
-		"andl %esp, %ecx\n\t"
-		"movl %ecx, %0"
-		:"=r"(__tip)
-		:"i"(CURRENT_MASK)
-		:"%ecx"
-	);
-	return __tip;
-}
-
-/*
- * current is not a variable
- * current is specific to each cpu
- */
-#define current							\
-({										\
-	struct task_struct *__tsp;			\
-	asm volatile (						\
-		"movl %1, %%ecx\n\t"			\
-		"andl %%esp, %%ecx\n\t"			\
-		"movl (%%ecx), %0"				\
-		:"=r"(__tsp)					\
-		:"i"(CURRENT_MASK)				\
-		:"%ecx"							\
-	);									\
-	__tsp;								\
-})				
 
 #define next_task(p)	\
 	list_entry((p)->tasks.next, struct task, tasks)
