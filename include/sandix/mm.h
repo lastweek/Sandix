@@ -1,20 +1,12 @@
-#ifndef _SANDIX_MM_H
-#define _SANDIX_MM_H
+#ifndef _SANDIX_MM_H_
+#define _SANDIX_MM_H_
 
-/*
- *	Page Descriptor.
- *	Each physical page in the system has a struct page associated with it
- *	to keep track of whatever it is we are using the page for at the moment.
- */
-struct page {
-	unsigned long flag;
-
-	void *virtual;
-};
-
+#include <sandix/types.h>
+#include <sandix/atomic.h>
+#include <sandix/page.h>
 
 struct mm_struct {
 	
 };
 
-#endif /* _SANDIX_MM_H */
+#endif /* _SANDIX_MM_H_ */
