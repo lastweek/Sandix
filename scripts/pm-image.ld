@@ -1,7 +1,3 @@
-/*
- *	Protected-Mode Kernel Image Linker Scripts
- */
-
 /* startup_32(init/head.S) */
 ENTRY(startup_32)
 
@@ -9,14 +5,14 @@ SECTIONS
 {
 	. = 0x10000;
 	.text	: { *(.text) }
-	__end_text = .
+	__end_text = .;
 
 	. = ALIGN(16);
 	.data	: { *(.data*)}
 
 	. = ALIGN(16);
 	.rodata	: { *(.rodata*)}
-	__end_data = .
+	__end_data = .;
 
 	. = ALIGN(16);
 	.bss		:

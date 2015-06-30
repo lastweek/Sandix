@@ -1,11 +1,11 @@
 # ---------------------------------------------------------------------------
 # Convenient variables
-comma   := ,
-quote   := "
-squote  := '
+comma   :=,
+quote   :="
+squote  :='
 empty   :=
-space   := $(empty) $(empty)
-SS      := \$(space)\$(space)\$(space)\$(space)\$(space)\$(space)
+space   :=$(empty) $(empty)
+SS      :=\$(space)\$(space)\$(space)\$(space)
 
 # ---------------------------------------------------------------------------
 # Name of target with a '.' as filename prefix. foo/bar.o => foo/.bar.o

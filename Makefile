@@ -160,16 +160,16 @@ include $(srctree)/scripts/Kbuild.include
 
 # COMMANDS FOR BZIMAGE
 # ===========================================================================
-quiet_cmd_link_rm := LD $(SS) $(_RM_IMAGE)
+quiet_cmd_link_rm := LD $(SS)  $(_RM_IMAGE)
       cmd_link_rm := $(LD) -T $(RM_LD_CMD) -o $(_RM_IMAGE) $(KBUILD_VMSANDIX_BOOT)
 
-quiet_cmd_link_pm := LD $(SS) $(_PM_IMAGE)
+quiet_cmd_link_pm := LD $(SS)  $(_PM_IMAGE)
       cmd_link_pm := $(LD) -T $(PM_LD_CMD) -o $(_PM_IMAGE) $(KBUILD_VMSANDIX_MAIN)
 
-quiet_cmd_bin_rm := OBJCOPY $(SS) $(RM_IMAGE)
+quiet_cmd_bin_rm := OBJCOPY $(RM_IMAGE)
       cmd_bin_rm := $(OBJCOPY) $(OBJCOPYFLAGS) $(_RM_IMAGE) $(RM_IMAGE)
 
-quiet_cmd_bin_pm := OBJCOPY $(SS) $(PM_IMAGE)
+quiet_cmd_bin_pm := OBJCOPY $(PM_IMAGE)
       cmd_bin_pm := $(OBJCOPY) $(OBJCOPYFLAGS) $(_PM_IMAGE) $(PM_IMAGE)
 
 quiet_cmd_catenate := CAT $(SS) $(VMSANDIX)

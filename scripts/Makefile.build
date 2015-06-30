@@ -64,7 +64,7 @@ __build: $(builtin-target) $(subdir-y) $(loader-target) \
 # generate relocatable objects. The final executable object
 # file is generated in top Makefile.
 ifdef builtin-target
-quiet_cmd_link_o_target = LD $(SS) $@
+quiet_cmd_link_o_target = LD $(SS)  $@
       cmd_link_o_target = \
 	  					$(if $(strip $(obj-y)),\
 	  					$(LD) $(ld_flags) -r -o $@ $(obj-y), \
@@ -75,7 +75,7 @@ $(builtin-target): $(obj-y) FORCE
 endif
 
 ifdef loader-target
-quiet_cmd_loader = AS $(SS) $@
+quiet_cmd_loader = AS $(SS)  $@
       cmd_loader = $(CC) $(a_flags) -c -o $@ $<
 
 $(loader-target): $(patsubst %.o,%.S,$(loader-y)) 
@@ -83,7 +83,7 @@ $(loader-target): $(patsubst %.o,%.S,$(loader-y))
 endif
 
 ifdef objcopy-target
-quiet_cmd_objcopy = OBJCOPY $(SS) $@
+quiet_cmd_objcopy = OBJCOPY $@
       cmd_objcopy = $(OBJCOPY) $(objcopy_flags) $< $@
 
 $(objcopy-target): $(objcopy-y) FORCE
@@ -91,7 +91,7 @@ $(objcopy-target): $(objcopy-y) FORCE
 endif
 
 ifdef objdump-target
-quiet_cmd_objdump = OBJDUMP $(SS) $@
+quiet_cmd_objdump = OBJDUMP $@
       cmd_objdump = $(OBJDUMP) $(objdump_flags) $(patsubst %-objdump,%,$@) >$@
 
 $(objdump-target): $(objdump-y) FORCE
@@ -99,7 +99,7 @@ $(objdump-target): $(objdump-y) FORCE
 endif
 
 ifneq ($(strip $(lib-target)),)
-quiet_cmd_link_l_target = AR $(SS) $@
+quiet_cmd_link_l_target = AR $(SS)  $@
       cmd_link_l_target = rm -f $@; $(AR) rcs$(KBUILD_ARFLAGS) $@ $(lib-y)
 
 $(lib-target): $(lib-y) FORCE
@@ -130,7 +130,7 @@ endif
 #* Desc: Compile (.c) to (.o)
 # ---------------------------------------------------------------------------
 # The C file is compiled and updated dependency information is generated.
-quiet_cmd_cc_o_c = CC $(SS) $@
+quiet_cmd_cc_o_c = CC $(SS)  $@
       cmd_cc_o_c = $(CC) $(c_flags) -c -o $@ $<
 
 $(obj)/%.o: $(src)/%.c FORCE
@@ -144,7 +144,7 @@ $(obj)/%.o: $(src)/%.c FORCE
 #* Depend on: $(src)/%.c
 #* Desc: Compile (.c) to (.s)
 # ---------------------------------------------------------------------------
-quiet_cmd_cc_s_c = CC $(SS) $@
+quiet_cmd_cc_s_c = CC $(SS)  $@
       cmd_cc_s_c = $(CC) $(c_flags) -fverbose-asm -S -o $@ $<
 
 $(obj)/%.s: $(src)/%.c FORCE
@@ -188,7 +188,7 @@ $(obj)/%.s: $(src)/%.S FORCE
 #* Depend on: $(src)/%.S
 #* Desc: Compile (.S) to (.o)
 # ---------------------------------------------------------------------------
-quiet_cmd_as_o_S = AS $(SS) $@
+quiet_cmd_as_o_S = AS $(SS)  $@
       cmd_as_o_S = $(CC) $(a_flags) -c -o $@ $<
 
 $(obj)/%.o: $(src)/%.S FORCE

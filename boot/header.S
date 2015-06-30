@@ -78,15 +78,16 @@ start_of_setup:
 	movw $0x3000, %sp
 
 	# Zero the bss
-	# __bss_start & RM_KERNEL_END defined in rm-image.ld
+	# __bss_start & __bss_end defined in linker scripts
     movw    $__bss_start, %di 
-	movw    $RM_KERNEL_END+3, %cx 
+	movw    $__bss_end, %cx 
 	xorl    %eax, %eax
 	subw    %di, %cx 
 	shrw    $2, %cx 
-	rep; stosl
+	rep
+	stosl
 	
-	# Go RM kernel, should not return ...
+	# Go to RM kernel, should not return ...
 	calll main
 die:
 	hlt

@@ -10,12 +10,17 @@ LCFI1:
 	movl	$2, -12(%rbp)
 	movl	$3, -8(%rbp)
 	movl	-4(%rbp), %eax
-# 8 "asm.c" 1
+# 17 "asm.c" 1
+	.pushsection .smp_locks,"a"
+.balign 4
+.long 671f - .
+.popsection
+671:
 	lock; addl %eax, -12(%rbp)
 # 0 "" 2
 	movl	-12(%rbp), %eax
 	movl	-4(%rbp), %edx
-# 14 "asm.c" 1
+# 23 "asm.c" 1
 	addl %edx, %eax
 # 0 "" 2
 	movl	%eax, -12(%rbp)

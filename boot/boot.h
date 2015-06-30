@@ -10,6 +10,8 @@ asm(".code16gcc");
 
 #include <sandix/types.h>
 
+typedef unsigned int addr_t;
+
 /* header.S */
 extern struct setup_header	hdr;
 

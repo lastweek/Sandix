@@ -21,7 +21,7 @@ struct desc_struct gdt_table[GDT_ENTRIES] __ALIGN8__ =
 	[GDT_ENTRY_USER_CS]		= GDT_ENTRY_INIT(0xc0fa, 0, 0xfffff),
 	[GDT_ENTRY_USER_DS]		= GDT_ENTRY_INIT(0xc0f2, 0, 0xfffff),
 
-	[GDT_ENTRY_KERNEL_TSS]    = GDT_ENTRY_INIT(0xc092, 0, 0);
+	[GDT_ENTRY_KERNEL_TSS]    = GDT_ENTRY_INIT(0xc092, 0, 0),
 	[GDT_ENTRY_KERNEL_PERCPU] = GDT_ENTRY_INIT(0xc092, 0, 0xfffff),
 };
 
@@ -38,6 +38,6 @@ void handle_int(void)
 
 void kernel_init(void)
 {
-	init_memory();
-	init_traps();
+	//init_memory();
+	//init_traps();
 }
