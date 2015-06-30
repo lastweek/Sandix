@@ -1,6 +1,7 @@
 #ifndef _SANDIX_ATOMIC_H_
 #define _SANDIX_ATOMIC_H_
 
+
 /*
  * Machine-independent atomic operations.
  */
