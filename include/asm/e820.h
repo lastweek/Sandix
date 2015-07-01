@@ -1,5 +1,5 @@
-#ifndef _SANDIX_E820_H_
-#define _SANDIX_E820_H_
+#ifndef _ASM_E820_H_
+#define _ASM_E820_H_
 
 #include <sandix/types.h>
 
@@ -32,4 +32,4 @@ struct e820map {
 	struct	e820entry map[E820MAX];
 }__attribute__((packed));
 
-#endif /* _SANDIX_E820_H_ */
+#endif /* _ASM_E820_H_ */

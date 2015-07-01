@@ -10,8 +10,8 @@
  */
 
 #include "boot.h"
-#include <sandix/e820.h>
-#include <sandix/bootparam.h>
+#include <asm/e820.h>
+#include <asm/bootparam.h>
 
 #define SMAP	0x534D4150	/* ASCII "SMAP" */
 

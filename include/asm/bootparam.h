@@ -1,9 +1,9 @@
-#ifndef _SANDIX_X86_BOOTPARAM_H
-#define _SANDIX_X86_BOOTPARAM_H
+#ifndef _ASM_X86_BOOTPARAM_H
+#define _ASM_X86_BOOTPARAM_H
 
 #include <sandix/types.h>
-#include <sandix/e820.h>
 #include <sandix/screen_info.h>
+#include <asm/e820.h>
 
 /* setup_header in header.S */
 struct setup_header {
@@ -26,4 +26,4 @@ struct boot_params {
 	__u8	pad[3];
 } __attribute__((packed));
 
-#endif /* _SANDIX_X86_BOOTPARAM_H */
+#endif /* _ASM_X86_BOOTPARAM_H */

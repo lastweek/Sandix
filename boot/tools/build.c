@@ -131,7 +131,7 @@ int main(int argc, char **argv)
 	printf("[rmimage.bin] : %d bytes (%d sectors)\n", len_si, sectors_header);
 	printf("[pmimage.bin] : %d bytes (%d sectors)\n", len_ki, sectors_image);
 	printf("[bzImage]     : %d bytes (%d sectors)\n", sectors_bzimage*SECTOR_SIZE, sectors_bzimage);
-	printf("The lower bound of %%sp in boot/header.S is %X", lower_bound_of_sp);
+	printf("The lower bound of %%SP in boot/header.S is %X\n", lower_bound_of_sp);
 	printf("Remember change the sector number in boot/bootsect.S!\n");
 
 	fclose(fp_bl);

@@ -8,7 +8,7 @@
  */
 
 #include "boot.h"
-#include <sandix/bootparam.h>
+#include <asm/bootparam.h>
 
 /**
  * bss section

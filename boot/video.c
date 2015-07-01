@@ -4,7 +4,7 @@
  */
 
 #include "boot.h"
-#include <sandix/bootparam.h>
+#include <asm/bootparam.h>
 #include <sandix/screen_info.h>
 
 static void set_video_mode(u8 mode)
