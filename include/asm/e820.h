@@ -1,10 +1,7 @@
 #ifndef _ASM_E820_H_
 #define _ASM_E820_H_
 
-/* Max E820 entries */
-#define E820MAX			128
-
-/* E820 memory segment type */
+/* e820 memory segment type */
 #define E820_RAM_TYPE		1		/* Available RAM */
 #define E820_RESERVED_TYPE	2		/* Reserved */
 #define E820_ACPI_TYPE		3
@@ -19,6 +16,10 @@
 #define BIOS_ROM_BASE		0xffe00000
 #define BIOS_ROM_END		0xffffffff
 
+/* Max e820 entries */
+#define E820MAX				128
+
+/* e820entry structure, returned by BIOS */
 struct e820entry {
 	unsigned long long	addr;	/* start of memory segment */
 	unsigned long long	size;	/* size of memory segment */
@@ -26,7 +27,7 @@ struct e820entry {
 } __attribute__((packed));
 
 struct e820map {
-	unsigned int nr_entries;
+	int nr_entries;
 	struct e820entry map[E820MAX];
 }__attribute__((packed));
 
