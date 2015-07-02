@@ -1,8 +1,6 @@
 #ifndef _ASM_E820_H_
 #define _ASM_E820_H_
 
-#include <sandix/types.h>
-
 /* Max E820 entries */
 #define E820MAX			128
 
@@ -22,14 +20,14 @@
 #define BIOS_ROM_END		0xffffffff
 
 struct e820entry {
-	__u64	addr;	/* start of memory segment */
-	__u64	size;	/* size of memory segment */
-	__u32	type;	/* type of memory segment */
+	unsigned long long	addr;	/* start of memory segment */
+	unsigned long long	size;	/* size of memory segment */
+	unsigned int		type;	/* type of memory segment */
 } __attribute__((packed));
 
 struct e820map {
-	__u32	nr_entries;
-	struct	e820entry map[E820MAX];
+	unsigned int nr_entries;
+	struct e820entry map[E820MAX];
 }__attribute__((packed));
 
 #endif /* _ASM_E820_H_ */

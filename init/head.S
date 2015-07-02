@@ -1,5 +1,6 @@
 #include <sandix/linkage.h>
 #include <asm/segment.h>
+#include <asm/bootparam.>
 
 #define KERNEL_OFFSET	0x00000000
 #define pa(X)	((X) - KERNEL_OFFSET)
@@ -36,6 +37,8 @@ ENTRY(startup_32)
 	subl %edi, %ecx
 	shrl $2, %ecx
 	rep ; stosl
+
+	# Move boot_param to a harbor
 
 /*
  * Initialize early_page_directory and early_page_table.

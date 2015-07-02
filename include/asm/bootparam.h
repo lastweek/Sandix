@@ -7,23 +7,27 @@
 
 /* setup_header in header.S */
 struct setup_header {
-	__u32	header_version;
-	__u32	code32_start;
-	__u32	video_mode;
-	__u32	rm_kernel_sects;
-	__u32	pm_kernel_sects;
-	__u8	header_signature[8];
+	unsigned int	header_version;
+	unsigned int	code32_start;
+	unsigned int	video_mode;
+	unsigned int	rm_kernel_sects;
+	unsigned int	pm_kernel_sects;
+	unsigned char	header_signature[8];
 } __attribute__((packed));
 
 
 /* System information fetched from BIOS in boot time */
+/* The structure is padded to a page size */
 struct boot_params {
-	struct	setup_header	hdr;
-	struct	screen_info		screen_info;
-	struct	e820entry		e820_map[E820MAX];
-	__u32	e820_entries_nr;
-	__u8	kbd_status;
-	__u8	pad[3];
+	struct setup_header	hdr;				/* 0 - 27, 28 bytes */
+	struct screen_info	screen_info;		/* 28 - 39, 12 bytes */
+	struct e820entry	e820_map[E820MAX];	/* 40 - 2599, 2560 bytes*/
+	unsigned int	e820_entries_nr;		/* 2600 - 2603, 4 bytes */
+	unsigned char	kbd_status;
+	unsigned char	pad1[3];				/* 2604 - 2607, 4 bytes */
+	unsigned char	pad2[1388];				/* 2608 - 4095, padding*/			
 } __attribute__((packed));
+
+#define BOOT_PARAMS_SIZE	4096
 
 #endif /* _ASM_X86_BOOTPARAM_H */

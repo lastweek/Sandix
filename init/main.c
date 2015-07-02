@@ -1,7 +1,7 @@
 #include <sandix/const.h>
 #include <sandix/types.h>
-#include <sandix/bootparam.h>
 
+#include <asm/bootparam.h>
 #include <asm/segment.h>
 #include <asm/descriptor.h>
 

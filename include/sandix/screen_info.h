@@ -1,8 +1,6 @@
 #ifndef _SANDIX_SCREEN_INFO_H_
 #define _SANDIX_SCREEN_INFO_H_
 
-#include <sandix/types.h>
-
 #define VIDEO_TYPE_MDA		0x10	/* Monochrome Text Display	*/
 #define VIDEO_TYPE_CGA		0x11	/* CGA Display 			*/
 #define VIDEO_TYPE_EGAM		0x20	/* EGA/VGA in Monochrome Mode	*/
@@ -13,19 +11,20 @@
 /**
  * Screen info fetched from BIOS intcall and
  * BIOS Data Area. The setup routine is boot/video.c
+ * Size = 12 bytes
  **/
 struct screen_info {
-	__u8	orig_x;
-	__u8	orig_y;
-	__u16	orig_video_page;
+	unsigned char	orig_x;
+	unsigned char	orig_y;
+	unsigned short	orig_video_page;
 	
-	__u8 	orig_video_mode;
-	__u8 	orig_video_cols;
-	__u8	orig_video_lines;
-	__u8	orig_video_isVGA;
+	unsigned char 	orig_video_mode;
+	unsigned char 	orig_video_cols;
+	unsigned char	orig_video_lines;
+	unsigned char	orig_video_isVGA;
 	
-	__u16	orig_video_points;
-	__u8	pad[2];
+	unsigned short	orig_video_points;
+	unsigned char	pad[2];
 } __attribute__((packed));
 
 #endif /* _SANDIX_SCREEN_INFO_H_ */
