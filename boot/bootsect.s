@@ -20,7 +20,7 @@ SYSSEG			= 0x1000	# Protected-Mode Kernel Image Segment.
 
 SETUP_OFFSET	= 512		# offset of entry point in Real-mode image.
 SECTORS_HEADER	= 13		# sectors of Real-mode image
-SECTORS_KERNEL	= 2       	# sectors of Protected-mode image
+SECTORS_KERNEL	= 1       	# sectors of Protected-mode image
 
 	.code16
 	

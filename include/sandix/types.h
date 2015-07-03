@@ -1,6 +1,8 @@
 #ifndef _SANDIX_TYPES_H_
 #define _SANDIX_TYPES_H_
 
+#ifndef __ASSEMBLY__
+
 #ifndef	NULL
 #define	NULL	((void *)0)
 #endif
@@ -26,5 +28,7 @@ typedef unsigned char		__u8;
 typedef u32 size_t;
 typedef u32 pit_t;
 typedef u32 phys_addr_t;
+
+#endif /* __ASSEMBLY__ */
 
 #endif /* _SANDIX_TYPES_H_ */

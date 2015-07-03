@@ -19,6 +19,8 @@
 /* Max e820 entries */
 #define E820MAX				128
 
+#ifndef __ASSEMBLY__
+
 /* e820entry structure, returned by BIOS */
 struct e820entry {
 	unsigned long long	addr;	/* start of memory segment */
@@ -30,5 +32,7 @@ struct e820map {
 	int nr_entries;
 	struct e820entry map[E820MAX];
 }__attribute__((packed));
+
+#endif /* __ASSEMBLY__ */
 
 #endif /* _ASM_E820_H_ */

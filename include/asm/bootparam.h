@@ -1,6 +1,8 @@
 #ifndef _ASM_X86_BOOTPARAM_H_
 #define _ASM_X86_BOOTPARAM_H_
 
+#ifndef __ASSEMBLY__
+
 #include <sandix/screen_info.h>
 #include <asm/e820.h>
 
@@ -26,6 +28,8 @@ struct boot_params {
 	unsigned char	pad1[3];				/* 2604 - 2607, 4 bytes */
 	unsigned char	pad2[1488];				/* 2608 - 4095, padding*/			
 } __attribute__((packed));
+
+#endif /* __ASSEMBLY__ */
 
 #define BOOT_PARAMS_SIZE	4096
 

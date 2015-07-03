@@ -1,4 +1,4 @@
-/* FIXME double float*/
+/* FIXME double float */
 #ifndef STDARG_H
 #define STDARG_H
 
@@ -13,10 +13,12 @@ typedef char * va_list;
 
 #define va_end(ap)			ap = NULL
 
-#define va_arg(ap, type) ({ \
-	type __re; \
-	__re = *((type *)ap); \
-	ap += STACK_ALIGN; \
-	__re; })
+#define va_arg(ap, type)		\
+	({							\
+		type __re;				\
+		__re = *((type *)ap);	\
+		ap += STACK_ALIGN;		\
+		__re;					\
+	})
 
-#endif
+#endif /* STDARG_H */
