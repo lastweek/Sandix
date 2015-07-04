@@ -7,14 +7,11 @@
 #define	NULL	((void *)0)
 #endif
 
-#undef	bool
-#define	bool	int
-
-#undef	true
-#define	true	1
-
-#undef	false
-#define	false	0
+#define	bool int
+enum {
+	false,
+	true
+};
 
 typedef unsigned long long	u64;
 typedef unsigned int		u32;
