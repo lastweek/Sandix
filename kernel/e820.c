@@ -3,15 +3,19 @@
 #include <asm/bootparam.h>
 #include <asm/e820.h>
 
-extern struct e820map e820map;
 extern struct boot_params boot_params;
 
-/* Using table e820 to build system memory map */
+/* System Memory Map */
+struct e820map e820map;
+
 void machine_specific_memory_setup(void)
 {
-	struct e820entry *entry;
+	struct e820entry *entry, *dst, *src;
 	
-	/* Copy e820map */
-	memcpy();
+	/* copy e820 table */
+	dst = &e820map.map;
+	src = &boot_params.e820_map;
+	memcpy(dst, src, sizeof(struct e820entry) * E820MAX);
+	e820map.nr_entries = boot_params.e820_nr_entries;
 }
 

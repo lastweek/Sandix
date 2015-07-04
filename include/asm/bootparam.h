@@ -23,7 +23,7 @@ struct boot_params {
 	struct setup_header	hdr;				/* 0 - 27, 28 bytes */
 	struct screen_info	screen_info;		/* 28 - 39, 12 bytes */
 	struct e820entry	e820_map[E820MAX];	/* 40 - 2599, 2560 bytes*/
-	unsigned int	e820_entries_nr;		/* 2600 - 2603, 4 bytes */
+	unsigned int	e820_nr_entries;		/* 2600 - 2603, 4 bytes */
 	unsigned char	kbd_status;
 	unsigned char	pad1[3];				/* 2604 - 2607, 4 bytes */
 	unsigned char	pad2[1488];				/* 2608 - 4095, padding*/			
