@@ -8,22 +8,22 @@
 #define rmb()	native_rmb()
 #define wmb()	native_wmb()
 
-static inline void native_nop()
+static inline void native_nop(void)
 {
 	asm volatile ("nop");
 }
 
-static inline void native_mb()
+static inline void native_mb(void)
 {
 	asm volatile ("mfence");
 }
 
-static inline void native_rmb()
+static inline void native_rmb(void)
 {
 	asm volatile ("lfence");
 }
 
-static inline void native_wmb()
+static inline void native_wmb(void)
 {
 	asm volatile ("wfence");
 }

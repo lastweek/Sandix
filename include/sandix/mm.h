@@ -6,7 +6,7 @@
 #include <sandix/page.h>
 
 struct mm_struct {
-	
+	int a;
 };
 
 #endif /* _SANDIX_MM_H_ */

@@ -7,7 +7,8 @@
 #include <asm/page.h> /* Arch-Dependent page infrastructure */
 
 enum SANDIX_PAGE_FLAGS {
-	
+	PG_present,
+	PG_xxxx
 };
 
 /*

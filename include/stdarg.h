@@ -1,24 +1,29 @@
-/* FIXME double float */
-#ifndef STDARG_H
-#define STDARG_H
+/* 32-bit usable */
+#ifndef _STDARG_H_
+#define _STDARG_H_
 
-/* Stack alignment: 4 bytes.*/
-#define STACK_ALIGN	4
+typedef char *va_list;
 
-typedef char * va_list;
+#define __STACK_ALIGN	sizeof(long)
 
-#define va_start(ap, last)	ap = (va_list)&last + STACK_ALIGN
+#define __va_rounded_size(TYPE)	\
+	(((sizeof(TYPE) + __STACK_ALIGN - 1) / __STACK_ALIGN) * __STACK_ALIGN)
 
-#define va_copy(dest, src)	dest = src
+#define va_start(AP, LASTARG)	\
+	AP = ((va_list)&(LASTARG) + __va_rounded_size(LASTARG))
 
-#define va_end(ap)			ap = NULL
+#define va_copy(DEST, SRC)	\
+	DEST = SRC
 
-#define va_arg(ap, type)		\
-	({							\
-		type __re;				\
-		__re = *((type *)ap);	\
-		ap += STACK_ALIGN;		\
-		__re;					\
+#define va_end(AP)	\
+	AP = NULL
+
+#define va_arg(AP, TYPE)				\
+	({									\
+		TYPE __ret;						\
+		__ret = *((TYPE *)(AP));		\
+		AP += __va_rounded_size(TYPE);	\
+		__ret;							\
 	})
 
-#endif /* STDARG_H */
+#endif /* _STDARG_H_ */

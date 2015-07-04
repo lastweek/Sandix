@@ -39,6 +39,6 @@ void handle_int(void)
 
 void kernel_init(void)
 {
-	init_memory();
+	//init_memory();
 	//init_traps();
 }
