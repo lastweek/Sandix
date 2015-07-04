@@ -1,21 +1,5 @@
 #include <stdio.h>
 
-char *__strcpy(char *dest, const char *src)
-{
-	asm volatile (
-		"1:\n\t"
-		"lodsb\n\t"
-		"stosb\n\t"
-		"testb %%al, %%al\n\t"
-		"jne 1b"
-		:
-		: "S"(src), "D"(dest)
-		: "memory", "%eax"
-	);
-
-	return dest;
-}
-
 int __strcmp(const char *cs, const char *ct)
 {
 	int d0, d1;
@@ -34,6 +18,18 @@ int __strcmp(const char *cs, const char *ct)
 		: "1" (cs), "2" (ct)
 		: "memory");
 	return res;
+}
+
+void *__memset(void *s, char c, size_t n)
+{
+	int d0, d1, d2;
+	asm volatile (
+		"rep\n\t"
+		"stosb\n\t"
+		: "=&D" (d0), "=a" (d1), "=&c" (d2)
+		: "0" (s), "1" (c), "2" (n)
+		: "memory"
+	);
 }
 
 int m_strcmp(const char *ss, const char *st)
@@ -60,8 +56,8 @@ int m_strcmp(const char *ss, const char *st)
 }
 int main()
 {
-	char a[5] = "12345";
-	char b[5] = "12345";
+	char a[3] = "123";
+	char b[3] = "123";
 	int x;
 	
 	x = m_strcmp(b, a);
