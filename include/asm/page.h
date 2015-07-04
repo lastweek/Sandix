@@ -9,12 +9,18 @@
 #define PAGE_SIZE	(_AC(1,UL) << PAGE_SHIFT)
 #define PAGE_MASK	(~(PAGE_SIZE-1))
 
+
 /*
  * Physical / Virtual address mask.
  * Useless now!
  */
 #define PHYS_MASK_SHIFT		32
 #define VIRT_MASK_SHIFT		32
+
+/*
+ * The possible maximum page frame number
+ */
+#define MAX_ARCH_PFN	(1ULL << (32 - PAGE_SHIFT))
 
 /*
  * Kernel base virtual address 0xC0000000 limits the

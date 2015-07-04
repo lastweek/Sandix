@@ -29,7 +29,7 @@ struct e820entry {
 } __attribute__((packed));
 
 struct e820map {
-	int nr_entries;
+	unsigned int nr_map;
 	struct e820entry map[E820MAX];
 }__attribute__((packed));
 
