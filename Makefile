@@ -49,7 +49,7 @@ endif
 export quiet Q KBUILD_VERBOSE
 
 
-# We don't support building in other directories.
+# Sandix does not support building in other directories.
 srctree = .
 objtree = .
 export srctree objtree
@@ -75,8 +75,6 @@ OBJCOPY	= $(CROSS_COMPILE)objcopy
 OBJDUMP	= $(CROSS_COMPILE)objdump
 MAKE	= make
 AWK 	= awk
-PERL	= perl
-PYTHON	= python
 
 KBUILD_CFLAGS := -std=gnu89 -pipe -Wall -Wundef
 KBUILD_CFLAGS += -fno-strict-aliasing -fno-common
@@ -105,20 +103,22 @@ export OBJCOPYFLAGS OBJDUMPFLAGS
 
 CONFIG_X86_32=y
 ifeq ($(CONFIG_X86_32),y)
-    KBUILD_AFLAGS += -m32 
+    KBUILD_AFLAGS += -m32
+	
     KBUILD_CFLAGS += -m32
 
     KBUILD_CFLAGS += -mregparm=3 -freg-struct-return
 
-    # Never want PIC in a 32-bit kernel
+    # Never want PIC in kernel
     KBUILD_CFLAGS += -fno-pic
 
-    # prevent gcc from keeping the stack 16 byte aligned
+    # Prevent gcc from keeping the stack 16 byte aligned
     KBUILD_CFLAGS += -mpreferred-stack-boundary=2
     
-	# prevent gcc from generating any FP code by mistake
+	# Prevent gcc from generating any FP code by mistake
     KBUILD_CFLAGS += -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx
 
+	# No builtin-function?
     KBUILD_CFLAGS += -ffreestanding
 endif
 
@@ -183,6 +183,7 @@ PHONY := all
 all: bzImage vmsandix
 
 bzImage: vmsandix
+	@chmod +x $(VMSANDIX)
 	@mv $(VMSANDIX) $(BZIMAGE)
 
 # FIXME boot/ should be separated from deps
@@ -192,7 +193,6 @@ vmsandix: $(vmsandix-deps)
 	$(call if_changed,bin_pm)
 	$(call if_changed,bin_rm)
 	$(call if_changed,catenate)
-	@chmod +x $(VMSANDIX)
 
 $(sort $(vmsandix-deps)): $(vmsandix-dirs) ;
 

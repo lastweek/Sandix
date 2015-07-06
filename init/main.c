@@ -1,5 +1,6 @@
 #include <sandix/const.h>
 #include <sandix/mm.h>
+#include <sandix/string.h>
 #include <sandix/types.h>
 
 #include <asm/bootparam.h>
@@ -39,6 +40,9 @@ void handle_int(void)
 
 void kernel_init(void)
 {
+	char a[4] = "ABCD";
+	char b[4];
+	memcpy(b, a, 4);
 	init_memory();
 	//init_traps();
 }

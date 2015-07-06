@@ -29,6 +29,9 @@ struct boot_params {
 	unsigned char	pad2[1488];				/* 2608 - 4095, padding*/			
 } __attribute__((packed));
 
+/* Defined in init/main.c */
+extern struct boot_params boot_params;
+
 #endif /* __ASSEMBLY__ */
 
 #define BOOT_PARAMS_SIZE	4096
