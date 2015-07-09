@@ -1,7 +1,7 @@
 #ifndef _ASM_TRAPS_H_
 #define _ASM_TRAPS_H_
 
-enum {
+enum X86_TRAPS {
 	X86_TRAP_DE = 0,	/*  0, Divide-by-zero */
 	X86_TRAP_DB,		/*  1, Debug */
 	X86_TRAP_NMI,		/*  2, Non-maskable Interrupt */
@@ -23,8 +23,8 @@ enum {
 	X86_TRAP_MC,		/* 18, Machine Check */
 	X86_TRAP_XM,		/* 19, SIMD Floating-Point Exception */
 	X86_TRAP_VE,		/* 20, Virtualization Exception */
-						/* 21-31, Intel Reserved. Do not use */
-						/* 32-255, User Defined Interrupts */
+				/* 21-31, Intel Reserved. Do not use */
+				/* 32-255, User Defined Interrupts */
 };
 
 #endif /* _ASM_TRAPS_H_ */

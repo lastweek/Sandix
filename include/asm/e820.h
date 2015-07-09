@@ -11,13 +11,13 @@
 /* Conventional segment start address */
 #define ISA_START_ADDRESS	0xa0000
 #define ISA_END_ADDRESS		0x100000
-#define BIOS_BEGIN			0x000a0000
-#define BIOS_END			0x00100000
+#define BIOS_BEGIN		0x000a0000
+#define BIOS_END		0x00100000
 #define BIOS_ROM_BASE		0xffe00000
 #define BIOS_ROM_END		0xffffffff
 
 /* Max e820 entries */
-#define E820MAX				128
+#define E820MAX			128
 
 #ifndef __ASSEMBLY__
 

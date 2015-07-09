@@ -69,7 +69,7 @@
  ***********************************************************
  */
 
-#define GDT_ENTRY_TLS_ENTRIES	3
+#define GDT_ENTRY_TLS_ENTRIES		3
 #define GDT_ENTRY_TLS_MIN		6
 #define GDT_ENTRY_TLS_MAX		8
 
@@ -77,12 +77,12 @@
 #define GDT_ENTRY_KERNEL_DS		13
 #define GDT_ENTRY_USER_CS		14
 #define GDT_ENTRY_USER_DS		15
-#define GDT_ENTRY_KERNEL_TSS	16
-#define GDT_ENTRY_KERNEL_LDT	17
+#define GDT_ENTRY_KERNEL_TSS		16
+#define GDT_ENTRY_KERNEL_LDT		17
 
-#define GDT_ENTRY_KERNEL_PERCPU	27
+#define GDT_ENTRY_KERNEL_PERCPU		27
 
-#define GDT_ENTRIES				32
+#define GDT_ENTRIES			32
 
 #define GDT_SIZE			(GDT_ENTRIES*8)
 #define TLS_SIZE			(GDT_ENTRY_TLS_ENTRIES*8)
@@ -91,9 +91,9 @@
 #define __KERNEL_DS			(GDT_ENTRY_KERNEL_DS*8)
 #define __USER_DS			(GDT_ENTRY_USER_DS*8)
 #define __USER_CS			(GDT_ENTRY_USER_CS*8)
-#define __KERNEL_TSS		(GDT_ENTRY_TSS*8)
-#define __KERNEL_LDT		(GDT_ENTRY_LDT*8)
-#define __KERNEL_PERCPU		(GDT_ENTRY_KERNEL_PERCPU*8)
+#define __KERNEL_TSS			(GDT_ENTRY_TSS*8)
+#define __KERNEL_LDT			(GDT_ENTRY_LDT*8)
+#define __KERNEL_PERCPU			(GDT_ENTRY_KERNEL_PERCPU*8)
 
 
 /*
@@ -107,17 +107,17 @@
 #define SEGMENT_RPL_MASK		0x3
 #define SEGMENT_TI_MASK			0x4
 
-#define USER_RPL				0x3
-#define KERNEL_RPL				0x0
+#define USER_RPL			0x3
+#define KERNEL_RPL			0x0
 
 /* LDT segment has TI set, GDT has it cleared */
-#define SEGMENT_LDT				0x4
-#define SEGMENT_GDT				0x0
+#define SEGMENT_LDT			0x4
+#define SEGMENT_GDT			0x0
 
 #define IDT_ENTRIES 			256
-#define NUM_EXCEPTION_VECTORS	32
+#define NUM_EXCEPTION_VECTORS		32
 
 /* Bitmask of exception vectors which push an error code on the stack */
-#define EXCEPTION_ERRCODE_MASK  0x00027d00
+#define EXCEPTION_ERRCODE_MASK  	0x00027d00
 
 #endif /* _ASM_SEGMENT_H_ */

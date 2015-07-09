@@ -1,3 +1,4 @@
+/* X86 Two-Level Paging Mapping */
 #ifndef _ASM_PGTABLE_H_
 #define _ASM_PGTABLE_H_
 
@@ -18,8 +19,8 @@ typedef struct {
 	pdeval_t	pde_low;
 } pde_t;
 
-/* IA-32 Two-Level MMU Structure */
-#define PGDIR_SHIFT			22
+/* Two-Level Paing Parameters */
+#define PGDIR_SHIFT		22
 #define PTRS_PER_PGD		1024
 #define PTRS_PER_PTE		1024
 
@@ -35,14 +36,14 @@ typedef struct {
 #define __PAGE_BIT_GLOBAL	8	/* Global TLB entry PPro+ */
 
 #define __PAGE_RRESENT		(_AT(pteval_t,1) << __PAGE_BIT_PRESENT)
-#define __PAGE_RW			(_AT(pteval_t,1) << __PAGE_BIT_RW)
-#define __PAGE_USER			(_AT(pteval_t,1) << __PAGE_BIT_USER)
-#define __PAGE_PWT			(_AT(pteval_t,1) << __PAGE_BIT_PWT)
-#define __PAGE_PCD			(_AT(pteval_t,1) << __PAGE_BIT_PCD)
+#define __PAGE_RW		(_AT(pteval_t,1) << __PAGE_BIT_RW)
+#define __PAGE_USER		(_AT(pteval_t,1) << __PAGE_BIT_USER)
+#define __PAGE_PWT		(_AT(pteval_t,1) << __PAGE_BIT_PWT)
+#define __PAGE_PCD		(_AT(pteval_t,1) << __PAGE_BIT_PCD)
 #define __PAGE_ACCESSED		(_AT(pteval_t,1) << __PAGE_BIT_ACCESSED)
 #define __PAGE_DIRTY		(_AT(pteval_t,1) << __PAGE_BIT_DIRTY)
-#define __PAGE_PSE			(_AT(pteval_t,1) << __PAGE_BIT_PSE)
-#define __PAGE_PAT			(_AT(pteval_t,1) << __PAGE_BIT_PAT)
+#define __PAGE_PSE		(_AT(pteval_t,1) << __PAGE_BIT_PSE)
+#define __PAGE_PAT		(_AT(pteval_t,1) << __PAGE_BIT_PAT)
 #define __PAGE_GLOBAL		(_AT(pteval_t,1) << __PAGE_BIT_GLOBAL)
 
 static inline void set_pte(pte_t pteval, pte_t *ptep)

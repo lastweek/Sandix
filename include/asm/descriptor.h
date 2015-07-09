@@ -30,11 +30,11 @@ struct desc_ptr {
 extern struct desc_struct idt_table[];
 extern struct desc_struct gdt_table[];
 
-#define GDT_ENTRY_INIT(flags, base, limit)								\
-	{																	\
+#define GDT_ENTRY_INIT(flags, base, limit)						\
+	{										\
 		.a = ((limit) & 0xffff) | (((base) & 0xffff) << 16),			\
-		.b = (((base) & 0xff0000) >> 16) | (((flags) & 0xf0ff) << 8) |	\
-			((limit) & 0xf0000) | ((base) & 0xff000000),				\
+		.b = (((base) & 0xff0000) >> 16) | (((flags) & 0xf0ff) << 8) |		\
+			((limit) & 0xf0000) | ((base) & 0xff000000),			\
 	}
 
 /*
@@ -62,14 +62,13 @@ extern struct desc_struct gdt_table[];
  *	Through a trap gate, it does not affect the IF flag.
  */
 
-#define __GATE_INTR			0xe
-#define __GATE_TRAP			0xf
+#define __GATE_INTR		0xe
+#define __GATE_TRAP		0xf
 
 #define	__DPL_KERNEL		0
-#define __DPL_USER			3
+#define __DPL_USER		3
 
-static inline void
-__set_gate(int gate, int addr, int type, int dpl, int ss)
+static inline void __set_gate(int gate, int addr, int type, int dpl, int ss)
 {
 	struct desc_struct desc;
 	

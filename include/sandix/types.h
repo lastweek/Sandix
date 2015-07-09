@@ -26,6 +26,10 @@ typedef u32 size_t;
 typedef u32 pit_t;
 typedef u32 phys_addr_t;
 
+typedef struct {
+	int counter;
+} atomic_t;
+
 #endif /* __ASSEMBLY__ */
 
 #endif /* _SANDIX_TYPES_H_ */
