@@ -1,16 +1,25 @@
 #include <sandix/types.h>
 #include <sandix/string.h>
 
-/*	
- *	The original code incline to use local variables as
- *	the output operants in inline assembly to avoid wrting
- *	the clobber list, and, i guess, maybe easy for debug.
- *	It is a little tricky, but making the code clean(?!).
- *	Compile with -O2 enabled, the output operants relevant
- *	local variables do not have any affect.
- */
+#ifdef __X86_SPECIFIC_STRING /* in <sandix/string.h> */
 
-#ifdef __X86_SPECIFIC_STRING
+/*
+ * I have read the LKML about why using "memory"
+ * clobber in all string functions including strlen().
+ * As Linus said, even if you do NOT modify memory
+ * in inline assembly, you should make sure GCC
+ * had already flush the "dirty" data back to memory.
+ * For example, when you are using strlen(), if GCC
+ * has put some modified data in registers without
+ * flushing back to memory before you call strlen(),
+ * then a mistake happens. So it is NECESSARY to put
+ * "memory" in the clobber list.
+ *
+ * And why all of them using local variables like d0,
+ * d1 still confusing me. Maybe linux guys just dont
+ * wanna writing extra registers in the clobber list
+ * in order to make it clean?
+ */
 
 char *strcpy(char *dest, const char *src)
 {
@@ -56,7 +65,7 @@ size_t strlen(const char *s)
 	int d0;
 	size_t len;
 	asm volatile (
-		"repne; scasb"
+		"repne ; scasb"
 		: "=&D" (d0), "=c" (len)
 		: "0" (s), "1" (0xffffffffu), "a" (0)
 		: "memory"

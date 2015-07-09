@@ -2,50 +2,38 @@
 
 #define LOCK "lock; "
 
-static inline void add_1(int *p, int c)
+char *_strcpy(char *dest, const char *src)
 {
 	asm volatile(
-		"addl %1, %0"
-		: "+m" (*p)
-		: "ir" (c)
-	);
+		"1:\tlodsb\n\t"
+		"stosb\n\t"
+		"testb %%al,%%al\n\t"
+		"jne 1b"
+		:
+		: "S" (src), "D" (dest)
+		: "memory", "%eax");
+	return dest;
 }
 
-static inline void add_2(int *p, int c)
+char *strcpy(char *dest, const char *src)
 {
-	asm volatile(
-		"addl %1, %0"
-		: "=m" (*p)
-		: "ir" (c), "m"(p)
-	);
-}
-
-static inline void _atomic_or(int *p, int mask)
-{
-	asm volatile ("lock; orl %1, %0"
-		: "+r" (*p)
-		: "r" (mask)
-	);
-}
-static inline void atomic_or(int *p, int mask)
-{
-	asm volatile ("lock; orl %1, %0"
-		: "+m" (*p)
-		: "r" (mask)
-	);
+	int d0, d1, d2;
+	
+	asm volatile("1:\tlodsb\n\t"
+		"stosb\n\t"
+		"testb %%al,%%al\n\t"
+		"jne 1b"
+		: "=&S" (d0), "=&D" (d1), "=&a" (d2)
+		: "0" (src), "1" (dest) : "memory");
+	return dest;
 }
 
 int main(){
-	int x=1,y=2,z=3;
+	char a[5]="12345";
+	char b[5];
+
+	strcpy(b,a);
+	_strcpy(b,a);
 	
-	atomic_or(&z, 0xf);
-	_atomic_or(&z, 0xf);
-
-	add_1(&x, 100);
-
-	add_2(&x, 200);
-
-	z = y+x;
-	
-	return z;
+	return 0;
 }

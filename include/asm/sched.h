@@ -7,14 +7,14 @@ struct task_struct;
 static inline struct thread_info *
 native_current_thread_info()
 {
+	int d0;
 	struct thread_info *__tip;
 	asm volatile (
-		"movl %1, %ecx\n\t"
+		"movl %2, %ecx\n\t"
 		"andl %esp, %ecx\n\t"
 		"movl %ecx, %0"
-		:"=r"(__tip)
-		:"i"(CURRENT_MASK)
-		:"%ecx"
+		: "=r" (__tip), "=c" (d0)
+		: "i" (CURRENT_MASK)
 	);
 	return __tip;
 }
@@ -23,18 +23,18 @@ native_current_thread_info()
  * current is not a variable
  * current is specific to each cpu
  */
-#define native_current					\
-({										\
-	struct task_struct *__tsp;			\
-	asm volatile (						\
-		"movl %1, %%ecx\n\t"			\
-		"andl %%esp, %%ecx\n\t"			\
-		"movl (%%ecx), %0"				\
-		:"=r"(__tsp)					\
-		:"i"(CURRENT_MASK)				\
-		:"%ecx"							\
-	);									\
-	__tsp;								\
+#define native_current				\
+({						\
+	int d0;					\
+	struct task_struct *__tsp;		\
+	asm volatile (				\
+		"movl %2, %%ecx\n\t"		\
+		"andl %%esp, %%ecx\n\t"		\
+		"movl (%%ecx), %0"		\
+		: "=r" (__tsp), "=c" (d0)	\
+		: "i" (CURRENT_MASK)		\
+	);					\
+	__tsp;					\
 })				
 
 #endif /* _ASM_SCHED_H_ */
