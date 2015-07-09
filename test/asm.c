@@ -2,27 +2,50 @@
 
 #define LOCK "lock; "
 
-#define LOCK_PREFIX_HERE \
-		".pushsection .smp_locks,\"a\"\n"	\
-		".balign 4\n"				\
-		".long 671f - .\n" /* offset */		\
-		".popsection\n"				\
-		"671:"
+static inline void add_1(int *p, int c)
+{
+	asm volatile(
+		"addl %1, %0"
+		: "+m" (*p)
+		: "ir" (c)
+	);
+}
 
-#define LOCK_PREFIX LOCK_PREFIX_HERE "\n\tlock; "
+static inline void add_2(int *p, int c)
+{
+	asm volatile(
+		"addl %1, %0"
+		: "=m" (*p)
+		: "ir" (c), "m"(p)
+	);
+}
+
+static inline void _atomic_or(int *p, int mask)
+{
+	asm volatile ("lock; orl %1, %0"
+		: "+r" (*p)
+		: "r" (mask)
+	);
+}
+static inline void atomic_or(int *p, int mask)
+{
+	asm volatile ("lock; orl %1, %0"
+		: "+m" (*p)
+		: "r" (mask)
+	);
+}
 
 int main(){
 	int x=1,y=2,z=3;
-
-	asm volatile (
-		LOCK_PREFIX "addl %1, %0"
-		:"=m"(y)
-		:"ir"(x)
-	);
 	
-	asm volatile (
-		"addl %1, %0"
-		:"+r"(y)
-		:"ir"(x)
-	);
+	atomic_or(&z, 0xf);
+	_atomic_or(&z, 0xf);
+
+	add_1(&x, 100);
+
+	add_2(&x, 200);
+
+	z = y+x;
+	
+	return z;
 }
