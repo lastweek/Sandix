@@ -51,6 +51,9 @@ static int detect_memory_e820(void)
 		
 		*desc++ = buf;
 		count++;
+		
+		printf("");
+
 	} while (ireg.ebx && count < E820MAX);
 	
 	return boot_params.e820_nr_entries = count;

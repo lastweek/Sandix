@@ -3,7 +3,7 @@
  *
  *	printf.c: Fotmat Output for Real-Mode debug.
  *	No qualifier, No alignment. Minimum supported
- *	modifiers: %c %s %d %u %p %x %X %o
+ *	modifiers: %c %s %d %ld %u %p %x %X %o
  *	%z: hexicodecimal without leading 0x
  *	
  *	Return Value: -1 means undefined modifier.
@@ -64,6 +64,7 @@ static char *number(char *str, int base, int num, int type)
 
 int vsprintf(char *buf, const char *fmt, va_list args)
 {
+	long long lint;
 	int  sint;
 	u8   ch;
 	u32  uint;
@@ -84,6 +85,7 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 				continue;
 			case 's':
 				/* FIXME Handle printf("%s", 'A'); */
+				/* That is not SUPPORTED even in GLIBC */
 				s = va_arg(args, char *);
 				while (*s) /* if str overfill? */
 					*str++ = *s++;
@@ -92,6 +94,14 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 				sint = va_arg(args, int);
 				str = number(str, 10, sint, __SIGN__);
 				continue;
+			/* Maybe later.TODO
+			case 'l':
+				if ((*(fmt+1)) == 'd') {
+					fmt += 2;
+					lint = va_arg(args, long long);	
+					str = number(str, 10, lint, __SIGN__);
+				}
+			*/
 			case 'u':
 				uint = va_arg(args, u32);
 				str = number(str, 10, uint, __UNSIGN__);
