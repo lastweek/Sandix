@@ -51,31 +51,31 @@ memory (RAM) that an early PC could use; in fact the very earliest
 PCs only could be configured with 16KB, 32KB, or 64KB of RAM!
 
 +------------------+ <-0xFFFFFFFF(4GB)
-|		32-bit 		|
-|	memorymapped	|
-| 		devices 	|
+|		32-bit 			|
+|	memorymapped			|
+| 		devices 		|
 |					| 
 /\/\/\/\/\/\/\/\/\/\
 /\/\/\/\/\/\/\/\/\/\ 
 |					| 
-| 		Unused 		| 
+| 		Unused 			| 
 |					| 
 +------------------+ <-dependsonamountofRAM
 |					|					 
 |					| 
-|	ExtendedMemory 	| 
+|	ExtendedMemory 			| 
 |					| 
 |					| 
 +------------------+ <-0x00100000(1MB)
-| 	BIOS ROM 		| 
+| 	BIOS ROM 			| 
 +------------------+ <-0x000F0000(960KB)
-| 16-bitdevices,	| 
-| expansionROMs 	| 
+| 16-bitdevices,			| 
+| expansionROMs 			| 
 +------------------+ <-0x000C0000(768KB)
-| VGA Display 		| 
+| VGA Display 				| 
 +------------------+ <-0x000A0000(640KB)
 |					| 
-| Low Memory 		| 
+| Low Memory 				|
 |					| 
-+------------------+ <-0x00000000
++------------------+ <-0x00000000	|
 
