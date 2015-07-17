@@ -21,3 +21,10 @@
  * This file is touched in Tue Jul 14 23:46:56 CST 2015, Sandix
  * should support SMP architecture!
  */
+/*
+ * From SDM:
+ * When the low double-word of the ICR is written to, the local
+ * APIC creates an IPI message from the information contained
+ * in the ICR and sends the message out on the bus.
+ */
+

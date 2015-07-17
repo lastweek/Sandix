@@ -1,0 +1,9 @@
+Fri Jul 17 19:57:06 CST 2015
+
+Have read POSIX Spec V4.
+See how POSIX defines various C programming API and other OS specification.
+POSIX is just like OpenMP, they are both SPECIFICATION which define the
+_interface_ that programmers can follow and implementation must apply.
+
+It is _not_ a good one to be consulted when you have programming problems.
+It is only a specification, a definition.
