@@ -1,4 +1,7 @@
-# Makefiles for Sandix video console drivers.
+#
+# Makefile For Video Console Drivers.
+#
+# Only VGA console is available now.
+#
 
-obj-$(CONFIG_VGA_CONSOLE)         += vgacon.o
-#obj-$(CONFIG_MDA_CONSOLE)         += mdacon.o
+obj-y := vgacon.o

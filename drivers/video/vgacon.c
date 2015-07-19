@@ -1,13 +1,13 @@
 /*
- *	2015/05/07 Created by Shan Yizhou.
- *	vgacon.c: VGA Console IO Driver.
+ * Low Level VGA-Based Console Driver.
+ * Many thanks to Linux code authors.
  */
 
 #include <sandix/types.h>
 #include <sandix/bootparam.h>
 #include <sandix/screen_info.h>
-#include <video/vga.h>
 #include <asm/io.h>
+#include "vga.h"
 
 #define SCREEN_START 0xB8000
 #define SCREEN_END   0xC0000
@@ -25,8 +25,7 @@ static size_t x, y;  /* Range: x~[0,79], y~[0,23] */
 static size_t pos;   /* Current cursor position   */
 static size_t state; /* Control console behaviour */
 
-static inline void
-write_vga(unsigned char reg, unsigned int val)
+static inline void write_vga(unsigned char reg, unsigned int val)
 {
 	outb_p(reg, vga_video_port_reg);
 	outb_p(val >> 8, vga_video_port_val);
