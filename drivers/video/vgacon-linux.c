@@ -63,16 +63,7 @@ static struct vgastate vgastate;
 #define CAN_LOAD_EGA_FONTS	/* undefine if the user must not do this */
 #define CAN_LOAD_PALETTE	/* undefine if the user must not do this */
 
-/* You really do _NOT_ want to define this, unless you have buggy
- * Trident VGA which will resize cursor when moving it between column
- * 15 & 16. If you define this and your VGA is OK, inverse bug will
- * appear.
- */
-#undef TRIDENT_GLITCH
 #define VGA_FONTWIDTH       8   /* VGA does not support fontwidths != 8 */
-/*
- *  Interface used by the world
- */
 
 static const char *vgacon_startup(void);
 static void vgacon_init(struct vc_data *c, int init);

@@ -1,13 +1,20 @@
-#ifndef __vga_h__
-#define __vga_h__
+#ifndef _VIDEO_VGA_H_
+#define _VIDEO_VGA_H_
 
 #include <sandix/types.h>
 #include <asm/io.h>
-#include "vga.h"
 
-/* Some of the code below is taken from SVGAlib. */
+/*
+ * This module contains port and register definitions,
+ * read and wtite wrappers for VGA console.
+ *
+ * Various VGA register information and programming
+ * advice can be found at FreeVGA website.
+ */
 
-/* VGA data register ports */
+/*
+ * VGA Data Register Ports
+ */
 #define VGA_CRT_DC  	0x3D5	/* CRT Controller Data Register - color emulation */
 #define VGA_CRT_DM  	0x3B5	/* CRT Controller Data Register - mono emulation */
 #define VGA_ATT_R   	0x3C1	/* Attribute Controller Data Read Register */
@@ -22,11 +29,9 @@
 #define VGA_PEL_D   	0x3C9	/* PEL Data Register */
 #define VGA_PEL_MSK 	0x3C6	/* PEL mask register */
 
-/* EGA-specific registers */
-#define EGA_GFX_E0	0x3CC	/* Graphics enable processor 0 */
-#define EGA_GFX_E1	0x3CA	/* Graphics enable processor 1 */
-
-/* VGA index register ports */
+/*
+ * VGA Index Register Ports
+ */
 #define VGA_CRT_IC  	0x3D4	/* CRT Controller Index - color emulation */
 #define VGA_CRT_IM  	0x3B4	/* CRT Controller Index - mono emulation */
 #define VGA_ATT_IW  	0x3C0	/* Attribute Controller Index & Data Write Register */
@@ -35,21 +40,18 @@
 #define VGA_PEL_IW  	0x3C8	/* PEL Write Index */
 #define VGA_PEL_IR  	0x3C7	/* PEL Read Index */
 
-/* standard VGA indexes max counts */
-#define VGA_CRT_C   	0x19	/* Number of CRT Controller Registers */
+/*
+ * standard VGA Indexes max counts
+ */
+#define VGA_CRT_C	0x19	/* Number of CTC Controller Registers */
 #define VGA_ATT_C   	0x15	/* Number of Attribute Controller Registers */
 #define VGA_GFX_C   	0x09	/* Number of Graphics Controller Registers */
 #define VGA_SEQ_C   	0x05	/* Number of Sequencer Registers */
 #define VGA_MIS_C   	0x01	/* Number of Misc Output Register */
 
-/* VGA misc register bit masks */
-#define VGA_MIS_COLOR		0x01
-#define VGA_MIS_ENB_MEM_ACCESS	0x02
-#define VGA_MIS_DCLK_28322_720	0x04
-#define VGA_MIS_ENB_PLL_LOAD	(0x04 | 0x08)
-#define VGA_MIS_SEL_HIGH_PAGE	0x20
-
-/* VGA CRT controller register indices */
+/*
+ * VGA CRT Controller Register Indices
+ */
 #define VGA_CRTC_H_TOTAL	0
 #define VGA_CRTC_H_DISP		1
 #define VGA_CRTC_H_BLANK_START	2
@@ -75,13 +77,16 @@
 #define VGA_CRTC_V_BLANK_END	0x16
 #define VGA_CRTC_MODE		0x17
 #define VGA_CRTC_LINE_COMPARE	0x18
-#define VGA_CRTC_REGS		VGA_CRT_C
 
-/* VGA CRT controller bit masks */
-#define VGA_CR11_LOCK_CR0_CR7	0x80 /* lock writes to CR0 - CR7 */
-#define VGA_CR17_H_V_SIGNALS_ENABLED 0x80
+/*
+ * VGA CRT Controller Register Bit Masks
+ */
+#define VGA_CR11_LOCK_CR0_CR7		0x80
+#define VGA_CR17_H_V_SIGNALS_ENABLED	0x80
 
-/* VGA attribute controller register indices */
+/*
+ * VGA Attribute Controller Register Indices
+ */
 #define VGA_ATC_PALETTE0	0x00
 #define VGA_ATC_PALETTE1	0x01
 #define VGA_ATC_PALETTE2	0x02
@@ -106,14 +111,18 @@
 
 #define VGA_AR_ENABLE_DISPLAY	0x20
 
-/* VGA sequencer register indices */
+/*
+ * VGA Sequencer Register Indices
+ */
 #define VGA_SEQ_RESET		0x00
 #define VGA_SEQ_CLOCK_MODE	0x01
 #define VGA_SEQ_PLANE_WRITE	0x02
 #define VGA_SEQ_CHARACTER_MAP	0x03
 #define VGA_SEQ_MEMORY_MODE	0x04
 
-/* VGA sequencer register bit masks */
+/*
+ * VGA Sequencer Register Bit Masks
+ */
 #define VGA_SR01_CHAR_CLK_8DOTS	0x01 /* bit 0: character clocks 8 dots wide are generated */
 #define VGA_SR01_SCREEN_OFF	0x20 /* bit 5: Screen is off */
 #define VGA_SR02_ALL_PLANES	0x0F /* bits 3-0: enable access to all planes */
@@ -121,7 +130,9 @@
 #define VGA_SR04_SEQ_MODE	0x04 /* bit 2: directs system to use a sequential addressing mode */
 #define VGA_SR04_CHN_4M		0x08 /* bit 3: selects modulo 4 addressing for CPU access to display memory */
 
-/* VGA graphics controller register indices */
+/*
+ * VGA Graphics Controller Register Indices
+ */
 #define VGA_GFX_SR_VALUE	0x00
 #define VGA_GFX_SR_ENABLE	0x01
 #define VGA_GFX_COMPARE_VALUE	0x02
@@ -132,8 +143,19 @@
 #define VGA_GFX_COMPARE_MASK	0x07
 #define VGA_GFX_BIT_MASK	0x08
 
-/* VGA graphics controller bit masks */
+/*
+ * VGA Graphics Controller Bit Masks
+ */
 #define VGA_GR06_GRAPHICS_MODE	0x01
+
+/*
+ * VGA Misc Register Bit Masks
+ */
+#define VGA_MIS_COLOR		0x01
+#define VGA_MIS_ENB_MEM_ACCESS	0x02
+#define VGA_MIS_DCLK_28322_720	0x04
+#define VGA_MIS_ENB_PLL_LOAD	(0x04 | 0x08)
+#define VGA_MIS_SEL_HIGH_PAGE	0x20
 
 /* macro for composing an 8-bit VGA register index and value
  * into a single 16-bit quantity */
@@ -153,7 +175,7 @@
 #define VGA_SAVE_CMAP  16 /* save/restore color map/DAC   */
 
 struct vgastate {
-	void __iomem *vgabase;	/* mmio base, if supported 		   */
+	void *vgabase;		/* mmio base, if supported 		   */
 	unsigned long membase;	/* VGA window base, 0 for default - 0xA000 */
 	__u32 memsize;		/* VGA window size, 0 for default 64K	   */
 	__u32 flags;		/* what state[s] to save (see VGA_SAVE_*)  */
@@ -168,9 +190,10 @@ struct vgastate {
 extern int save_vga(struct vgastate *state);
 extern int restore_vga(struct vgastate *state);
 
-/*
- * generic VGA port read/write
- */
+
+/*#####################################################
+	Generic VGA Port Read/Write Functions.
+#####################################################*/
  
 static inline unsigned char vga_io_r (unsigned short port)
 {
@@ -231,10 +254,10 @@ static inline void vga_w_fast (void __iomem *regbase, unsigned short port,
 }
 
 
-/*
- * VGA CRTC register read/write
- */
- 
+/*#####################################################
+	VGA CRTC Register Read/Write
+#####################################################*/
+
 static inline unsigned char vga_rcrt (void __iomem *regbase, unsigned char reg)
 {
         vga_w (regbase, VGA_CRT_IC, reg);
@@ -248,7 +271,7 @@ static inline void vga_wcrt (void __iomem *regbase, unsigned char reg, unsigned 
 #else
         vga_w (regbase, VGA_CRT_IC, reg);
         vga_w (regbase, VGA_CRT_DC, val);
-#endif /* VGA_OUTW_WRITE */
+#endif
 }
 
 static inline unsigned char vga_io_rcrt (unsigned char reg)
@@ -264,7 +287,7 @@ static inline void vga_io_wcrt (unsigned char reg, unsigned char val)
 #else
         vga_io_w (VGA_CRT_IC, reg);
         vga_io_w (VGA_CRT_DC, val);
-#endif /* VGA_OUTW_WRITE */
+#endif
 }
 
 static inline unsigned char vga_mm_rcrt (void __iomem *regbase, unsigned char reg)
@@ -284,10 +307,11 @@ static inline void vga_mm_wcrt (void __iomem *regbase, unsigned char reg, unsign
 }
 
 
-/*
- * VGA sequencer register read/write
- */
  
+/*#####################################################
+	VGA Sequencer Register Read/Write
+#####################################################*/
+
 static inline unsigned char vga_rseq (void __iomem *regbase, unsigned char reg)
 {
         vga_w (regbase, VGA_SEQ_I, reg);
@@ -336,10 +360,11 @@ static inline void vga_mm_wseq (void __iomem *regbase, unsigned char reg, unsign
 #endif /* VGA_OUTW_WRITE */
 }
 
-/*
- * VGA graphics controller register read/write
- */
  
+/*#####################################################
+	VGA Graphics Controller Register Read/Write
+#####################################################*/
+
 static inline unsigned char vga_rgfx (void __iomem *regbase, unsigned char reg)
 {
         vga_w (regbase, VGA_GFX_I, reg);
@@ -389,9 +414,9 @@ static inline void vga_mm_wgfx (void __iomem *regbase, unsigned char reg, unsign
 }
 
 
-/*
- * VGA attribute controller register read/write
- */
+/*#####################################################
+	VGA Attribute Controller Register Read/Write
+#####################################################*/
  
 static inline unsigned char vga_rattr (void __iomem *regbase, unsigned char reg)
 {
@@ -429,4 +454,4 @@ static inline void vga_mm_wattr (void __iomem *regbase, unsigned char reg, unsig
         vga_mm_w (regbase, VGA_ATT_W, val);
 }
 
-#endif /* __vga_h__ */
+#endif /* _VIDEO_VGA_H_*/

@@ -6,8 +6,7 @@
 #include <sandix/types.h>
 #include <sandix/bootparam.h>
 #include <sandix/screen_info.h>
-#include <asm/io.h>
-#include "vga.h"
+#include <video/vga.h>
 
 #define SCREEN_START 0xB8000
 #define SCREEN_END   0xC0000
@@ -139,11 +138,6 @@ void vgacon_write(char *s)
 	
 }
 
-/*
- * This routine initalizes console interrupts, and does nothing
- * else. If you want the screen to clear, call tty_write with
- * the appropriate escape-sequece.
- */
 void vgacon_init(void)
 {
 	unsigned char a;
@@ -154,4 +148,9 @@ void vgacon_init(void)
 	a=inb_p(0x61);
 	outb_p(a|0x80,0x61);
 	outb(a,0x61);
+}
+
+void vgacon_deinit(void)
+{
+	
 }
