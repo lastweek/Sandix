@@ -28,3 +28,15 @@ head.S: Page enabled, gdt_table and idt_table reloaded.
 And, pay attention to pa() which translate VA to PA. In the future,
 we may change the base address of kernel to 0xC0000000, so, remember to
 fix macro pa().
+
+
+2015/07/22
+
+Fine, it has been a month.
+Today i programming linux module, and i want to access physical address
+directly. So i use kernel phys_to_virt() function to get the virtual
+address of the object i want to access.
+
+This reminds me the virtual address space of Sandix kernel. Now it starts
+from 0x10000, which is the segment offset. In the future, i should plus
+PAGE_OFFSET to it, which make it a _real_ kernel. haha;)

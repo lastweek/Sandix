@@ -21,11 +21,11 @@
 	.section .text
 
 /*
- *	32-bit kernel entrypoint. Only used by the boot CPU(BP).
- *	startup_32 initialize page directory, page table and
- *	interrupt descriptor table(idt), which have exact only
- *	one copy in memory respectively. Caveat: paging and
- *	lgdt and lidt must be done on each CPU.
+ * 32-bit kernel entrypoint. Only used by the boot CPU(BP).
+ * startup_32 initialize page directory, page table and
+ * interrupt descriptor table(idt), which have exact only
+ * one copy in memory respectively. Caveat: paging and
+ * lgdt and lidt must be done on each CPU.
  */
 ENTRY(startup_32)
 
@@ -71,8 +71,8 @@ ENTRY(startup_32)
 
 /*
  * Initialize early_page_directory and early_page_table.
- * Only one page table is present, but 4M is enough before
- * we do memory initialization.
+ * Only one page table is present. And the logical address
+ * is equal to the physical address after mapping!
  */
 	movl $pa(early_page_table), %edi
 	addl $7, %edi			# PRESENT R/W U/S
