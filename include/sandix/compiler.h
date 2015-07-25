@@ -1,187 +1,60 @@
-#ifndef _SANDIX_COMPILER_H
-#define _SANDIX_COMPILER_H
+#ifndef _SANDIX_COMPILER_H_
+#define _SANDIX_COMPILER_H_
 
-#ifndef __ASSEMBLY__
-
-#ifdef __CHECKER__
-# define __user		__attribute__((noderef, address_space(1)))
-# define __kernel	__attribute__((address_space(0)))
-# define __safe		__attribute__((safe))
-# define __force	__attribute__((force))
-# define __nocast	__attribute__((nocast))
-# define __iomem	__attribute__((noderef, address_space(2)))
-# define __must_hold(x)	__attribute__((context(x,1,1)))
-# define __acquires(x)	__attribute__((context(x,0,1)))
-# define __releases(x)	__attribute__((context(x,1,0)))
-# define __acquire(x)	__context__(x,1)
-# define __release(x)	__context__(x,-1)
-# define __cond_lock(x,c)	((c) ? ({ __acquire(x); 1; }) : 0)
-# define __percpu	__attribute__((noderef, address_space(3)))
-#ifdef CONFIG_SPARSE_RCU_POINTER
-# define __rcu		__attribute__((noderef, address_space(4)))
-#else
-# define __rcu
-#endif
-extern void __chk_user_ptr(const volatile void __user *);
-extern void __chk_io_ptr(const volatile void __iomem *);
-#else
-# define __user
-# define __kernel
-# define __safe
-# define __force
-# define __nocast
-# define __iomem
-# define __chk_user_ptr(x) (void)0
-# define __chk_io_ptr(x) (void)0
-# define __builtin_warning(x, y...) (1)
-# define __must_hold(x)
-# define __acquires(x)
-# define __releases(x)
-# define __acquire(x) (void)0
-# define __release(x) (void)0
-# define __cond_lock(x,c) (c)
-# define __percpu
-# define __rcu
-#endif
-
-/* Indirect macros required for expanded argument pasting, eg. __LINE__. */
 #define ___PASTE(a,b) a##b
 #define __PASTE(a,b) ___PASTE(a,b)
 
-#ifdef __KERNEL__
+#define likely(x)	__builtin_expect(!!(x), 1)
+#define unlikely(x)	__builtin_expect(!!(x), 0)
 
-#ifdef __GNUC__
-#include <linux/compiler-gcc.h>
-#endif
+#define GCC_VERSION (__GNUC__ * 10000 \
+		   + __GNUC_MINOR__ * 100 \
+		   + __GNUC_PATCHLEVEL__)
 
-#ifdef CC_USING_HOTPATCH
-#define notrace __attribute__((hotpatch(0,0)))
-#else
-#define notrace __attribute__((no_instrument_function))
-#endif
+/*
+ * This version is i.e. to prevent dead stores elimination on @ptr
+ * where gcc and llvm may behave differently when otherwise using
+ * normal barrier(): while gcc behavior gets along with a normal
+ * barrier(), llvm needs an explicit input variable to be assumed
+ * clobbered. The issue is as follows: while the inline asm might
+ * access any memory it wants, the compiler could have fit all of
+ * @ptr into memory registers instead, and since @ptr never escaped
+ * from that, it proofed that the inline asm wasn't touching any of
+ * it. This version works well with both compilers, i.e. we're telling
+ * the compiler that the inline asm absolutely may see the contents
+ * of @ptr. See also: https://llvm.org/bugs/show_bug.cgi?id=15495
+ */
+#define barrier_data(ptr) \
+	asm volatile("": :"r"(ptr) :"memory")
+
+#define barrier() \
+	asm volatile("": : :"memory")
 
 
 /*
- * Generic compiler-dependent macros required for kernel
- * build go below this comment. Actual compiler/compiler version
- * specific implementations come from the above header files
+ * This macro obfuscates arithmetic on a variable address so that gcc
+ * shouldn't recognize the original var, and make assumptions about it.
+ *
+ * This is needed because the C standard makes it undefined to do
+ * pointer arithmetic on "objects" outside their boundaries and the
+ * gcc optimizers assume this is the case. In particular they
+ * assume such arithmetic does not wrap.
+ *
+ * A miscompilation has been observed because of this on PPC.
+ * To work around it we hide the relationship of the pointer and the object
+ * using this macro.
+ *
+ * Versions of the ppc64 compiler before 4.1 had a bug where use of
+ * RELOC_HIDE could trash r30. The bug can be worked around by changing
+ * the inline assembly constraint from =g to =r, in this particular
+ * case either is valid.
  */
-
-struct ftrace_branch_data {
-	const char *func;
-	const char *file;
-	unsigned line;
-	union {
-		struct {
-			unsigned long correct;
-			unsigned long incorrect;
-		};
-		struct {
-			unsigned long miss;
-			unsigned long hit;
-		};
-		unsigned long miss_hit[2];
-	};
-};
-
-/*
- * Note: DISABLE_BRANCH_PROFILING can be used by special lowlevel code
- * to disable branch tracing on a per file basis.
- */
-#if defined(CONFIG_TRACE_BRANCH_PROFILING) \
-    && !defined(DISABLE_BRANCH_PROFILING) && !defined(__CHECKER__)
-void ftrace_likely_update(struct ftrace_branch_data *f, int val, int expect);
-
-#define likely_notrace(x)	__builtin_expect(!!(x), 1)
-#define unlikely_notrace(x)	__builtin_expect(!!(x), 0)
-
-#define __branch_check__(x, expect) ({					\
-			int ______r;					\
-			static struct ftrace_branch_data		\
-				__attribute__((__aligned__(4)))		\
-				__attribute__((section("_ftrace_annotated_branch"))) \
-				______f = {				\
-				.func = __func__,			\
-				.file = __FILE__,			\
-				.line = __LINE__,			\
-			};						\
-			______r = likely_notrace(x);			\
-			ftrace_likely_update(&______f, ______r, expect); \
-			______r;					\
-		})
-
-/*
- * Using __builtin_constant_p(x) to ignore cases where the return
- * value is always the same.  This idea is taken from a similar patch
- * written by Daniel Walker.
- */
-# ifndef likely
-#  define likely(x)	(__builtin_constant_p(x) ? !!(x) : __branch_check__(x, 1))
-# endif
-# ifndef unlikely
-#  define unlikely(x)	(__builtin_constant_p(x) ? !!(x) : __branch_check__(x, 0))
-# endif
-
-#ifdef CONFIG_PROFILE_ALL_BRANCHES
-/*
- * "Define 'is'", Bill Clinton
- * "Define 'if'", Steven Rostedt
- */
-#define if(cond, ...) __trace_if( (cond , ## __VA_ARGS__) )
-#define __trace_if(cond) \
-	if (__builtin_constant_p((cond)) ? !!(cond) :			\
-	({								\
-		int ______r;						\
-		static struct ftrace_branch_data			\
-			__attribute__((__aligned__(4)))			\
-			__attribute__((section("_ftrace_branch")))	\
-			______f = {					\
-				.func = __func__,			\
-				.file = __FILE__,			\
-				.line = __LINE__,			\
-			};						\
-		______r = !!(cond);					\
-		______f.miss_hit[______r]++;					\
-		______r;						\
-	}))
-#endif /* CONFIG_PROFILE_ALL_BRANCHES */
-
-#else
-# define likely(x)	__builtin_expect(!!(x), 1)
-# define unlikely(x)	__builtin_expect(!!(x), 0)
-#endif
-
-/* Optimization barrier */
-#ifndef barrier
-# define barrier() __memory_barrier()
-#endif
-
-#ifndef barrier_data
-# define barrier_data(ptr) barrier()
-#endif
-
-/* Unreachable code */
-#ifndef unreachable
-# define unreachable() do { } while (1)
-#endif
-
-#ifndef RELOC_HIDE
-# define RELOC_HIDE(ptr, off)					\
+#define RELOC_HIDE(ptr, off)					\
   ({ unsigned long __ptr;					\
-     __ptr = (unsigned long) (ptr);				\
+    __asm__ ("" : "=r"(__ptr) : "0"(ptr));		\
     (typeof(ptr)) (__ptr + (off)); })
-#endif
 
-#ifndef OPTIMIZER_HIDE_VAR
-#define OPTIMIZER_HIDE_VAR(var) barrier()
-#endif
-
-/* Not-quite-unique ID. */
-#ifndef __UNIQUE_ID
-# define __UNIQUE_ID(prefix) __PASTE(__PASTE(__UNIQUE_ID_, prefix), __LINE__)
-#endif
-
-#include <uapi/linux/types.h>
+/* Make the optimizer believe the variable can be manipulated arbitrarily. */
 
 static __always_inline void __read_once_size(const volatile void *p, void *res, int size)
 {
@@ -239,87 +112,6 @@ static __always_inline void __write_once_size(volatile void *p, void *res, int s
 #define WRITE_ONCE(x, val) \
 	({ typeof(x) __val = (val); __write_once_size(&(x), &__val, sizeof(__val)); __val; })
 
-#endif /* __KERNEL__ */
-
-#endif /* __ASSEMBLY__ */
-
-#ifdef __KERNEL__
-/*
- * Allow us to mark functions as 'deprecated' and have gcc emit a nice
- * warning for each use, in hopes of speeding the functions removal.
- * Usage is:
- * 		int __deprecated foo(void)
- */
-#ifndef __deprecated
-# define __deprecated		/* unimplemented */
-#endif
-
-#ifdef MODULE
-#define __deprecated_for_modules __deprecated
-#else
-#define __deprecated_for_modules
-#endif
-
-#ifndef __must_check
-#define __must_check
-#endif
-
-#ifndef CONFIG_ENABLE_MUST_CHECK
-#undef __must_check
-#define __must_check
-#endif
-#ifndef CONFIG_ENABLE_WARN_DEPRECATED
-#undef __deprecated
-#undef __deprecated_for_modules
-#define __deprecated
-#define __deprecated_for_modules
-#endif
-
-/*
- * Allow us to avoid 'defined but not used' warnings on functions and data,
- * as well as force them to be emitted to the assembly file.
- *
- * As of gcc 3.4, static functions that are not marked with attribute((used))
- * may be elided from the assembly file.  As of gcc 3.4, static data not so
- * marked will not be elided, but this may change in a future gcc version.
- *
- * NOTE: Because distributions shipped with a backported unit-at-a-time
- * compiler in gcc 3.3, we must define __used to be __attribute__((used))
- * for gcc >=3.3 instead of 3.4.
- *
- * In prior versions of gcc, such functions and data would be emitted, but
- * would be warned about except with attribute((unused)).
- *
- * Mark functions that are referenced only in inline assembly as __used so
- * the code is emitted even though it appears to be unreferenced.
- */
-#ifndef __used
-# define __used			/* unimplemented */
-#endif
-
-#ifndef __maybe_unused
-# define __maybe_unused		/* unimplemented */
-#endif
-
-#ifndef __always_unused
-# define __always_unused	/* unimplemented */
-#endif
-
-#ifndef noinline
-#define noinline
-#endif
-
-/*
- * Rather then using noinline to prevent stack consumption, use
- * noinline_for_stack instead.  For documentation reasons.
- */
-#define noinline_for_stack noinline
-
-#ifndef __always_inline
-#define __always_inline inline
-#endif
-
-#endif /* __KERNEL__ */
 
 /*
  * From the GCC manual:
