@@ -163,8 +163,8 @@ list_is_singular(const struct list_head *head)
 }
 
 /**
- *	list_empty - test whether a list is empty
- *	@head: the list to test
+ * list_empty - test whether a list is empty
+ * @head: the list to test
  */
 static inline int
 list_empty(const struct list_head *head)
@@ -173,11 +173,14 @@ list_empty(const struct list_head *head)
 }
 
 
+/* list entry means the entry points of the structure
+   who contains the list */
+
 /**
- *	list_entry - get the struct for this entry
- *	@ptr: the &(struct list_head) pointer.
- *	@type: the type of the struct this is embedded in.
- *	@member: the name of the list_head within the struct.
+ * list_entry - get the struct for this entry
+ * @ptr:	the &(struct list_head) pointer.
+ * @type:	the type of the struct this is embedded in.
+ * @member:	the name of the list_head within the struct.
  */
 #define list_entry(ptr, type, member) \
 		container_of(ptr, type, member)
@@ -205,20 +208,20 @@ list_empty(const struct list_head *head)
 	list_entry((ptr)->prev, type, member)
 
 /**
- * list_for_each	-	iterate over a list
- * @pos:	the &struct list_head to use as a loop cursor.
- * @head:	the head for your list.
+ * list_next_entry - get the next element in list
+ * @pos:	the type * to cursor
+ * @member:	the name of the list_head within the struct.
  */
-#define list_for_each(pos, head) \
-	for (pos = (head)->next; pos != (head); pos = pos->next)
+#define list_next_entry(pos, member) \
+	list_entry((pos)->member.next, typeof(*(pos)), member)
 
 /**
- * list_for_each_prev	-	iterate over a list backwards
- * @pos:	the &struct list_head to use as a loop cursor.
- * @head:	the head for your list.
+ * list_prev_entry - get the prev element in list
+ * @pos:	the type * to cursor
+ * @member:	the name of the list_head within the struct.
  */
-#define list_for_each_prev(pos, head) \
-	for (pos = (head)->prev; pos != (head); pos = pos->prev)
+#define list_prev_entry(pos, member) \
+	list_entry((pos)->member.prev, typeof(*(pos)), member)
 
 /**
  * list_for_each_entry	-	iterate over list of given type
@@ -241,6 +244,22 @@ list_empty(const struct list_head *head)
 	for (pos = list_last_entry(head, typeof(*pos), member);		\
 	     &pos->member != (head); 					\
 	     pos = list_prev_entry(pos, member))
+
+/**
+ * list_for_each	-	iterate over a list
+ * @pos:	the &struct list_head to use as a loop cursor.
+ * @head:	the head for your list.
+ */
+#define list_for_each(pos, head) \
+	for (pos = (head)->next; pos != (head); pos = pos->next)
+
+/**
+ * list_for_each_prev	-	iterate over a list backwards
+ * @pos:	the &struct list_head to use as a loop cursor.
+ * @head:	the head for your list.
+ */
+#define list_for_each_prev(pos, head) \
+	for (pos = (head)->prev; pos != (head); pos = pos->prev)
 
 
 #endif /* _SANDIX_LIST_H */
