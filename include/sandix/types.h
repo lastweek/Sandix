@@ -26,6 +26,11 @@ typedef u32 size_t;
 typedef u32 pit_t;
 typedef u32 phys_addr_t;
 
+/*
+ * Use typedef struct to avoid some program mistake.
+ * If typedef int atomic_t directly, then compiler
+ * will not complain about your incorrect usage.
+ */
 typedef struct {
 	int counter;
 } atomic_t;

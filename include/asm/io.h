@@ -1,7 +1,7 @@
 #ifndef _ASM_IO_H_
 #define _ASM_IO_H_
 
-#include <linux/types.h>
+#include <sandix/types.h>
 
 static inline void
 outb(u8 v, u16 port)
