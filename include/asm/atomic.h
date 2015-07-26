@@ -1,6 +1,9 @@
-/* x86 atomic operations */
 #ifndef _SAM_ATOMIC_H_
 #define _SAM_ATOMIC_H_
+
+#ifndef _SANDIX_ATOMIC_H_
+# error "Please do not include this file directly, include <sandix/atomic.h>"
+#endif
 
 #include <sandix/types.h>
 #include <asm/asm.h>

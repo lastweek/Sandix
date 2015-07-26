@@ -2,7 +2,7 @@
 #define _ASM_SPINLOCK_H_
 
 #ifndef _SANDIX_SPINLOCK_H_
-# error "Please include <sandix/spinlock.h>"
+# error "Please do not include this file directly, include <sandix/spinlock.h>"
 #endif
 
 typedef struct arch_spinlock {
