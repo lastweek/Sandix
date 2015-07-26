@@ -12,7 +12,6 @@
 #include <sandix/types.h>
 #include <video/vga.h>
 
-#define SCREEN_START 0xB8000
 #define SCREEN_END   0xC0000
 #define ATTRIBUTE    0x07
 #define LINES	25
@@ -25,9 +24,9 @@ static u32	vga_visible_origin;	/* Upper left character */
 static u32	vga_vram_base;		/* Base of video memory */
 static u32	vga_vram_end;		/* End of video memory */
 static u32	vga_vram_size;		/* Size of video memory */
-static u32	vga_pos;		/* Cursor position addr */
-static u32	vga_x;
-static u32	vga_y;
+static u32	vga_pos;		/* Cursor position address */
+static u32	vga_x;			/* Cursor x */
+static u32	vga_y;			/* Cursor y */
 static u32	vga_video_num_columns;	/* Number of text columns */
 static u32	vga_video_num_lines;	/* Number of text lines */
 
@@ -66,8 +65,7 @@ static void vgacon_startup(void)
 		vga_vram_base = 0xb0000;
 		vga_video_port_reg = VGA_CRT_IM;
 		vga_video_port_val = VGA_CRT_DM;
-	}
-	else {
+	} else {
 		/* Color Display*/
 		vga_vram_base = 0xb8000;
 		vga_video_port_reg = VGA_CRT_IC;

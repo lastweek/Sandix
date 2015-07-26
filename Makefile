@@ -125,8 +125,8 @@ endif
 boot-y			:= boot/
 init-y			:= init/
 core-y			:= mm/ lib/
+drivers-y		:= drivers/
 #core-y			:= kernel/ mm/ fs/ ipc/ block/
-#drivers-y		:= drivers/
 vmsandix-dirs	:= $(patsubst %/, %, $(boot-y) $(init-y) $(core-y) $(drivers-y))
 
 boot-y			:= $(patsubst %/, %/built-in.o, $(boot-y))
