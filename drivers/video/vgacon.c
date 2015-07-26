@@ -1,156 +1,83 @@
 /*
  * Low Level VGA-Based Console Driver.
- * Many thanks to Linux code authors.
+ * 
+ * This file is subject to the terms and conditions of the GNU General Public
+ * License.  See the file COPYING in the main directory of this archive for
+ * more details.
  */
 
-#include <sandix/types.h>
 #include <sandix/bootparam.h>
+#include <sandix/irq.h>
 #include <sandix/screen_info.h>
+#include <sandix/types.h>
 #include <video/vga.h>
 
 #define SCREEN_START 0xB8000
 #define SCREEN_END   0xC0000
 #define ATTRIBUTE    0x07
-#define LINES	24
+#define LINES	25
 #define COLUMNS	80
 #define NPAR	16
 
-static unsigned char attr = ATTRIBUTE;
-static size_t top = 0, bottom = LINES;
-static size_t lines = LINES, columns = COLUMNS;
-static size_t scr_start_addr = SCREEN_START;
-static size_t scr_end_addr   = SCREEN_END;
-static size_t x, y;  /* Range: x~[0,79], y~[0,23] */
-static size_t pos;   /* Current cursor position   */
-static size_t state; /* Control console behaviour */
+static u16	vga_video_port_reg;	/* Video register select port */
+static u16	vga_video_port_val;	/* Video register value port */
+static u32	vga_visible_origin;	/* Upper left character */
+static u32	vga_vram_base;		/* Base of video memory */
+static u32	vga_vram_end;		/* End of video memory */
+static u32	vga_vram_size;		/* Size of video memory */
+static u32	vga_pos;		/* Cursor position addr */
+static u32	vga_x;
+static u32	vga_y;
+static u32	vga_video_num_columns;	/* Number of text columns */
+static u32	vga_video_num_lines;	/* Number of text lines */
 
-static inline void write_vga(unsigned char reg, unsigned int val)
+static inline void write_vga(unsigned char reg, unsigned char val)
 {
-	outb_p(reg, vga_video_port_reg);
-	outb_p(val >> 8, vga_video_port_val);
-	outb_p(reg + 1, vga_video_port_reg);
-	outb_p(val & 0xff, vga_video_port_val);
+	outb(reg, vga_video_port_reg);
+	outb(val, vga_video_port_val);
 }
 
-
-/*
- * Start Address field specifies the display memory 
- * address of the upper left character of the screen.
- * Start Address High Register (Index 0Ch)
- * Start Address Low  Register (Index 0Dh)
- */
-static inline void
-vga_set_mem_top(struct vc_data *c)
+static inline void vga_set_top_mem(void)
 {
-	write_vga(12, (c->vc_visible_origin - vga_vram_base) / 2);
-}
-
-static void
-set_start_addr(void)
-{
-	outb(0x0C, 0x3D4);
-	outb(0xFF & ((scr_start_addr - SCREEN_START) >> 9), 0x3D5);
-	outb(0x0D, 0x3D4);
-	outb(0xFF & ((scr_start_addr - SCREEN_START) >> 1), 0x3D5);
-}
-
-static int
-vgacon_set_origin(struct vc_data *c)
-{
-	if (vga_is_gfx || (console_blanked && !vga_palette_blanked))
-		return 0;
-	c->vc_origin = c->vc_visible_origin = vga_vram_base;
-	vga_set_mem_top(c);
-	vga_rolled_over = 0;
-	return 1;
-}
-
-/*
- * Cursor Location field specifies the memory
- * address of the current cursor in screen.
- * Cursor Location High 8-bit Register (Index 0Eh)
- * Cursor Location Low  8-bit Register (Index 0Fh)
- */
-static void set_cursor(void)
-{
-	outb(0x0E, 0x3D4);
-	outb(0xFF & ((pos - SCREEN_START) >> 9), 0x3D5);
-	outb(0x0F, 0x3D4);
-	outb(0xFF & ((pos - SCREEN_START) >> 1), 0x3D5);
-}
-
-
-static void
-gotoxy(size_t new_x, size_t new_y)
-{
-	if (new_x >= columns || new_y >= lines)
-		return;
-
-	x = new_x;
-	y = new_y;
-	pos = scr_start_addr + ((x+y*columns)<<1);
-}
-
-static void
-screen_up(void)
-{
+	u32 offset;
 	
+	irq_disable();
+	offset = (vga_visible_origin - vga_vram_base) / 2;
+	write_vga(VGA_CRTC_START_HI, (u8)(offset >> 8));
+	write_vga(VGA_CRTC_START_LO, (u8)(offset));
+	irq_enable();
 }
 
-static void
-screen_down(void)
+static inline void vga_set_cursor(void)
 {
-	
+	u32 offset;
+
+	irq_disable();
+	offset = (vga_pos - vga_vram_base) / 2;
+	write_vga(VGA_CRTC_CURSOR_HI, (u8)(offset >> 8));
+	write_vga(VGA_CRTC_CURSOR_LO, (u8)(offset));
+	irq_enable();
 }
 
-static void lf(void)
-
-
-/* Delete on current position */
-static void delete(void)
+static void vgacon_startup(void)
 {
-	if (x) {
-		*(__u8)pos = 0x20; /* space */
-		*(__u8)(pos+1) = attr;
-		pos -= 2;
-		x--;
+	if (screen_info.orig_video_mode == 7) {
+		/* Monochrome display */
+		vga_vram_base = 0xb0000;
+		vga_video_port_reg = VGA_CRT_IM;
+		vga_video_port_val = VGA_CRT_DM;
+	}
+	else {
+		/* Color Display*/
+		vga_vram_base = 0xb8000;
+		vga_video_port_reg = VGA_CRT_IC;
+		vga_video_port_val = VGA_CRT_DC;
 	}
 }
 
-static int saved_x=0;
-static int saved_y=0;
 
-static void save_cur(void)
-{
-	saved_x = x;
-	saved_y = y;
-}
 
-static void restore_cur(void)
-{
-	x = saved_x;
-	y = saved_y;
-	pos = scr_start_addr + ((x+y*columns)<<1);
-}
 
-void vgacon_write(char *s)
-{
-	
-}
 
-void vgacon_init(void)
-{
-	unsigned char a;
 
-	gotoxy(*(unsigned char *)(0x90000+510),*(unsigned char *)(0x90000+511));
-	set_trap_gate(0x21,&keyboard_interrupt);
-	outb_p(inb_p(0x21)&0xfd,0x21);
-	a=inb_p(0x61);
-	outb_p(a|0x80,0x61);
-	outb(a,0x61);
-}
 
-void vgacon_deinit(void)
-{
-	
-}
