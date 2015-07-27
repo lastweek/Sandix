@@ -1,12 +1,9 @@
 /*
  * Low Level VGA-Based Console Driver.
- * 
- * This file is subject to the terms and conditions of the GNU General Public
- * License.  See the file COPYING in the main directory of this archive for
- * more details.
  */
 
 #include <sandix/bootparam.h>
+#include <sandix/console.h>
 #include <sandix/irq.h>
 #include <sandix/screen_info.h>
 #include <sandix/types.h>
@@ -14,9 +11,6 @@
 
 #define SCREEN_END   0xC0000
 #define ATTRIBUTE    0x07
-#define LINES	25
-#define COLUMNS	80
-#define NPAR	16
 
 static u16	vga_video_port_reg;	/* Video register select port */
 static u16	vga_video_port_val;	/* Video register value port */
@@ -47,7 +41,7 @@ static inline void vga_set_top_mem(void)
 	irq_enable();
 }
 
-static inline void vga_set_cursor(void)
+static inline void vga_cursor(struct vc *v)
 {
 	u32 offset;
 
@@ -58,7 +52,7 @@ static inline void vga_set_cursor(void)
 	irq_enable();
 }
 
-static void vgacon_startup(void)
+static const char *vgacon_startup(void)
 {
 	if (screen_info.orig_video_mode == 7) {
 		/* Monochrome display */
@@ -74,8 +68,14 @@ static void vgacon_startup(void)
 }
 
 
-
-
-
-
+const struct consw vga_con = {
+	.con_startup	=	vgacon_startup;
+	.con_init	=	vgacon_init;
+	.con_deinit	=	vgacon_deinit;
+	.con_clear	=	vgacon_clear;
+	.con_putc	=	vgacon_putc;
+	.con_putcs	=	vgacon_putcs;
+	.con_cursor	=	vgacon_cursor;
+	.con_scroll	=	vgacon_scroll;
+};
 

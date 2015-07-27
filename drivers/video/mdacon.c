@@ -1,29 +1,9 @@
 /*
- *  linux/drivers/video/mdacon.c -- Low level MDA based console driver
- *
- *	(c) 1998 Andrew Apted <ajapted@netspace.net.au>
- *
- *      including portions (c) 1995-1998 Patrick Caulfield.
- *
- *      slight improvements (c) 2000 Edward Betts <edward@debian.org>
- *
- *  This file is based on the VGA console driver (vgacon.c):
- *	
- *	Created 28 Sep 1997 by Geert Uytterhoeven
- *
- *	Rewritten by Martin Mares <mj@ucw.cz>, July 1998
- *
- *  and on the old console.c, vga.c and vesa_blank.c drivers:
- *
- *	Copyright (C) 1991, 1992  Linus Torvalds
- *			    1995  Jay Estabrook
+ *  Low level MDA based console driver
  *
  *  This file is subject to the terms and conditions of the GNU General Public
  *  License.  See the file COPYING in the main directory of this archive for
  *  more details.
- *
- *  Changelog:
- *  Paul G. (03/2001) Fix mdacon= boot prompt to use __setup().
  */
 
 #include <linux/types.h>
@@ -599,9 +579,3 @@ static void __exit mda_console_exit(void)
 {
 	give_up_console(&mda_con);
 }
-
-module_init(mda_console_init);
-module_exit(mda_console_exit);
-
-MODULE_LICENSE("GPL");
-

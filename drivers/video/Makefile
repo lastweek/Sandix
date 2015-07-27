@@ -4,4 +4,5 @@
 # Only VGA console is available now.
 #
 
-obj-y := vgacon.o
+obj-y := dummycon.o
+obj-y += vgacon.o
