@@ -4,18 +4,16 @@
 #include <sandix/types.h>
 #include <sandix/tty.h>
 
-#define MAX_NR_CONSOLES		64
-#define MAX_NR_CON_DRIVERS	16
 #define NPAR			16
 
-struct consw;
+struct con_driver;
 
 /*
  * Data structure describing a single virtual console.
  * Various VCs can have the same CONSW.
  */
 struct vc {
-	struct consw	*vc_sw;			/* Low-Level driver */
+	struct con_driver	*driver;			/* Low-Level driver */
 	unsigned int	vc_num;			/* Console number */
 	unsigned int	vc_rows;
 	unsigned int	vc_cols;
@@ -52,9 +50,11 @@ struct vc {
 extern struct vc vc_cons[MAX_NR_CONSOLES];
 
 /*
- * Low-Level Console Driver Operations.
+ * Low-level console driver.
+ * We call it console driver because it has
+ * operations that can talk to hardware directly.
  */
-struct consw {
+struct con_driver {
 	const char *(*con_startup)(void);
 	void	(*con_init)(struct vc *, int);
 	void	(*con_deinit)(struct vc *);
@@ -80,9 +80,9 @@ struct consw {
  * Three CONSWs are avaliable in Sandix.
  * Only one of them is usable, vga_con.
  */
-extern const struct consw dummy_con;
-extern const struct consw vga_con;
-extern const struct consw mda_con;
+extern const struct con_driver dummy_con;
+extern const struct con_driver vga_con;
+extern const struct con_driver mda_con;
 
 struct console {
 	char	name[16];
