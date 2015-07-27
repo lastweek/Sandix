@@ -1,6 +1,10 @@
 #ifndef _SANDIX_COMPILER_H_
 #define _SANDIX_COMPILER_H_
 
+#define __init
+#define __initdata
+#define __exit
+
 #define likely(x)	__builtin_expect(!!(x), 1)
 #define unlikely(x)	__builtin_expect(!!(x), 0)
 
