@@ -35,6 +35,12 @@
 #include <sandix/tty.h>
 #include <sandix/types.h>
 
+/*
+ * this is what the terminal answers to a ESC-Z or csi0c query.
+ */
+#define VT100ID "\033[?1;2c"
+#define VT102ID "\033[?6c
+
 /**
  * do_con_write - write to VT screen
  * 
