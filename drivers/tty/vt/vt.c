@@ -1,9 +1,15 @@
 /*
  * Hopefully this will be a rather complete VT102 implementation.
  * 
+ * It normally means that the VT will respond to escape sequences
+ * in the same way as a real VT102 terminal.
+ *
+ * Note:
+ *
  *   The interface to the hardware is specified using a special structure
  *   (struct con_driver) which contains function pointers to console operations
  *   (see <sandix/console.h> for more information).
+ *
  *   The abstract console driver provides a generic interface for a text
  *   console. It supports VGA text mode, MDA text mode, dummy console.
  *
@@ -20,7 +26,7 @@
  *               -->Console Driver (VGA, MDA.)
  *
  *   This file is the VT & VC layer.
- *   The Console Driver layer is in driver/video/xxxcon.c
+ *   The console driver layer is in driver/video/xxxcon.c
  */
 
 #include <sandix/compiler.h>
