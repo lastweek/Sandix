@@ -4,7 +4,7 @@
 #include <sandix/types.h>
 #include <sandix/tty.h>
 
-#define NPAR			16
+#define NPAR	16
 
 struct con_driver;
 
@@ -13,7 +13,7 @@ struct con_driver;
  * Various VCs can have the same CONSW.
  */
 struct vc {
-	struct con_driver	*driver;			/* Low-Level driver */
+	struct con_driver *driver;		/* Low-Level driver */
 	unsigned int	vc_num;			/* Console number */
 	unsigned int	vc_rows;
 	unsigned int	vc_cols;
@@ -55,7 +55,7 @@ extern struct vc vc_cons[MAX_NR_CONSOLES];
  * operations that can talk to hardware directly.
  */
 struct con_driver {
-	const char *(*con_startup)(void);
+	void	(*con_startup)(void);
 	void	(*con_init)(struct vc *, int);
 	void	(*con_deinit)(struct vc *);
 	void	(*con_clear)(struct vc *, int, int, int, int);
@@ -83,20 +83,5 @@ struct con_driver {
 extern const struct con_driver dummy_con;
 extern const struct con_driver vga_con;
 extern const struct con_driver mda_con;
-
-struct console {
-	char	name[16];
-	void	(*write)(struct console *, const char *, unsigned);
-	int	(*read)(struct console *, char *, unsigned);
-	struct	tty_driver *(*device)(struct console *, int *);
-	void	(*unblank)(void);
-	int	(*setup)(struct console *, char *);
-	int	(*match)(struct console *, char *name, int idx, char *options);
-	short	flags;
-	short	index;
-	int	cflag;
-	void	*data;
-	struct	console *next;
-};
 
 #endif /* _SANDIX_CONSOLE_H_ */

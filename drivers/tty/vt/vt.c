@@ -1,6 +1,5 @@
 /*
- * Hopefully this will be a rather complete VT102 implementation.
- * 
+ * Hopefully this will be a rather _basic_ VT102 implementation.
  * It normally means that the VT will respond to escape sequences
  * in the same way as a real VT102 terminal.
  *
@@ -27,6 +26,8 @@
  *
  *   This file is the VT & VC layer.
  *   The console driver layer is in driver/video/xxxcon.c
+ *
+ * Mon Jul 27 18:10:27 CST 2015
  */
 
 #include <sandix/compiler.h>
@@ -34,6 +35,15 @@
 #include <sandix/tty.h>
 #include <sandix/types.h>
 
+/**
+ * do_con_write - write to VT screen
+ * 
+ * DESCRIPTION:
+ * Escape and control sequences provide additional control functions not
+ * provided by the single-character controls of the character set. These
+ * multiple-character sequences are not displayed; instead, they control
+ * terminal operation.
+ */
 static int do_con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 {
 	
@@ -60,15 +70,14 @@ static void scrdown(struct vc *vc)
 }
 
 
-
-
 #define MIN_NR_CONSOLES	1
 #define MAX_NR_CONSOLES	7
 
 /*
- * ACTIVE vc and driver.
- * For now, only one vc whose driver is vga_con
- * is active. 
+ * active vc and his con_driver.
+ * For now, only one vc whose driver is vga_con is active. 
+ * Since I just want to show the design.
+ * But implement with simplicity.
  */
 static struct vc vc_cons[MAX_NR_CONSOLES];
 struct vc *vc_active;
@@ -83,7 +92,7 @@ void __init con_init(void)
 {
 	int i;
 	
-	/* ONE VGA_CON IS ENOUGH NOW */
+	/* ONE VGA_CON VC AVALIABLE, OTHERS DUMMY */
 	for (i = 0; i < MAX_NR_CONSOLES; i++) {
 		vc_bind_driver(&vc_cons[i], &dummy_con);
 	}
