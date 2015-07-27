@@ -1,0 +1,15 @@
+Mon Jul 27 15:47:44 CST 2015
+
+Today i am implementing VT and VGA console.
+Finally, i knew hwo VT works, and what's the relationship bewtween VT&VC and
+VGA console.
+
+The VGA console(drivers/video/vgacon.c) implement some basic cursor movement,
+screen output functions. And his upper layer, the VT&VC, is resiponsible for
+intepretting different actions like escape sequence, and controlling the output
+actions.
+
+Oh, btw, the ASICC Escape Sequence is very interesting! And it will be
+implemented in VT&VC layer(drivers/tty/vt.c).
+
+When there two layers are done, we will head to TTY layer and Line Disipline.

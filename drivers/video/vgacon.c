@@ -1,5 +1,9 @@
 /*
- * Low Level VGA-Based Console Driver.
+ * Low-level VGA-based Console Driver.
+ *
+ * Including some common operations can be used
+ * by VC layer. Note that this is a very simple
+ * implementation.
  */
 
 #include <sandix/bootparam.h>
@@ -8,6 +12,7 @@
 #include <sandix/screen_info.h>
 #include <sandix/types.h>
 #include <video/vga.h>
+#include <video/video.h>
 
 #define SCREEN_END   0xC0000
 #define ATTRIBUTE    0x07
@@ -52,7 +57,7 @@ static inline void vga_cursor(struct vc *v)
 	irq_enable();
 }
 
-static const char *vgacon_startup(void)
+static void vgacon_startup(void)
 {
 	if (screen_info.orig_video_mode == 7) {
 		/* Monochrome display */
@@ -67,6 +72,10 @@ static const char *vgacon_startup(void)
 	}
 }
 
+static int vgacon_putc(struct vc *vc)
+{
+
+}
 
 const struct consw vga_con = {
 	.con_startup	=	vgacon_startup;
@@ -78,4 +87,3 @@ const struct consw vga_con = {
 	.con_cursor	=	vgacon_cursor;
 	.con_scroll	=	vgacon_scroll;
 };
-
