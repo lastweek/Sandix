@@ -1,9 +1,12 @@
 /*
  * Low-level VGA-based Console Driver.
  *
- * Including some common operations can be used
- * by VC layer. Note that this is a very simple
- * implementation.
+ * Including some common operations that can be used
+ * by VC layer. This is a very simple implementation.
+ * And it is the upper layer, VC, who responsible for
+ * emulate VT102 and processing the escape sequence.
+ *
+ * Tue Jul 28 13:25:24 CST 2015
  */
 
 #include <sandix/bootparam.h>
@@ -14,20 +17,17 @@
 #include <video/vga.h>
 #include <video/video.h>
 
-#define SCREEN_END   0xC0000
-#define ATTRIBUTE    0x07
-
-static u16	vga_video_port_reg;	/* Video register select port */
-static u16	vga_video_port_val;	/* Video register value port */
-static u32	vga_visible_origin;	/* Upper left character */
-static u32	vga_vram_base;		/* Base of video memory */
-static u32	vga_vram_end;		/* End of video memory */
-static u32	vga_vram_size;		/* Size of video memory */
-static u32	vga_pos;		/* Cursor position address */
-static u32	vga_x;			/* Cursor x */
-static u32	vga_y;			/* Cursor y */
-static u32	vga_video_num_columns;	/* Number of text columns */
-static u32	vga_video_num_lines;	/* Number of text lines */
+static	u16	vga_video_port_reg;	/* Video register select port */
+static	u16	vga_video_port_val;	/* Video register value port */
+static	u32	vga_visible_origin;	/* Upper left character */
+static	u32	vga_vram_base;		/* Base of video memory */
+static	u32	vga_vram_end;		/* End of video memory */
+static	u32	vga_vram_size;		/* Size of video memory */
+static	u32	vga_pos;		/* Cursor position address */
+static	u32	vga_x;			/* Cursor x */
+static	u32	vga_y;			/* Cursor y */
+static	u32	vga_video_num_columns;	/* Number of text columns */
+static	u32	vga_video_num_lines;	/* Number of text lines */
 
 static inline void write_vga(unsigned char reg, unsigned char val)
 {
@@ -35,7 +35,7 @@ static inline void write_vga(unsigned char reg, unsigned char val)
 	outb(val, vga_video_port_val);
 }
 
-static inline void vga_set_top_mem(void)
+static inline void vga_set_mem_top(void)
 {
 	u32 offset;
 	
@@ -46,7 +46,7 @@ static inline void vga_set_top_mem(void)
 	irq_enable();
 }
 
-static inline void vga_cursor(struct vc *v)
+static inline void vga_cursor(struct vc_struct *v)
 {
 	u32 offset;
 
@@ -60,24 +60,36 @@ static inline void vga_cursor(struct vc *v)
 static void vgacon_startup(void)
 {
 	if (screen_info.orig_video_mode == 7) {
-		/* Monochrome display */
+		/* Monochrome Display */
 		vga_vram_base = 0xb0000;
 		vga_video_port_reg = VGA_CRT_IM;
 		vga_video_port_val = VGA_CRT_DM;
 	} else {
-		/* Color Display*/
+		/* Color Display */
+		/* We always reach here, since we use Mode 3 only */
+		/* See boot/video.c for details */
 		vga_vram_base = 0xb8000;
 		vga_video_port_reg = VGA_CRT_IC;
 		vga_video_port_val = VGA_CRT_DC;
 	}
 }
 
-static int vgacon_putc(struct vc *vc)
+static int vgacon_putc(struct vc_strcut *vc)
 {
 
 }
 
-const struct consw vga_con = {
+static int vgacon_putcs(struct vc_struct *vc)
+{
+
+}
+
+static int vgacon_scroll(struct vc_struct *vc)
+{
+	
+}
+
+const struct con_driver vga_con = {
 	.con_startup	=	vgacon_startup;
 	.con_init	=	vgacon_init;
 	.con_deinit	=	vgacon_deinit;

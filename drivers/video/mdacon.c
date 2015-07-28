@@ -1,28 +1,6 @@
 /*
- *  Low level MDA based console driver
- *
- *  This file is subject to the terms and conditions of the GNU General Public
- *  License.  See the file COPYING in the main directory of this archive for
- *  more details.
+ *  Low-Level MDA-Based Console Driver
  */
-
-#include <linux/types.h>
-#include <linux/fs.h>
-#include <linux/kernel.h>
-#include <linux/module.h>
-#include <linux/console.h>
-#include <linux/string.h>
-#include <linux/kd.h>
-#include <linux/vt_kern.h>
-#include <linux/vt_buffer.h>
-#include <linux/selection.h>
-#include <linux/spinlock.h>
-#include <linux/ioport.h>
-#include <linux/delay.h>
-#include <linux/init.h>
-
-#include <asm/io.h>
-#include <asm/vga.h>
 
 static DEFINE_SPINLOCK(mda_lock);
 

@@ -6,3 +6,4 @@
 
 obj-y := dummycon.o
 obj-y += vgacon.o
+#obj-y += mdacon.o

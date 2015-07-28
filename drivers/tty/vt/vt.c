@@ -76,9 +76,6 @@ static void scrdown(struct vc *vc)
 }
 
 
-#define MIN_NR_CONSOLES	1
-#define MAX_NR_CONSOLES	7
-
 /*
  * active vc and his con_driver.
  * For now, only one vc whose driver is vga_con is active. 

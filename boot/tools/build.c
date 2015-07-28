@@ -10,26 +10,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NOP				0x90
-#define SECTOR_SIZE		512
-#define MAGIC_511		0x55
-#define MAGIC_512		0xAA
+#define NOP		0x90
+#define SECTOR_SIZE	512
+#define MAGIC_511	0x55
+#define MAGIC_512	0xAA
 
 // We are in sandix/ when we call this C file.
 const char *bootloader	= "./boot/bootsect.bin";
-const char *setup		= "./boot/rmimage.bin";
-const char *kernel		= "./boot/pmimage.bin";
+const char *setup	= "./boot/rmimage.bin";
+const char *kernel	= "./boot/pmimage.bin";
 const char *vmsandix	= "./boot/vmsandix";
 
 int main(int argc, char **argv)
 {
 	FILE *fp_bl, *fp_si, *fp_ki;	// Input file handles
-	FILE *fp_out;					// Output file handle
-	int len_bl, len_si, len_ki;		// Input files's length
-	int sectors_header;				// Sectors of header
-	int sectors_image;				// Sectors of image
-	int sectors_bzimage;			// Sectors of bzimage
-	int lower_bound_of_sp;			// The lower bound of stack point, %sp
+	FILE *fp_out;			// Output file handle
+	int len_bl, len_si, len_ki;	// Input files's length
+	int sectors_header;		// Sectors of header
+	int sectors_image;		// Sectors of image
+	int sectors_bzimage;		// Sectors of bzimage
+	int lower_bound_of_sp;		// The lower bound of stack point, %sp
 	int i, pad;
 	char c;
 

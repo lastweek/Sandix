@@ -6,13 +6,15 @@
 
 #define NPAR	16
 
+#define MIN_NR_CONSOLES	1
+#define MAX_NR_CONSOLES	7
+
 struct con_driver;
 
 /*
  * Data structure describing a single virtual console.
- * Various VCs can have the same CONSW.
  */
-struct vc {
+struct vc_struct {
 	struct con_driver *driver;		/* Low-Level driver */
 	unsigned int	vc_num;			/* Console number */
 	unsigned int	vc_rows;
@@ -47,7 +49,7 @@ struct vc {
  * All avaliable virtual consoles in system.
  * Defined in drivers/tty/vt/vt.c
  */
-extern struct vc vc_cons[MAX_NR_CONSOLES];
+extern struct vc_struct vc_cons[MAX_NR_CONSOLES];
 
 /*
  * Low-level console driver.
@@ -56,32 +58,27 @@ extern struct vc vc_cons[MAX_NR_CONSOLES];
  */
 struct con_driver {
 	void	(*con_startup)(void);
-	void	(*con_init)(struct vc *, int);
-	void	(*con_deinit)(struct vc *);
-	void	(*con_clear)(struct vc *, int, int, int, int);
-	void	(*con_putc)(struct vc *, int, int, int);
-	void	(*con_putcs)(struct vc *, unsigned short *, int, int, int);
-	void	(*con_cursor)(struct vc *);
-	int	(*con_scroll)(struct vc *, int, int, int, int);
-	void	(*con_bmove)(struct vc *, int, int, int, int, int, int);
-	int	(*con_switch)(struct vc *);
-	int	(*con_blank)(struct vc *, int, int);
-	int     (*con_resize)(struct vc *, unsigned int, unsigned int,
-			       unsigned int);
-	int	(*con_scrolldelta)(struct vc *, int);
-	int	(*con_set_origin)(struct vc *);
-	void	(*con_save_screen)(struct vc *);
-	void	(*con_invert_region)(struct vc *, u16 *, int);
-	u16    *(*con_screen_pos)(struct vc *, int);
-	u32	(*con_getxy)(struct vc *, unsigned long, int *, int *);
+	void	(*con_init)(struct vc_struct *, int);
+	void	(*con_deinit)(struct vc_struct *);
+	void	(*con_clear)(struct vc_struct *, int, int, int, int);
+	void	(*con_putc)(struct vc_struct *, int, int, int);
+	void	(*con_putcs)(struct vc_struct *, unsigned short *, int, int, int);
+	void	(*con_cursor)(struct vc_struct *);
+	int	(*con_scroll)(struct vc_struct *, int, int, int, int);
+	int	(*con_scrolldelta)(struct vc_struct *, int);
+	int	(*con_set_origin)(struct vc_struct *);
+	void	(*con_save_screen)(struct vc_struct *);
+	void	(*con_invert_region)(struct vc_struct *, u16 *, int);
+	u16    *(*con_screen_pos)(struct vc_struct *, int);
+	u32	(*con_getxy)(struct vc_struct *, unsigned long, int *, int *);
 };
 
 /*
- * Three CONSWs are avaliable in Sandix.
+ * Three con_driver are avaliable in Sandix.
  * Only one of them is usable, vga_con.
  */
-extern const struct con_driver dummy_con;
 extern const struct con_driver vga_con;
 extern const struct con_driver mda_con;
+extern const struct con_driver dummy_con;
 
 #endif /* _SANDIX_CONSOLE_H_ */
