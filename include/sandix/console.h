@@ -17,8 +17,8 @@ struct con_driver;
 struct vc_struct {
 	struct con_driver *driver;		/* Low-Level driver */
 	unsigned int	vc_num;			/* Console number */
-	unsigned int	vc_rows;
 	unsigned int	vc_cols;
+	unsigned int	vc_rows;
 	unsigned int	vc_row_size;		/* Bytes per row */
 	unsigned int	vc_scan_line;		/* Cursor scanlines? */
 	unsigned int	vc_origin;		/* Start of real screen */
@@ -28,6 +28,7 @@ struct vc_struct {
 	
 	/* attributes for characters */
 	unsigned int	vc_attr;		/* Current attributes */
+	unsigned int	vc_blink;		/* Blink Character */
 	unsigned int	vc_f_color;		/* Foreground color */
 	unsigned int	vc_b_color;		/* Background color */
 
@@ -58,7 +59,7 @@ extern struct vc_struct vc_cons[MAX_NR_CONSOLES];
  */
 struct con_driver {
 	void	(*con_startup)(void);
-	void	(*con_init)(struct vc_struct *, int);
+	void	(*con_init)(struct vc_struct * vc);
 	void	(*con_deinit)(struct vc_struct *);
 	void	(*con_clear)(struct vc_struct *, int, int, int, int);
 	void	(*con_putc)(struct vc_struct *, int, int, int);
