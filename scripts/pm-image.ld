@@ -1,13 +1,40 @@
-/* startup_32(init/head.S) */
+/*
+ * Sandix Linker Script.
+ * Note that linker can do many many things. And so many Linux kernel trick
+ * rely on linker, such as put the same sections together, import the final
+ * image size and so on.
+ * Sandix rely on these stuff, too. It is simple, but really useful.
+ *
+ * Tue Jul 28 10:26:23 CST 2015
+ * syz
+ */
+
+
+/*
+ * startup_32 defined in init/head.S
+ */
 ENTRY(startup_32)
+
+/*
+ * Physical address offset.
+ * Since we put our image at 0x10000.
+ * FIXME Should put it at 0x100000.
+ */
+PHYS_LOAD_OFFSET = 0x10000
+
+/*
+ * Kernel Page Offset.
+ * In 32-bit system, this is 0xC0000000, which is the PAGE_OFFSET.
+ * And that's why we have NORMAL_MEM and HIGH_MEM! I really confused about why
+ * just do not using 0x0 as kernel virtual address basis? Then kernel do not
+ * have to distinguish between normal and high memory!
+ */
+LOAD_OFFSET = 0x0
 
 SECTIONS
 {
-	/* Notice: We set virtual address start
-	   from 0x10000, because the segment offset
-	   is 0x10000. In the future, the start address
-	   should plus PAGE_OFFSET */
-	. = 0x10000;
+	. = PHYS_LOAD_OFFSET + LOAD_OFFSET;
+	
 	.text	: { *(.text) }
 	__end_text = .;
 
