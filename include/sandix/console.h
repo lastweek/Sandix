@@ -23,9 +23,9 @@ struct vc_struct {
 	unsigned int	vc_rows;
 	unsigned int	vc_row_size;		/* Bytes per row */
 	unsigned int	vc_scan_line;		/* Cursor scanlines? */
-	unsigned int	vc_origin;		/* Start of real screen */
-	unsigned int	vc_scr_end;		/* End of real screen */
-	unsigned int	vc_visible_origin;	/* Top of visible window */
+	unsigned long	vc_origin;		/* Start of real screen */
+	unsigned long	vc_scr_end;		/* End of real screen */
+	unsigned long	vc_visible_origin;	/* Top of visible window */
 	unsigned int	vc_top, vc_bottom;	/* Scrolling region */
 	
 	/* attributes for characters */
@@ -39,7 +39,7 @@ struct vc_struct {
 	unsigned int	vc_y;
 	unsigned int	vc_saved_x;
 	unsigned int	vc_saved_y;
-	unsigned int	vc_pos;			/* Cursor position address */
+	unsigned long	vc_pos;			/* Cursor position address */
 
 	/* VT terminal data */
 	unsigned int	vc_state;		/* Escape sequence parser state */

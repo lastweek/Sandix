@@ -8,31 +8,37 @@
  * Tue Jul 28 13:25:24 CST 2015
  */
 
-#include <sandix/bootparam.h>
 #include <sandix/console.h>
+#include <sandix/errno.h>
 #include <sandix/irq.h>
 #include <sandix/io.h>
 #include <sandix/screen_info.h>
 #include <sandix/types.h>
+#include <asm/bootparam.h>
 #include <video/vga.h>
 #include <video/video.h>
 
-static	u32	vga_visible_origin;	/* Upper left character */
-static	u32	vga_vram_base;		/* Base of video memory */
-static	u32	vga_vram_end;		/* End of video memory */
-static	u32	vga_vram_size;		/* Size of video memory */
-static  u8	vga_vram_attr;		/* Character attribute */
-static	u32	vga_pos;		/* Cursor position address */
-static	u32	vga_x;			/* Cursor x */
-static	u32	vga_y;			/* Cursor y */
-static	u32	vga_video_num_cols;	/* Number of text columns */
-static	u32	vga_video_num_rows;	/* Number of text rows */
-static	u16	vga_video_port_reg;	/* Video register select port */
-static	u16	vga_video_port_val;	/* Video register value port */
+/****************************************************************************/
+/*			VGA Driver Private Variables			    */
+/****************************************************************************/
 
-#define VGA_ADDR_OFFSET(x, y)	((vga_video_num_cols*(y) + (x)) << 1)
-#define VGA_CHAR_ATTR(ch)	((u16)(ch) & ((u16)(vga_vram_attr) << 8))
-#define VGA_MEM_MAP(addr)	(unsigned long)phys_to_virt((addr))
+static	unsigned long	vga_visible_origin;	/* Upper left character */
+static	unsigned long	vga_vram_base;		/* Base of video memory */
+static	unsigned long	vga_vram_end;		/* End of video memory */
+static	unsigned long	vga_vram_size;		/* Size of video memory */
+static	unsigned long	vga_pos;		/* Cursor position address */
+static	unsigned int	vga_x;			/* Cursor x */
+static	unsigned int	vga_y;			/* Cursor y */
+static  unsigned int	vga_vram_attr;		/* Character attribute */
+static	unsigned int	vga_video_num_cols;	/* Number of text columns */
+static	unsigned int	vga_video_num_rows;	/* Number of text rows */
+static	unsigned int	vga_video_port_reg;	/* Video register index port */
+static	unsigned int	vga_video_port_val;	/* Video register value port */
+
+#define VGA_OFFSET(y, x)	(unsigned long)((80*(y)+(x))<<1)
+#define VGA_ADDR(vc, y, x)	vc->vc_visible_origin + VGA_OFFSET(y, x)
+#define VGA_ATTR(ch)		((vga_vram_attr << 8) | (ch))
+#define VGA_MEM_MAP(__addr)	(unsigned long)phys_to_virt((__addr))
 
 static inline void write_vga(unsigned char reg, unsigned int val)
 {
@@ -42,7 +48,7 @@ static inline void write_vga(unsigned char reg, unsigned int val)
 
 static inline void vga_set_mem_top(void)
 {
-	u32 offset;
+	unsigned long offset;
 	
 	irq_disable();
 	offset = (vga_visible_origin - vga_vram_base) >> 1;
@@ -51,9 +57,9 @@ static inline void vga_set_mem_top(void)
 	irq_enable();
 }
 
-static void vga_cursor(struct vc_struct *v)
+static void vgacon_cursor(struct vc_struct *vc)
 {
-	u32 offset;
+	unsigned long offset;
 
 	irq_disable();
 	offset = (vga_pos - vga_vram_base) >> 1;
@@ -62,17 +68,33 @@ static void vga_cursor(struct vc_struct *v)
 	irq_enable();
 }
 
-static void vgacon_putc(struct vc_strcut *vc, int ch, int y, int x)
+static void vgacon_putc(struct vc_struct *vc, int ch, int y, int x)
 {
+	unsigned long ADDR;
+
+	ADDR = VGA_ADDR(vc, y, x);
+	scr_writew(VGA_ATTR(ch), ADDR);
 }
 
 static void vgacon_putcs(struct vc_struct *vc, const unsigned char *s,
 			int count, int y, int x)
 {
+	unsigned long ADDR;
+
+	ADDR = VGA_ADDR(vc, y, x);
+	for (; count > 0; count--) {
+		scr_writew(VGA_ATTR(*s++), ADDR);
+		ADDR += 2;
+	}
 }
 
 static void vgacon_clear(struct vc_struct *vc, int y, int x,
 			int height, int width)
+{
+
+}
+
+static void vgacon_scroll(struct vc_struct *vc, int t, int b, int dir, int lines)
 {
 
 }
@@ -112,6 +134,7 @@ static void vgacon_startup(void)
 
 	vga_vram_base = VGA_MEM_MAP(vga_vram_base);
 	vga_vram_end = vga_vram_base + vga_vram_size;
+	vga_visible_origin = vga_vram_base;
 
 	/* Back background. White foreground. No blink */
 	vga_vram_attr = 0x7;
@@ -142,12 +165,12 @@ static void vgacon_deinit(struct vc_struct *vc)
 }
 
 const struct con_driver vga_con = {
-	.con_startup	=	vgacon_startup;
-	.con_init	=	vgacon_init;
-	.con_deinit	=	vgacon_deinit;
-	.con_clear	=	vgacon_clear;
-	.con_putc	=	vgacon_putc;
-	.con_putcs	=	vgacon_putcs;
-	.con_cursor	=	vgacon_cursor;
-	.con_scroll	=	vgacon_scroll;
+	.con_startup	=	vgacon_startup,
+	.con_init	=	vgacon_init,
+	.con_deinit	=	vgacon_deinit,
+	.con_clear	=	vgacon_clear,
+	.con_putc	=	vgacon_putc,
+	.con_putcs	=	vgacon_putcs,
+	.con_cursor	=	vgacon_cursor,
+	.con_scroll	=	vgacon_scroll
 };

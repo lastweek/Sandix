@@ -32,6 +32,7 @@
 
 #include <sandix/compiler.h>
 #include <sandix/console.h>
+#include <sandix/errno.h>
 #include <sandix/tty.h>
 #include <sandix/types.h>
 
@@ -71,16 +72,6 @@ static int con_write(struct tty_struct *tty, const unsigned char *buf, int count
 static int con_put_char(struct tty_struct *tty, unsigned char ch)
 {
 	return do_con_write(tty, &ch, 1);
-}
-
-static void scrup(struct vc *vc)
-{
-
-}
-
-static void scrdown(struct vc *vc)
-{
-
 }
 
 int bind_con_driver(struct vc_struct *vc, struct con_driver *con)
@@ -182,4 +173,3 @@ void __init con_init(void)
 	con_active = vc_active->driver;
 	
 }
-

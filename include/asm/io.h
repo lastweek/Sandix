@@ -2,6 +2,10 @@
 #define _ASM_IO_H_
 
 #include <sandix/types.h>
+#include <asm/page.h>
+
+//#define phys_to_virt(__addr) (unsigned long)((__addr) + PAGE_OFFSET)
+#define phys_to_virt(__addr)	(unsigned long)(__addr)
 
 static inline void outb(u8 v, u16 port)
 {

@@ -6,9 +6,7 @@
  * Sandix rely on these stuff, too. It is simple, but really useful.
  *
  * Tue Jul 28 10:26:23 CST 2015
- * syz
  */
-
 
 /*
  * startup_32 defined in init/head.S
@@ -20,7 +18,7 @@ ENTRY(startup_32)
  * Since we put our image at 0x10000.
  * FIXME Should put it at 0x100000.
  */
-PHYS_LOAD_OFFSET = 0x10000
+PHYS_LOAD_OFFSET = 0x10000;
 
 /*
  * Kernel Page Offset.
@@ -29,7 +27,7 @@ PHYS_LOAD_OFFSET = 0x10000
  * just do not using 0x0 as kernel virtual address basis? Then kernel do not
  * have to distinguish between normal and high memory!
  */
-LOAD_OFFSET = 0x0
+LOAD_OFFSET = 0x0;
 
 SECTIONS
 {

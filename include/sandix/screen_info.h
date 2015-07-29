@@ -8,11 +8,10 @@
 #define VIDEO_TYPE_VGAC		0x22	/* VGA+ in Color Mode		*/
 #define VIDEO_TYPE_VLFB		0x23	/* VESA VGA in graphic mode	*/
 
-/**
- * Screen info fetched from BIOS intcall and
- * BIOS Data Area. The setup routine is boot/video.c
- * Size = 12 bytes
- **/
+/*
+ * Screen info fetched from BIOS intcall and BIOS Data Area. The setup routine
+ * is boot/video.c Size = 12 bytes
+ */
 struct screen_info {
 	unsigned char	orig_x;
 	unsigned char	orig_y;
@@ -26,5 +25,8 @@ struct screen_info {
 	unsigned short	orig_video_points;
 	unsigned char	pad[2];
 } __attribute__((packed));
+
+/* Defined in init/main.c */
+extern struct screen_info screen_info;
 
 #endif /* _SANDIX_SCREEN_INFO_H_ */

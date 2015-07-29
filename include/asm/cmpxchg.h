@@ -7,8 +7,8 @@
 /*
  * Non-existant functions to indicate usage errors at link time
  */
-extern void __xchg_wrong_size(void)
-extern void __cmpxchg_wrong_size(void)
+extern void __xchg_wrong_size(void);
+extern void __cmpxchg_wrong_size(void);
 
 #define __X86_CASE_B	1
 #define __X86_CASE_W	2

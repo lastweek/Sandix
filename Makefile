@@ -82,7 +82,7 @@ KBUILD_CFLAGS += -Wno-format-security
 KBUILD_CFLAGS += -Wdeclaration-after-statement
 KBUILD_CFLAGS += -Werror=strict-prototypes
 KBUILD_CFLAGS += -Werror=implicit-function-declaration
-KBUILD_CFLAGS += -O2
+#KBUILD_CFLAGS += -O2
 
 KBUILD_CPPFLAGS	:= -D__KERNEL__
 KBUILD_AFLAGS	:= -D__ASSEMBLY__
@@ -173,7 +173,7 @@ quiet_cmd_bin_rm := OBJCOPY $(RM_IMAGE)
 quiet_cmd_bin_pm := OBJCOPY $(PM_IMAGE)
       cmd_bin_pm := $(OBJCOPY) $(OBJCOPYFLAGS) $(_PM_IMAGE) $(PM_IMAGE)
 
-quiet_cmd_catenate := CAT $(SS) $(VMSANDIX)
+quiet_cmd_catenate := CAT$(SS) $(VMSANDIX)
       cmd_catenate := ./boot/CATENATE
 
 
