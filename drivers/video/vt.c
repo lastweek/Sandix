@@ -21,7 +21,7 @@
  *   -->TTY Layer
  *      -->Line Discipline
  *         -->Virtual Terminal (VT)
- *         -->Virtual Console (VC)
+ *         -->Virtual Console  (VC)
  *               -->Console Driver (VGA, MDA.)
  *
  *   This file is the VT & VC layer.
@@ -36,7 +36,15 @@
 #include <sandix/types.h>
 
 /*
- * this is what the terminal answers to a ESC-Z or csi0c query.
+ * System registed console driver, and virtual console maps.
+ */
+static struct con_driver *registed_con_drivers[MAX_NR_CON_DRIVERS];
+static struct vc_struct vc_struct_map[MAX_NR_CONSOLES];
+static struct vc_struct *vc_active;
+static struct con_driver *con_active;
+
+/*
+ * This is what the terminal answers to a ESC-Z or csi0c query.
  */
 #define VT100ID "\033[?1;2c"
 #define VT102ID "\033[?6c
@@ -75,20 +83,90 @@ static void scrdown(struct vc *vc)
 
 }
 
-
-/*
- * active vc and his con_driver.
- * For now, only one vc whose driver is vga_con is active. 
- * Since I just want to show the design.
- * But implement with simplicity.
- */
-static struct vc vc_cons[MAX_NR_CONSOLES];
-struct vc *vc_active;
-struct con_driver *con_active;
-
-static void vc_bind_driver(struct vc *vc, struct con_driver *con)
+int bind_con_driver(struct vc_struct *vc, struct con_driver *con)
 {
-	vc->driver = con;
+	int i, err;
+
+	err = -EINVAL;
+	for (i = 0; i < MAX_NR_CON_DRIVERS; i++) {
+		if (con == registed_con_drivers[i]) {
+			err = 0;
+			break;
+		}
+	}
+	
+	if (!err)
+		vc->driver = con;
+	
+	return err;
+}
+
+int unbind_con_driver(struct con_driver *con)
+{
+	return 0;
+}
+
+/**
+ * register_con_driver
+ * @newcon - The new console driver to register
+ *
+ * DESCRIPTION: Register a new console driver. After a success registration,
+ * new console's con_startup() will be called to initialize driver itself.
+ */
+int register_con_driver(struct con_driver *newcon)
+{
+	int i, err;
+
+	err = 0;
+	for (i = 0; i < MAX_NR_CON_DRIVERS; i++) {
+		if (newcon == registed_con_drivers[i]) {
+			err = -EBUSY;
+			break;
+		}
+	}
+
+	if (err)
+		return err;
+
+	err = -EINVAL;
+	for (i = 0; i < MAX_NR_CON_DRIVERS; i++) {
+		if (registed_con_drivers[i] == NULL) {
+			registed_con_drivers[i] = newcon;
+			newcon->con_startup();
+			err = 0;
+			break;
+		}
+	}
+
+	return err;
+}
+
+/**
+ * unregister_con_driver
+ * @con: The old console to unregister.
+ *
+ * DESCRIPTION: Before unregister a console driver, the driver needs to be
+ * unbinded from any vc_struct. An active vc_struct is not allowed to unbind
+ * its console driver, in that case, unregistration fails.
+ */
+int unregister_con_driver(struct con_driver *con)
+{
+	int i, err;
+
+	err = unbind_con_driver(con);
+	if (err)
+		return err;
+
+	err = -EINVAL;
+	for (i = 0; i < MAX_NR_CON_DRIVERS; i++) {
+		if (con == registed_con_drivers[i]) {
+			registed_con_drivers[i] = NULL;
+			err = 0;
+			break;
+		}
+	}
+
+	return err;
 }
 
 void __init con_init(void)
@@ -97,7 +175,7 @@ void __init con_init(void)
 	
 	/* ONE VGA_CON VC AVALIABLE, OTHERS DUMMY */
 	for (i = 0; i < MAX_NR_CONSOLES; i++) {
-		vc_bind_driver(&vc_cons[i], &dummy_con);
+		bind_con_driver(&vc_cons[i], &dummy_con);
 	}
 	vc_bind_driver(&vc_cons[0], &vga_con);
 	vc_active = &vc_cons[0];

@@ -6,8 +6,10 @@
 
 #define NPAR	16
 
+#define MAX_NR_CON_DRIVERS 4
+
 #define MIN_NR_CONSOLES	1
-#define MAX_NR_CONSOLES	7
+#define MAX_NR_CONSOLES	8
 
 struct con_driver;
 
