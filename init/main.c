@@ -1,4 +1,5 @@
 #include <sandix/const.h>
+#include <sandix/console.h>
 #include <sandix/mm.h>
 #include <sandix/string.h>
 #include <sandix/screen_info.h>
@@ -11,10 +12,10 @@
 struct boot_params boot_params;
 struct screen_info screen_info;
 
-#define __ALIGN8__	__attribute__((aligned(8)))
+#define __ALIGN8	__attribute__((aligned(8)))
 
 /* NOTE! accessed type useless, We do not use! */
-struct desc_struct gdt_table[GDT_ENTRIES] __ALIGN8__ =
+struct desc_struct gdt_table[GDT_ENTRIES] __ALIGN8 =
 {
 	/* Present, DPL=0, Execute/Read */
 	/* Present, DPL=0, Read/Write */
@@ -30,7 +31,7 @@ struct desc_struct gdt_table[GDT_ENTRIES] __ALIGN8__ =
 	[GDT_ENTRY_KERNEL_PERCPU]	= GDT_ENTRY_INIT(0xc092, 0, 0xfffff),
 };
 
-struct desc_struct idt_table[IDT_ENTRIES] __ALIGN8__;
+struct desc_struct idt_table[IDT_ENTRIES] __ALIGN8;
 
 void handle_int(void)
 {
@@ -41,27 +42,10 @@ void handle_int(void)
 	);
 }
 
-#define _VGA_OFFSET(x,y) (unsigned long) ((y*80+x)<<1)
-#define _VGA_ATTR(c)	((c) | (0x7 << 8))
-#define _scr_writew(v, a) (*(short *)a) = (short)v
-
- void _vgacon_putcs(const unsigned char *s, int count, int y, int x)
-{
-	int i;
-	unsigned long ADDR;
-
-	ADDR = 0xb8000 + _VGA_OFFSET(x, y);
-
-	for (i = 0; i < count; i++) {
-		_scr_writew(_VGA_ATTR(*s), ADDR);
-		ADDR += 2;
-		s++;
-	}
-}
-
-
 void kernel_init(void)
 {
-	//init_memory();
-	//init_traps();
+	screen_info = boot_params.screen_info;
+	con_init();
+	ACTIVE_CON->con_putcs(ACTIVE_VC, "ABCDEFGH", 8, 2, 0);
+	ACTIVE_CON->con_putc(ACTIVE_VC, 'L', 1, 0);
 }

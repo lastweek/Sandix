@@ -36,7 +36,7 @@ static	unsigned int	vga_video_port_reg;	/* Video register index port */
 static	unsigned int	vga_video_port_val;	/* Video register value port */
 
 #define VGA_OFFSET(y, x)	(unsigned long)((80*(y)+(x))<<1)
-#define VGA_ADDR(vc, y, x)	vc->vc_visible_origin + VGA_OFFSET(y, x)
+#define VGA_ADDR(vc, y, x)	((vc)->vc_visible_origin + VGA_OFFSET(y, x))
 #define VGA_ATTR(ch)		((vga_vram_attr << 8) | (ch))
 #define VGA_MEM_MAP(__addr)	(unsigned long)phys_to_virt((__addr))
 
@@ -132,13 +132,13 @@ static void vgacon_startup(void)
 		return;
 	}
 
+	/* Back bg. White fg. */
+	vga_vram_attr = 0x7;
+	
 	vga_vram_base = VGA_MEM_MAP(vga_vram_base);
 	vga_vram_end = vga_vram_base + vga_vram_size;
 	vga_visible_origin = vga_vram_base;
 
-	/* Back background. White foreground. No blink */
-	vga_vram_attr = 0x7;
-	
 	vga_video_num_cols = screen_info.orig_video_cols;
 	vga_video_num_rows = screen_info.orig_video_lines;
 }

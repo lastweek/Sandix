@@ -49,12 +49,6 @@ struct vc_struct {
 };
 
 /*
- * All avaliable virtual consoles in system.
- * Defined in drivers/tty/vt/vt.c
- */
-extern struct vc_struct vc_cons[MAX_NR_CONSOLES];
-
-/*
  * Low-level console driver.
  * We call it console driver because it has
  * operations that can talk to hardware directly.
@@ -76,12 +70,20 @@ struct con_driver {
 	u32	(*con_getxy)(struct vc_struct *, unsigned long, int *, int *);
 };
 
-/*
- * Three con_driver are avaliable in Sandix.
- * Only one of them is usable, vga_con.
- */
 extern const struct con_driver vga_con;
 extern const struct con_driver mda_con;
 extern const struct con_driver dummy_con;
+
+extern struct con_driver *registed_con_drivers[MAX_NR_CON_DRIVERS];
+extern struct vc_struct vc_struct_map[MAX_NR_CONSOLES];
+
+#define ACTIVE_VC	(&vc_struct_map[0])
+#define ACTIVE_CON	(ACTIVE_VC->driver)
+
+void con_init(void);
+int register_con_driver(const struct con_driver *con);
+int unregister_con_driver(const struct con_driver *con);
+int bind_con_driver(struct vc_struct *vc, const struct con_driver *con);
+int unbind_con_driver(const struct con_driver *con);
 
 #endif /* _SANDIX_CONSOLE_H_ */
