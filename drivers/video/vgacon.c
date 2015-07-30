@@ -8,6 +8,7 @@
  * Tue Jul 28 13:25:24 CST 2015
  */
 
+#include <sandix/compiler.h>
 #include <sandix/console.h>
 #include <sandix/errno.h>
 #include <sandix/irq.h>
@@ -30,42 +31,60 @@ static	unsigned long	vga_pos;		/* Cursor position address */
 static	unsigned int	vga_x;			/* Cursor x */
 static	unsigned int	vga_y;			/* Cursor y */
 static  unsigned int	vga_vram_attr;		/* Character attribute */
+static	unsigned short	vga_erased_char;	/* Erase background */
 static	unsigned int	vga_video_num_cols;	/* Number of text columns */
 static	unsigned int	vga_video_num_rows;	/* Number of text rows */
 static	unsigned int	vga_video_port_reg;	/* Video register index port */
 static	unsigned int	vga_video_port_val;	/* Video register value port */
 
+#define BLANK 0x20
+
 #define VGA_OFFSET(y, x)	(unsigned long)((80*(y)+(x))<<1)
-#define VGA_ADDR(vc, y, x)	((vc)->vc_visible_origin + VGA_OFFSET(y, x))
-#define VGA_ATTR(ch)		((vga_vram_attr << 8) | (ch))
+#define VGA_ADDR(vc, y, x)	((vc)->vc_visible_origin + VGA_OFFSET((y), (x)))
+#define VGA_ATTR(ch)		(unsigned short)(((vga_vram_attr) << 8) | (ch))
 #define VGA_MEM_MAP(__addr)	(unsigned long)phys_to_virt((__addr))
 
-static inline void write_vga(unsigned char reg, unsigned int val)
+static __always_inline void write_vga(unsigned char reg, unsigned int val)
 {
 	outb(reg, vga_video_port_reg);
 	outb(val, vga_video_port_val);
 }
 
-static inline void vga_set_mem_top(void)
+static inline void vga_set_mem_top(struct vc_struct *vc)
 {
-	unsigned long offset;
-	
+	unsigned long offset = vc->vc_visible_origin - vga_vram_base;
+
 	irq_disable();
-	offset = (vga_visible_origin - vga_vram_base) >> 1;
-	write_vga(VGA_CRTC_START_HI, offset >> 8);
-	write_vga(VGA_CRTC_START_LO, offset);
+	write_vga(VGA_CRTC_START_HI, 0xff&(offset >> 9));
+	write_vga(VGA_CRTC_START_LO, 0xff&(offset >> 1));
 	irq_enable();
 }
 
-static void vgacon_cursor(struct vc_struct *vc)
+static void vga_set_cursor(struct vc_struct *vc)
 {
-	unsigned long offset;
+	unsigned long offset = vc->vc_pos - vga_vram_base;
 
 	irq_disable();
-	offset = (vga_pos - vga_vram_base) >> 1;
-	write_vga(VGA_CRTC_CURSOR_HI, offset >> 8);
-	write_vga(VGA_CRTC_CURSOR_LO, offset);
+	write_vga(VGA_CRTC_CURSOR_HI, 0xff&(offset >> 9));
+	write_vga(VGA_CRTC_CURSOR_LO, 0xff&(offset >> 1));
 	irq_enable();
+}
+
+static void vgacon_cursor(struct vc_struct *vc, int mode)
+{
+	switch (mode) {
+	case CM_ERASE:
+	case CM_MOVE:
+	case CM_DRAW:
+		vga_set_cursor(vc);
+		break;
+	};
+}
+
+static void vgacon_set_origin(struct vc_struct *vc)
+{
+	vc->vc_origin = vc->vc_visible_origin = vga_vram_base;
+	vga_set_mem_top(vc);
 }
 
 static void vgacon_putc(struct vc_struct *vc, int ch, int y, int x)
@@ -88,9 +107,20 @@ static void vgacon_putcs(struct vc_struct *vc, const unsigned char *s,
 	}
 }
 
+/* Clear VERTICAL area */
 static void vgacon_clear(struct vc_struct *vc, int y, int x,
 			int height, int width)
 {
+	unsigned long dest = VGA_ADDR(vc, y, x);
+	unsigned short ech = VGA_ATTR(vc->vc_erased_char);
+
+	if (height <= 0 || width <= 0)
+		return;
+	
+	for (; height > 0; height--) {
+		scr_memsetw(dest, ech, width);
+		dest += vc->vc_row_size;
+	}
 
 }
 
@@ -132,8 +162,8 @@ static void vgacon_startup(void)
 		return;
 	}
 
-	/* Back bg. White fg. */
 	vga_vram_attr = 0x7;
+	vga_erased_char = BLANK;
 	
 	vga_vram_base = VGA_MEM_MAP(vga_vram_base);
 	vga_vram_end = vga_vram_base + vga_vram_size;
@@ -157,6 +187,7 @@ static void vgacon_init(struct vc_struct *vc)
 	vc->vc_scr_end	= vga_vram_end;
 	vc->vc_attr	= vga_vram_attr;
 	vc->vc_visible_origin = vga_visible_origin;
+	vc->vc_erased_char = vga_erased_char;
 }
 
 static void vgacon_deinit(struct vc_struct *vc)
@@ -172,5 +203,6 @@ const struct con_driver vga_con = {
 	.con_putc	=	vgacon_putc,
 	.con_putcs	=	vgacon_putcs,
 	.con_cursor	=	vgacon_cursor,
-	.con_scroll	=	vgacon_scroll
+	.con_scroll	=	vgacon_scroll,
+	.con_set_origin	=	vgacon_set_origin
 };

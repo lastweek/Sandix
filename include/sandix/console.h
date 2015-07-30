@@ -4,7 +4,7 @@
 #include <sandix/types.h>
 #include <sandix/tty.h>
 
-#define NPAR	16
+#define NPAR 16
 
 #define MAX_NR_CON_DRIVERS 4
 
@@ -27,14 +27,17 @@ struct vc_struct {
 	unsigned long	vc_scr_end;		/* End of real screen */
 	unsigned long	vc_visible_origin;	/* Top of visible window */
 	unsigned int	vc_top, vc_bottom;	/* Scrolling region */
+
+	/* Font */
+	unsigned short	vc_erased_char;		/* Erase video */
 	
-	/* attributes for characters */
+	/* Attributes for characters */
 	unsigned int	vc_attr;		/* Current attributes */
 	unsigned int	vc_blink;		/* Blink Character */
 	unsigned int	vc_f_color;		/* Foreground color */
 	unsigned int	vc_b_color;		/* Background color */
 
-	/* cursor */
+	/* Cursor */
 	unsigned int	vc_x;
 	unsigned int	vc_y;
 	unsigned int	vc_saved_x;
@@ -60,10 +63,10 @@ struct con_driver {
 	void	(*con_clear)(struct vc_struct *, int, int, int, int);
 	void	(*con_putc)(struct vc_struct *, int, int, int);
 	void	(*con_putcs)(struct vc_struct *, unsigned short *, int, int, int);
-	void	(*con_cursor)(struct vc_struct *);
+	void	(*con_cursor)(struct vc_struct *, int);
 	int	(*con_scroll)(struct vc_struct *, int, int, int, int);
 	int	(*con_scrolldelta)(struct vc_struct *, int);
-	int	(*con_set_origin)(struct vc_struct *);
+	void	(*con_set_origin)(struct vc_struct *);
 	void	(*con_save_screen)(struct vc_struct *);
 	void	(*con_invert_region)(struct vc_struct *, u16 *, int);
 	u16    *(*con_screen_pos)(struct vc_struct *, int);
@@ -79,6 +82,15 @@ extern struct vc_struct vc_struct_map[MAX_NR_CONSOLES];
 
 #define ACTIVE_VC	(&vc_struct_map[0])
 #define ACTIVE_CON	(ACTIVE_VC->driver)
+
+/* Scroll Direction */
+#define SM_UP		(1)
+#define SM_DOWN		(2)
+
+/* Cursor Operation */
+#define CM_DRAW		(1)
+#define CM_ERASE	(2)
+#define CM_MOVE		(3)
 
 void con_init(void);
 int register_con_driver(const struct con_driver *con);

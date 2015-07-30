@@ -46,6 +46,10 @@ void kernel_init(void)
 {
 	screen_info = boot_params.screen_info;
 	con_init();
-	ACTIVE_CON->con_putcs(ACTIVE_VC, "ABCDEFGH", 8, 2, 0);
-	ACTIVE_CON->con_putc(ACTIVE_VC, 'L', 1, 0);
+	ACTIVE_CON->con_putcs(ACTIVE_VC, "ABCD", 4,1,0);
+	ACTIVE_VC->vc_x = 4;
+	ACTIVE_VC->vc_y = 1;
+	ACTIVE_VC->vc_pos = (1*80+4)*2 + 0xb8000;
+	ACTIVE_CON->con_cursor(ACTIVE_VC, 1);
+	
 }
