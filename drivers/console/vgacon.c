@@ -1,11 +1,19 @@
 /*
- * Low-Level VGA-Based Console Driver.
+ *	Low-Level VGA-Based Console Driver.
  *
- * Including some common operations that can be used by VC layer. This is a
- * very simple implementation. And it is the upper layer, the VC, who
- * responsible for emulating VT102 and processing the escape sequences.
+ *	Copyright (C) 2015 Yizhou Shan
  *
- * Tue Jul 28 13:25:24 CST 2015
+ *	This is a simple driver for VGA video card. In a really system,
+ *	every virtual console must have a in-memory buffer. Because many
+ *	consoles may coexist in the meantime, so _no_ one is allowed to talk
+ *	to memory-mapped area(0xb8000) directly. Also, VGA card only have
+ *	one set of hardware registers. Therefore, every time USERs switch to
+ *	another console, system must save current VGA status, such as visible
+ *	base address, cursor position, first, and then restore the status of
+ *	the newly switched console(like VGA_save(), VGA_restore()).
+ *
+ *	BUT, Sandix has not implement that for now, cause i do not need it.
+ *	Only one VGA console is alive, just talk to hardware directly.
  */
 
 #include <sandix/compiler.h>
@@ -37,20 +45,23 @@ static	unsigned int	vga_video_num_rows;	/* Number of text rows */
 static	unsigned int	vga_video_port_reg;	/* Video register index port */
 static	unsigned int	vga_video_port_val;	/* Video register value port */
 
-#define BLANK 0x20
+/* Ugly&nonpotable, but save space&time*/
+#define BLANK		(0x20)
+#define SCREEN_SIZE	(4000)
+#define ROW_SIZE	(160)
 
 #define VGA_OFFSET(y, x)	(unsigned long)((80*(y)+(x))<<1)
 #define VGA_ADDR(vc, y, x)	((vc)->vc_visible_origin + VGA_OFFSET((y), (x)))
-#define VGA_ATTR(ch)		(unsigned short)(((vga_vram_attr) << 8) | (ch))
+#define VGA_ATTR(vc, ch)	(unsigned short)(((vc->vc_attr) << 8) | (ch))
 #define VGA_MEM_MAP(__addr)	(unsigned long)phys_to_virt((__addr))
 
-static __always_inline void write_vga(unsigned char reg, unsigned int val)
+ALWAYS_INLINE void write_vga(unsigned char reg, unsigned int val)
 {
 	outb(reg, vga_video_port_reg);
 	outb(val, vga_video_port_val);
 }
 
-static inline void vga_set_mem_top(struct vc_struct *vc)
+INLINE void vga_set_mem_top(struct vc_struct *vc)
 {
 	unsigned long offset = vc->vc_visible_origin - vga_vram_base;
 
@@ -60,7 +71,7 @@ static inline void vga_set_mem_top(struct vc_struct *vc)
 	irq_enable();
 }
 
-static void vga_set_cursor(struct vc_struct *vc)
+INLINE void vga_set_cursor(struct vc_struct *vc)
 {
 	unsigned long offset = vc->vc_pos - vga_vram_base;
 
@@ -92,41 +103,78 @@ static void vgacon_putc(struct vc_struct *vc, int ch, int y, int x)
 	unsigned long ADDR;
 
 	ADDR = VGA_ADDR(vc, y, x);
-	scr_writew(VGA_ATTR(ch), ADDR);
+	scr_writew(VGA_ATTR(vc, ch), ADDR);
 }
 
 static void vgacon_putcs(struct vc_struct *vc, const unsigned char *s,
-			int count, int y, int x)
+			 int count, int y, int x)
 {
 	unsigned long ADDR;
 
 	ADDR = VGA_ADDR(vc, y, x);
 	for (; count > 0; count--) {
-		scr_writew(VGA_ATTR(*s++), ADDR);
+		scr_writew(VGA_ATTR(vc, *s++), ADDR);
 		ADDR += 2;
 	}
 }
 
 /* Clear VERTICAL area */
 static void vgacon_clear(struct vc_struct *vc, int y, int x,
-			int height, int width)
+			 int height, int width)
 {
 	unsigned long dest = VGA_ADDR(vc, y, x);
-	unsigned short ech = VGA_ATTR(vc->vc_erased_char);
+	unsigned short ech = VGA_ATTR(vc, vc->vc_erased_char);
 
 	if (height <= 0 || width <= 0)
 		return;
 	
 	for (; height > 0; height--) {
-		scr_memsetw(dest, ech, width);
+		scr_memsetw((unsigned short *)dest, ech, width);
 		dest += vc->vc_row_size;
 	}
 
 }
 
-static void vgacon_scroll(struct vc_struct *vc, int t, int b, int dir, int lines)
+static void vgacon_scroll(struct vc_struct *vc, int dir, int lines)
 {
+	unsigned long delta;
 
+	if (lines <= 0 || lines >= vc->vc_rows / 2)
+		return;
+	
+	delta = lines * ROW_SIZE;
+
+	switch (dir) {
+	case (VWIN_UP):
+		if ((vc->vc_visible_origin - delta) <= vga_vram_base) {
+			vc->vc_visible_origin = vga_vram_base;
+			vc->vc_scr_end = vga_vram_base + SCREEN_SIZE;
+		} else {
+			vc->vc_visible_origin -= delta;
+			vc->vc_scr_end -= delta;
+		}
+		break;
+	
+	case (VWIN_DOWN):
+		if ((vc->vc_scr_end + delta) <= vga_vram_end) {
+			vc->vc_visible_origin += delta;
+			vc->vc_scr_end += delta;
+		} else {
+			scr_memcpyw((u16 *)vga_vram_base,
+				    (u16 *)vc->vc_visible_origin,
+				    delta/2);
+			vc->vc_pos = vga_vram_base
+				+ (vc->vc_pos - vc->vc_visible_origin);
+			vc->vc_visible_origin = vga_vram_base;
+			vc->vc_scr_end = vga_vram_base + SCREEN_SIZE;
+			
+			/* Draw cursor */
+			vga_set_cursor(vc);
+		}
+		break;
+	};
+	
+	vga_set_mem_top(vc);
 }
 
 /*
@@ -171,21 +219,29 @@ static void vgacon_startup(void)
 
 	vga_video_num_cols = screen_info.orig_video_cols;
 	vga_video_num_rows = screen_info.orig_video_lines;
+
+	vga_x = screen_info.orig_x;
+	vga_y = screen_info.orig_y;
+	vga_pos = VGA_OFFSET(vga_y, vga_x) + vga_vram_base;
 }
 
 /* 
  * This functions is called everytime VC starts a new console. It is used to
  * initialize the new vc_struct. Note that, if it is the first time to call
- * vgacon_init, vgacon_startup must be called first.
+ * vgacon_init, vgacon_startup must be called first. And also, in real system,
+ * a big memory area should be allocated for this new virtual console.
  */
 static void vgacon_init(struct vc_struct *vc)
 {
+	vc->vc_x	= vga_x;
+	vc->vc_y	= vga_y;
+	vc->vc_pos	= vga_pos;
 	vc->vc_cols	= vga_video_num_cols;
 	vc->vc_rows	= vga_video_num_rows;
 	vc->vc_row_size	= vga_video_num_cols << 1;
-	vc->vc_origin	= vga_vram_base;
-	vc->vc_scr_end	= vga_vram_end;
+	vc->vc_scr_end	= vga_visible_origin + SCREEN_SIZE;
 	vc->vc_attr	= vga_vram_attr;
+	vc->vc_origin	= vga_vram_base;
 	vc->vc_visible_origin = vga_visible_origin;
 	vc->vc_erased_char = vga_erased_char;
 }
@@ -193,6 +249,28 @@ static void vgacon_init(struct vc_struct *vc)
 static void vgacon_deinit(struct vc_struct *vc)
 {
 	return;
+}
+
+/*
+ * 00H black
+ * 01H blue
+ * 02H green
+ * 03H cyan
+ * 04H red
+ * 05H magenta
+ * 06H brown
+ * 07H white
+ */
+static void vgacon_set_color(struct vc_struct *vc, int blink, int bg, int fg)
+{
+	if (bg > 7 || fg > 7)
+		return;
+
+	vc->vc_attr = (bg << 4) | fg;
+
+	if (blink)
+		vc->vc_attr |= 0x80;
+
 }
 
 const struct con_driver vga_con = {
@@ -204,5 +282,6 @@ const struct con_driver vga_con = {
 	.con_putcs	=	vgacon_putcs,
 	.con_cursor	=	vgacon_cursor,
 	.con_scroll	=	vgacon_scroll,
+	.con_set_color	=	vgacon_set_color,
 	.con_set_origin	=	vgacon_set_origin
 };

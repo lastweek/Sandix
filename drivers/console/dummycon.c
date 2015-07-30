@@ -30,5 +30,5 @@ const struct con_driver dummy_con = {
     .con_putcs		=	DUMMY,
     .con_cursor		=	DUMMY,
     .con_scroll		=	DUMMY,
-    .con_scrolldelta	=	DUMMY,
+    .con_set_color	=	DUMMY
 };

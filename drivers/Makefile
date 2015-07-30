@@ -3,4 +3,4 @@
 #
 
 obj-y += tty/
-obj-y := video/
+obj-y := console/

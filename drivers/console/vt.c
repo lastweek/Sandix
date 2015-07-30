@@ -1,33 +1,27 @@
 /*
- * Hopefully this will be a rather _basic_ VT102 implementation.
- * It normally means that the VT will respond to escape sequences
- * in the same way as a real VT102 terminal.
+ * Basic VT102 implementation.
  *
- * Note:
+ * Copyright (C) 2015 Yizhou Shan
  *
- *   The interface to the hardware is specified using a special structure
- *   (struct con_driver) which contains function pointers to console operations
- *   (see <sandix/console.h> for more information).
+ * The interface to the hardware is specified using a special structure
+ * (struct con_driver) which contains function pointers to console operations
+ * (see <sandix/console.h> for more information).
  *
- *   The abstract console driver provides a generic interface for a text
- *   console. It supports VGA text mode, MDA text mode, dummy console.
+ * The abstract console driver provides a generic interface for a text
+ * console. It supports VGA text mode, MDA text mode, dummy console.
  *
- *   The interface to the tty is specified using a special structure
- *   (struct vc_struct) which contains data and operations for single virtual
- *   console(see <sandix/console.h> for more information).
+ * The interface to the tty is specified using a special structure
+ * (struct vc_struct) which contains data and operations for single virtual
+ * console(see <sandix/console.h> for more information).
  *
- *   The different layer can been seen as:
+ * The different layer can been seen as:
  *   
- *   -->TTY Layer
- *      -->Line Discipline
- *         -->Virtual Terminal (VT)
- *         -->Virtual Console  (VC)
- *               -->Console Driver (VGA, MDA.)
+ * -->TTY Layer
+ *    -->Line Discipline
+ *       -->Virtual Terminal (VT)
+ *       -->Virtual Console  (VC)
+ *             -->Console Driver (VGA, MDA, DUMMY)
  *
- *   This file is the VT & VC layer.
- *   Specific console drivers are in driver/video/xxxcon.c
- *
- * Mon Jul 27 18:10:27 CST 2015
  */
 
 #include <sandix/compiler.h>
@@ -42,14 +36,13 @@
 #define VT100ID "\033[?1;2c"
 #define VT102ID "\033[?6c"
 
-/*
- * System registed console driver, and virtual console maps.
- */
-struct con_driver *registed_con_drivers[MAX_NR_CON_DRIVERS];
+const struct con_driver *registed_con_drivers[MAX_NR_CON_DRIVERS];
 struct vc_struct vc_struct_map[MAX_NR_CONSOLES];
+EXPORT_SYMBOL(registed_con_drivers);
+EXPORT_SYMBOL(vc_struct_map);
 
 /**
- * do_con_write - write to VT screen
+ * con_write - write to VT screen
  * 
  * DESCRIPTION:
  * Escape and control sequences provide additional control functions not
@@ -57,20 +50,15 @@ struct vc_struct vc_struct_map[MAX_NR_CONSOLES];
  * multiple-character sequences are not displayed; instead, they control
  * terminal operation.
  */
-static int do_con_write(struct tty_struct *tty, const unsigned char *buf, int count)
+static int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 {
 	return 0;
 }
 
-static int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
-{
-	return do_con_write(tty, buf, count);
-}
 
-static int con_put_char(struct tty_struct *tty, unsigned char ch)
-{
-	return do_con_write(tty, &ch, 1);
-}
+/****************************************************************************/
+/*			VT Helper Functions				    */
+/****************************************************************************/
 
 int bind_con_driver(struct vc_struct *vc, const struct con_driver *con)
 {

@@ -46,10 +46,9 @@ void kernel_init(void)
 {
 	screen_info = boot_params.screen_info;
 	con_init();
-	ACTIVE_CON->con_putcs(ACTIVE_VC, "ABCD", 4,1,0);
-	ACTIVE_VC->vc_x = 4;
-	ACTIVE_VC->vc_y = 1;
-	ACTIVE_VC->vc_pos = (1*80+4)*2 + 0xb8000;
-	ACTIVE_CON->con_cursor(ACTIVE_VC, 1);
-	
+
+	ACTIVE_CON->con_set_color(ACTIVE_VC, 0, 1, 5);
+	ACTIVE_CON->con_putcs(ACTIVE_VC, "ABCD", 4,ACTIVE_VC->vc_y,ACTIVE_VC->vc_x);
+	ACTIVE_CON->con_scroll(ACTIVE_VC, 2, 4);
+	ACTIVE_CON->con_scroll(ACTIVE_VC, 1, 10);
 }

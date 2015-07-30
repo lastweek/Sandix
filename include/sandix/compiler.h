@@ -1,15 +1,28 @@
 #ifndef _SANDIX_COMPILER_H_
 #define _SANDIX_COMPILER_H_
 
-#define __init
-#define __initdata
-#define __exit
+#include <asm/cache.h>
+
+/*
+ * Some common compiler friendly macros.
+ * These macros are useless without dedicated linker scripits.
+ */
+
+#define __section(S)		__attribute__((section(#S)))
+
+#define __init			__section(.init.text)
+#define __initdata		__section(.init.data)
 #define __iomem
 
-#define __always_inline inline __attribute__((always_inline))
+#define __always_inline		inline __attribute__((always_inline))
 
-#define likely(x)	__builtin_expect(!!(x), 1)
-#define unlikely(x)	__builtin_expect(!!(x), 0)
+#define INLINE			static inline
+#define ALWAYS_INLINE		static __always_inline
+
+#define EXPORT_SYMBOL(sym)	extern typeof(sym) sym;
+
+#define likely(x)		__builtin_expect(!!(x), 1)
+#define unlikely(x)		__builtin_expect(!!(x), 0)
 
 #define GCC_VERSION (__GNUC__ * 10000 \
 		   + __GNUC_MINOR__ * 100 \

@@ -17,7 +17,7 @@ struct con_driver;
  * Data structure describing a single virtual console.
  */
 struct vc_struct {
-	struct con_driver *driver;		/* Low-Level driver */
+	const struct con_driver *driver;	/* Low-Level driver */
 	unsigned int	vc_num;			/* Console number */
 	unsigned int	vc_cols;
 	unsigned int	vc_rows;
@@ -62,13 +62,12 @@ struct con_driver {
 	void	(*con_deinit)(struct vc_struct *);
 	void	(*con_clear)(struct vc_struct *, int, int, int, int);
 	void	(*con_putc)(struct vc_struct *, int, int, int);
-	void	(*con_putcs)(struct vc_struct *, unsigned short *, int, int, int);
+	void	(*con_putcs)(struct vc_struct *, const unsigned char *, int, int, int);
 	void	(*con_cursor)(struct vc_struct *, int);
-	int	(*con_scroll)(struct vc_struct *, int, int, int, int);
-	int	(*con_scrolldelta)(struct vc_struct *, int);
+	void	(*con_scroll)(struct vc_struct *, int, int);
+	void	(*con_set_color)(struct vc_struct *, int, int, int);
 	void	(*con_set_origin)(struct vc_struct *);
 	void	(*con_save_screen)(struct vc_struct *);
-	void	(*con_invert_region)(struct vc_struct *, u16 *, int);
 	u16    *(*con_screen_pos)(struct vc_struct *, int);
 	u32	(*con_getxy)(struct vc_struct *, unsigned long, int *, int *);
 };
@@ -77,17 +76,17 @@ extern const struct con_driver vga_con;
 extern const struct con_driver mda_con;
 extern const struct con_driver dummy_con;
 
-extern struct con_driver *registed_con_drivers[MAX_NR_CON_DRIVERS];
+extern const struct con_driver *registed_con_drivers[MAX_NR_CON_DRIVERS];
 extern struct vc_struct vc_struct_map[MAX_NR_CONSOLES];
 
 #define ACTIVE_VC	(&vc_struct_map[0])
 #define ACTIVE_CON	(ACTIVE_VC->driver)
 
-/* Scroll Direction */
-#define SM_UP		(1)
-#define SM_DOWN		(2)
+/* Visible WINdow Direction */
+#define VWIN_UP		(1)
+#define VWIN_DOWN	(2)
 
-/* Cursor Operation */
+/* Cursor Manner */
 #define CM_DRAW		(1)
 #define CM_ERASE	(2)
 #define CM_MOVE		(3)

@@ -1,10 +1,9 @@
 #ifndef _SANDIX_LINKAGE_H_
 #define _SANDIX_LINKAGE_H_
 
-/**
- * <sandix/linkage.h>:
+/*
  * Generic macros for assembly and C attributes.
- **/
+ */
 
 #define asmlinkage __atrribute__((regparm(0)))
 
