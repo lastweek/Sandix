@@ -1,17 +1,14 @@
 /*
- * Sandix Linker Script.
- * Note that linker can do many many things. And so many Linux kernel trick
- * rely on linker, such as put the same sections together, import the final
- * image size and so on.
- * Sandix rely on these stuff, too. It is simple, but really useful.
+ *	Sandix Linker Script.
  *
- * Tue Jul 28 10:26:23 CST 2015
+ *	Copyright (C) 2015 Yizhou Shan
+ *
+ *	Note that linker can do many many things. So many Linux kernel tricks
+ *	rely on linker, such as put the same sections together, export the final
+ *	image size and so on. Sandix rely on these stuff, too. It is simple,
+ *	but really useful.
  */
 
-/*
- * startup_32 defined in init/head.S
- */
-ENTRY(startup_32)
 
 /*
  * Physical address offset.
@@ -29,6 +26,7 @@ PHYS_LOAD_OFFSET = 0x10000;
  */
 LOAD_OFFSET = 0x0;
 
+ENTRY(startup_32)
 SECTIONS
 {
 	. = PHYS_LOAD_OFFSET + LOAD_OFFSET;

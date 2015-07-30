@@ -1,6 +1,8 @@
-/**
+/*
  *	Real-Mode Kernel Image Linker Scripts
- **/
+ *
+ *	Copyright (C) 2015 Yizhou Shan
+ */
 
 /* _start(boot/header.S) */
 ENTRY(_start)
