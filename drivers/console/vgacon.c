@@ -45,7 +45,7 @@ static	unsigned int	vga_video_num_rows;	/* Number of text rows */
 static	unsigned int	vga_video_port_reg;	/* Video register index port */
 static	unsigned int	vga_video_port_val;	/* Video register value port */
 
-/* Ugly&nonpotable, but save space&time*/
+/* WHY NOT? */
 #define BLANK		(0x20)
 #define SCREEN_SIZE	(4000)
 #define ROW_SIZE	(160)
