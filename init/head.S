@@ -1,3 +1,9 @@
+/*
+ *	init/head.S - Kernel Entry Point
+ *
+ *	Copyright (C) 2015 Yizhou Shan
+ */
+
 #include <sandix/linkage.h>
 #include <asm/bootparam.h>
 #include <asm/page.h>

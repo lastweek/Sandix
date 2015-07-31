@@ -1,5 +1,5 @@
 /*
- *	init/main.c Sandix Kernel Init
+ *	init/main.c - Kernel Initialization
  *
  *	Copyright (C) 2015 Yizhou Shan
  */
