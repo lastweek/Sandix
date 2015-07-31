@@ -9,7 +9,6 @@
  *	but really useful.
  */
 
-
 /*
  * Physical address offset.
  * Since we put our image at 0x10000.

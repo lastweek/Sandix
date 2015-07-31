@@ -2,13 +2,6 @@
 #define _VIDEO_VGA_H_
 
 /*
- * This module contains port and register definitions.
- *
- * Various VGA register information and programming
- * advice can be found at FreeVGA website.
- */
-
-/*
  * VGA Data Register Ports
  */
 #define VGA_CRT_DC  	0x3D5	/* CRT Controller Data Register - color emulation */

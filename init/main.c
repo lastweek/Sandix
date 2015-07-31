@@ -1,3 +1,10 @@
+/*
+ *	init/main.c Sandix Kernel Init
+ *
+ *	Copyright (C) 2015 Yizhou Shan
+ */
+
+#include <sandix/compiler.h>
 #include <sandix/const.h>
 #include <sandix/console.h>
 #include <sandix/mm.h>
@@ -42,7 +49,7 @@ void handle_int(void)
 	);
 }
 
-void kernel_init(void)
+void __init kernel_init(void)
 {
 	screen_info = boot_params.screen_info;
 	con_init();
