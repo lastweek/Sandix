@@ -38,6 +38,7 @@
 
 const struct con_driver *registed_con_drivers[MAX_NR_CON_DRIVERS];
 struct vc_struct vc_struct_map[MAX_NR_CONSOLES];
+
 EXPORT_SYMBOL(registed_con_drivers);
 EXPORT_SYMBOL(vc_struct_map);
 
@@ -55,11 +56,30 @@ ALWAYS_INLINE void scrdown(struct vc_struct *vc, int lines)
 	vc->driver->con_scroll(vc, VWIN_DOWN, lines);
 }
 
+ALWAYS_INLINE void save_cursor(struct vc_struct *vc)
+{
+	vc->vc_saved_x = vc->vc_x;
+	vc->vc_saved_y = vc->vc_y;
+}
+
+ALWAYS_INLINE void restore_cursor(struct vc_struct *vc)
+{
+	vc->vc_x = vc->vc_saved_x;
+	vc->vc_y = vc->vc_saved_y;
+}
+
+enum {
+	VT_NORMAL,
+	VT_ESC,
+	VT_CSI_S1,
+	VT_CSI_S2,
+	VT_CSI_S3
+};
 
 /**
  * con_write - write to VT screen
  *
- * The data has aleady been cooked by Line Discipline layer(or not). here the
+ * The data has aleady been cooked by Line Discipline Layer(or not). Here the
  * data string is passed down to console driver layer, who communicate with
  * dedicated hardware diretly.
  *
@@ -70,14 +90,41 @@ ALWAYS_INLINE void scrdown(struct vc_struct *vc, int lines)
  */
 int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 {
+	int c, state;
 	struct vc_struct *vc;
 	struct con_driver *con;
 
 	vc = tty->console;
-	con = vc->driver;
+	con = tty->console->driver;
+	state = VT_NORMAL;
 	
-	while (count--) {
-		con->con_putc(vc, *buf++, vc->vc_y++, vc->vc_x++);
+	while (count) {
+		c = *buf;
+		count--;
+		buf++;
+		
+		switch (state) {
+		case (VT_NORMAL):
+			if (c > 31 && c < 127) {
+			
+			} else if (c == ESC_ASCII) {
+				state = VT_ESC;
+			} else if (c == ) {
+				
+			}
+			break;
+		case (VT_ESC):
+			state = VT_NORMAL;
+			if (c == '[')
+				state = VT_CSI_S1;
+			else if (c == 'D')
+				;
+			else if (c == 'E')
+				;
+			break;
+		case (VT_CSI_S1):
+
+		};
 	}
 
 	return 0;
@@ -196,5 +243,5 @@ void __init con_init(void)
 	bind_con_driver(&vc_struct_map[0], &vga_con);
 	vc_struct_map[0].driver->con_init(&vc_struct_map[0]);
 	
-	/* Now it is safe to use ACTIVE_VC */
+	/* Now it is safe to use FG_VC */
 }
