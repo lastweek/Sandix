@@ -53,14 +53,15 @@ void handle_int(void)
 void kernel_init(void)
 {
 	struct tty_struct tty;
+	int i;
 
 	screen_info = boot_params.screen_info;
 	con_init();
 	
 	FG_CON->con_set_color(FG_VC, 0, 1, 5);
-	
 	tty.console = FG_VC;
-	con_write(&tty, "ABCDEFGHIJK", 11);
+
+	con_write(&tty, "Hello! This is Sandix Kernel!\n~~~", 34);
 
 	//FG_CON->con_scroll(FG_VC, 2, 4);
 	//FG_CON->con_scroll(FG_VC, 1, 10);

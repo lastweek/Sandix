@@ -56,13 +56,23 @@ ALWAYS_INLINE void scrdown(struct vc_struct *vc, int lines)
 	vc->driver->con_scroll(vc, VWIN_DOWN, lines);
 }
 
-ALWAYS_INLINE void save_cursor(struct vc_struct *vc)
+ALWAYS_INLINE void line_feed(struct vc_struct *vc)
+{
+	if ((vc->vc_y + 1) == vc->vc_rows) {
+		scrdown(vc, 1);
+	} else {
+		vc->vc_y++;
+		vc->vc_pos += vc->vc_row_size;
+	}
+}
+
+static void save_cursor(struct vc_struct *vc)
 {
 	vc->vc_saved_x = vc->vc_x;
 	vc->vc_saved_y = vc->vc_y;
 }
 
-ALWAYS_INLINE void restore_cursor(struct vc_struct *vc)
+static void restore_cursor(struct vc_struct *vc)
 {
 	vc->vc_x = vc->vc_saved_x;
 	vc->vc_y = vc->vc_saved_y;
@@ -90,9 +100,17 @@ enum {
  */
 int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 {
+
+#define BS	8
+#define CR	13
+#define ESC	27
+#define DEL	127
+#define Y	vc->vc_y
+#define X	vc->vc_x
+
 	int c, state;
 	struct vc_struct *vc;
-	struct con_driver *con;
+	static struct con_driver *con;
 
 	vc = tty->console;
 	con = tty->console->driver;
@@ -106,11 +124,17 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 		switch (state) {
 		case (VT_NORMAL):
 			if (c > 31 && c < 127) {
-			
-			} else if (c == ESC_ASCII) {
+				if (X == (vc->vc_cols - 1)) {
+					X = 0;
+					line_feed(vc);
+				} else {
+					X++;
+				}
+				con->con_putc(vc, c, Y, X);
+			} else if (c == ESC) {
 				state = VT_ESC;
-			} else if (c == ) {
-				
+			} else if (c == 1) {
+				;
 			}
 			break;
 		case (VT_ESC):
@@ -123,7 +147,7 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 				;
 			break;
 		case (VT_CSI_S1):
-
+			;
 		};
 	}
 
