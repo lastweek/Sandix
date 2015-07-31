@@ -1,3 +1,7 @@
+#
+#	Copyright (c) 2015 Yizhou Shan
+#
+
 VERSION = 1
 PATCHLEVEL = 0
 SUBLEVEL = 0
@@ -91,7 +95,8 @@ KBUILD_LDFLAGS	:=
 SANDIXINCLUDE	:= -I$(srctree)/include/
 NOSTDINC_FLAGS	:= -nostdinc
 
-OBJCOPYFLAGS	:= -j .text -j .text32 -j .data -j .rodata -O binary
+#Ugly.. You can add more, but DO NOT DELETE them. 
+OBJCOPYFLAGS	:= -j .text -j .text32 -j .data -j .rodata -j .init -O binary
 OBJDUMPFLAGS	:= -d -M att
 
 export VERSION PATCHLEVEL SUBLEVEL NAME0 NAME1 NAME2

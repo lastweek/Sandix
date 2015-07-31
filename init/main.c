@@ -10,6 +10,7 @@
 #include <sandix/mm.h>
 #include <sandix/string.h>
 #include <sandix/screen_info.h>
+#include <sandix/tty.h>
 #include <sandix/types.h>
 
 #include <asm/bootparam.h>
@@ -51,11 +52,16 @@ void handle_int(void)
 
 void kernel_init(void)
 {
+	struct tty_struct tty;
+
 	screen_info = boot_params.screen_info;
 	con_init();
+	
+	FG_CON->con_set_color(FG_VC, 0, 1, 5);
+	
+	tty.console = FG_VC;
+	con_write(&tty, "ABCDEFGHIJK", 11);
 
-	ACTIVE_CON->con_set_color(ACTIVE_VC, 0, 1, 5);
-	ACTIVE_CON->con_putcs(ACTIVE_VC, "ABCD", 4,ACTIVE_VC->vc_y,ACTIVE_VC->vc_x);
-	ACTIVE_CON->con_scroll(ACTIVE_VC, 2, 4);
-	ACTIVE_CON->con_scroll(ACTIVE_VC, 1, 10);
+	//FG_CON->con_scroll(FG_VC, 2, 4);
+	//FG_CON->con_scroll(FG_VC, 1, 10);
 }

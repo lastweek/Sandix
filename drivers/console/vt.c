@@ -1,27 +1,27 @@
 /*
- * Basic VT102 implementation.
+ *	Basic VT102 implementation.
  *
- * Copyright (C) 2015 Yizhou Shan
+ *	Copyright (C) 2015 Yizhou Shan
  *
- * The interface to the hardware is specified using a special structure
- * (struct con_driver) which contains function pointers to console operations
- * (see <sandix/console.h> for more information).
+ *	The interface to the hardware is specified using a special structure
+ *	(struct con_driver) which contains function pointers to console
+ *	operations (see <sandix/console.h> for more information).
  *
- * The abstract console driver provides a generic interface for a text
- * console. It supports VGA text mode, MDA text mode, dummy console.
+ *	The abstract console driver provides a generic interface for a text
+ *	console. It supports VGA text mode, MDA text mode, dummy console.
  *
- * The interface to the tty is specified using a special structure
- * (struct vc_struct) which contains data and operations for single virtual
- * console(see <sandix/console.h> for more information).
+ *	The interface to the tty is specified using a special structure
+ *	(struct vc_struct) which contains data and operations for single virtual
+ *	console(see <sandix/console.h> for more information).
  *
- * The different layer can been seen as:
- *   
- * -->TTY Layer
- *    -->Line Discipline
- *       -->Virtual Terminal (VT)
- *       -->Virtual Console  (VC)
- *             -->Console Driver (VGA, MDA, DUMMY)
- *
+ *	The different layer can been seen as:
+ *	_________________________________________________________________
+ *	|-->TTY Layer							|
+ *	|	-->Line Discipline					|
+ *	|		-->Virtual Terminal (VT)			|
+ *	|		-->Virtual Console  (VC)			|
+ *	|			-->Console Driver (VGA, MDA, DUMMY)	|	
+ *	|_______________________________________________________________|
  */
 
 #include <sandix/compiler.h>
@@ -41,23 +41,51 @@ struct vc_struct vc_struct_map[MAX_NR_CONSOLES];
 EXPORT_SYMBOL(registed_con_drivers);
 EXPORT_SYMBOL(vc_struct_map);
 
+/****************************************************************************/
+/*			Screen Manipulation				    */
+/****************************************************************************/
+
+ALWAYS_INLINE void scrup(struct vc_struct *vc, int lines)
+{
+	vc->driver->con_scroll(vc, VWIN_UP, lines);
+}
+
+ALWAYS_INLINE void scrdown(struct vc_struct *vc, int lines)
+{
+	vc->driver->con_scroll(vc, VWIN_DOWN, lines);
+}
+
+
 /**
  * con_write - write to VT screen
- * 
- * DESCRIPTION:
- * Escape and control sequences provide additional control functions not
- * provided by the single-character controls of the character set. These
- * multiple-character sequences are not displayed; instead, they control
- * terminal operation.
+ *
+ * The data has aleady been cooked by Line Discipline layer(or not). here the
+ * data string is passed down to console driver layer, who communicate with
+ * dedicated hardware diretly.
+ *
+ * We emulate VT102 by cooking escape and control sequences. Escape and control
+ * sequences provide additional control functions not provided by the single
+ * character controls of the character set. These multiple-character sequences
+ * are not displayed; instead, they control terminal operation.
  */
-static int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
+int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 {
+	struct vc_struct *vc;
+	struct con_driver *con;
+
+	vc = tty->console;
+	con = vc->driver;
+	
+	while (count--) {
+		con->con_putc(vc, *buf++, vc->vc_y++, vc->vc_x++);
+	}
+
 	return 0;
 }
 
 
 /****************************************************************************/
-/*			VT Helper Functions				    */
+/*			VT Layer Management				    */
 /****************************************************************************/
 
 int bind_con_driver(struct vc_struct *vc, const struct con_driver *con)

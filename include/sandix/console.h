@@ -79,8 +79,8 @@ extern const struct con_driver dummy_con;
 extern const struct con_driver *registed_con_drivers[MAX_NR_CON_DRIVERS];
 extern struct vc_struct vc_struct_map[MAX_NR_CONSOLES];
 
-#define ACTIVE_VC	(&vc_struct_map[0])
-#define ACTIVE_CON	(ACTIVE_VC->driver)
+#define FG_VC	(&vc_struct_map[0])
+#define FG_CON	(FG_VC->driver)
 
 /* Visible WINdow Direction */
 #define VWIN_UP		(1)
@@ -97,4 +97,5 @@ int unregister_con_driver(const struct con_driver *con);
 int bind_con_driver(struct vc_struct *vc, const struct con_driver *con);
 int unbind_con_driver(const struct con_driver *con);
 
+int con_write(struct tty_struct *tty, const unsigned char *buf, int count);
 #endif /* _SANDIX_CONSOLE_H_ */

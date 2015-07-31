@@ -1,6 +1,9 @@
 /*
  *	Sandix Linker Script - Assembly Version
  *
+ *	BIG FAT NOTE: Make sure you do not eliminate sections you need!!!
+ *	If you happenly miss something, it will lead to hard-to-debug errors.
+ *
  *	Copyright (C) 2015 Yizhou Shan
  *
  *	This program is free software; you can redistribute it and/or modify
@@ -48,10 +51,11 @@ SECTIONS
 		__etext__ = .;
 	}
 	
+	/* Add wildcard after rodata. GCC will add f*ing suffix */
 	. = ALIGN(PAGE_SIZE);
 	.rodata : {
 		__srodata__ = .;
-		*(.rodata)
+		*(.rodata*)
 		__erodata__ = .;
 	}
 
@@ -64,7 +68,7 @@ SECTIONS
 		__edata__ = .;
 	}
 	
-	/* Init data and text. Can be freed later */
+	/* Init data and text sections. Can be freed later */
 	. = ALIGN(PAGE_SIZE);
 	.init : {
 		__sinit__ = .;
