@@ -23,7 +23,7 @@ PHYS_LOAD_OFFSET = 0x10000;
  * just do not using 0x0 as kernel virtual address basis? Then kernel do not
  * have to distinguish between normal and high memory!
  */
-LOAD_OFFSET = 0x0;
+LOAD_OFFSET = 0xC0000000;
 
 ENTRY(startup_32)
 SECTIONS
@@ -34,10 +34,11 @@ SECTIONS
 	__end_text = .;
 
 	. = ALIGN(16);
-	.data	: { *(.data*)}
+	.data	: { *(.data)}
+
 
 	. = ALIGN(16);
-	.rodata	: { *(.rodata*)}
+	.rodata	: { *(.rodata)}
 	__end_data = .;
 
 	. = ALIGN(16);

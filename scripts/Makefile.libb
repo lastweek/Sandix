@@ -20,14 +20,14 @@ subdir-obj-y := $(filter %/built-in.o, $(obj-y))
 # Add subdir path.
 # It's very important when we descending into sub-dir.
 # ;)
-subdir-y	 := $(addprefix $(obj)/, $(subdir-y))
-obj-y		 := $(addprefix $(obj)/, $(obj-y))
-obj-dirs	 := $(addprefix $(obj)/, $(obj-dirs))
-subdir-obj-y := $(addprefix $(obj)/, $(subdir-obj-y))
+subdir-y	:= $(addprefix $(obj)/, $(subdir-y))
+obj-y		:= $(addprefix $(obj)/, $(obj-y))
+obj-dirs	:= $(addprefix $(obj)/, $(obj-dirs))
+subdir-obj-y	:= $(addprefix $(obj)/, $(subdir-obj-y))
 
-loader-y	 := $(addprefix $(obj)/, $(loader-y))
-objcopy-y	 := $(addprefix $(obj)/, $(objcopy-y))
-objdump-y	 := $(addprefix $(obj)/, $(objdump-y))
+loader-y	:= $(addprefix $(obj)/, $(loader-y))
+objcopy-y	:= $(addprefix $(obj)/, $(objcopy-y))
+objdump-y	:= $(addprefix $(obj)/, $(objdump-y))
 
 
 # GENERAL FLAGS FOR COMPILING
@@ -51,5 +51,5 @@ cpp_flags	= -Wp,-MD,$(depfile),-MT,'$@' $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(_cp
 
 ld_flags	= $(KBUILD_LDFLAGS) $(LDFLAGS)
 
-objcopy_flags = $(OBJCOPYFLAGS)
-objdump_flags = $(OBJDUMPFLAGS)
+objcopy_flags	= $(OBJCOPYFLAGS)
+objdump_flags	= $(OBJDUMPFLAGS)

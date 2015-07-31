@@ -64,12 +64,12 @@ CROSS_COMPILE = i386-elf-
 
 # VARIABLES
 # ===========================================================================
-CC		= $(CROSS_COMPILE)gcc
-AS		= $(CROSS_COMPILE)as
-LD		= $(CROSS_COMPILE)ld
-CPP		= $(CC) -E
-AR		= $(CROSS_COMPILE)ar
-NM		= $(CROSS_COMPILE)nm
+CC	= $(CROSS_COMPILE)gcc
+AS	= $(CROSS_COMPILE)as
+LD	= $(CROSS_COMPILE)ld
+CPP	= $(CC) -E
+AR	= $(CROSS_COMPILE)ar
+NM	= $(CROSS_COMPILE)nm
 STRIP	= $(CROSS_COMPILE)strip
 OBJCOPY	= $(CROSS_COMPILE)objcopy
 OBJDUMP	= $(CROSS_COMPILE)objdump
@@ -122,17 +122,17 @@ ifeq ($(CONFIG_X86_32),y)
     KBUILD_CFLAGS += -ffreestanding
 endif
 
-boot-y			:= boot/
-init-y			:= init/
-core-y			:= mm/ lib/
-drivers-y		:= drivers/
-#core-y			:= kernel/ mm/ fs/ ipc/ block/
+boot-y		:= boot/
+init-y		:= init/
+core-y		:= kernel/ mm/ lib/
+drivers-y	:= drivers/
+#core-y		:= kernel/ mm/ fs/ ipc/ block/
 vmsandix-dirs	:= $(patsubst %/, %, $(boot-y) $(init-y) $(core-y) $(drivers-y))
 
-boot-y			:= $(patsubst %/, %/built-in.o, $(boot-y))
-init-y			:= $(patsubst %/, %/built-in.o, $(init-y))
-core-y			:= $(patsubst %/, %/built-in.o, $(core-y))
-drivers-y		:= $(patsubst %/, %/built-in.o, $(drivers-y))
+boot-y		:= $(patsubst %/, %/built-in.o, $(boot-y))
+init-y		:= $(patsubst %/, %/built-in.o, $(init-y))
+core-y		:= $(patsubst %/, %/built-in.o, $(core-y))
+drivers-y	:= $(patsubst %/, %/built-in.o, $(drivers-y))
 vmsandix-deps	:= $(boot-y) $(init-y) $(core-y) $(drivers-y)
 
 KBUILD_VMSANDIX_BOOT := $(boot-y)
@@ -152,8 +152,8 @@ RM_IMAGE  := boot/rmimage.bin
 PM_IMAGE  := boot/pmimage.bin
 VMSANDIX  := boot/vmsandix
 BZIMAGE   := boot/bzImage
-RM_LD_CMD := scripts/rm-image.ld
-PM_LD_CMD := scripts/pm-image.ld
+RM_LD_CMD := boot/rm-image.ld
+PM_LD_CMD := kernel/vmSandix.ld
 
 # Some generic definitions and variables
 include $(srctree)/scripts/Kbuild.include
@@ -174,8 +174,10 @@ quiet_cmd_bin_pm := OBJCOPY $(PM_IMAGE)
       cmd_bin_pm := $(OBJCOPY) $(OBJCOPYFLAGS) $(_PM_IMAGE) $(PM_IMAGE)
 
 quiet_cmd_catenate := CAT$(SS) $(VMSANDIX)
-      cmd_catenate := ./boot/CATENATE
+      cmd_catenate := boot/CATENATE
 
+quiet_cmd_map := SYSTEM MAP
+      cmd_map := $(NM) -n $(_PM_IMAGE) > boot/System.map
 
 # BUILD
 # ===========================================================================
@@ -192,6 +194,7 @@ vmsandix: $(vmsandix-deps)
 	$(call if_changed,link_rm)
 	$(call if_changed,bin_pm)
 	$(call if_changed,bin_rm)
+	$(call if_changed,map)
 	$(call if_changed,catenate)
 
 $(sort $(vmsandix-deps)): $(vmsandix-dirs) ;

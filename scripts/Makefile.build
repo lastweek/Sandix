@@ -64,11 +64,12 @@ __build: $(builtin-target) $(subdir-y) $(loader-target) \
 # generate relocatable objects. The final executable object
 # file is generated in top Makefile.
 ifdef builtin-target
+_obj-y = $(filter-out %.ld, $(obj-y))
 quiet_cmd_link_o_target = LD $(SS)  $@
       cmd_link_o_target = \
-	  					$(if $(strip $(obj-y)),\
-	  					$(LD) $(ld_flags) -r -o $@ $(obj-y), \
-						rm -f $@; $(AR) rcs$(KBUILD_ARFLAGS) $@)
+      			$(if $(strip $(obj-y)),\
+			$(LD) $(ld_flags) -r -o $@ $(_obj-y), \
+			rm -f $@; $(AR) rcs$(KBUILD_ARFLAGS) $@)
 
 $(builtin-target): $(obj-y) FORCE
 	$(call if_changed,link_o_target)
@@ -137,7 +138,6 @@ $(obj)/%.o: $(src)/%.c FORCE
 	$(call if_changed,cc_o_c)
 
 
-
 # .c --> .s
 # ---------------------------------------------------------------------------
 #* Target: $(obj)/%.s
@@ -149,7 +149,6 @@ quiet_cmd_cc_s_c = CC $(SS)  $@
 
 $(obj)/%.s: $(src)/%.c FORCE
 	$(call if_changed,cc_s_c)
-
 
 
 # .c --> .i
@@ -164,22 +163,17 @@ quiet_cmd_cc_i_c = CPP $(SS) $@
 $(obj)/%.i: $(src)/%.c FORCE
 	$(call if_changed,cc_i_c)
 
-
-
-# .S --> .s
+# .ld.S --> .ld
 # ---------------------------------------------------------------------------
-#* Target: $(obj)/%.s
-#* Depend on: $(src)/%.S
-#* Desc: Compile (.S) to (.s)
+#* Target: $(obj)/%.ld
+#* Depend on: $(src)/%.ld.S
+#* Desc: Preprocess Linker Script
 # ---------------------------------------------------------------------------
-modkern_aflags := $(KBUILD_AFLAGS_KERNEL) $(AFLAGS_KERNEL)
+quiet_cmd_ld_o_S = LDS $(SS)$@
+      cmd_ld_o_S = $(CPP) $(cpp_flags) -P -C -D__ASSEMBLY__ -o $@ $<
 
-quiet_cmd_as_s_S = CPP $(SS) $@
-      cmd_as_s_S = $(CPP) $(a_flags) -o $@ $<
-
-$(obj)/%.s: $(src)/%.S FORCE
-	$(call if_changed,as_s_S)
-
+$(obj)/%.ld: $(src)/%.ld.S FORCE
+	$(call if_changed,ld_o_S)
 
 
 # .S --> .o

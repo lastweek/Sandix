@@ -49,7 +49,7 @@ void handle_int(void)
 	);
 }
 
-void __init kernel_init(void)
+void kernel_init(void)
 {
 	screen_info = boot_params.screen_info;
 	con_init();

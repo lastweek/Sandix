@@ -6,6 +6,4 @@
 
 void init_traps(void)
 {
-	set_trap_gate();
-	set_
 }

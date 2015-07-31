@@ -53,8 +53,8 @@ ENTRY(startup_32)
  */
  	cld
 	xorl %eax, %eax
-	movl $pa(__bss_start), %edi
-	movl $pa(__bss_end), %ecx
+	movl $pa(__bss_start__), %edi
+	movl $pa(__bss_end__), %ecx
 	subl %edi, %ecx
 	shrl $2, %ecx
 	rep ; stosl
