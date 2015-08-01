@@ -1,7 +1,21 @@
 /*
  *	init/main.c - Kernel Initialization
  *
- *	Copyright (C) 2015 Yizhou Shan
+ *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *
+ *	This program is free software; you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation; either version 2 of the License, or
+ *	(at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
+ *
+ *	You should have received a copy of the GNU General Public License along
+ *	with this program; if not, write to the Free Software Foundation, Inc.,
+ *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <sandix/compiler.h>
@@ -18,7 +32,10 @@
 #include <asm/descriptor.h>
 
 struct boot_params boot_params;
+EXPORT_SYMBOL(boot_params);
+
 struct screen_info screen_info;
+EXPORT_SYMBOL(screen_info);
 
 #define __ALIGN8	__attribute__((aligned(8)))
 
@@ -58,20 +75,18 @@ void hlt(void)
 	);
 }
 
-void kernel_init(void)
+void __init kernel_init(void)
 {
 	struct tty_struct tty;
 	int i;
+	char *s = "\033[1J\n\rHello! This is Sandix Kernel!\n\r~~~";
 
 	screen_info = boot_params.screen_info;
-	con_init();
+	tty_init();
 	
 	FG_CON->con_set_color(FG_VC, 0, 1, 5);
 	tty.console = FG_VC;
-
-	con_write(&tty, "Hello! This is Sandix Kernel!\n\r~~~", 34);
-
-	//FG_CON->con_scroll(FG_VC, 2, 4);
-	//FG_CON->con_scroll(FG_VC, 1, 10);
+	con_write(&tty, s, strlen(s));
+	
 	hlt();
 }

@@ -1,20 +1,19 @@
 /*
- *	Basic VT102 implementation.
+ *	Basic VT102 Simulation.
  *
- *	Copyright (C) 2015 Yizhou Shan
+ *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	The interface to the hardware is specified using a special structure
  *	(struct con_driver) which contains function pointers to console
- *	operations (see <sandix/console.h> for more information).
- *
- *	The abstract console driver provides a generic interface for a text
- *	console. It supports VGA text mode, MDA text mode, dummy console.
+ *	operations (see <sandix/console.h> for more information). The abstract
+ *	console driver provides a generic interface for a text console. It
+ *	supports VGA text mode, MDA text mode, dummy console.
  *
  *	The interface to the tty is specified using a special structure
  *	(struct vc_struct) which contains data and operations for single virtual
- *	console(see <sandix/console.h> for more information).
+ *	console(see <sandix/tty.h> for more information).
  *
- *	The different layer can been seen as:
+ *	The architecture of these layers 
  *	_________________________________________________________________
  *	|-->TTY Layer							|
  *	|	-->Line Discipline					|
@@ -22,6 +21,21 @@
  *	|		-->Virtual Console  (VC)			|
  *	|			-->Console Driver (VGA, MDA, DUMMY)	|	
  *	|_______________________________________________________________|
+ *
+ *
+ *	This program is free software; you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation; either version 2 of the License, or
+ *	(at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
+ *
+ *	You should have received a copy of the GNU General Public License along
+ *	with this program; if not, write to the Free Software Foundation, Inc.,
+ *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <sandix/compiler.h>
@@ -32,7 +46,7 @@
 #include <video/video.h>
 
 /*
- * This is what the terminal answers to a ESC-Z or csi0c query.
+ * This is what the terminal answers to a ESC-Z or CSI0c query.
  */
 #define VT100ID "\033[?1;2c"
 #define VT102ID "\033[?6c"
@@ -362,8 +376,11 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 				case 'u':
 					restore_cursor(vc);
 					break;
+				default:
+					break;
 
 			};
+			break;
 		default:
 			return 0;
 		}; /* End of switch(state) */
@@ -373,6 +390,7 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 
 	return 0;
 }
+EXPORT_SYMBOL(con_write);
 
 
 /****************************************************************************/
@@ -473,7 +491,7 @@ int unregister_con_driver(const struct con_driver *con)
  * that only the first vc is bind to vga_con, and yes, that is the only
  * console sandix use.
  */
-void __init con_init(void)
+void __init console_init(void)
 {
 	int i;
 	

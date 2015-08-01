@@ -8,14 +8,13 @@
 
 #define MAX_NR_CON_DRIVERS 4
 
+/* Whatever value, 1 is enough */
 #define MIN_NR_CONSOLES	1
 #define MAX_NR_CONSOLES	8
 
 struct con_driver;
 
-/*
- * Data structure describing a single virtual console.
- */
+/* Data structure describing a single virtual console. */
 struct vc_struct {
 	const struct con_driver *driver;	/* Low-Level driver */
 	unsigned int	vc_num;			/* Console number */
@@ -51,11 +50,7 @@ struct vc_struct {
 	
 };
 
-/*
- * Low-level console driver.
- * We call it console driver because it has
- * operations that can talk to hardware directly.
- */
+/* Low-Level Console Driver. */
 struct con_driver {
 	void	(*con_startup)(void);
 	void	(*con_init)(struct vc_struct * vc);
@@ -72,13 +67,16 @@ struct con_driver {
 	u32	(*con_getxy)(struct vc_struct *, unsigned long, int *, int *);
 };
 
+/* Avaliable Console Drivers */
 extern const struct con_driver vga_con;
 extern const struct con_driver mda_con;
 extern const struct con_driver dummy_con;
 
+/* System Data */
 extern const struct con_driver *registed_con_drivers[MAX_NR_CON_DRIVERS];
 extern struct vc_struct vc_struct_map[MAX_NR_CONSOLES];
 
+/* UGLY */
 #define FG_VC	(&vc_struct_map[0])
 #define FG_CON	(FG_VC->driver)
 
@@ -91,11 +89,12 @@ extern struct vc_struct vc_struct_map[MAX_NR_CONSOLES];
 #define CM_ERASE	(2)
 #define CM_MOVE		(3)
 
-void con_init(void);
+/* drivers/console/vt.c */
+void console_init(void);
 int register_con_driver(const struct con_driver *con);
 int unregister_con_driver(const struct con_driver *con);
 int bind_con_driver(struct vc_struct *vc, const struct con_driver *con);
 int unbind_con_driver(const struct con_driver *con);
-
 int con_write(struct tty_struct *tty, const unsigned char *buf, int count);
+
 #endif /* _SANDIX_CONSOLE_H_ */

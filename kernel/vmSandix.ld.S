@@ -4,7 +4,7 @@
  *	BIG FAT NOTE: Make sure you do not eliminate sections you need!!!
  *	If you happenly miss something, it will lead to hard-to-debug errors.
  *
- *	Copyright (C) 2015 Yizhou Shan
+ *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
