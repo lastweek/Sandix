@@ -12,4 +12,6 @@ struct tty_struct {
 	struct vc_struct	*console;
 };
 
+
+void tty_init(void);
 #endif /* _SANDIX_TTY_H_ */

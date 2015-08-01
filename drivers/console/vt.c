@@ -136,6 +136,22 @@ static void respond(struct tty_struct *tty)
 
 }
 
+static void delete_char(struct vc_struct *vc, unsigned int nr)
+{
+	unsigned short *p = (unsigned short *)vc->vc_pos;
+
+	scr_memcpyw(p, p + nr, vc->vc_cols - vc->vc_x - nr);
+	scr_memsetw(p + vc->vc_cols - vc->vc_x - nr, vc->vc_erased_char, nr);
+}
+
+static void insert_char(struct vc_struct *vc,  unsigned int nr)
+{
+	unsigned short *p = (unsigned short *)vc->vc_pos;
+
+	scr_memmovew(p + nr, p, vc->vc_cols - vc->vc_x - nr);
+	scr_memsetw(p, vc->vc_erased_char, nr);
+}
+
 /* Erase Display */
 static void csi_J(struct vc_struct *vc)
 {
@@ -169,22 +185,79 @@ static void csi_J(struct vc_struct *vc)
 /* Erase Line */
 static void csi_K(struct vc_struct *vc)
 {
-	
+	unsigned int count;
+	unsigned short *start;
+
+	switch (vc->vc_par[0]) {
+		case 0:	/* Erase from cursor to end of line */
+			count = vc->vc_cols - vc->vc_x;
+			start = (unsigned short *)vc->vc_pos;
+			break;
+		case 1: /* Erase from start of line to cursor */
+			count = vc->vc_x + 1;
+			start = (unsigned short *)(vc->vc_pos - (vc->vc_x << 1));
+		case 2: /* Erase whole line */
+			count = vc->vc_cols;
+			start = (unsigned short *)(vc->vc_pos - (vc->vc_x << 1));
+		default:
+			return;
+	};
+
+	scr_memsetw(start, vc->vc_erased_char, count);
 }
 
+/* Insert Lines */
 static void csi_L(struct vc_struct *vc)
 {
+	unsigned int lines;
 
+	lines = vc->vc_par[0];
+	if (lines > (vc->vc_rows - vc->vc_y)) {
+		lines = vc->vc_rows - vc->vc_y;
+	} else if (!lines) {
+		lines = 1;
+	}
 }
 
+/* Delete Lines */
 static void csi_M(struct vc_struct *vc)
 {
+	unsigned int lines;
 
+	lines = vc->vc_par[0];
+	if (lines > (vc->vc_rows - vc->vc_y)) {
+		lines = vc->vc_rows - vc->vc_y;
+	} else if (!lines) {
+		lines = 1;
+	}
 }
 
+/* Delete chars in current line */
 static void csi_P(struct vc_struct *vc)
 {
+	unsigned int nr;
 
+	nr = vc->vc_par[0];
+	if (nr > (vc->vc_cols - vc->vc_x)) {
+		nr = vc->vc_cols - vc->vc_x;
+	} else if (!nr) {
+		nr = 1;
+	}
+	delete_char(vc, nr);
+}
+
+/* Insert blank chars in current line */
+static void csi_at(struct vc_struct *vc)
+{
+	unsigned int nr;
+
+	nr = vc->vc_par[0];
+	if (nr > vc->vc_cols - vc->vc_x) {
+		nr = vc->vc_cols - vc->vc_x;
+	} else if (!nr) {
+		nr = 1;
+	}
+	insert_char(vc, nr);
 }
 
 enum {
@@ -369,6 +442,9 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 					break;
 				case 'P':
 					csi_P(vc);
+					break;
+				case '@':
+					csi_at(vc);
 					break;
 				case 's':
 					save_cursor(vc);
