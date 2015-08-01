@@ -211,7 +211,7 @@ static void vgacon_startup(void)
 	}
 
 	vga_vram_attr = 0x7;
-	vga_erased_char = BLANK;
+	vga_erased_char = (vga_vram_attr << 8) | BLANK;
 	
 	vga_vram_base = VGA_MEM_MAP(vga_vram_base);
 	vga_vram_end = vga_vram_base + vga_vram_size;
@@ -270,7 +270,6 @@ static void vgacon_set_color(struct vc_struct *vc, int blink, int bg, int fg)
 
 	if (blink)
 		vc->vc_attr |= 0x80;
-
 }
 
 const struct con_driver vga_con = {

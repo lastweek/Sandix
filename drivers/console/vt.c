@@ -29,6 +29,7 @@
 #include <sandix/errno.h>
 #include <sandix/tty.h>
 #include <sandix/types.h>
+#include <video/video.h>
 
 /*
  * This is what the terminal answers to a ESC-Z or csi0c query.
@@ -46,35 +47,64 @@ EXPORT_SYMBOL(vc_struct_map);
 /*			Screen Manipulation				    */
 /****************************************************************************/
 
-ALWAYS_INLINE void scrup(struct vc_struct *vc, int lines)
+ALWAYS_INLINE
+void scrup(struct vc_struct *vc, int lines)
 {
 	vc->driver->con_scroll(vc, VWIN_UP, lines);
 }
 
-ALWAYS_INLINE void scrdown(struct vc_struct *vc, int lines)
+ALWAYS_INLINE
+void scrdown(struct vc_struct *vc, int lines)
 {
 	vc->driver->con_scroll(vc, VWIN_DOWN, lines);
 }
 
-ALWAYS_INLINE void line_feed(struct vc_struct *vc)
+ALWAYS_INLINE
+void save_cursor(struct vc_struct *vc)
 {
-	if ((vc->vc_y + 1) == vc->vc_rows) {
-		scrdown(vc, 1);
-	} else {
-		vc->vc_y++;
-		vc->vc_pos += vc->vc_row_size;
-	}
+	vc->vc_saved_x = vc->vc_x;
+	vc->vc_saved_y = vc->vc_y;
 }
 
-ALWAYS_INLINE void reverse_line_feed(struct vc_struct *vc)
+ALWAYS_INLINE
+void restore_cursor(struct vc_struct *vc)
+{
+	vc->vc_x = vc->vc_saved_x;
+	vc->vc_y = vc->vc_saved_y;
+}
+
+ALWAYS_INLINE
+void hide_cursor(struct vc_struct *vc)
+{
+	vc->driver->con_cursor(vc, CM_ERASE);
+}
+
+ALWAYS_INLINE
+void set_cursor(struct vc_struct *vc)
+{
+	vc->driver->con_cursor(vc, CM_DRAW);
+}
+
+ALWAYS_INLINE
+void carriage_return(struct vc_struct *vc)
+{
+	vc->vc_pos -= (vc->vc_x << 1);
+	vc->vc_x = 0;
+}
+
+static void line_feed(struct vc_struct *vc)
+{
+	if ((vc->vc_y + 1) == vc->vc_rows)
+		scrdown(vc, 1);
+	else
+		vc->vc_y++;
+	
+	vc->vc_pos += vc->vc_row_size;
+}
+
+static void reverse_line_feed(struct vc_struct *vc)
 {
 	
-}
-
-ALWAYS_INLINE void carriage_return(struct vc_struct *vc)
-{
-	vc->vc_pos -= vc->vc_x << 1;
-	vc->vc_x = 0;
 }
 
 static void gotoxy(struct vc_struct *vc, int new_x, int new_y)
@@ -87,19 +117,58 @@ static void gotoxy(struct vc_struct *vc, int new_x, int new_y)
 		(((vc->vc_cols*vc->vc_y) + vc->vc_x) << 1);
 }
 
-static void save_cursor(struct vc_struct *vc)
-{
-	vc->vc_saved_x = vc->vc_x;
-	vc->vc_saved_y = vc->vc_y;
-}
-
-static void restore_cursor(struct vc_struct *vc)
-{
-	vc->vc_x = vc->vc_saved_x;
-	vc->vc_y = vc->vc_saved_y;
-}
-
 static void respond(struct tty_struct *tty)
+{
+
+}
+
+/* Erase Display */
+static void csi_J(struct vc_struct *vc)
+{
+	unsigned int count;
+	unsigned short *start;
+
+	switch (vc->vc_par[0]) {
+		case 0:	/* Erase from cursor to end of display */
+			count = (vc->vc_scr_end - vc->vc_pos) >> 1;
+			start = (unsigned short *)vc->vc_pos;
+			break;
+		case 1:	/* Erase from start to cursor */
+			count = ((vc->vc_pos - vc->vc_visible_origin) >> 1) + 1;
+			start = (unsigned short *)vc->vc_visible_origin;
+			break;
+		case 2:	/* Erase whole display */
+			count = vc->vc_cols * vc->vc_rows;
+			start = (unsigned short *) vc->vc_visible_origin;
+			break;
+		case 3:	/* Erase scroll-back buffer */
+			count = ((vc->vc_pos - vc->vc_origin) >> 1) + 1;
+			start = (unsigned short *) vc->vc_origin;
+			break;
+		default:
+			return;
+	};
+	
+	scr_memsetw(start, vc->vc_erased_char, count);
+}
+
+/* Erase Line */
+static void csi_K(struct vc_struct *vc)
+{
+	
+}
+
+static void csi_L(struct vc_struct *vc)
+{
+
+}
+
+static void csi_M(struct vc_struct *vc)
+{
+
+}
+
+static void csi_P(struct vc_struct *vc)
 {
 
 }
@@ -126,18 +195,17 @@ enum {
  */
 int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 {
-#define BS	8	/* Back Space */
-#define HT	9	/* Horizontal Table */
-#define NL	10	/* New Line */
-#define VT	11	/* Vertical Tab */
-#define NP	12	/* New Page */
-#define CR	13	/* Carriage Return */
-#define ESC	27
-#define DEL	127
-#define Y	(vc->vc_y)
-#define X	(vc->vc_x)
 
-	int c, state;
+#define BS	8		/* Back Space */
+#define HT	9		/* Horizontal Table */
+#define NL	10		/* New Line */
+#define VT	11		/* Vertical Tab */
+#define NP	12		/* New Page */
+#define CR	13		/* Carriage Return */
+#define ESC	27		/* Escape */
+#define DEL	127		/* Delete */
+
+	int npar, c, state;
 	struct vc_struct *vc;
 	static struct con_driver *con;
 
@@ -145,6 +213,8 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 	con = tty->console->driver;
 	state = VT_NORMAL;
 	
+	hide_cursor(vc);
+
 	while (count) {
 		c = *buf;
 		count--;
@@ -153,25 +223,26 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 		switch (state) {
 		case (VT_NORMAL):
 			if (c > 31 && c < 127) {
-				if (X == (vc->vc_cols - 1)) {
-					X = 0;
+				if (vc->vc_x == vc->vc_cols) {
+					vc->vc_x = 0;
+					vc->vc_pos -= vc->vc_row_size;
 					line_feed(vc);
-				} else {
-					X++;
 				}
-				con->con_putc(vc, c, Y, X);
+				con->con_putc(vc, c, vc->vc_y, vc->vc_x);
+				vc->vc_x++;
+				vc->vc_pos += 2;
 			} else if (c == BS) {
-				if (X) {
-					X--;
+				if (vc->vc_x) {
+					vc->vc_x--;
 					vc->vc_pos -= 2;
 				}
 			} else if (c == HT) {
 				/* Table Width = 8 */
-				c = 8 - (X & 7);
-				X += c;
+				c = 8 - (vc->vc_x & 7);
+				vc->vc_x += c;
 				vc->vc_pos += c << 1;
-				if (X >= vc->vc_cols) {
-					X -= vc->vc_cols;
+				if (vc->vc_x >= vc->vc_cols) {
+					vc->vc_x -= vc->vc_cols;
 					vc->vc_pos -= vc->vc_row_size;
 					line_feed(vc);
 				}
@@ -191,7 +262,7 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 			} else if (c == 'D') {
 				line_feed(vc);
 			} else if (c == 'E') {
-				gotoxy(vc, 0, Y++);
+				gotoxy(vc, 0, vc->vc_y++);
 			} else if (c == 'M') {
 				reverse_line_feed(vc);
 			} else if (c == 'Z') {
@@ -203,9 +274,102 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 			}
 			break;
 		case (VT_CSI_S1):
-			;
-		};
-	}
+			state = VT_CSI_S2;
+			npar = 0;
+			if (c == '?') {
+				/* \033[? */
+				break;
+			}
+		case (VT_CSI_S2):
+			if (c == ';' && npar < (NPAR - 1)) {
+				npar++;
+				break;
+			} else if (c >= '0' && c <= '9') {
+				vc->vc_par[npar] = 10 * vc->vc_par[npar]
+						    + c - '0';
+				break;
+			} else {
+				state = VT_CSI_S3;
+			}
+		case (VT_CSI_S3):
+			state = VT_NORMAL;
+			switch (c) {
+				case 'G': case '`':
+					if (vc->vc_par[0])
+						vc->vc_par[0]--;
+					gotoxy(vc, vc->vc_par[0], vc->vc_y);
+					break;
+				case 'A':
+					if (!vc->vc_par[0])
+						vc->vc_par[0]++;
+					gotoxy(vc, vc->vc_x, vc->vc_y - vc->vc_par[0]);
+					break;
+				case 'B': case 'e':
+					if (!vc->vc_par[0])
+						vc->vc_par[0]++;
+					gotoxy(vc, vc->vc_x, vc->vc_y + vc->vc_par[0]);
+					break;
+				case 'C': case 'a':
+					if (!vc->vc_par[0])
+						vc->vc_par[0]++;
+					gotoxy(vc, vc->vc_x + vc->vc_par[0], vc->vc_y);
+					break;
+				case 'D':
+					if (!vc->vc_par[0])
+						vc->vc_par[0]++;
+					gotoxy(vc, vc->vc_x + vc->vc_par[0], vc->vc_y);
+					break;
+				case 'E': 
+					if (!vc->vc_par[0])
+						vc->vc_par[0]++;
+					gotoxy(vc, 0, vc->vc_y + vc->vc_par[0]);
+					break;
+				case 'F':
+					if (!vc->vc_par[0])
+						vc->vc_par[0]++;
+					gotoxy(vc, 0, vc->vc_y - vc->vc_par[0]);
+					break;
+				case 'd':
+					if (vc->vc_par[0])
+						vc->vc_par[0]--;
+					gotoxy(vc, vc->vc_x, vc->vc_par[0]);
+					break;
+				case 'H': case 'f':
+					if (vc->vc_par[0])
+						vc->vc_par[0]--;
+					if (vc->vc_par[1])
+						vc->vc_par[1]--;
+					gotoxy(vc, vc->vc_par[1], vc->vc_par[0]);
+					break;
+				case 'J':
+					csi_J(vc);
+					break;
+				case 'K':
+					csi_K(vc);
+					break;
+				case 'L':
+					csi_L(vc);
+					break;
+				case 'M':
+					csi_M(vc);
+					break;
+				case 'P':
+					csi_P(vc);
+					break;
+				case 's':
+					save_cursor(vc);
+					break;
+				case 'u':
+					restore_cursor(vc);
+					break;
+
+			};
+		default:
+			return 0;
+		}; /* End of switch(state) */
+	} /* End of while() */
+	
+	set_cursor(vc);
 
 	return 0;
 }

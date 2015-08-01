@@ -50,7 +50,13 @@ void handle_int(void)
 	);
 }
 
-
+void hlt(void)
+{
+	asm volatile (
+		"1: hlt\n\t"
+		"jmp 1b"
+	);
+}
 
 void kernel_init(void)
 {
@@ -63,8 +69,9 @@ void kernel_init(void)
 	FG_CON->con_set_color(FG_VC, 0, 1, 5);
 	tty.console = FG_VC;
 
-	con_write(&tty, "Hello! This is Sandix Kernel!\n~~~", 34);
+	con_write(&tty, "Hello! This is Sandix Kernel!\n\r~~~", 34);
 
 	//FG_CON->con_scroll(FG_VC, 2, 4);
 	//FG_CON->con_scroll(FG_VC, 1, 10);
+	hlt();
 }

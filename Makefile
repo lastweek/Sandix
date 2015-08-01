@@ -231,7 +231,9 @@ $(CLEAN_DIRS):
 # ===========================================================================
 PHONY += help
 help:
-	@echo "Build Sandix Kernel"
+	@echo "\nBUILD SANDIX KERNEL\n"
+	@echo "  make V=0 [targets] => Quiet Build (default)"
+	@echo "  make V=1 [targets] => Verbose Build"
 
 PHONY += FORCE
 FORCE:
