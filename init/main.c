@@ -50,6 +50,8 @@ void handle_int(void)
 	);
 }
 
+
+
 void kernel_init(void)
 {
 	struct tty_struct tty;

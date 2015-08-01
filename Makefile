@@ -221,6 +221,7 @@ clean: $(CLEAN_DIRS)
 	@rm -f $(_RM_IMAGE) $(RM_IMAGE)
 	@rm -f $(_PM_IMAGE) $(PM_IMAGE)
 	@rm -f $(VMSANDIX) $(BZIMAGE)
+	@rm -f boot/System.map
 
 $(CLEAN_DIRS):
 	$(Q)$(MAKE) $(CLEAN)=$(patsubst __CLEAN__%,%,$@)

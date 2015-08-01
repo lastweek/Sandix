@@ -66,6 +66,27 @@ ALWAYS_INLINE void line_feed(struct vc_struct *vc)
 	}
 }
 
+ALWAYS_INLINE void reverse_line_feed(struct vc_struct *vc)
+{
+	
+}
+
+ALWAYS_INLINE void carriage_return(struct vc_struct *vc)
+{
+	vc->vc_pos -= vc->vc_x << 1;
+	vc->vc_x = 0;
+}
+
+static void gotoxy(struct vc_struct *vc, int new_x, int new_y)
+{
+	if (new_x >= vc->vc_cols || new_y >= vc->vc_rows)
+		return;
+	vc->vc_x = new_x;
+	vc->vc_y = new_y;
+	vc->vc_pos = vc->vc_visible_origin +
+		(((vc->vc_cols*vc->vc_y) + vc->vc_x) << 1);
+}
+
 static void save_cursor(struct vc_struct *vc)
 {
 	vc->vc_saved_x = vc->vc_x;
@@ -76,6 +97,11 @@ static void restore_cursor(struct vc_struct *vc)
 {
 	vc->vc_x = vc->vc_saved_x;
 	vc->vc_y = vc->vc_saved_y;
+}
+
+static void respond(struct tty_struct *tty)
+{
+
 }
 
 enum {
@@ -100,13 +126,16 @@ enum {
  */
 int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 {
-
-#define BS	8
-#define CR	13
+#define BS	8	/* Back Space */
+#define HT	9	/* Horizontal Table */
+#define NL	10	/* New Line */
+#define VT	11	/* Vertical Tab */
+#define NP	12	/* New Page */
+#define CR	13	/* Carriage Return */
 #define ESC	27
 #define DEL	127
-#define Y	vc->vc_y
-#define X	vc->vc_x
+#define Y	(vc->vc_y)
+#define X	(vc->vc_x)
 
 	int c, state;
 	struct vc_struct *vc;
@@ -131,20 +160,47 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 					X++;
 				}
 				con->con_putc(vc, c, Y, X);
+			} else if (c == BS) {
+				if (X) {
+					X--;
+					vc->vc_pos -= 2;
+				}
+			} else if (c == HT) {
+				/* Table Width = 8 */
+				c = 8 - (X & 7);
+				X += c;
+				vc->vc_pos += c << 1;
+				if (X >= vc->vc_cols) {
+					X -= vc->vc_cols;
+					vc->vc_pos -= vc->vc_row_size;
+					line_feed(vc);
+				}
+			} else if (c == NL || c == VT || c == NP) {
+				line_feed(vc);
+			} else if (c == CR) {
+				carriage_return(vc);
 			} else if (c == ESC) {
 				state = VT_ESC;
-			} else if (c == 1) {
-				;
 			}
 			break;
+		/* ESC- but not CSI- */
 		case (VT_ESC):
 			state = VT_NORMAL;
-			if (c == '[')
+			if (c == '[') {
 				state = VT_CSI_S1;
-			else if (c == 'D')
-				;
-			else if (c == 'E')
-				;
+			} else if (c == 'D') {
+				line_feed(vc);
+			} else if (c == 'E') {
+				gotoxy(vc, 0, Y++);
+			} else if (c == 'M') {
+				reverse_line_feed(vc);
+			} else if (c == 'Z') {
+				respond(tty);
+			} else if (c == '7') {
+				save_cursor(vc);
+			} else if (c == '8') {
+				restore_cursor(vc);
+			}
 			break;
 		case (VT_CSI_S1):
 			;
