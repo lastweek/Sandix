@@ -61,46 +61,39 @@ EXPORT_SYMBOL(vc_struct_map);
 /*			Screen Manipulation				    */
 /****************************************************************************/
 
-ALWAYS_INLINE
-void scrup(struct vc_struct *vc, int lines)
+ALWAYS_INLINE void scrup(struct vc_struct *vc, int lines)
 {
 	vc->driver->con_scroll(vc, VWIN_UP, lines);
 }
 
-ALWAYS_INLINE
-void scrdown(struct vc_struct *vc, int lines)
+ALWAYS_INLINE void scrdown(struct vc_struct *vc, int lines)
 {
 	vc->driver->con_scroll(vc, VWIN_DOWN, lines);
 }
 
-ALWAYS_INLINE
-void save_cursor(struct vc_struct *vc)
+ALWAYS_INLINE void save_cursor(struct vc_struct *vc)
 {
 	vc->vc_saved_x = vc->vc_x;
 	vc->vc_saved_y = vc->vc_y;
 }
 
-ALWAYS_INLINE
-void restore_cursor(struct vc_struct *vc)
+ALWAYS_INLINE void restore_cursor(struct vc_struct *vc)
 {
 	vc->vc_x = vc->vc_saved_x;
 	vc->vc_y = vc->vc_saved_y;
 }
 
-ALWAYS_INLINE
-void hide_cursor(struct vc_struct *vc)
+ALWAYS_INLINE void hide_cursor(struct vc_struct *vc)
 {
 	vc->driver->con_cursor(vc, CM_ERASE);
 }
 
-ALWAYS_INLINE
-void set_cursor(struct vc_struct *vc)
+ALWAYS_INLINE void set_cursor(struct vc_struct *vc)
 {
 	vc->driver->con_cursor(vc, CM_DRAW);
 }
 
-ALWAYS_INLINE
-void carriage_return(struct vc_struct *vc)
+ALWAYS_INLINE void carriage_return(struct vc_struct *vc)
 {
 	vc->vc_pos -= (vc->vc_x << 1);
 	vc->vc_x = 0;
@@ -289,11 +282,11 @@ static void csi_m(struct vc_struct *vc)
 				break;
 			case 30:case 31:case 32:case 33:
 			case 34:case 35:case 36:case 37:
-				vc->vc_f_color = vc->vc_par[i];
+				vc->vc_f_color = vc->vc_par[i] - 30;
 				break;
 			case 40:case 41:case 42:case 43:
 			case 44:case 45:case 46:case 47:
-				vc->vc_b_color = vc->vc_par[i];
+				vc->vc_b_color = vc->vc_par[i] - 40;
 				break;
 			case 38:
 				vc->vc_f_color = 7;
@@ -343,7 +336,6 @@ enum {
  */
 int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 {
-
 #define BS	8		/* Back Space */
 #define HT	9		/* Horizontal Table */
 #define NL	10		/* New Line */
@@ -352,7 +344,6 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 #define CR	13		/* Carriage Return */
 #define ESC	27		/* Escape */
 #define DEL	127		/* Delete */
-
 	int npar, c, state;
 	struct vc_struct *vc;
 	static struct con_driver *con;
@@ -360,6 +351,7 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 	vc = tty->console;
 	con = tty->console->driver;
 	state = VT_NORMAL;
+	npar = 0;
 	
 	hide_cursor(vc);
 
@@ -545,14 +537,11 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 		default:
 			return 0;
 		}; /* End of switch(state) */
-	} /* End of while() */
+	} /* End of while(count) */
 	
 	set_cursor(vc);
-
 	return 0;
 }
-EXPORT_SYMBOL(con_write);
-
 
 /****************************************************************************/
 /*			VT Layer Management				    */
@@ -575,12 +564,13 @@ int bind_con_driver(struct vc_struct *vc, const struct con_driver *con)
 	
 	return err;
 }
+EXPORT_SYMBOL(bind_con_driver);
 
-/*TODO*/
 int unbind_con_driver(const struct con_driver *con)
 {
 	return 0;
 }
+EXPORT_SYMBOL(unbind_con_driver);
 
 /**
  * register_con_driver
@@ -617,6 +607,7 @@ int register_con_driver(const struct con_driver *con)
 
 	return err;
 }
+EXPORT_SYMBOL(register_con_driver);
 
 /**
  * unregister_con_driver
@@ -645,6 +636,7 @@ int unregister_con_driver(const struct con_driver *con)
 
 	return err;
 }
+EXPORT_SYMBOL(unregister_con_driver);
 
 /*
  * Register console drivers, and then initialize every virtual console.

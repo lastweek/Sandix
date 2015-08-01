@@ -1,5 +1,6 @@
 #
-#	sandix/mm/Makefile
+# Makefile for Sandix Memory Management
 #
 
-obj-y := init_mem.o e820.o
+obj-y += init_mem.o
+obj-y += e820.o

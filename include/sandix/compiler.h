@@ -6,7 +6,7 @@
 		   + __GNUC_PATCHLEVEL__)
 
 
-/* Seems many architecture use 64 bytes cache line */
+/* Many architecture use 64 bytes cache line */
 #define L1_CACHE_LINE_SIZE	64
 
 #define __section(S)		__attribute__((__section__(#S)))
@@ -21,6 +21,7 @@
 #define __init			__section(.init.text)
 #define __initdata		__section(.init.data)
 
+#define __user
 #define __iomem
 
 #define __always_inline		inline __attribute__((always_inline))

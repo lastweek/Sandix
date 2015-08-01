@@ -1,5 +1,5 @@
 #
-#	sandix/lib/Makefile
+# Makefile for Sandix lib
 #
 
-obj-y := string.o
+obj-y += string.o

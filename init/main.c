@@ -79,7 +79,7 @@ void __init kernel_init(void)
 {
 	struct tty_struct tty;
 	int i;
-	char *s = "Hello!\033[34;46m\033[5mThis is Sandix \033[0mKernel!\n\r~~~";
+	const char *s = "\033[1JHello!34mABCl\033[0mBBB\n\r~~~";
 
 	screen_info = boot_params.screen_info;
 	tty_init();
