@@ -254,9 +254,11 @@ static void vgacon_init(struct vc_struct *vc)
 	vc->vc_cols	= vga_video_num_cols;
 	vc->vc_rows	= vga_video_num_rows;
 	vc->vc_row_size	= vga_video_num_cols << 1;
-	vc->vc_scr_end	= vga_visible_origin + SCREEN_SIZE;
 	vc->vc_attr	= vga_vram_attr;
 	vc->vc_origin	= vga_vram_base;
+	vc->vc_scr_end	= vga_visible_origin + SCREEN_SIZE;
+	vc->vc_top	= 0;
+	vc->vc_bottom	= vga_video_num_rows;
 	vc->vc_visible_origin = vga_visible_origin;
 	vc->vc_erased_char = vga_erased_char;
 }

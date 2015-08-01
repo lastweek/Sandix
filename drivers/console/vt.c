@@ -131,7 +131,7 @@ static void gotoxy(struct vc_struct *vc, int new_x, int new_y)
 		(((vc->vc_cols*vc->vc_y) + vc->vc_x) << 1);
 }
 
-static void respond(struct tty_struct *tty)
+static void respond_ID(struct tty_struct *tty)
 {
 
 }
@@ -209,9 +209,8 @@ static void csi_K(struct vc_struct *vc)
 /* Insert Lines */
 static void csi_L(struct vc_struct *vc)
 {
-	unsigned int lines;
+	unsigned int lines = vc->vc_par[0];
 
-	lines = vc->vc_par[0];
 	if (lines > (vc->vc_rows - vc->vc_y)) {
 		lines = vc->vc_rows - vc->vc_y;
 	} else if (!lines) {
@@ -222,9 +221,8 @@ static void csi_L(struct vc_struct *vc)
 /* Delete Lines */
 static void csi_M(struct vc_struct *vc)
 {
-	unsigned int lines;
+	unsigned int lines = vc->vc_par[0];
 
-	lines = vc->vc_par[0];
 	if (lines > (vc->vc_rows - vc->vc_y)) {
 		lines = vc->vc_rows - vc->vc_y;
 	} else if (!lines) {
@@ -235,9 +233,8 @@ static void csi_M(struct vc_struct *vc)
 /* Delete chars in current line */
 static void csi_P(struct vc_struct *vc)
 {
-	unsigned int nr;
+	unsigned int nr = vc->vc_par[0];
 
-	nr = vc->vc_par[0];
 	if (nr > (vc->vc_cols - vc->vc_x)) {
 		nr = vc->vc_cols - vc->vc_x;
 	} else if (!nr) {
@@ -246,12 +243,76 @@ static void csi_P(struct vc_struct *vc)
 	delete_char(vc, nr);
 }
 
+/* Erase chars in current line */
+static void csi_X(struct vc_struct *vc)
+{
+	unsigned int nr = vc->vc_par[0];
+
+	if (!nr)
+		nr++;
+	nr = (nr > vc->vc_cols - vc->vc_x) ? (vc->vc_cols - vc->vc_x) : nr;
+	scr_memsetw((unsigned short *)vc->vc_pos, vc->vc_erased_char, nr);
+}
+
+static void update_attribute(struct vc_struct *vc)
+{
+	vc->vc_attr = (vc->vc_f_color & 0x7)	|
+		((vc->vc_b_color & 0x7)	<< 4)	|
+		((vc->vc_blink & 0x1) << 7)	;
+	
+	vc->vc_erased_char &= 0xff;
+	vc->vc_erased_char |= vc->vc_attr;
+}
+
+/* Set attribute */
+static void csi_m(struct vc_struct *vc)
+{
+	int i;
+
+	for (i = 0; i <= vc->vc_npar; i++) {
+		switch (vc->vc_par[i]) {
+			case 0:	/* Default */
+				vc->vc_bold = 0;
+				vc->vc_underline = 0;
+				vc->vc_blink = 0;
+				vc->vc_f_color = 7;
+				vc->vc_b_color = 0;
+				break;
+			case 1:	/* Bold */
+				vc->vc_bold = 1;
+				break;
+			case 4:	/* Underline */
+				vc->vc_underline = 1;
+				break;
+			case 5: /* Blink */
+				vc->vc_blink = 1;
+				break;
+			case 30:case 31:case 32:case 33:
+			case 34:case 35:case 36:case 37:
+				vc->vc_f_color = vc->vc_par[i];
+				break;
+			case 40:case 41:case 42:case 43:
+			case 44:case 45:case 46:case 47:
+				vc->vc_b_color = vc->vc_par[i];
+				break;
+			case 38:
+				vc->vc_f_color = 7;
+				break;
+			case 48:
+				vc->vc_b_color = 0;
+				break;
+			default:
+				break;
+		}
+	}
+	update_attribute(vc);
+}
+
 /* Insert blank chars in current line */
 static void csi_at(struct vc_struct *vc)
 {
-	unsigned int nr;
+	unsigned int nr = vc->vc_par[0];
 
-	nr = vc->vc_par[0];
 	if (nr > vc->vc_cols - vc->vc_x) {
 		nr = vc->vc_cols - vc->vc_x;
 	} else if (!nr) {
@@ -353,7 +414,7 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 			} else if (c == 'M') {
 				reverse_line_feed(vc);
 			} else if (c == 'Z') {
-				respond(tty);
+				respond_ID(tty);
 			} else if (c == '7') {
 				save_cursor(vc);
 			} else if (c == '8') {
@@ -372,11 +433,11 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 				npar++;
 				break;
 			} else if (c >= '0' && c <= '9') {
-				vc->vc_par[npar] = 10 * vc->vc_par[npar]
-						    + c - '0';
+				vc->vc_par[npar] = 10*vc->vc_par[npar]+c-'0';
 				break;
 			} else {
 				state = VT_CSI_S3;
+				vc->vc_npar = npar;
 			}
 		case (VT_CSI_S3):
 			state = VT_NORMAL;
@@ -443,14 +504,38 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 				case 'P':
 					csi_P(vc);
 					break;
-				case '@':
-					csi_at(vc);
+				case 'X':
+					csi_X(vc);
+					break;
+				case 'c':
+					if (!vc->vc_par[0])
+						respond_ID(tty);
+					break;
+				case 'm':
+					csi_m(vc);
+					break;
+				case 'r':
+					if (!vc->vc_par[0])
+						vc->vc_par[0]++;
+					if (!vc->vc_par[1])
+						vc->vc_par[1] = vc->vc_rows;
+					/* Minimum allowed region is 2 lines */
+					if (vc->vc_par[0] < vc->vc_par[1] &&
+					    vc->vc_par[1] <= vc->vc_rows) {
+						vc->vc_top = vc->vc_par[0] - 1;
+						vc->vc_bottom = vc->vc_par[1];
+						/* Move to home position */
+						gotoxy(vc, 0, 0);
+					}
 					break;
 				case 's':
 					save_cursor(vc);
 					break;
 				case 'u':
 					restore_cursor(vc);
+					break;
+				case '@':
+					csi_at(vc);
 					break;
 				default:
 					break;

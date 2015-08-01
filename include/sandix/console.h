@@ -35,6 +35,9 @@ struct vc_struct {
 	unsigned int	vc_blink;		/* Blink Character */
 	unsigned int	vc_f_color;		/* Foreground color */
 	unsigned int	vc_b_color;		/* Background color */
+	unsigned int	vc_italic;		/* Italic characters */
+	unsigned int	vc_bold;		/* Bold characters */
+	unsigned int	vc_underline;		/* Underline characters */
 
 	/* Cursor */
 	unsigned int	vc_x;

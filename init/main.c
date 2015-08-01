@@ -79,12 +79,11 @@ void __init kernel_init(void)
 {
 	struct tty_struct tty;
 	int i;
-	char *s = "Hello!\033[10@This is Sandix Kernel!\n\r~~~";
+	char *s = "Hello!\033[34;46m\033[5mThis is Sandix \033[0mKernel!\n\r~~~";
 
 	screen_info = boot_params.screen_info;
 	tty_init();
 	
-	FG_CON->con_set_color(FG_VC, 0, 1, 5);
 	tty.console = FG_VC;
 	con_write(&tty, s, strlen(s));
 	
