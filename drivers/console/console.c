@@ -1,5 +1,5 @@
 /*
- *	Basic VT102 Simulation.
+ *	Basic VT102 Terminal Simulation.
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
@@ -317,9 +317,9 @@ static void csi_at(struct vc_struct *vc)
 enum {
 	VT_NORMAL,
 	VT_ESC,
-	VT_CSI_S1,
-	VT_CSI_S2,
-	VT_CSI_S3
+	VT_CSI_QUESTION,
+	VT_CSI_PARAMETER,
+	VT_CSI_HANDLE
 };
 
 /**
@@ -398,7 +398,7 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 		case (VT_ESC):
 			state = VT_NORMAL;
 			if (c == '[') {
-				state = VT_CSI_S1;
+				state = VT_CSI_QUESTION;
 			} else if (c == 'D') {
 				line_feed(vc);
 			} else if (c == 'E') {
@@ -413,25 +413,28 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 				restore_cursor(vc);
 			}
 			break;
-		case (VT_CSI_S1):
-			state = VT_CSI_S2;
+		case (VT_CSI_QUESTION):
+			for (npar = 0; npar < NPAR; npar++)
+				vc->vc_par[npar] = 0;
 			npar = 0;
+			state = VT_CSI_PARAMETER;
 			if (c == '?') {
 				/* \033[? */
 				break;
 			}
-		case (VT_CSI_S2):
+		case (VT_CSI_PARAMETER):
 			if (c == ';' && npar < (NPAR - 1)) {
 				npar++;
 				break;
 			} else if (c >= '0' && c <= '9') {
-				vc->vc_par[npar] = 10*vc->vc_par[npar]+c-'0';
+				vc->vc_par[npar] = 10 * vc->vc_par[npar]
+						+ (c - '0');
 				break;
 			} else {
-				state = VT_CSI_S3;
+				state = VT_CSI_HANDLE;
 				vc->vc_npar = npar;
 			}
-		case (VT_CSI_S3):
+		case (VT_CSI_HANDLE):
 			state = VT_NORMAL;
 			switch (c) {
 				case 'G': case '`':
@@ -529,13 +532,8 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 				case '@':
 					csi_at(vc);
 					break;
-				default:
-					break;
-
 			};
 			break;
-		default:
-			return 0;
 		}; /* End of switch(state) */
 	} /* End of while(count) */
 	
