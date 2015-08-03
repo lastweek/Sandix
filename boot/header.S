@@ -79,7 +79,7 @@ start_of_setup:
 
 	# Zero the bss
 	# __bss_start & __bss_end defined in linker scripts
-    movw    $__bss_start, %di 
+	movw    $__bss_start, %di 
 	movw    $__bss_end, %cx 
 	xorl    %eax, %eax
 	subw    %di, %cx 

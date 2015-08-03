@@ -24,10 +24,9 @@
 #include <asm/segment.h>
 
 /*
- * We have already set the virtual address base of
- * kernel to (0x10000+__PAGE_OFFSET) in linker scripts.
- * So here the physical address is equals to sympol's
- * virtual address minus __PAGE_OFFSET.
+ * We have already set the virtual address base of kernel to
+ * (0x10000+__PAGE_OFFSET) in linker scripts. So here the physical
+ * address is equals to sympol's virtual address minus __PAGE_OFFSET.
  */
 #define T__PAGE_OFFSET	0x0
 #define pa(X)	((X) - T__PAGE_OFFSET)
@@ -146,7 +145,7 @@ default_entry:
 	movl %eax, %cr0
 
 	# Clear prefetch and normalize %eip after enable paging.
-	#ljmp $__BOOT_CS, $1f
+	# ljmp $__BOOT_CS, $1f
 1:
 	add $0, %esp				# Shift sp to a virtual address
 

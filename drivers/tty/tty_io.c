@@ -1,5 +1,5 @@
 /*
- *	TTY Core Layer
+ *	driver/tty/tty_io.c - tty core layer
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
