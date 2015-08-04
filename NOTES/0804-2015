@@ -1,0 +1,11 @@
+#
+# Tue Aug  4 14:05:12 CST 2015
+#
+
+Ah, VT102 and VGA console driver are all done.
+Now let us move to tty layer.
+
+At first i thought i should write a keybord driver after that, but it is a
+little exacting. So i choose to implement TTY first.
+
+OK, tty is the most dark part in kernel, let's rock.
