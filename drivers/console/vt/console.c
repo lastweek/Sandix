@@ -124,6 +124,11 @@ static void gotoxy(struct vc_struct *vc, int new_x, int new_y)
 		(((vc->vc_cols*vc->vc_y) + vc->vc_x) << 1);
 }
 
+static void respond(struct tty_struct *tty)
+{
+	
+}
+
 static void respond_ID(struct tty_struct *tty)
 {
 
