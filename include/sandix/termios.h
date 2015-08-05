@@ -1,5 +1,5 @@
 /*
- *	include/sandix/bitops.h
+ *	include/sandix/termios.h
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
@@ -18,7 +18,11 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _SANDIX_BITOPS_H_
-#define _SANDIX_BITOPS_H_
+#ifndef _SANDIX_TERMIOS_H_
+#define _SANDIX_TERMIOS_H_
 
-#endif /* _SANDIX_BITOPS_H_ */
+struct termios {
+
+};
+
+#endif /* _SANDIX_TERMIOS_H_ */
