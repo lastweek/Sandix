@@ -1,5 +1,5 @@
 /*
- *	drivers/chip/i8042.c - Chip 8042 Driver
+ *	drivers/chip/i8259.c - Legacy PIC 8259 Driver
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
@@ -20,5 +20,3 @@
 
 #include <sandix/compiler.h>
 #include <sandix/types.h>
-
-
