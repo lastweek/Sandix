@@ -1,0 +1,14 @@
+#
+# Tue Aug 11 17:59:46 CST 2015
+#
+
+Aha. Mark today!
+So... Today i bought a motherboard(B85) and a i3-4150(LGA1150). And also, i
+spent whole day reading and learning about motherboard and PCH. Now i got a more
+clear view about cpu, northbridge, southbridge, PCH, motherboard than before!
+With current Intel CPU, there is no more northbridge anymore. CPU now has a
+"integrated" northbridge, and all the other things are in PCH.
+
+Note that Intel B85 Datasheet has saied how B85 support legacy 8253, 8259 and so on.
+
+Whatever, now i have a better understanding about how computer works!!!
