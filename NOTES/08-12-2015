@@ -33,4 +33,7 @@ interfaces of PCH, i have a better top view of how things work! I can not
 descript everything in PCH, so if you or future me want to learn the details,
 please refer to any Intel Chipset Datasheet(e.g. 8-series, 9-series, 100).
 
+Amazing... You can see the IO ports and Memory Map in PCH spec, it gives an
+totally understanding of such stuff.
+
 Fun journey, is it?

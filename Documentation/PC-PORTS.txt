@@ -63,7 +63,6 @@ byte rather than word port addresses in the IN and OUT instructions.
  2B0-2DF  Alternate EGA on PC and AT
    2E1    AT GPIB Adapter 0
  2E2-2E3  AT Data Acquisition adapter 0
-
  2E8-2EF  Serial Port COM4: on PC 8250 ACE used with IRQ3
  2F8-2FF  Serial Port COM2: on PC and PS/2 ACE used with IRQ3
  300-31F  PC Prototype card on PC
