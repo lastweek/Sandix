@@ -3,6 +3,7 @@
 #
 
 # Keyword: PCH, IO Port, Digital Display Interface, VGA, LGA1150
+# Keyword: Intel Graphics!
 
 Core ix is different from Xeon in design principle.
 Core i3 processor has three Display Interface(which can be configured as HDMI,
@@ -32,8 +33,20 @@ after i have known about the components of PCH, the functions of PCH, the
 interfaces of PCH, i have a better top view of how things work! I can not
 descript everything in PCH, so if you or future me want to learn the details,
 please refer to any Intel Chipset Datasheet(e.g. 8-series, 9-series, 100).
-
 Amazing... You can see the IO ports and Memory Map in PCH spec, it gives an
 totally understanding of such stuff.
+
+Last again.
+
+Intel integrated graphics controller: works like normal GPU, and lay in the
+same die with cpu cores, frontend -- Execution Unit -- backend, frontend can
+been seen as instruction fetch and data detch, execution unit is the core part,
+backend is responsible for format and decode data into different signals to
+DVI or HDMI.
+
+Integrated graphic controller(or driver) can work together with external GPU
+card from Nvdia, and yes, multiple screen output. It is unbelieveable that
+intel has done such a great job! I have to say the integrated graphic is very
+beautiful.
 
 Fun journey, is it?
