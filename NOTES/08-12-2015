@@ -2,7 +2,7 @@
 # Wed Aug 12 08:34:17 CST 2015
 #
 
-# Keyword: Core, Display Interface, VGA, LGA 1150
+# Keyword: PCH, IO Port, Digital Display Interface, VGA, LGA1150
 
 Core ix is different from Xeon in design principle.
 Core i3 processor has three Display Interface(which can be configured as HDMI,
@@ -25,5 +25,12 @@ output anymore! Which means current Sandix can not even have graphic output in
 Signal layout in LGA 1150 is described in datasheet-vol-1, we can see how these
 signals are spreaded in such a small chip. Also i have downloaded a LGA 1150
 specification from Intel.com which has a descriptive portray about 1150.
+
+Last but not least! Let us talk about PCH(Platform Controller Hub)! Before met
+this guy, the misc controllers and IO port are still mysteries to me. But now,
+after i have known about the components of PCH, the functions of PCH, the
+interfaces of PCH, i have a better top view of how things work! I can not
+descript everything in PCH, so if you or future me want to learn the details,
+please refer to any Intel Chipset Datasheet(e.g. 8-series, 9-series, 100).
 
 Fun journey, is it?
