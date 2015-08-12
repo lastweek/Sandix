@@ -2,12 +2,20 @@
 # Wed Aug 12 08:34:17 CST 2015
 #
 
+# Keyword: Core, Display Interface, VGA, LGA 1150
+
 Core is different from Xeon.
 Core i3 processor has Display Interface(eg.HDMI), but Xeon does not.
-VGA is supported from PCH. Processor has Flexible Display Interface connected to
+That is because Core is dedicated for Desktop which need visual display. At the
+oppsite, Xeon is dedicated for Server which need more calculation than display.
+
+VGA is supported by PCH. Processor has Flexible Display Interface connected to
 PCH, which, provide legacy VGA support.
 
-Signal layout in LGA1150 is described in datasheet-vol-1, we can see how these
-signals are spreaded in such a small chip.
+See? VGA is almost obsolete. New CPU prefer HDMI and DVI and BlueRay.
+
+Signal layout in LGA 1150 is described in datasheet-vol-1, we can see how these
+signals are spreaded in such a small chip. Also i have downloaded a LGA 1150
+specification from Intel.com which has a descriptive portray about 1150.
 
 Fun journey, is it?
