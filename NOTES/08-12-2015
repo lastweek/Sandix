@@ -4,15 +4,23 @@
 
 # Keyword: Core, Display Interface, VGA, LGA 1150
 
-Core is different from Xeon.
-Core i3 processor has Display Interface(eg.HDMI), but Xeon does not.
+Core ix is different from Xeon in design principle.
+Core i3 processor has three Display Interface(which can be configured as HDMI,
+DVI, DP), but Xeon processors do not have any graphic engine.
 That is because Core is dedicated for Desktop which need visual display. At the
 oppsite, Xeon is dedicated for Server which need more calculation than display.
 
 VGA is supported by PCH. Processor has Flexible Display Interface connected to
-PCH, which, provide legacy VGA support.
+PCH. It can seen as followes: The display data from the frame buffer is
+processed in the display engine of the processor and sent to the PCH over the
+FDI where it is transcoded as per the display protocol and driven through the
+DAC to the analog display monitor.
 
-See? VGA is almost obsolete. New CPU prefer HDMI and DVI and BlueRay.
+It seems quite weird to support VGA. And the industry seems want to drop VGA,
+instead, they prefer DVI, HDMI, DP. As a sequence, the 6 Gen Core Processor do
+not have FDI interface, and corresponding chipset Z170 does not support VGA
+output anymore! Which means current Sandix can not even have graphic output in
+6 Gen platform.
 
 Signal layout in LGA 1150 is described in datasheet-vol-1, we can see how these
 signals are spreaded in such a small chip. Also i have downloaded a LGA 1150
