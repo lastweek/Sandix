@@ -1,8 +1,8 @@
 /*
- *	8259 Programmable Interrupt Controller
+ *	8237 DMA Controller
  *
- *	Current PCH chipset support legacy 8259 chip function with its I/O
- *	port. With the I/O port support, the presence or absence of 8259 chip
+ *	Current PCH chipset support legacy 8237 chip function with its I/O
+ *	port. With the I/O port support, the presence or absence of 8237 chip
  *	does not matters.
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
@@ -24,3 +24,5 @@
 
 #include <sandix/compiler.h>
 #include <sandix/types.h>
+
+

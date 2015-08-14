@@ -1,6 +1,10 @@
 /*
  *	8253 Programmable Interval Timer
  *
+ *	Current PCH chipset support legacy 8253 chip function with its I/O
+ *	port. With the I/O port support, the presence or absence of 8253 chip
+ *	does not matters.
+ *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
