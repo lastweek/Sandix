@@ -1,0 +1,14 @@
+#
+# Fri Aug 14 10:10:19 CST 2015
+#
+
+# Keyword: 8253, 8259, PCH chipset, legacy
+
+Actually, there are no 8253, 8259 or other legacy chips in motherboard anymore.
+There corresponding functions are integrated into PCH chipset. For legacy
+support, Intel PCH remains the I/O ports these chips used to use. That is why
+we can still manipulate these chips through I/O ports even though there are no
+such chips on the motherboard.
+
+Hence, Sandix must have a beautiful and useful driver layer to support various
+different "IO hardware". Linux has done a good job, just learn.
