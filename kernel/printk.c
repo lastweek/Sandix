@@ -19,17 +19,18 @@
  */
 
 #include <stdarg.h>
+
 #include <sandix/compiler.h>
 #include <sandix/linkage.h>
-#include <sandix/types.h>
-#include <sandix/tty.h>
 
 asmlinkage int vprintk(const char *fmt, va_list args)
 {
 
 }
+EXPORT_SYMBOL(vprintk);
 
 asmlinkage int printk(const char *fmt, ...)
 {
 
 }
+EXPORT_SYMBOL(printk);
