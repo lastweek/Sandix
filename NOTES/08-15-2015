@@ -1,0 +1,28 @@
+#
+# Sat Aug 15 16:24:33 CST 2015
+#
+
+# Keyword: PCI, Intel CPU integrated PCI devices, Memory Hole
+
+ANOTHER PCI DAY.
+FINALLY, i figure out how the PCI devices in Intel CPU works.
+Those PCI devices including Host Bridge, IMC, IGC, QPI...
+
+Yes, many components resides on PCI as a virtual device in CPU.
+Yes, CPU can access these virtual device through Type0 configuration method.
+
+Yes, some virtual devices like host bridge(Device 0, Function 0) control how
+memory address space is divided into different devices. For example, decide
+map legacy 0xA0000~0xBFFFF to Intel Integrated Graphic Controller(Device 1).
+
+Yes, these virtual devices along with others who reside on PCH, control the
+memory address map and IO ports map. And that is why main memory address space
+has so many _holes_!! Coz some many memory areas are mapped into VGA, PCI!!!
+
+Yes, of course, the configuration space registers of these virtual devices are
+initialized by UEFI/BIOS. Operating System _should_ _not_ touch these things.
+
+Yes, of course. Operating System _can_ modify these configurations. Such as OS
+can let Host Bridge do not map 0xF00000~0x1000000 to ISA hole, just let this
+area map to DRAM. OS can do this, but no OS will do this. But as a beginner, i
+should do this!
