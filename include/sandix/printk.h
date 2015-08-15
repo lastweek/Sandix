@@ -1,8 +1,8 @@
 /*
- *	kernel/printk.c - Print Kernel Message
+ *	include/sandix/printk.h
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
- *	
+ *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
@@ -21,15 +21,9 @@
 #include <stdarg.h>
 #include <sandix/compiler.h>
 #include <sandix/linkage.h>
-#include <sandix/types.h>
-#include <sandix/tty.h>
 
-asmlinkage int vprintk(const char *fmt, va_list args)
-{
+asmlinkage __printf(1, 0)
+int vprintk(const char *fmt, va_list args);
 
-}
-
-asmlinkage int printk(const char *fmt, ...)
-{
-
-}
+asmlinkage __printf(1, 2)
+int printk(const char *fmt, ...);

@@ -1,3 +1,21 @@
+/*
+ *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	
+ *	This program is free software; you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation; either version 2 of the License, or
+ *	(at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
+ *
+ *	You should have received a copy of the GNU General Public License along
+ *	with this program; if not, write to the Free Software Foundation, Inc.,
+ *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #ifndef _SANDIX_COMPILER_H_
 #define _SANDIX_COMPILER_H_
 
@@ -9,18 +27,20 @@
 /* Many architecture use 64 bytes cache line */
 #define L1_CACHE_LINE_SIZE	64
 
-#define __section(S)		__attribute__((__section__(#S)))
-
 /*
  * Normally, if one byte in a cache line is diry, then the entire
  * cache line will need to be flushed back. Put the read most, which also,
  * write rarely data together, then a lot of useless cache line write
  * events can be avoided.
  */
+#define __section(S)		__attribute__((__section__(#S)))
 #define __read_mostly		__section(.data..read_mostly)
 #define __init			__section(.init.text)
 #define __initdata		__section(.init.data)
 
+#define __printf(a, b)		__attribute__((format(printf, a, b)))
+#define __scanf(a, b)		__attribute__((format(scanf, a, b)))
+#define __cold			__attribute__((cold))
 #define __user
 #define __iomem
 

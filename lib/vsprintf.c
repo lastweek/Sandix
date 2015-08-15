@@ -1,5 +1,5 @@
 /*
- *	kernel/printk.c - Print Kernel Message
+ *	lib/vsprintf.c - you know what is this
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
@@ -19,17 +19,4 @@
  */
 
 #include <stdarg.h>
-#include <sandix/compiler.h>
-#include <sandix/linkage.h>
-#include <sandix/types.h>
-#include <sandix/tty.h>
 
-asmlinkage int vprintk(const char *fmt, va_list args)
-{
-
-}
-
-asmlinkage int printk(const char *fmt, ...)
-{
-
-}

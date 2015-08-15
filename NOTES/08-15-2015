@@ -3,7 +3,9 @@
 #
 
 # Keyword: PCI, Intel CPU integrated PCI devices, Memory Hole
+# Keyword: Shadow BIOS
 
+###############################################################################
 ANOTHER PCI DAY.
 FINALLY, i figure out how the PCI devices in Intel CPU works.
 Those PCI devices including Host Bridge, IMC, IGC, QPI...
@@ -45,3 +47,11 @@ access their memory-mapped area.
 
 For more information, please consult any chipsets or cpus datasheets.
 For more information, please consule PCI Local Bus Spec 3.2.2.3
+
+
+###############################################################################
+Ahhaa.
+Device 0 Host Bridge has: Programmable Attribute Mapx(0~6). These registers
+control the read/write forward of shadow BIOS!
+I feel so good to find such things that i used to confuse about!
+Got a good understanding of PCI really helps a lot!
