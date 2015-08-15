@@ -8,7 +8,10 @@ ANOTHER PCI DAY.
 FINALLY, i figure out how the PCI devices in Intel CPU works.
 Those PCI devices including Host Bridge, IMC, IGC, QPI...
 
-Yes, many components resides on PCI as a virtual device in CPU.
+Yes, PCH incorporates a variety of PCI devices and functions.
+Yes, CPU incorporates a variety of PCI devices and functions.
+
+Yes, PCH can access these virtual device through Type0 configuration method.
 Yes, CPU can access these virtual device through Type0 configuration method.
 
 Yes, some virtual devices like host bridge(Device 0, Function 0) control how
@@ -26,3 +29,19 @@ Yes, of course. Operating System _can_ modify these configurations. Such as OS
 can let Host Bridge do not map 0xF00000~0x1000000 to ISA hole, just let this
 area map to DRAM. OS can do this, but no OS will do this. But as a beginner, i
 should do this!
+
+Let us talk about PCI configuration method.
+PCI bus access PCI device through two ways: Memory Address, Bus:Device:Function.
+Memory Address is used to access the internal registers or memory of PCI device.
+Bus:Device:Function can be used to access PCI configuration space. And yes,
+this is the only way to access PCI configuration space. Having these two methods,
+UEFI/BIOS firmware can enumrate PCI devices through bus/device/function ids.
+After enumration, PCI devices have BIOS assigned BARs in there configuration
+registers, that means those PCI devices are memory-mapped into address space.
+
+What i trying to say here is having these two method, we do not have chicken/egg
+problems. Coz we can access Configuration Space by dedicated method before we
+access their memory-mapped area.
+
+For more information, please consult any chipsets or cpus datasheets.
+For more information, please consule PCI Local Bus Spec 3.2.2.3
