@@ -1,0 +1,35 @@
+#
+# Mon Aug 17 10:43:27 CST 2015
+#
+
+# Keyword: MSI, APIC
+
+Yes, another PCIe day...
+Today i research about PCIe MSI(Message Signaled Interrupt).
+
+PCI Local Bus Specification has defined two ways that PCI devices can use to
+interrupt CPU. The first is using INTA#~INTD# signal pins. The second is using
+MSI. Because MSI use write transactions which will saddle bus bandwidth, hence
+most of the legacy PCI devices choosed to implement the first method.
+
+PCIe Base Specification constrain that every PCIe devices must implment MSI,
+leave the INTA# method optional. In PCIe, MSI is a normal Memory Space Write
+transaction. Because it act as a write transaction, so MSI has two related
+registers: Message Address, Message Data. When PCIe device want to interrupt
+CPU, it will send Message Data to Message Address. It is processor or
+architecture-dependent implemention on how to respond on MSI write transaction.
+on x86 platform, system software should initialize Message Address and Message
+Data registers to Intel defined value. The address decoder check the address,
+and then route the transaction to APIC. APIC check the address and data, then
+it knows one PCIe device was sending interrupt, then APIC interrupt CPU.
+
+As i described above, processor and PCIe has to corperate to make MSI work.
+I recommend reading SDM Vol3 Chapter APIC which details the Message Address
+and Message Data in x86, and Chipset Datasheet which details how PCH emulate
+the IO APIC.
+
+BTW,
+in old days, Intel has separate IO APIC chips like 82093. Seems now only CPU
+and PCH are present, hence everything now is in PCH. And yes, PCH truly has
+the IO APIC and legacy i8259. It seems that one PCH has one IO APIC. Is that
+true? Multiple CPU can have multiple PCHs? Still need to learn.

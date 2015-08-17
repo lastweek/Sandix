@@ -18,7 +18,7 @@ Yes, CPU can access these virtual device through Type0 configuration method.
 
 Yes, some virtual devices like host bridge(Device 0, Function 0) control how
 memory address space is divided into different devices. For example, decide
-map legacy 0xA0000~0xBFFFF to Intel Integrated Graphic Controller(Device 1).
+mapping legacy 0xA0000~0xBFFFF to Intel Integrated Graphic Controller(Device 1).
 
 Yes, these virtual devices along with others who reside on PCH, control the
 memory address map and IO ports map. And that is why main memory address space
