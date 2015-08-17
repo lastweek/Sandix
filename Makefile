@@ -52,6 +52,14 @@ endif
 
 export quiet Q KBUILD_VERBOSE
 
+# General Kernel Checker
+ifeq ("$(orgin C)", "command line")
+  KBUILD_CHECKER=$(C)
+endif
+
+ifndef KBUILD_CHECKER
+  KBUILD_CHECKER=0
+endif
 
 # Sandix does not support building in other directories.
 srctree = .
@@ -231,9 +239,13 @@ $(CLEAN_DIRS):
 # ===========================================================================
 PHONY += help
 help:
+	@echo "\n###################################################"
 	@echo "\nBUILD SANDIX KERNEL\n"
 	@echo "  make V=0 [targets] => Quiet Build (default)"
 	@echo "  make V=1 [targets] => Verbose Build"
+	@echo "  make C=0 [targets] => General check(default)"
+	@echo "  make C=1 [targets] => Build without checker"
+	@echo "\n###################################################"
 
 PHONY += FORCE
 FORCE:

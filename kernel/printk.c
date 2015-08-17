@@ -22,6 +22,7 @@
 
 #include <sandix/compiler.h>
 #include <sandix/linkage.h>
+#include <sandix/linkage.h>
 #include <sandix/tty.h>
 
 void vsprinktk()
