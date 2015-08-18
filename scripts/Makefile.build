@@ -30,7 +30,7 @@ objdump-y :=
 #
 include $(srctree)/scripts/Kbuild.include
 include $(srctree)/$(src)/Makefile
-include $(srctree)/scripts/Makefile.libb
+include $(srctree)/scripts/Makefile.lib
 
 #
 # Figure out what $(srctree)/$(src)/Makefile want.
