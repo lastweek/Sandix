@@ -1,0 +1,25 @@
+#
+# Tue Aug 18 10:38:11 CST 2015
+#
+
+# Keyword: Driver, Device, IRQ, Interrupt
+
+Things are getting clear.
+
+Yes, device drivers play a very crucial role in operating system. And figure
+out how drivers drive devices is important. One device driver should have such
+functions: device_probe(), device_init(), device_ops(), device_irq(), etc.
+Also, one driver can drive multiple devices. System should provide such API:
+driver_register(), driver_unregister(). Also, its system's job to relate driver
+to device.
+
+Device Drivers like PCI drivers have to deal with relocateable device and
+shared interrupt line.
+
+Some systems may not guarantee that data is delivered to main memory before
+interrupts are delivered to the CPU. Drivers must handle this properly.
+
+For now i have one vga console driver now. The driver treat one screen as a
+device. And one driver can drive multiple screens.
+
+Remember, idea and design are the most important thing.
