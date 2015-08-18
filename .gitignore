@@ -1,2 +1,7 @@
+#
+#	Ignore files generated from build process
+#
+
 .*
 *.o
+*.bin
