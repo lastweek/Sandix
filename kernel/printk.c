@@ -25,10 +25,19 @@
 #include <sandix/linkage.h>
 #include <sandix/tty.h>
 
-void vsprinktk()
+static char log_buf[1024];
+
+asmlinkage void vsprinktk(char *buf, va_list args)
 {
 
 }
+EXPORT_SYMBOL(vsprinktk);
+
+asmlinkage void sprintk(char *buf, ...)
+{
+
+}
+EXPORT_SYMBOL(sprintk);
 
 asmlinkage int vprintk(const char *fmt, va_list args)
 {
@@ -38,6 +47,16 @@ EXPORT_SYMBOL(vprintk);
 
 asmlinkage int printk(const char *fmt, ...)
 {
+	int ret;
+	va_list args;
+	
+	va_start(args, fmt);
+	ret = vprintk(fmt, args);
+	va_end(args);
 
+	/* Output to TTY */
+
+
+	return ret;
 }
 EXPORT_SYMBOL(printk);
