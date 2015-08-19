@@ -50,8 +50,6 @@
 #define INLINE			static inline
 #define ALWAYS_INLINE		static __always_inline
 
-#define EXPORT_SYMBOL(sym)	extern typeof(sym) sym;
-
 #define likely(x)		__builtin_expect(!!(x), 1)
 #define unlikely(x)		__builtin_expect(!!(x), 0)
 

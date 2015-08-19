@@ -1,9 +1,0 @@
-2015/03/28
-
-This days i've been reading materail about Graphic Cards, especially VGA.
-When in Real Address Mode, we can use BIOS [int 0x10] to control VGA's output,
-however, we can not call BIOS anymore when we turn to Protected Mode.
-
-Therefore, we have to build our own driver to control VGA. The driver is similar to
-[int 0x10]. We use IO-port & Memory-Mapped region to communicate with VGA. There are 
-same open-souce VGA drivers i've downloaded, which can be a good template for me.
