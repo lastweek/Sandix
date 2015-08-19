@@ -1,5 +1,5 @@
 /*
- *	linkage.h - Generic macros for assembly and C attributes.
+ *	sandix/include/linkage.h - Macros for assembly and C.
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	

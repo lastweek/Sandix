@@ -1,5 +1,5 @@
 /*
- *	include/sandix/tty.h - TTY Layer Architecture
+ *	include/sandix/tty.h - TTY Layer
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *

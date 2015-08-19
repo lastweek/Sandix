@@ -1,5 +1,5 @@
 /*
- *	include/sandix/spinlock.h
+ *	include/sandix/spinlock.h - Spin Lock
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *

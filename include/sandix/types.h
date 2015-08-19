@@ -1,5 +1,5 @@
 /*
- *	include/sandix/types.h - General kernel definitions
+ *	include/sandix/types.h - Portable Types
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *

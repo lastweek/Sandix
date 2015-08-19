@@ -1,5 +1,5 @@
 /*
- *	include/sandix/atomic.h
+ *	include/sandix/atomic.h - Atomic Operations
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *

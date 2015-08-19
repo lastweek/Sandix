@@ -1,5 +1,5 @@
 /*
- *	include/sandix/page.h
+ *	include/sandix/page.h - Pages
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *

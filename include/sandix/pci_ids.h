@@ -6,6 +6,7 @@
  *	Do not add new entries to this file unless the definitions
  *	are shared between multiple drivers.
  */
+
 #ifndef _SANDIX_PCI_IDS_H_
 #define _SANDIX_PCI_IDS_H_
 

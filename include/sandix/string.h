@@ -1,5 +1,5 @@
 /*
- *	include/sandix/string.h
+ *	include/sandix/string.h - String Manipulation
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *

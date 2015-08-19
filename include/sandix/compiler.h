@@ -1,4 +1,6 @@
 /*
+ *	include/sandix/compiler.h - I mean, GCC...
+ *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
  *	This program is free software; you can redistribute it and/or modify

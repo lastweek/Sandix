@@ -39,6 +39,10 @@ ifneq ($(strip $(obj-y)),)
 builtin-target := $(obj)/built-in.o
 endif
 
+#TODO
+ifneq ($(strip $(lib-y)),)
+endif
+
 ifneq ($(strip $(objcopy-y)),)
 objcopy-target := $(patsubst %.o,%.bin,$(objcopy-y))
 endif

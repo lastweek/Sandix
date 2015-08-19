@@ -1,5 +1,5 @@
 /*
- *	include/sandix/printk.h
+ *	include/sandix/printk.h - Print Kernel Message
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
@@ -18,7 +18,6 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <stdarg.h>
 #include <sandix/compiler.h>
 #include <sandix/linkage.h>
 
