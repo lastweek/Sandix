@@ -25,7 +25,6 @@
 		   + __GNUC_MINOR__ * 100 \
 		   + __GNUC_PATCHLEVEL__)
 
-
 /* Many architecture use 64 bytes cache line */
 #define L1_CACHE_LINE_SIZE	64
 
@@ -46,12 +45,17 @@
 #define __user
 #define __iomem
 
+#define likely(x)		__builtin_expect(!!(x), 1)
+#define unlikely(x)		__builtin_expect(!!(x), 0)
+
+#define __same_type(a, b)	__builtin_types_compatible_p(typeof(a), typeof(b))
+#define __unreachable()		__builtin_unreachable()
+#define __constant(exp)		__builtin_constant_(exp)
+
 #define __always_inline		inline __attribute__((always_inline))
 #define INLINE			static inline
 #define ALWAYS_INLINE		static __always_inline
 
-#define likely(x)		__builtin_expect(!!(x), 1)
-#define unlikely(x)		__builtin_expect(!!(x), 0)
 
 #define barrier()		asm volatile("": : :"memory")
 
