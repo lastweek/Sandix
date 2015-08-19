@@ -1,5 +1,5 @@
 /*
- *	drivers/pci/pci.c - PCI Bus Support
+ *	drivers/pci/pci.c - PCI Core
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
