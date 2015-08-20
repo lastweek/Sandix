@@ -19,7 +19,10 @@
  */
 
 #include <stdarg.h>
+#include <sandix/compiler.h>
+#include <sandix/bug.h>
 #include <sandix/kernel.h>
+#include <sandix/string.h>
 #include <sandix/types.h>
 
 #define SIGN	1	/* unsigned/signed, must be 1 */
@@ -60,6 +63,19 @@ struct printf_spec {
 	s16	field_width;	/* width of output field */
 	s16	precision;	/* # of digits/chars */
 };
+
+bool isdigit(int c)
+{
+	if (c >= '0' && c <= '9')
+		return true;
+	else
+		return false;
+}
+
+int skip_atoi(void *p)
+{
+
+}
 
 /*
  * Helper function to decode printf style format.
@@ -113,10 +129,10 @@ static int format_decode(const char *fmt, struct printf_spec *spec)
 
 	/* Process flags */
 	spec->flags = 0;
-
-	while (1) { /* this also skips first '%' */
+	while (1) {
 		bool found = true;
 
+		/* Skip % */
 		++fmt;
 
 		switch (*fmt) {
@@ -132,9 +148,8 @@ static int format_decode(const char *fmt, struct printf_spec *spec)
 			break;
 	}
 
-	/* get field width */
+	/* Get field width */
 	spec->field_width = -1;
-
 	if (isdigit(*fmt))
 		spec->field_width = skip_atoi(&fmt);
 	else if (*fmt == '*') {

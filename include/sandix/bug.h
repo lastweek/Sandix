@@ -51,10 +51,12 @@ do {						\
  * appear at runtime.
  */
 
+#define _WARN()
+
 #define WARN()
 
-#define WARN_ON_ONCE()
+#define WARN_ON_ONCE(condition)
 
-#define WARN_ON()
+#define WARN_ON(condition)
 
 #endif /* _SANDIX_BUG_H_ */
