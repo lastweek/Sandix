@@ -153,13 +153,13 @@ static int format_decode(const char *fmt, struct printf_spec *spec)
 	if (isdigit(*fmt))
 		spec->field_width = skip_atoi(&fmt);
 	else if (*fmt == '*') {
-		/* it's the next argument */
+		/* It is the next argument */
 		spec->type = FORMAT_TYPE_WIDTH;
 		return ++fmt - start;
 	}
 
 precision:
-	/* get the precision */
+	/* Get the precision */
 	spec->precision = -1;
 	if (*fmt == '.') {
 		++fmt;
