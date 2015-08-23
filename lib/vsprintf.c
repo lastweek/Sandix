@@ -19,19 +19,20 @@
  */
 
 #include <stdarg.h>
+
 #include <sandix/compiler.h>
 #include <sandix/bug.h>
 #include <sandix/kernel.h>
 #include <sandix/string.h>
 #include <sandix/types.h>
 
-#define SIGN	1	/* unsigned/signed, must be 1 */
-#define LEFT	2	/* left justified */
-#define PLUS	4	/* show plus */
-#define SPACE	8	/* space if plus */
-#define ZEROPAD	16	/* pad with zero, must be 16 == '0' - ' ' */
-#define SMALL	32	/* use lowercase in hex (must be 32 == 0x20) */
-#define SPECIAL	64	/* prefix hex with "0x", octal with "0" */
+#define SIGN	1		/* unsigned/signed, must be 1 */
+#define LEFT	2		/* left justified */
+#define PLUS	4		/* show plus */
+#define SPACE	8		/* space if plus */
+#define ZEROPAD	16		/* pad with zero, must be 16 == '0' - ' ' */
+#define SMALL	32		/* use lowercase in hex (must be 32 == 0x20) */
+#define SPECIAL	64		/* prefix hex with "0x", octal with "0" */
 
 enum format_type {
 	FORMAT_TYPE_NONE, /* Just a string part */

@@ -24,13 +24,15 @@
 #include <sandix/linkage.h>
 #include <sandix/tty.h>
 
-static char log_buf[1024];
+/*
+ * BIG FAT FIXME
+ * Yes, so much things need tough considerations
+ * how to manage output buffer?
+ * how to ensure printk _safe_ to use?
+ * how to lock tty or console?
+ */
 
-asmlinkage void sprintk(char *buf, const char *fmt, ...)
-{
-
-}
-EXPORT_SYMBOL(sprintk);
+static char KMBUF[1024];
 
 asmlinkage int printk(const char *fmt, ...)
 {
@@ -38,11 +40,11 @@ asmlinkage int printk(const char *fmt, ...)
 	int len;
 	
 	va_start(args, fmt);
-	len = vprintk(fmt, args);
+	len = vsnprintf(KMBUF, 1024, fmt, args);
 	va_end(args);
 
 	/* Output to TTY */
-
+	/* tty->write(KMBUF); */
 
 	return len;
 }
