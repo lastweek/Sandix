@@ -73,9 +73,405 @@ bool isdigit(int c)
 		return false;
 }
 
-int skip_atoi(void *p)
+static int skip_atoi(const char **s)
 {
+	int i = 0;
 
+	do {
+		i = i*10 + *((*s)++) - '0';
+	} while (isdigit(**s));
+
+	return i;
+}
+
+static char *number(char *buf, char *end, unsigned long long num,
+		struct printf_spec spec)
+{
+	/* put_dec requires 2-byte alignment of the buffer. */
+	char tmp[3 * sizeof(num)] __aligned(2);
+	char sign;
+	char locase;
+	int need_pfx = ((spec.flags & SPECIAL) && spec.base != 10);
+	int i;
+	bool is_zero = num == 0LL;
+
+	/* locase = 0 or 0x20. ORing digits or letters with 'locase'
+	 * produces same digits or (maybe lowercased) letters */
+	locase = (spec.flags & SMALL);
+	if (spec.flags & LEFT)
+		spec.flags &= ~ZEROPAD;
+	sign = 0;
+	if (spec.flags & SIGN) {
+		if ((signed long long)num < 0) {
+			sign = '-';
+			num = -(signed long long)num;
+			spec.field_width--;
+		} else if (spec.flags & PLUS) {
+			sign = '+';
+			spec.field_width--;
+		} else if (spec.flags & SPACE) {
+			sign = ' ';
+			spec.field_width--;
+		}
+	}
+	if (need_pfx) {
+		if (spec.base == 16)
+			spec.field_width -= 2;
+		else if (!is_zero)
+			spec.field_width--;
+	}
+
+	/* generate full string in tmp[], in reverse order */
+	i = 0;
+	if (num < spec.base)
+		tmp[i++] = hex_asc_upper[num] | locase;
+	else if (spec.base != 10) { /* 8 or 16 */
+		int mask = spec.base - 1;
+		int shift = 3;
+
+		if (spec.base == 16)
+			shift = 4;
+		do {
+			tmp[i++] = (hex_asc_upper[((unsigned char)num) & mask] | locase);
+			num >>= shift;
+		} while (num);
+	} else { /* base 10 */
+		i = put_dec(tmp, num) - tmp;
+	}
+
+	/* printing 100 using %2d gives "100", not "00" */
+	if (i > spec.precision)
+		spec.precision = i;
+	/* leading space padding */
+	spec.field_width -= spec.precision;
+	if (!(spec.flags & (ZEROPAD | LEFT))) {
+		while (--spec.field_width >= 0) {
+			if (buf < end)
+				*buf = ' ';
+			++buf;
+		}
+	}
+	/* sign */
+	if (sign) {
+		if (buf < end)
+			*buf = sign;
+		++buf;
+	}
+	/* "0x" / "0" prefix */
+	if (need_pfx) {
+		if (spec.base == 16 || !is_zero) {
+			if (buf < end)
+				*buf = '0';
+			++buf;
+		}
+		if (spec.base == 16) {
+			if (buf < end)
+				*buf = ('X' | locase);
+			++buf;
+		}
+	}
+	/* zero or space padding */
+	if (!(spec.flags & LEFT)) {
+		char c = ' ' + (spec.flags & ZEROPAD);
+		BUILD_BUG_ON(' ' + ZEROPAD != '0');
+		while (--spec.field_width >= 0) {
+			if (buf < end)
+				*buf = c;
+			++buf;
+		}
+	}
+	/* hmm even more zero padding? */
+	while (i <= --spec.precision) {
+		if (buf < end)
+			*buf = '0';
+		++buf;
+	}
+	/* actual digits of result */
+	while (--i >= 0) {
+		if (buf < end)
+			*buf = tmp[i];
+		++buf;
+	}
+	/* trailing space padding */
+	while (--spec.field_width >= 0) {
+		if (buf < end)
+			*buf = ' ';
+		++buf;
+	}
+
+	return buf;
+}
+
+static char *string(char *buf, char *end, const char *s,
+		struct printf_spec spec)
+{
+	int len, i;
+
+	if ((unsigned long)s < PAGE_SIZE)
+		s = "(null)";
+
+	len = strnlen(s, spec.precision);
+
+	if (!(spec.flags & LEFT)) {
+		while (len < spec.field_width--) {
+			if (buf < end)
+				*buf = ' ';
+			++buf;
+		}
+	}
+	for (i = 0; i < len; ++i) {
+		if (buf < end)
+			*buf = *s;
+		++buf; ++s;
+	}
+	while (len < spec.field_width--) {
+		if (buf < end)
+			*buf = ' ';
+		++buf;
+	}
+
+	return buf;
+}
+/*
+ * Show a '%p' thing.  A kernel extension is that the '%p' is followed by an
+ * extra set of alphanumeric characters that are extended format specifiers.
+ *
+ * - 'F' For symbolic function descriptor pointers with offset
+ * - 'f' For simple symbolic function names without offset
+ * - 'S' For symbolic direct pointers with offset
+ * - 's' For symbolic direct pointers without offset
+ * - '[FfSs]R' as above with __builtin_extract_return_addr() translation
+ * - 'B' For backtraced symbolic direct pointers with offset
+ * - 'R' For decoded struct resource, e.g., [mem 0x0-0x1f 64bit pref]
+ * - 'r' For raw struct resource, e.g., [mem 0x0-0x1f flags 0x201]
+ * - 'b[l]' For a bitmap, the number of bits is determined by the field
+ *       width which must be explicitly specified either as part of the
+ *       format string '%32b[l]' or through '%*b[l]', [l] selects
+ *       range-list format instead of hex format
+ * - 'M' For a 6-byte MAC address, it prints the address in the
+ *       usual colon-separated hex notation
+ * - 'm' For a 6-byte MAC address, it prints the hex address without colons
+ * - 'MF' For a 6-byte MAC FDDI address, it prints the address
+ *       with a dash-separated hex notation
+ * - '[mM]R' For a 6-byte MAC address, Reverse order (Bluetooth)
+ * - 'I' [46] for IPv4/IPv6 addresses printed in the usual way
+ *       IPv4 uses dot-separated decimal without leading 0's (1.2.3.4)
+ *       IPv6 uses colon separated network-order 16 bit hex with leading 0's
+ *       [S][pfs]
+ *       Generic IPv4/IPv6 address (struct sockaddr *) that falls back to
+ *       [4] or [6] and is able to print port [p], flowinfo [f], scope [s]
+ * - 'i' [46] for 'raw' IPv4/IPv6 addresses
+ *       IPv6 omits the colons (01020304...0f)
+ *       IPv4 uses dot-separated decimal with leading 0's (010.123.045.006)
+ *       [S][pfs]
+ *       Generic IPv4/IPv6 address (struct sockaddr *) that falls back to
+ *       [4] or [6] and is able to print port [p], flowinfo [f], scope [s]
+ * - '[Ii][4S][hnbl]' IPv4 addresses in host, network, big or little endian order
+ * - 'I[6S]c' for IPv6 addresses printed as specified by
+ *       http://tools.ietf.org/html/rfc5952
+ * - 'E[achnops]' For an escaped buffer, where rules are defined by combination
+ *                of the following flags (see string_escape_mem() for the
+ *                details):
+ *                  a - ESCAPE_ANY
+ *                  c - ESCAPE_SPECIAL
+ *                  h - ESCAPE_HEX
+ *                  n - ESCAPE_NULL
+ *                  o - ESCAPE_OCTAL
+ *                  p - ESCAPE_NP
+ *                  s - ESCAPE_SPACE
+ *                By default ESCAPE_ANY_NP is used.
+ * - 'U' For a 16 byte UUID/GUID, it prints the UUID/GUID in the form
+ *       "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+ *       Options for %pU are:
+ *         b big endian lower case hex (default)
+ *         B big endian UPPER case hex
+ *         l little endian lower case hex
+ *         L little endian UPPER case hex
+ *           big endian output byte order is:
+ *             [0][1][2][3]-[4][5]-[6][7]-[8][9]-[10][11][12][13][14][15]
+ *           little endian output byte order is:
+ *             [3][2][1][0]-[5][4]-[7][6]-[8][9]-[10][11][12][13][14][15]
+ * - 'V' For a struct va_format which contains a format string * and va_list *,
+ *       call vsnprintf(->format, *->va_list).
+ *       Implements a "recursive vsnprintf".
+ *       Do not use this feature without some mechanism to verify the
+ *       correctness of the format string and va_list arguments.
+ * - 'K' For a kernel pointer that should be hidden from unprivileged users
+ * - 'NF' For a netdev_features_t
+ * - 'h[CDN]' For a variable-length buffer, it prints it as a hex string with
+ *            a certain separator (' ' by default):
+ *              C colon
+ *              D dash
+ *              N no separator
+ *            The maximum supported length is 64 bytes of the input. Consider
+ *            to use print_hex_dump() for the larger input.
+ * - 'a[pd]' For address types [p] phys_addr_t, [d] dma_addr_t and derivatives
+ *           (default assumed to be phys_addr_t, passed by reference)
+ * - 'd[234]' For a dentry name (optionally 2-4 last components)
+ * - 'D[234]' Same as 'd' but for a struct file
+ * - 'C' For a clock, it prints the name (Common Clock Framework) or address
+ *       (legacy clock framework) of the clock
+ * - 'Cn' For a clock, it prints the name (Common Clock Framework) or address
+ *        (legacy clock framework) of the clock
+ * - 'Cr' For a clock, it prints the current rate of the clock
+ *
+ * Note: The difference between 'S' and 'F' is that on ia64 and ppc64
+ * function pointers are really function descriptors, which contain a
+ * pointer to the real address.
+ */
+static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
+		struct printf_spec spec)
+{
+	int default_width = 2 * sizeof(void *) + (spec.flags & SPECIAL ? 2 : 0);
+
+	if (!ptr && *fmt != 'K') {
+		/*
+		 * Print (null) with the same width as a pointer so it makes
+		 * tabular output look nice.
+		 */
+		if (spec.field_width == -1)
+			spec.field_width = default_width;
+		return string(buf, end, "(null)", spec);
+	}
+
+	switch (*fmt) {
+	case 'F':
+	case 'f':
+		ptr = dereference_function_descriptor(ptr);
+		/* Fallthrough */
+	case 'S':
+	case 's':
+	case 'B':
+		return symbol_string(buf, end, ptr, spec, fmt);
+	case 'R':
+	case 'r':
+		return resource_string(buf, end, ptr, spec, fmt);
+	case 'h':
+		return hex_string(buf, end, ptr, spec, fmt);
+	case 'b':
+		switch (fmt[1]) {
+		case 'l':
+			return bitmap_list_string(buf, end, ptr, spec, fmt);
+		default:
+			return bitmap_string(buf, end, ptr, spec, fmt);
+		}
+	case 'M':			/* Colon separated: 00:01:02:03:04:05 */
+	case 'm':			/* Contiguous: 000102030405 */
+					/* [mM]F (FDDI) */
+					/* [mM]R (Reverse order; Bluetooth) */
+		return mac_address_string(buf, end, ptr, spec, fmt);
+	case 'I':			/* Formatted IP supported
+					 * 4:	1.2.3.4
+					 * 6:	0001:0203:...:0708
+					 * 6c:	1::708 or 1::1.2.3.4
+					 */
+	case 'i':			/* Contiguous:
+					 * 4:	001.002.003.004
+					 * 6:   000102...0f
+					 */
+		switch (fmt[1]) {
+		case '6':
+			return ip6_addr_string(buf, end, ptr, spec, fmt);
+		case '4':
+			return ip4_addr_string(buf, end, ptr, spec, fmt);
+		case 'S': {
+			const union {
+				struct sockaddr		raw;
+				struct sockaddr_in	v4;
+				struct sockaddr_in6	v6;
+			} *sa = ptr;
+
+			switch (sa->raw.sa_family) {
+			case AF_INET:
+				return ip4_addr_string_sa(buf, end, &sa->v4, spec, fmt);
+			case AF_INET6:
+				return ip6_addr_string_sa(buf, end, &sa->v6, spec, fmt);
+			default:
+				return string(buf, end, "(invalid address)", spec);
+			}}
+		}
+		break;
+	case 'E':
+		return escaped_string(buf, end, ptr, spec, fmt);
+	case 'U':
+		return uuid_string(buf, end, ptr, spec, fmt);
+	case 'V':
+		{
+			va_list va;
+
+			va_copy(va, *((struct va_format *)ptr)->va);
+			buf += vsnprintf(buf, end > buf ? end - buf : 0,
+					 ((struct va_format *)ptr)->fmt, va);
+			va_end(va);
+			return buf;
+		}
+	case 'K':
+		/*
+		 * %pK cannot be used in IRQ context because its test
+		 * for CAP_SYSLOG would be meaningless.
+		 */
+		if (kptr_restrict && (in_irq() || in_serving_softirq() ||
+				      in_nmi())) {
+			if (spec.field_width == -1)
+				spec.field_width = default_width;
+			return string(buf, end, "pK-error", spec);
+		}
+
+		switch (kptr_restrict) {
+		case 0:
+			/* Always print %pK values */
+			break;
+		case 1: {
+			/*
+			 * Only print the real pointer value if the current
+			 * process has CAP_SYSLOG and is running with the
+			 * same credentials it started with. This is because
+			 * access to files is checked at open() time, but %pK
+			 * checks permission at read() time. We don't want to
+			 * leak pointer values if a binary opens a file using
+			 * %pK and then elevates privileges before reading it.
+			 */
+			const struct cred *cred = current_cred();
+
+			if (!has_capability_noaudit(current, CAP_SYSLOG) ||
+			    !uid_eq(cred->euid, cred->uid) ||
+			    !gid_eq(cred->egid, cred->gid))
+				ptr = NULL;
+			break;
+		}
+		case 2:
+		default:
+			/* Always print 0's for %pK */
+			ptr = NULL;
+			break;
+		}
+		break;
+
+	case 'N':
+		switch (fmt[1]) {
+		case 'F':
+			return netdev_feature_string(buf, end, ptr, spec);
+		}
+		break;
+	case 'a':
+		return address_val(buf, end, ptr, spec, fmt);
+	case 'd':
+		return dentry_name(buf, end, ptr, spec, fmt);
+	case 'C':
+		return clock(buf, end, ptr, spec, fmt);
+	case 'D':
+		return dentry_name(buf, end,
+				   ((const struct file *)ptr)->f_path.dentry,
+				   spec, fmt);
+	}
+	spec.flags |= SMALL;
+	if (spec.field_width == -1) {
+		spec.field_width = default_width;
+		spec.flags |= ZEROPAD;
+	}
+	spec.base = 16;
+
+	return number(buf, end, (unsigned long) ptr, spec);
 }
 
 /*
@@ -97,7 +493,7 @@ static int format_decode(const char *fmt, struct printf_spec *spec)
 {
 	const char *start = fmt;
 
-	/* we finished early by reading the field width */
+	/* We finished early by reading the field width */
 	if (spec->type == FORMAT_TYPE_WIDTH) {
 		if (spec->field_width < 0) {
 			spec->field_width = -spec->field_width;
@@ -107,19 +503,17 @@ static int format_decode(const char *fmt, struct printf_spec *spec)
 		goto precision;
 	}
 
-	/* we finished early by reading the precision */
+	/* We finished early by reading the precision */
 	if (spec->type == FORMAT_TYPE_PRECISION) {
 		if (spec->precision < 0)
 			spec->precision = 0;
-
 		spec->type = FORMAT_TYPE_NONE;
 		goto qualifier;
 	}
 
-	/* By default */
 	spec->type = FORMAT_TYPE_NONE;
 
-	for (; *fmt ; ++fmt) {
+	for (; *fmt; ++fmt) {
 		if (*fmt == '%')
 			break;
 	}
@@ -128,7 +522,7 @@ static int format_decode(const char *fmt, struct printf_spec *spec)
 	if (fmt != start || !*fmt)
 		return fmt - start;
 
-	/* Process flags */
+	/* Get the Flags */
 	spec->flags = 0;
 	while (1) {
 		bool found = true;
@@ -148,19 +542,24 @@ static int format_decode(const char *fmt, struct printf_spec *spec)
 		if (!found)
 			break;
 	}
+	
+	/*
+	 * A field width or precision may be `*' instead of
+	 * a digit string. In this case an argument supplies
+	 * the field width or precision.
+	 */
 
-	/* Get field width */
+	/* Get the Field Width */
 	spec->field_width = -1;
 	if (isdigit(*fmt))
 		spec->field_width = skip_atoi(&fmt);
 	else if (*fmt == '*') {
-		/* It is the next argument */
 		spec->type = FORMAT_TYPE_WIDTH;
 		return ++fmt - start;
 	}
 
 precision:
-	/* Get the precision */
+	/* Get the Precision */
 	spec->precision = -1;
 	if (*fmt == '.') {
 		++fmt;
@@ -169,14 +568,13 @@ precision:
 			if (spec->precision < 0)
 				spec->precision = 0;
 		} else if (*fmt == '*') {
-			/* it's the next argument */
 			spec->type = FORMAT_TYPE_PRECISION;
 			return ++fmt - start;
 		}
 	}
 
 qualifier:
-	/* get the conversion qualifier */
+	/* Get the Conversion Qualifier */
 	spec->qualifier = -1;
 	if (*fmt == 'h' || _tolower(*fmt) == 'l' ||
 	    _tolower(*fmt) == 'z' || *fmt == 't') {
@@ -192,7 +590,7 @@ qualifier:
 		}
 	}
 
-	/* default base */
+	/* Default Base */
 	spec->base = 10;
 	switch (*fmt) {
 	case 'c':
@@ -211,7 +609,7 @@ qualifier:
 		spec->type = FORMAT_TYPE_PERCENT_CHAR;
 		return ++fmt - start;
 
-	/* integer number formats - set up the flags and "break" */
+	/* Integer number formats - set up the flags and "break" */
 	case 'o':
 		spec->base = 8;
 		break;
@@ -235,7 +633,7 @@ qualifier:
 		 * it as an invalid format specifier. Warn about its use so
 		 * that new instances don't get added.
 		 */
-		WARN_ONCE(1, "Please remove ignored %%n in '%s'\n", fmt);
+		//WARN_ONCE(1, "Please remove ignored %%n in '%s'\n", fmt);
 		/* Fall-through */
 
 	default:
@@ -245,23 +643,18 @@ qualifier:
 
 	if (spec->qualifier == 'L')
 		spec->type = FORMAT_TYPE_LONG_LONG;
-	else if (spec->qualifier == 'l') {
-		BUILD_BUG_ON(FORMAT_TYPE_ULONG + SIGN != FORMAT_TYPE_LONG);
+	else if (spec->qualifier == 'l')
 		spec->type = FORMAT_TYPE_ULONG + (spec->flags & SIGN);
-	} else if (_tolower(spec->qualifier) == 'z') {
+	else if (_tolower(spec->qualifier) == 'z')
 		spec->type = FORMAT_TYPE_SIZE_T;
-	} else if (spec->qualifier == 't') {
+	else if (spec->qualifier == 't')
 		spec->type = FORMAT_TYPE_PTRDIFF;
-	} else if (spec->qualifier == 'H') {
-		BUILD_BUG_ON(FORMAT_TYPE_UBYTE + SIGN != FORMAT_TYPE_BYTE);
+	else if (spec->qualifier == 'H')
 		spec->type = FORMAT_TYPE_UBYTE + (spec->flags & SIGN);
-	} else if (spec->qualifier == 'h') {
-		BUILD_BUG_ON(FORMAT_TYPE_USHORT + SIGN != FORMAT_TYPE_SHORT);
+	else if (spec->qualifier == 'h')
 		spec->type = FORMAT_TYPE_USHORT + (spec->flags & SIGN);
-	} else {
-		BUILD_BUG_ON(FORMAT_TYPE_UINT + SIGN != FORMAT_TYPE_INT);
+	else
 		spec->type = FORMAT_TYPE_UINT + (spec->flags & SIGN);
-	}
 
 	return ++fmt - start;
 }
@@ -321,13 +714,13 @@ int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
 	char *str, *end;
 	struct printf_spec spec = {0};
 
-	if (WARN_ON_ONCE(size > INT_MAX))
+	if (WARN_ON(size > INT_MAX))
 		return 0;
 
 	str = buf;
 	end = buf + size;
 
-	/* Make sure end is always >= buf */
+	/* Make sure size >=0 */
 	if (end < buf) {
 		end = ((void *)-1);
 		size = end - buf;
@@ -455,7 +848,7 @@ int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
 			end[-1] = '\0';
 	}
 
-	/* the trailing null byte doesn't count towards the total */
+	/* The trailing null byte doesn't count towards the total */
 	return str-buf;
 
 }

@@ -41,8 +41,9 @@ do {						\
 
 #define BUG_ON(condition)			\
 do {						\
-	if (unlikely(condition))		\
+	if (unlikely(condition)) {		\
 		BUG();				\
+	}					\
 } while (0)
 
 /*
@@ -55,8 +56,8 @@ do {						\
 
 #define WARN()
 
-#define WARN_ON_ONCE(condition)
+#define WARN_ON_ONCE(condition)	condition
 
-#define WARN_ON(condition)
+#define WARN_ON(condition)	condition
 
 #endif /* _SANDIX_BUG_H_ */
