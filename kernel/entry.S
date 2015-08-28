@@ -1,5 +1,5 @@
 /*
- *	Entry point for interrupts and traps.
+ *	kernel/entry.S - Entry point for interrupts and traps.
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
@@ -18,3 +18,4 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
+

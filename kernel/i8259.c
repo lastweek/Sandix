@@ -56,12 +56,3 @@ void __init init_8259A(void)
 {
 
 }
-
-
-
-
-
-
-
-
-

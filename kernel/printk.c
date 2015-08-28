@@ -26,6 +26,7 @@
 
 /*
  * BIG FAT FIXME
+ *
  * Yes, so much things need tough considerations
  * how to manage output buffer?
  * how to ensure printk _safe_ to use?
@@ -42,7 +43,8 @@ asmlinkage int printk(const char *fmt, ...)
 	va_start(args, fmt);
 	len = vsnprintf(KMBUF, 1024, fmt, args);
 	va_end(args);
-
+	
+	/* TODO */
 	/* Output to TTY */
 	/* tty->write(KMBUF); */
 

@@ -1,5 +1,5 @@
 #
-#	Build Sandix Kernel
+#	Build Sandix Kernel Image
 #
 #	Copyright (c) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
 #
@@ -18,12 +18,10 @@
 #	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-VERSION = 1
-PATCHLEVEL = 0
-SUBLEVEL = 0
-NAME0 = Sandix
-NAME1 = Crape myrtle
-NAME2 = Lagerstroemia indica
+VERSION		=	1
+PATCHLEVEL	=	0
+SUBLEVEL	=	0
+NAME		=	Sandix
 
 # Beautify output
 # ===========================================================================
