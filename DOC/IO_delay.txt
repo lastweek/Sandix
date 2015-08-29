@@ -1,0 +1,23 @@
+Some advice about IO programming and the usage of IO delay:
+
+If one wishes to be extra cautious when writing to registers,
+after writing to a register one can read the value back and
+compare it with the original value. If they differ it may
+mean that the VGA hardware has a stuck bit in one its
+registers, that you are attempting to  modify a locked or
+unsupported register, or that you are not providing enough
+delay between I/O accesses. As long as reading the register 
+twice doesn't have any unintended side effects, when reading
+a registers value, one can read the register twice and
+compare the values read, after masking out any fields that
+may change without CPU intervention. If the values read back
+are different it may mean that you are not providing enough
+delay between I/O accesses, that the hardware is malfunctioning,
+or are reading the wrong register or field. Other problems
+that these techniques can address are noise on the I/O bus due 
+to faulty hardware, dirty contacts, or even sunspots! When 
+perform I/O operations and these checks fail, try repeating
+the operation, possibly with increased I/O delay time. By
+providing extra robustness, I have found that my own programs
+will work properly on hardware that causes less robust programs to fail.
+

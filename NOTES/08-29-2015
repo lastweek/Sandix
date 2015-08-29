@@ -1,0 +1,24 @@
+#
+# Sat Aug 29 15:03:51 CST 2015
+#
+
+# Keywork: [BOOK] Modern Embedded System
+
+Hello, it is BOOK day!
+
+One week at home, and i finished the textbook: Modern Embedded System! It is
+quite exciting to finish it in 7 days. After reading, i gained a mature thought
+about Embedded Hardware and Software. About Embedded Hardware: Embedded system
+is composed of various hardware components. What hardware components avaliable
+depending on your choice. Traditional components are: CPU(Intel Atom, Atmel,
+ARM, SPARK...), Network(Ethernet Adapter, Wireless Adapter, Bluetooth...),
+Graphics(GPU, Hardware-Accelerated Encode, Hardware-Accelerated Decode...),
+Timers(Integrated, HPET...), Watchdog(Intel WTD...) and other various PCIe
+based devices. Next, Embedded Software: Linux. Yes, we have no other choice.
+Embedded Linux is the best software in embedded system. Linux has so many
+device drivers for various different class devices.
+
+Yes, i have some future plans:
+<1> Learn how to build a Linux Distribution.
+<2> Read more books on embedded area.
+<3> Coding to learn.
