@@ -1,5 +1,7 @@
 #
-#	Ignore files generated from build process
+#	gitignore - Ignore Files Generated From Building
+#
+#	Copyright (C) 2015 Yizhou Shan	<shanyizhou@ict.ac.cn>
 #
 
 .*
