@@ -64,32 +64,39 @@ else
   Q=@
 endif
 
-export quiet Q KBUILD_VERBOSE
-
-# General Kernel Checker
+#
+#	Check Source Code Before Build
+#
+KBUILD_CHECKER=0
 ifeq ("$(orgin C)", "command line")
   KBUILD_CHECKER=$(C)
 endif
 
-ifndef KBUILD_CHECKER
-  KBUILD_CHECKER=0
-endif
+export quiet Q KBUILD_VERBOSE C KBUILD_CHECKER
 
-# Sandix does not support building in other directories.
+#
+#	TODO
+#	Sandix does not support building in other directories.
+#
 srctree = .
 objtree = .
 export srctree objtree
 
-# o Do not use make's built-in rules and variables,
-#   this increases performance and avoids hard-to-debug behaviour.
-# o Look for make include files relative to root of kernel src
+#
+#	o Do not use make's built-in rules and variables,
+#	  this increases performance and avoids hard-to-debug behaviour.
+#	o Look for make include files relative to root of kernel src
+#
 MAKEFLAGS += -rR --include-dir=$(srctree)
 
-# FIXME i386-elf-gcc toolchains in my macos.
+#
+#	FIXME i386-elf-gcc toolchains in my macos.
+#
 CROSS_COMPILE = i386-elf-
 
-# VARIABLES
-# ===========================================================================
+#
+#	VARIABLES
+#
 CC	= $(CROSS_COMPILE)gcc
 AS	= $(CROSS_COMPILE)as
 LD	= $(CROSS_COMPILE)ld
@@ -117,7 +124,10 @@ KBUILD_LDFLAGS	:=
 SANDIXINCLUDE	:= -I$(srctree)/include/
 NOSTDINC_FLAGS	:= -nostdinc
 
-#Ugly.. You can add more, but DO NOT DELETE them. 
+#
+#	FIXME
+#	Ugly.. You can add more, but DO NOT DELETE them. 
+#
 OBJCOPYFLAGS	:= -j .text -j .text32 -j .data -j .rodata -j .init -O binary
 OBJDUMPFLAGS	:= -d -M att
 
@@ -128,6 +138,9 @@ export KBUILD_CFLAGS KBUILD_CPPFLAGS KBUILD_LDFLAGS KBUILD_AFLAGS
 export SANDIXINCLUDE NOSTDINC_FLAGS
 export OBJCOPYFLAGS OBJDUMPFLAGS
 
+#
+#	Fine, one architecture only.
+#
 CONFIG_X86_32=y
 ifeq ($(CONFIG_X86_32),y)
     KBUILD_AFLAGS += -m32
@@ -153,7 +166,6 @@ boot-y		:= boot/
 init-y		:= init/
 core-y		:= kernel/ mm/ lib/
 drivers-y	:= drivers/
-#core-y		:= kernel/ mm/ fs/ ipc/ block/
 vmsandix-dirs	:= $(patsubst %/, %, $(boot-y) $(init-y) $(core-y) $(drivers-y))
 
 boot-y		:= $(patsubst %/, %/built-in.o, $(boot-y))
@@ -167,12 +179,13 @@ KBUILD_VMSANDIX_MAIN := $(init-y) $(core-y) $(drivers-y)
 
 export KBUILD_VMSANDIX_BOOT KBUILD_VMSANDIX_MAIN
 
-# BIT FAT NOTE:
-# o Real-Mode kernel image is boot/rmimage.
-# o Link $(init-y) $(core-y) $(drivers-y) together to form protected-mode
-#   kernel image. Move and rename the pm kernel image to boot/pmimage.
-# o boot/CATENATE is used to catenate bootloader, rmimage and
-#   pmimage together to form bzImage.
+#
+#	BIG FAT NOTE:
+#	o Real-Mode kernel image is boot/rmimage.
+#	o Link $(init-y) $(core-y) $(drivers-y) together to form protected-mode
+#	  kernel image. Move and rename the pm kernel image to boot/pmimage.
+#	o boot/CATENATE is used to catenate bootloader, rmimage and
+#	  pmimage together to form bzImage.
 _RM_IMAGE := boot/rmimage
 _PM_IMAGE := boot/pmimage
 RM_IMAGE  := boot/rmimage.bin
@@ -182,7 +195,9 @@ BZIMAGE   := boot/bzImage
 RM_LD_CMD := boot/rm-image.ld
 PM_LD_CMD := kernel/vmSandix.ld
 
-# Some generic definitions and variables
+#
+#	Some generic definitions and variables
+#
 include $(srctree)/scripts/Kbuild.include
 
 
@@ -231,7 +246,7 @@ PHONY += $(vmsandix-dirs)
 $(vmsandix-dirs):
 	$(Q)$(MAKE) $(BUILD)=$@
 
-
+#
 # CLEAN
 # ===========================================================================
 
@@ -248,7 +263,7 @@ clean: $(CLEAN_DIRS)
 $(CLEAN_DIRS):
 	$(Q)$(MAKE) $(CLEAN)=$(patsubst __CLEAN__%,%,$@)
 
-
+#
 # HELP
 # ===========================================================================
 PHONY += help
@@ -257,8 +272,8 @@ help:
 	@echo "\nBUILD SANDIX KERNEL\n"
 	@echo "  make V=0 [targets] => Quiet Build (default)"
 	@echo "  make V=1 [targets] => Verbose Build"
-	@echo "  make C=0 [targets] => General check(default)"
-	@echo "  make C=1 [targets] => Build without checker"
+	@echo "  make C=0 [targets] => Do _Not_ Check Source Code Before Build (default)"
+	@echo "  make C=1 [targets] => Check Source Code Before Build"
 	@echo "\n###################################################"
 
 PHONY += FORCE
