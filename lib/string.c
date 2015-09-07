@@ -1,5 +1,5 @@
 /*
- *	lib/string.c - string functions
+ *	lib/string.c - X86 String Functions
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	

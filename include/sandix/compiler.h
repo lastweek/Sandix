@@ -25,7 +25,10 @@
 		   + __GNUC_MINOR__ * 100 \
 		   + __GNUC_PATCHLEVEL__)
 
-/* Many architecture use 64 bytes cache line */
+/*
+ * Many architecture use 64 bytes cache line
+ * Use this size to align some hot data.
+ */
 #define L1_CACHE_LINE_SIZE	64
 
 /*
@@ -39,9 +42,11 @@
 #define __init			__section(.init.text)
 #define __initdata		__section(.init.data)
 
+#define __aligned(x)            __attribute__((aligned(x)))
 #define __printf(a, b)		__attribute__((format(printf, a, b)))
 #define __scanf(a, b)		__attribute__((format(scanf, a, b)))
 #define __cold			__attribute__((cold))
+
 #define __user
 #define __iomem
 
@@ -56,7 +61,10 @@
 #define INLINE			static inline
 #define ALWAYS_INLINE		static __always_inline
 
-
+/*
+ * It is a compiler barrier.
+ * It is _not_ a cpu barrier.
+ */
 #define barrier()		asm volatile("": : :"memory")
 
 #endif /* _SANDIX_COMPILER_H_ */

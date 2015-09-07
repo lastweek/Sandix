@@ -221,6 +221,7 @@ static char *string(char *buf, char *end, const char *s,
 
 	return buf;
 }
+
 /*
  * Show a '%p' thing.  A kernel extension is that the '%p' is followed by an
  * extra set of alphanumeric characters that are extended format specifiers.
