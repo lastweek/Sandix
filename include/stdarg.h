@@ -1,4 +1,6 @@
 /*
+ *	Variable Arguments
+ *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
  *	This program is free software; you can redistribute it and/or modify

@@ -1,5 +1,5 @@
 /*
- *	include/sandix/types.h - Portable Types
+ *	include/sandix/types.h - Portable Type Definitons
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
@@ -42,15 +42,25 @@ typedef unsigned int		__u32;
 typedef unsigned short		__u16;
 typedef unsigned char		__u8;
 
+typedef long long		s64;
+typedef int			s32;
+typedef short			s16;
+typedef char			s8;
+typedef long long		__s64;
+typedef int			__s32;
+typedef short			__s16;
+typedef char			__s8;
+
 /*
- * Some POSIX definitons???
+ * TODO: Some POSIX definitons???
  */
-typedef unsigned int pit_t;
-typedef unsigned int phys_addr_t;
+typedef unsigned int	pid_t;
+typedef unsigned int	phys_addr_t;
+typedef int		ptrdiff_t;
 
 /*
  * Use size_t to count number of bytes
- * Use ssize_t to count number of bytes or return negtive error value.
+ * Use ssize_t to count number of bytes OR return negtive error value.
  */
 typedef unsigned int size_t;
 typedef int ssize_t;
@@ -64,5 +74,4 @@ typedef struct {
 } atomic_t;
 
 #endif /* __ASSEMBLY__ */
-
 #endif /* _SANDIX_TYPES_H_ */

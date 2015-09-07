@@ -1,6 +1,7 @@
 /*
- *	lib/vsprintf.c - You know what is this
+ *	lib/vsprintf.c
  *
+ *	Copyright (C) 1991, 1992  Linus Torvalds
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
  *	This program is free software; you can redistribute it and/or modify
@@ -20,22 +21,29 @@
 
 #include <stdarg.h>
 
+#include <sandix/ctype.h>
 #include <sandix/compiler.h>
 #include <sandix/bug.h>
 #include <sandix/kernel.h>
 #include <sandix/string.h>
 #include <sandix/types.h>
 
-#define SIGN	1		/* unsigned/signed, must be 1 */
-#define LEFT	2		/* left justified */
-#define PLUS	4		/* show plus */
-#define SPACE	8		/* space if plus */
-#define ZEROPAD	16		/* pad with zero, must be 16 == '0' - ' ' */
-#define SMALL	32		/* use lowercase in hex (must be 32 == 0x20) */
-#define SPECIAL	64		/* prefix hex with "0x", octal with "0" */
+/*
+ * FLAGS. %Format control.
+ */
+#define SIGN		0x01		/* unsigned/signed */
+#define LEFT		0x02		/* left justified */
+#define PLUS		0x04		/* show plus */
+#define SPACE		0x08		/* space if plus */
+#define ZEROPAD		0x10		/* pad with zero, must be 16 == '0' - ' ' */
+#define SMALL		0x20		/* use lowercase in hex (must be 32 == 0x20) */
+#define SPECIAL		0x40		/* prefix hex with "0x", octal with "0" */
 
+/*
+ * FORMAT TYPE. Keep this order.
+ */
 enum format_type {
-	FORMAT_TYPE_NONE, /* Just a string part */
+	FORMAT_TYPE_NONE,		/* Just a string part */
 	FORMAT_TYPE_WIDTH,
 	FORMAT_TYPE_PRECISION,
 	FORMAT_TYPE_CHAR,
@@ -57,35 +65,16 @@ enum format_type {
 };
 
 struct printf_spec {
-	u8	type;		/* format_type enum */
-	u8	flags;		/* flags to number() */
-	u8	base;		/* number base, 8, 10 or 16 only */
-	u8	qualifier;	/* number qualifier, one of 'hHlLtzZ' */
-	s16	field_width;	/* width of output field */
-	s16	precision;	/* # of digits/chars */
+	u8	type;			/* format_type enum */
+	u8	flags;			/* flags to number() */
+	u8	base;			/* number base, 8, 10 or 16 only */
+	u8	qualifier;		/* number qualifier, one of 'hHlLtzZ' */
+	s16	field_width;		/* width of output field */
+	s16	precision;		/* # of digits/chars */
 };
 
-bool isdigit(int c)
-{
-	if (c >= '0' && c <= '9')
-		return true;
-	else
-		return false;
-}
-
-static int skip_atoi(const char **s)
-{
-	int i = 0;
-
-	do {
-		i = i*10 + *((*s)++) - '0';
-	} while (isdigit(**s));
-
-	return i;
-}
-
 static char *number(char *buf, char *end, unsigned long long num,
-		struct printf_spec spec)
+		    struct printf_spec spec)
 {
 	/* put_dec requires 2-byte alignment of the buffer. */
 	char tmp[3 * sizeof(num)] __aligned(2);
@@ -203,7 +192,7 @@ static char *number(char *buf, char *end, unsigned long long num,
 }
 
 static char *string(char *buf, char *end, const char *s,
-		struct printf_spec spec)
+		    struct printf_spec spec)
 {
 	int len, i;
 
@@ -320,7 +309,7 @@ static char *string(char *buf, char *end, const char *s,
  * pointer to the real address.
  */
 static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
-		struct printf_spec spec)
+		     struct printf_spec spec)
 {
 	int default_width = 2 * sizeof(void *) + (spec.flags & SPECIAL ? 2 : 0);
 
@@ -485,15 +474,18 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
  * @type of the token returned
  * @flags: various flags such as +, -, # tokens..
  * @base: base of the number (octal, hex, ...)
- * @qualifier: qualifier of a number (long, size_t, ...)
- * @field_width: overwritten width
+ * @qualifier: length qualifier of a number (long, size_t, ...)
+ * @field_width: field width of a number
  * @precision: precision of a number
  */
 static int format_decode(const char *fmt, struct printf_spec *spec)
 {
 	const char *start = fmt;
 
-	/* We finished early by reading the field width */
+	/*
+	 * Handle the FIELD WIDTH and PRECISION first
+	 */
+
 	if (spec->type == FORMAT_TYPE_WIDTH) {
 		if (spec->field_width < 0) {
 			spec->field_width = -spec->field_width;
@@ -503,7 +495,6 @@ static int format_decode(const char *fmt, struct printf_spec *spec)
 		goto precision;
 	}
 
-	/* We finished early by reading the precision */
 	if (spec->type == FORMAT_TYPE_PRECISION) {
 		if (spec->precision < 0)
 			spec->precision = 0;
@@ -511,6 +502,9 @@ static int format_decode(const char *fmt, struct printf_spec *spec)
 		goto qualifier;
 	}
 
+	/*
+	 * Default TYPE
+	 */
 	spec->type = FORMAT_TYPE_NONE;
 
 	for (; *fmt; ++fmt) {
@@ -518,11 +512,15 @@ static int format_decode(const char *fmt, struct printf_spec *spec)
 			break;
 	}
 
-	/* Return the current non-format string */
+	/*
+	 * Return the current NON-FORMAT string
+	 */
 	if (fmt != start || !*fmt)
 		return fmt - start;
 
-	/* Get the Flags */
+	/*
+	 * Handle the FLAGs
+	 */
 	spec->flags = 0;
 	while (1) {
 		bool found = true;
@@ -544,12 +542,8 @@ static int format_decode(const char *fmt, struct printf_spec *spec)
 	}
 	
 	/*
-	 * A field width or precision may be `*' instead of
-	 * a digit string. In this case an argument supplies
-	 * the field width or precision.
+	 * Get the FIELD WIDTh
 	 */
-
-	/* Get the Field Width */
 	spec->field_width = -1;
 	if (isdigit(*fmt))
 		spec->field_width = skip_atoi(&fmt);
@@ -559,7 +553,9 @@ static int format_decode(const char *fmt, struct printf_spec *spec)
 	}
 
 precision:
-	/* Get the Precision */
+	/*
+	 * Get the PRECISION
+	 */
 	spec->precision = -1;
 	if (*fmt == '.') {
 		++fmt;
@@ -574,68 +570,68 @@ precision:
 	}
 
 qualifier:
-	/* Get the Conversion Qualifier */
+	/*
+	 * Get the LENGTH QUALIFIER/MODIFIER
+	 */
 	spec->qualifier = -1;
 	if (*fmt == 'h' || _tolower(*fmt) == 'l' ||
-	    _tolower(*fmt) == 'z' || *fmt == 't') {
+	    _tolower(*fmt) == 'z' || *fmt == 't')
+	{
 		spec->qualifier = *fmt++;
-		if (unlikely(spec->qualifier == *fmt)) {
-			if (spec->qualifier == 'l') {
+		if (spec->qualifier == *fmt)
+		{
+			if (spec->qualifier == 'l')
+			{
 				spec->qualifier = 'L';
 				++fmt;
-			} else if (spec->qualifier == 'h') {
+			}
+			else if (spec->qualifier == 'h')
+			{
 				spec->qualifier = 'H';
 				++fmt;
 			}
 		}
 	}
 
-	/* Default Base */
+	/*
+	 * Default BASE
+	 */
 	spec->base = 10;
+	
+	/*
+	 * Handle the CONVERSION SPECIFIERS
+	 */
 	switch (*fmt) {
 	case 'c':
 		spec->type = FORMAT_TYPE_CHAR;
 		return ++fmt - start;
-
 	case 's':
 		spec->type = FORMAT_TYPE_STR;
 		return ++fmt - start;
-
 	case 'p':
 		spec->type = FORMAT_TYPE_PTR;
 		return ++fmt - start;
-
 	case '%':
 		spec->type = FORMAT_TYPE_PERCENT_CHAR;
 		return ++fmt - start;
-
-	/* Integer number formats - set up the flags and "break" */
-	case 'o':
-		spec->base = 8;
-		break;
-
-	case 'x':
-		spec->flags |= SMALL;
-
-	case 'X':
-		spec->base = 16;
-		break;
-
 	case 'd':
 	case 'i':
 		spec->flags |= SIGN;
 	case 'u':
 		break;
-
+	case 'x':
+		spec->flags |= SMALL;
+	case 'X':
+		spec->base = 16;
+		break;
+	case 'o':
+		spec->base = 8;
+		break;
 	case 'n':
 		/*
-		 * Since %n poses a greater security risk than utility, treat
-		 * it as an invalid format specifier. Warn about its use so
-		 * that new instances don't get added.
+		 * Since %n poses a greater security risk than utility.
+		 * Treat it as an invalid format specifier.
 		 */
-		//WARN_ONCE(1, "Please remove ignored %%n in '%s'\n", fmt);
-		/* Fall-through */
-
 	default:
 		spec->type = FORMAT_TYPE_INVALID;
 		return fmt - start;
@@ -714,13 +710,15 @@ int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
 	char *str, *end;
 	struct printf_spec spec = {0};
 
-	if (WARN_ON(size > INT_MAX))
+	if (size > INT_MAX)
 		return 0;
 
 	str = buf;
 	end = buf + size;
 
-	/* Make sure size >=0 */
+	/*
+	 * Make sure size >=0
+	 */
 	if (end < buf) {
 		end = ((void *)-1);
 		size = end - buf;
@@ -743,18 +741,14 @@ int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
 			str += read;
 			break;
 		}
-
 		case FORMAT_TYPE_WIDTH:
 			spec.field_width = va_arg(args, int);
 			break;
-
 		case FORMAT_TYPE_PRECISION:
 			spec.precision = va_arg(args, int);
 			break;
-
 		case FORMAT_TYPE_CHAR: {
 			char c;
-
 			if (!(spec.flags & LEFT)) {
 				while (--spec.field_width > 0) {
 					if (str < end)
@@ -774,30 +768,25 @@ int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
 			}
 			break;
 		}
-
 		case FORMAT_TYPE_STR:
 			str = string(str, end, va_arg(args, char *), spec);
 			break;
-
 		case FORMAT_TYPE_PTR:
 			str = pointer(fmt, str, end, va_arg(args, void *),
 				      spec);
 			while (isalnum(*fmt))
 				fmt++;
 			break;
-
 		case FORMAT_TYPE_PERCENT_CHAR:
 			if (str < end)
 				*str = '%';
 			++str;
 			break;
-
 		case FORMAT_TYPE_INVALID:
 			if (str < end)
 				*str = '%';
 			++str;
 			break;
-
 		default:
 			switch (spec.type) {
 			case FORMAT_TYPE_LONG_LONG:
@@ -836,10 +825,9 @@ int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
 			default:
 				num = va_arg(args, unsigned int);
 			}
-
 			str = number(str, end, num, spec);
-		}
-	}
+		} /* switch() */
+	} /* while() */
 
 	if (size > 0) {
 		if (str < end)
@@ -848,7 +836,9 @@ int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
 			end[-1] = '\0';
 	}
 
-	/* The trailing null byte doesn't count towards the total */
+	/*
+	 * The '\0' does _not_ count towards the total
+	 */
 	return str-buf;
 
 }
