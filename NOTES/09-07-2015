@@ -1,0 +1,37 @@
+#
+# Mon Sep  7 14:47:58 CST 2015
+#
+
+# Keyword: FHS, Root Filesystem
+
+FHS(Filesystem Hierarchy Standard) specifies a standard filesystem hierarchy
+for FHS filesystems by specifying the location of files and directories, and
+the contents of some system files.
+
+This standard has been designed to be used by system integrators, package
+developers, and system administrators in the construction and maintenance of
+FHS compliant filesystems. It is primarily intended to be a reference and is
+not a tutorial on how to manage a conforming filesystem hierarchy.
+
+If you want to build a Linux Distribution like CentOS or Ubuntu, you mainly
+need such things:
+	Boot Loader (GRUB2, LILO...)
+	Linux Kernel Image,
+	Root Filesystem,
+	Misc Librarys,
+	Standard C Library (Glibc, ulibc...),
+	Utilities (Busybox, cat, ls...),
+	Host-specific Config Files (under /etc)...
+
+Once you prepared all such things described above(it is not easy), you can
+begin to build the Distribution as follow steps:
+	Configure the kernel source,
+	Build the kernel image,
+	Partition the storage follow FHS (Hard Disk or USB Stick),
+	Put everything described above the root filesystem,
+	Make sure boot loader and kernel image are ready,
+	Enjoy!
+
+Yes, it seems easy right? Sorry but to build a runnable Linux Distribution from
+scratch is very complex and time-comsuing! The idea and the steps are simple,
+but the process to success is hard to walk!
