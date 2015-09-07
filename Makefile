@@ -90,7 +90,7 @@ export srctree objtree
 MAKEFLAGS += -rR --include-dir=$(srctree)
 
 #
-#	FIXME i386-elf-gcc toolchains in my macos.
+#	FIXME i386-elf- toolchains in my macos.
 #
 CROSS_COMPILE = i386-elf-
 
@@ -109,19 +109,22 @@ OBJDUMP	= $(CROSS_COMPILE)objdump
 MAKE	= make
 AWK 	= awk
 
-KBUILD_CFLAGS := -std=gnu89 -pipe -Wall -Wundef
-KBUILD_CFLAGS += -fno-strict-aliasing -fno-common
-KBUILD_CFLAGS += -Wno-format-security
-KBUILD_CFLAGS += -Wdeclaration-after-statement
-KBUILD_CFLAGS += -Werror=strict-prototypes
-KBUILD_CFLAGS += -Werror=implicit-function-declaration
-KBUILD_CFLAGS += -O2
+KBUILD_CFLAGS	:= -std=gnu89 -pipe -Wall -Wundef
+KBUILD_CFLAGS	+= -fno-strict-aliasing -fno-common
+KBUILD_CFLAGS	+= -Wno-format-security
+KBUILD_CFLAGS	+= -Wdeclaration-after-statement
+KBUILD_CFLAGS	+= -Werror=strict-prototypes
+KBUILD_CFLAGS	+= -Werror=implicit-function-declaration
+KBUILD_CFLAGS	+= -O2
 
 KBUILD_CPPFLAGS	:= -D__KERNEL__
+
 KBUILD_AFLAGS	:= -D__ASSEMBLY__
+
 KBUILD_LDFLAGS	:=
 
 SANDIXINCLUDE	:= -I$(srctree)/include/
+
 NOSTDINC_FLAGS	:= -nostdinc
 
 #
@@ -155,10 +158,10 @@ ifeq ($(CONFIG_X86_32),y)
     # Prevent gcc from keeping the stack 16 byte aligned
     KBUILD_CFLAGS += -mpreferred-stack-boundary=2
     
-	# Prevent gcc from generating any FP code by mistake
+    # Prevent gcc from generating any FP code by mistake
     KBUILD_CFLAGS += -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx
-
-	# No builtin-function?
+    
+    # No builtin-function?
     KBUILD_CFLAGS += -ffreestanding
 endif
 
@@ -186,6 +189,7 @@ export KBUILD_VMSANDIX_BOOT KBUILD_VMSANDIX_MAIN
 #	  kernel image. Move and rename the pm kernel image to boot/pmimage.
 #	o boot/CATENATE is used to catenate bootloader, rmimage and
 #	  pmimage together to form bzImage.
+#
 _RM_IMAGE := boot/rmimage
 _PM_IMAGE := boot/pmimage
 RM_IMAGE  := boot/rmimage.bin
@@ -201,8 +205,9 @@ PM_LD_CMD := kernel/vmSandix.ld
 include $(srctree)/scripts/Kbuild.include
 
 
-# COMMANDS FOR BZIMAGE
-# ===========================================================================
+#
+#	COMMANDS FOR BUILD BZIMAGE
+#
 quiet_cmd_link_rm := LD $(SS)  $(_RM_IMAGE)
       cmd_link_rm := $(LD) -T $(RM_LD_CMD) -o $(_RM_IMAGE) $(KBUILD_VMSANDIX_BOOT)
 
@@ -221,7 +226,8 @@ quiet_cmd_catenate := CAT$(SS) $(VMSANDIX)
 quiet_cmd_map := SYSTEM MAP
       cmd_map := $(NM) -n $(_PM_IMAGE) > boot/System.map
 
-# BUILD
+#
+#	BUILD KERNEL
 # ===========================================================================
 PHONY := all
 all: bzImage vmsandix
@@ -247,10 +253,10 @@ $(vmsandix-dirs):
 	$(Q)$(MAKE) $(BUILD)=$@
 
 #
-# CLEAN
+#	CLEAN
 # ===========================================================================
 
-# Add prefix to avoid overriding the previous targets.
+# Trick: add prefix to avoid overriding the previous targets.
 CLEAN_DIRS := $(addprefix __CLEAN__,$(vmsandix-dirs))
 
 PHONY += clean
@@ -264,7 +270,7 @@ $(CLEAN_DIRS):
 	$(Q)$(MAKE) $(CLEAN)=$(patsubst __CLEAN__%,%,$@)
 
 #
-# HELP
+#	HELP INSTRUCTIONS
 # ===========================================================================
 PHONY += help
 help:
@@ -279,7 +285,9 @@ help:
 PHONY += FORCE
 FORCE:
 
-# There are two reasons to use a phony target:
-# 1) to avoid a conflict with a file of the same name,
-# 2) to improve performance.
+#
+#	There are two reasons to use a phony target:
+#	1) to avoid a conflict with a file of the same name,
+#	2) to improve performance.
+# ===========================================================================
 .PHONY: $(PHONY)
