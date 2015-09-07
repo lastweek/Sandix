@@ -12,7 +12,7 @@ __clean:
 # to clean are all in $(srctree)/$(src)/Makefile.
 include $(srctree)/scripts/Kbuild.include
 include $(srctree)/$(src)/Makefile
-include $(srctree)/scripts/Makefile.libb
+include $(srctree)/scripts/Makefile.lib
 
 obj-y		:=	$(filter-out %/built-in.o, $(obj-y))
 

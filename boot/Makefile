@@ -5,11 +5,18 @@
 loader-y := bootsect.o
 
 # header.o main.o MUST come first
-obj-y := header.o  main.o
-obj-y += a20.o bioscall.o
-obj-y += string.o tty.o video.o
-obj-y += memory.o printf.o regs.o
-obj-y += pm.o pmjump.o 
+obj-y := header.o
+obj-y += main.o
+obj-y += a20.o
+obj-y += bioscall.o
+obj-y += string.o
+obj-y += tty.o
+obj-y += video.o
+obj-y += memory.o
+obj-y += printf.o
+obj-y += regs.o
+obj-y += pm.o
+obj-y += pmjump.o 
 
 objcopy-y := bootsect.o
 #objdump-y := bootsect.o built-in.o
