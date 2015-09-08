@@ -1,4 +1,6 @@
-Mon Jul 27 15:47:44 CST 2015
+#
+# Mon Jul 27 15:47:44 CST 2015
+#
 
 Today i am implementing VT and VGA console.
 Finally, i knew hwo VT works, and what's the relationship bewtween VT&VC and

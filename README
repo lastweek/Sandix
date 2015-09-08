@@ -1,10 +1,18 @@
-		SANDIX KERNEL PROJECT
+ _______________________________________________________________________
+|			SANDIX KERNEL PROJECT				|
+|									|
+|		Copyright (C) Yizhou Shan <shanyizhou@ict.ac.cn>	|	
+|_______________________________________________________________________|
 
 WHAT IS SANDIX?
 
-	-Sandix is a clone of the operating system Unix, written based
-	 on Linux kernel. Sandix is the abbreviation for Sandy Unix.
+	- Sandix is a clone of the operating system Unix, written based
+	  on Linux kernel. Sandix is the abbreviation for Sandy Unix.
+
+WHY SANDIX?
+
+	- No why.
 
 WHO IS DEVELOPING SANDIX?
 
-	-Me, only.
+	- Yizhou Shan

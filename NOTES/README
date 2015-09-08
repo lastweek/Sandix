@@ -1,5 +1,5 @@
 #
-#	.gitignore - Ignore Files Generated From Building
+#	Diary
 #
 #	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
 #
@@ -18,24 +18,6 @@
 #	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-#
-# General Residues
-#
-.*
-*.o
-*.bin
-*.lib
-*.objdump
-
-#
-# Described in Makefile
-#
-*image
-vmsandix
-bzImage
-System.map
-
-#
-# Special Dot File
-#
-!.gitignore
+Day-to-Day Coding.
+Day-to-Day Reading.
+Day-to-Day Thinking.

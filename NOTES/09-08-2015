@@ -1,0 +1,24 @@
+#
+# Tue Sep  8 11:42:19 CST 2015
+#
+
+# Keyword: Internet
+
+Get up early(6:30 AM) and continue reading <Computer Networks> chapter 5
+which is The Network Layer. What do i got? Fist of all, distinguish the
+concept of Network and Internet and intenet. The book's name is Computer
+Networks, not Computer Internet. Internet can be defined: network of networks.
+internet can been seen as an abjective. Second, there some different network
+layers, such as IPX, AppleTalk and IP. The Internet use IP as its network layer
+protocol(along with ARP, ICMP etc.). As we know, the Internet is dominate the
+world, IP is almost everywhere, so we should concern about other network layer
+protocols? It is because ISP use some different network layer protocols in
+their internal networks(which leads to multiprotocol router).
+
+Although the world in dominated by TCP/IP which is the base of the Internet, we
+should still, at least, know the other network layer protocols!(Of course, you
+can find net/appletalk driver in linux kernel!)
+
+BTW, read some RFC and pay attention to IANA and IETF.
+
+That is all.
