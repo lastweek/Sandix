@@ -1,5 +1,5 @@
 /*
- *	include/sam/traps.h - X86 Predefined Traps
+ *	include/asm/traps.h - X86 Predefined Traps
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *

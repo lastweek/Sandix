@@ -1,5 +1,5 @@
 /*
- *	include/asm/irq.h
+ *	include/asm/byteorder.h - Intel's Little Endien
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
@@ -18,17 +18,9 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _ASM_IRQ_H_
-#define _ASM_IRQ_H_
+#ifndef _ASM_BYTEORDER_H_
+#define _ASM_BYTEORDER_H_
 
-static inline void arch_irq_disable(void)
-{
+#include <sandix/byteorder/little_endian.h>
 
-}
-
-static inline void arch_irq_enable(void)
-{
-
-}
-
-#endif /* _ASM_IRQ_H_ */
+#endif

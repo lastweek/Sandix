@@ -20,16 +20,22 @@
 
 #	[+] = New
 #	[M] = Modify
+#	[D] = Description
 
 Mon Sep  7 CST 2015
 - [+] lib/ctype.c
 - [+] include/sandix/ctype.h
-- [M] .gitignore
-- [M] lib/vsprintf.c
+- [M] lib/vsprintf.c				[D] Various modifications
 
 
 Tue Sep  8 CST 2015
 - [+] Changelog
 - [+] lib/hexdump.c
-- [M] include/sandix/kernel.h
-- [M] lib/vsprintf.c
+- [+] include/asm/swab.h
+- [+] include/sandix/swab.h
+- [+] include/asm/byteorder.h
+- [+] include/sandix/byteorder/generic.h
+- [+] include/sandix/byteorder/big_endian.h
+- [+] include/sandix/byteorder/little_endian.h
+- [M] include/sandix/kernel.h			[D] Add declares of lib/hexdump.c
+- [M] lib/vsprintf.c				[D] Add number, put_dec
