@@ -1,5 +1,5 @@
 #
-#	gitignore - Ignore Files Generated From Building
+#	.gitignore - Ignore Files Generated From Building
 #
 #	Copyright (C) 2015 Yizhou Shan	<shanyizhou@ict.ac.cn>
 #
@@ -9,3 +9,4 @@
 *.ld
 *.bin
 *.lib
+*.objdump
