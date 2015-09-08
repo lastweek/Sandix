@@ -49,12 +49,37 @@
  * @ptr:	the pointer to the member.
  * @type:	the type of the container struct this is embedded in.
  * @member:	the name of the member within the struct.
- *
  */
-#define container_of(ptr, type, member)						\
-	({														\
+#define container_of(ptr, type, member)					\
+	({								\
 		typeof( ((type *)0)->member ) *__ptr = (ptr);		\
 		(type *)( (char *)__ptr - offsetof(type,member) );	\
 	})
+
+/* lib/hexdump.c */
+extern int hex_to_bin(char ch);
+extern int hex2bin(unsigned char *dst, const char *src, size_t count);
+extern char *bin2hex(char *dst, const void *src, size_t count);
+
+extern const char hex_asc[];
+extern const char hex_asc_upper[];
+#define hex_asc_lo(x)		hex_asc[((x) & 0x0f)]
+#define hex_asc_hi(x)		hex_asc[((x) & 0xf0) >> 4]
+#define hex_asc_upper_lo(x)	hex_asc_upper[((x) & 0x0f)]
+#define hex_asc_upper_hi(x)	hex_asc_upper[((x) & 0xf0) >> 4]
+
+static inline char *hex_byte_pack(char *buf, unsigned char byte)
+{
+	*buf++ = hex_asc_hi(byte);
+	*buf++ = hex_asc_lo(byte);
+	return buf;
+}
+
+static inline char *hex_byte_pack_upper(char *buf, unsigned char byte)
+{
+	*buf++ = hex_asc_upper_hi(byte);
+	*buf++ = hex_asc_upper_lo(byte);
+	return buf;
+}
 
 #endif /* _SANDIX_KERNEL_H_ */

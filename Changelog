@@ -31,4 +31,5 @@ Mon Sep  7 CST 2015
 Tue Sep  8 CST 2015
 - [+] Changelog
 - [+] lib/hexdump.c
+- [M] include/sandix/kernel.h
 - [M] lib/vsprintf.c
