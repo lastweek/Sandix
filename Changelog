@@ -1,5 +1,5 @@
 #
-#	Change Log of Sandix
+#	Changelog of Sandix
 #
 #	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
 #
@@ -19,18 +19,22 @@
 #
 
 #
-#	[M]	=	Modify File
 #	[+]	=	New File
+#	[M]	=	Modify File
+#	[+]	>	[M]
 #
 
+#
+#	Changed by Yizhou Shan
+#
 
 Mon Sep  7 CST 2015
-- [M] .gitignore
-- [M] lib/vsprintf.c
 - [+] lib/ctype.c
 - [+] include/sandix/ctype.h
+- [M] .gitignore
+- [M] lib/vsprintf.c
 
 
 Tue Sep  8 CST 2015
+- [+] Changelog
 - [M] lib/vsprintf.c
-
