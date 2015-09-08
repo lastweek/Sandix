@@ -26,6 +26,7 @@
 *.bin
 *.lib
 *.objdump
+vmSandix.ld
 
 #
 # Described in Makefile
@@ -36,6 +37,6 @@ bzImage
 System.map
 
 #
-# Special Dot File
+# Special Dot Files
 #
 !.gitignore

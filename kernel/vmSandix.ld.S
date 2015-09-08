@@ -1,7 +1,8 @@
 /*
  *	Sandix Linker Script - Assembly Version
  *
- *	BIG FAT NOTE: Make sure you do not eliminate sections you need!!!
+ *	BIG FAT NOTE:
+ *	Make sure you do not _eliminate_ any sections you need!
  *	If you happenly miss something, it will lead to hard-to-debug errors.
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
@@ -78,8 +79,7 @@ SECTIONS
 	}
 
 	. = ALIGN(PAGE_SIZE);
-	.bss :
-	{
+	.bss : {
 		__bss_start__ = .;
 		*(.bss)
 		__bss_end__ = .;

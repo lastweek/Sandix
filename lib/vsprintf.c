@@ -1,7 +1,6 @@
 /*
  *	lib/vsprintf.c
  *
- *	Copyright (C) 1991, 1992  Linus Torvalds
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
  *	This program is free software; you can redistribute it and/or modify
@@ -29,7 +28,7 @@
 #include <sandix/types.h>
 
 /*
- * FLAGS. %Format control.
+ * FLAGS. KEEP THIS ORDER.
  */
 #define SIGN		0x01		/* unsigned/signed */
 #define LEFT		0x02		/* left justified */
@@ -40,7 +39,7 @@
 #define SPECIAL		0x40		/* prefix hex with "0x", octal with "0" */
 
 /*
- * FORMAT TYPE. Keep this order.
+ * FORMAT TYPE. KEEP THIS ORDER.
  */
 enum format_type {
 	FORMAT_TYPE_NONE,		/* Just a string part */
@@ -65,30 +64,77 @@ enum format_type {
 };
 
 struct printf_spec {
-	u8	type;			/* format_type enum */
-	u8	flags;			/* flags to number() */
-	u8	base;			/* number base, 8, 10 or 16 only */
-	u8	qualifier;		/* number qualifier, one of 'hHlLtzZ' */
-	s16	field_width;		/* width of output field */
-	s16	precision;		/* # of digits/chars */
+	unsigned char	type;			/* format_type enum */
+	unsigned char	flags;			/* flags to number() */
+	unsigned char	base;			/* number base, 8, 10 or 16 only */
+	unsigned char	qualifier;		/* number qualifier, one of 'hHlLtzZ' */
+	signed short	field_width;		/* width of output field */
+	signed short	precision;		/* # of digits/chars */
 };
+
+static __noinline int skip_atoi(const char **s)
+{
+	int i = 0;
+
+	do {
+		i = i * 10 + *((*s)++) - '0';
+	} while (isdigit(**s));
+
+	return i;
+}
+
+static char *put_dec(char *buf, unsigned long long n)
+{
+	unsigned int d3, d2, d1, q, h;
+
+	if (n < 100*1000*1000)
+		return put_dec_trunc8(buf, n);
+
+	d1  = ((unsigned int)n >> 16); /* implicit "& 0xffff" */
+	h   = (n >> 32);
+	d2  = (h      ) & 0xffff;
+	d3  = (h >> 16); /* implicit "& 0xffff" */
+
+	/* n = 2^48 d3 + 2^32 d2 + 2^16 d1 + d0
+	     = 281_4749_7671_0656 d3 + 42_9496_7296 d2 + 6_5536 d1 + d0 */
+	q   = 656 * d3 + 7296 * d2 + 5536 * d1 + ((unsigned int)n & 0xffff);
+	q = put_dec_helper4(buf, q);
+
+	q += 7671 * d3 + 9496 * d2 + 6 * d1;
+	q = put_dec_helper4(buf+4, q);
+
+	q += 4749 * d3 + 42 * d2;
+	q = put_dec_helper4(buf+8, q);
+
+	q += 281 * d3;
+	buf += 12;
+	if (q)
+		buf = put_dec_trunc8(buf, q);
+	else while (buf[-1] == '0')
+		--buf;
+
+	return buf;
+}
 
 static char *number(char *buf, char *end, unsigned long long num,
 		    struct printf_spec spec)
 {
 	/* put_dec requires 2-byte alignment of the buffer. */
 	char tmp[3 * sizeof(num)] __aligned(2);
-	char sign;
-	char locase;
-	int need_pfx = ((spec.flags & SPECIAL) && spec.base != 10);
-	int i;
-	bool is_zero = num == 0LL;
+	char sign, locase;
+	int need_pfx, i;
+	bool is_zero;
 
-	/* locase = 0 or 0x20. ORing digits or letters with 'locase'
-	 * produces same digits or (maybe lowercased) letters */
+	/*
+	 * locase = 0 or 0x20. Hence ORing digits or letters with 'locase'
+	 * will produces same digits or (maybe lowercased) letters. Used
+	 * when generating strings below.
+	 */
 	locase = (spec.flags & SMALL);
+
 	if (spec.flags & LEFT)
 		spec.flags &= ~ZEROPAD;
+	
 	sign = 0;
 	if (spec.flags & SIGN) {
 		if ((signed long long)num < 0) {
@@ -103,6 +149,9 @@ static char *number(char *buf, char *end, unsigned long long num,
 			spec.field_width--;
 		}
 	}
+
+	is_zero = (num == 0LL);
+	need_pfx = ((spec.flags & SPECIAL) && spec.base != 10);
 	if (need_pfx) {
 		if (spec.base == 16)
 			spec.field_width -= 2;
@@ -110,28 +159,28 @@ static char *number(char *buf, char *end, unsigned long long num,
 			spec.field_width--;
 	}
 
-	/* generate full string in tmp[], in reverse order */
+	/* Generating digit string reversely */
 	i = 0;
 	if (num < spec.base)
 		tmp[i++] = hex_asc_upper[num] | locase;
-	else if (spec.base != 10) { /* 8 or 16 */
+	else if (spec.base == 10)
+		i = put_dec(tmp, num) - tmp;
+	else {
 		int mask = spec.base - 1;
 		int shift = 3;
-
 		if (spec.base == 16)
 			shift = 4;
 		do {
 			tmp[i++] = (hex_asc_upper[((unsigned char)num) & mask] | locase);
 			num >>= shift;
 		} while (num);
-	} else { /* base 10 */
-		i = put_dec(tmp, num) - tmp;
 	}
 
-	/* printing 100 using %2d gives "100", not "00" */
+	/* Printing 100 using %2d gives "100", not "00" */
 	if (i > spec.precision)
 		spec.precision = i;
-	/* leading space padding */
+	
+	/* Leading SPACE padding */
 	spec.field_width -= spec.precision;
 	if (!(spec.flags & (ZEROPAD | LEFT))) {
 		while (--spec.field_width >= 0) {
@@ -140,13 +189,15 @@ static char *number(char *buf, char *end, unsigned long long num,
 			++buf;
 		}
 	}
-	/* sign */
+	
+	/* Sign padding */
 	if (sign) {
 		if (buf < end)
 			*buf = sign;
 		++buf;
 	}
-	/* "0x" / "0" prefix */
+
+	/* "0x" / "0" PREFIX padding */
 	if (need_pfx) {
 		if (spec.base == 16 || !is_zero) {
 			if (buf < end)
@@ -159,29 +210,32 @@ static char *number(char *buf, char *end, unsigned long long num,
 			++buf;
 		}
 	}
-	/* zero or space padding */
+	
+	/* Final ZERO or SPACE padding */
 	if (!(spec.flags & LEFT)) {
 		char c = ' ' + (spec.flags & ZEROPAD);
-		BUILD_BUG_ON(' ' + ZEROPAD != '0');
 		while (--spec.field_width >= 0) {
 			if (buf < end)
 				*buf = c;
 			++buf;
 		}
 	}
+	
 	/* hmm even more zero padding? */
 	while (i <= --spec.precision) {
 		if (buf < end)
 			*buf = '0';
 		++buf;
 	}
-	/* actual digits of result */
+	
+	/* Actual digit string padding */
 	while (--i >= 0) {
 		if (buf < end)
 			*buf = tmp[i];
 		++buf;
 	}
-	/* trailing space padding */
+	
+	/* Trailing space padding */
 	while (--spec.field_width >= 0) {
 		if (buf < end)
 			*buf = ' ';
@@ -469,22 +523,13 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
  * Each call decode a token from the format and return the
  * number of characters read (or likely the delta where it wants
  * to go on the next call).
- * The decoded token is returned through the parameters
- *
- * @fmt: the format string
- * @type of the token returned
- * @flags: various flags such as +, -, # tokens..
- * @base: base of the number (octal, hex, ...)
- * @qualifier: length qualifier of a number (long, size_t, ...)
- * @field_width: field width of a number
- * @precision: precision of a number
  */
 static int format_decode(const char *fmt, struct printf_spec *spec)
 {
 	const char *start = fmt;
 
 	/*
-	 * Handle the FIELD WIDTH and PRECISION first
+	 * Handle the FIELD WIDTH and PRECISION first.
 	 */
 
 	if (spec->type == FORMAT_TYPE_WIDTH) {
@@ -503,9 +548,7 @@ static int format_decode(const char *fmt, struct printf_spec *spec)
 		goto qualifier;
 	}
 
-	/*
-	 * Default TYPE
-	 */
+	/* Default TYPE */
 	spec->type = FORMAT_TYPE_NONE;
 
 	for (; *fmt; ++fmt) {
@@ -513,15 +556,11 @@ static int format_decode(const char *fmt, struct printf_spec *spec)
 			break;
 	}
 
-	/*
-	 * Return the current NON-FORMAT string
-	 */
+	/* Return the current NON-FORMAT string. */
 	if (fmt != start || !*fmt)
 		return fmt - start;
 
-	/*
-	 * Handle the FLAGs
-	 */
+	/* Handle the FLAGs. */
 	spec->flags = 0;
 	while (1) {
 		bool found = true;
@@ -542,9 +581,7 @@ static int format_decode(const char *fmt, struct printf_spec *spec)
 			break;
 	}
 	
-	/*
-	 * Get the FIELD WIDTh
-	 */
+	/* Get the FIELD WIDTH. */
 	spec->field_width = -1;
 	if (isdigit(*fmt))
 		spec->field_width = skip_atoi(&fmt);
@@ -554,9 +591,7 @@ static int format_decode(const char *fmt, struct printf_spec *spec)
 	}
 
 precision:
-	/*
-	 * Get the PRECISION
-	 */
+	/* Get the PRECISION. */
 	spec->precision = -1;
 	if (*fmt == '.') {
 		++fmt;
@@ -571,9 +606,7 @@ precision:
 	}
 
 qualifier:
-	/*
-	 * Get the LENGTH QUALIFIER/MODIFIER
-	 */
+	/* Get the LENGTH QUALIFIER/MODIFIER. */
 	spec->qualifier = -1;
 	if (*fmt == 'h' || _tolower(*fmt) == 'l' ||
 	    _tolower(*fmt) == 'z' || *fmt == 't')
@@ -594,14 +627,10 @@ qualifier:
 		}
 	}
 
-	/*
-	 * Default BASE
-	 */
+	/* Default. */
 	spec->base = 10;
 	
-	/*
-	 * Handle the CONVERSION SPECIFIERS
-	 */
+	/* Handle the CONVERSION SPECIFIERS. */
 	switch (*fmt) {
 	case 'c':
 		spec->type = FORMAT_TYPE_CHAR;
@@ -717,9 +746,7 @@ int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
 	str = buf;
 	end = buf + size;
 
-	/*
-	 * Make sure size >=0
-	 */
+	/* Make sure size >=0 */
 	if (end < buf) {
 		end = ((void *)-1);
 		size = end - buf;
@@ -827,8 +854,8 @@ int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
 				num = va_arg(args, unsigned int);
 			}
 			str = number(str, end, num, spec);
-		} /* switch() */
-	} /* while() */
+		}
+	}
 
 	if (size > 0) {
 		if (str < end)
@@ -837,10 +864,8 @@ int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
 			end[-1] = '\0';
 	}
 
-	/*
-	 * The '\0' does _not_ count towards the total
-	 */
-	return str-buf;
+	/* The '\0' does not count into the total. */
+	return str - buf;
 
 }
 EXPORT_SYMBOL(vsnprintf);

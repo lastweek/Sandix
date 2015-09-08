@@ -18,15 +18,8 @@
 #	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-#
-#	[+]	=	New File
-#	[M]	=	Modify File
-#	[+]	>	[M]
-#
-
-#
-#	Changed by Yizhou Shan
-#
+#	[+] = New
+#	[M] = Modify
 
 Mon Sep  7 CST 2015
 - [+] lib/ctype.c
@@ -37,4 +30,5 @@ Mon Sep  7 CST 2015
 
 Tue Sep  8 CST 2015
 - [+] Changelog
+- [+] lib/hexdump.c
 - [M] lib/vsprintf.c

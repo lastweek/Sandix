@@ -47,9 +47,16 @@
 #define __scanf(a, b)		__attribute__((format(scanf, a, b)))
 #define __cold			__attribute__((cold))
 
+/*
+ * Use SPARSE to check pointer usage.
+ */
 #define __user
 #define __iomem
 
+/*
+ * CPU branch-miss is very expensive. Hence we give a hint to GCC,
+ * let GCC itself to optimize branch prediction.
+ */
 #define likely(x)		__builtin_expect(!!(x), 1)
 #define unlikely(x)		__builtin_expect(!!(x), 0)
 
@@ -57,13 +64,14 @@
 #define __unreachable()		__builtin_unreachable()
 #define __constant(exp)		__builtin_constant_(exp)
 
+#define __noinline		__attribute__((noinline))
 #define __always_inline		inline __attribute__((always_inline))
 #define INLINE			static inline
 #define ALWAYS_INLINE		static __always_inline
 
 /*
- * It is a compiler barrier.
- * It is _not_ a cpu barrier.
+ * Barrier for Compiler. Prevent GCC from reordering some memory accesses.
+ * CPU has its own barriers defined in <asm/barrier.h>.
  */
 #define barrier()		asm volatile("": : :"memory")
 
