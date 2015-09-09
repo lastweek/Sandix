@@ -1,5 +1,6 @@
 /*
- *	include/asm/swab.h - Arch Swab Byte
+ *	include/asm/posix_types.h - Architecture Dependent Posix Types
+ *	Generic Posix Types are defined in <sandix/posix_types.h>
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
@@ -18,45 +19,24 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _ASM_SWAB_H_
-#define _ASM_SWAB_H_
+#ifndef _ASM_POSIX_TYPES_H_
+#define _ASM_POSIX_TYPES_H_
 
-#include <sandix/compiler.h>
-#include <sandix/types.h>
+#ifndef _SANDIX_TYPES_H_
+# error INCLUDE ERROR: Do Not Include This File Directly.
+#endif
 
-#define __arch_swab32 __arch_swab32
-#define __arch_swab64 __arch_swab64
+typedef unsigned short	__kernel_mode_t;
+#define __kernel_mode_t __kernel_mode_t
 
-static inline __attribute_const __u32 __arch_swab32(__u32 val)
-{
-	asm volatile (
-		"bswapl %0"
-		: "=r" (val)
-		: "0" (val)
-	);
-	return val;
-}
+typedef unsigned short	__kernel_ipc_pid_t;
+#define __kernel_ipc_pid_t __kernel_ipc_pid_t
 
-/* Life is easier in x86_64 */
-static inline __attribute_const __u64 __arch_swab64(__u64 val)
-{
-	union {
-		struct {
-			__u32 a;
-			__u32 b;
-		} s;
-		__u64 u;
-	} v;
-	
-	v.u = val;
-	asm volatile (
-		"bswapl %0"
-		"bswapl %1"
-		"xchgl %0,%1"
-		: "=r" (v.s.a), "=r" (v.s.b)
-		: "0" (v.s.a), "1" (v.s.b)
-	);
-	return v.u;
-}
+typedef unsigned short	__kernel_uid_t;
+typedef unsigned short	__kernel_gid_t;
+#define __kernel_uid_t __kernel_uid_t
 
-#endif /* _ASM_SWAB_H_ */
+typedef unsigned short	__kernel_old_dev_t;
+#define __kernel_old_dev_t __kernel_old_dev_t
+
+#endif /* _ASM_POSIX_TYPES_H_ */

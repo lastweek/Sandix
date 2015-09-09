@@ -1,5 +1,5 @@
 /*
- *	include/sandix/types.h - Portable Type Definitons
+ *	include/sandix/types.h - Kernel Types
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
@@ -23,55 +23,101 @@
 
 #ifndef __ASSEMBLY__
 
-#ifndef	NULL
-#define	NULL	((void *)0)
+#include <sandix/posix_types.h>
+#include <sandix/stddef.h>
+#include <asm/types.h>
+
+typedef _Bool			bool;
+
+typedef unsigned short		umode_t;
+typedef __u32			nlink_t;
+typedef __kernel_fd_set		fd_set;
+typedef __kernel_dev_t		dev_t;
+typedef __kernel_ino_t		ino_t;
+typedef __kernel_mode_t		mode_t;
+typedef __kernel_off_t		off_t;
+typedef __kernel_loff_t		loff_t;
+typedef __kernel_pid_t		pid_t;
+typedef __kernel_time_t		time_t;
+typedef __kernel_clock_t	clock_t;
+typedef __kernel_timer_t	timer_t;
+typedef __kernel_clockid_t	clockid_t;
+typedef __kernel_caddr_t	cadder_t;
+typedef __kernel_daddr_t	daddr_t;
+typedef __kernel_key_t		key_t;
+typedef __kernel_mqd_t		mqd_t;
+typedef __kernel_suseconds_t	suseconds_t;
+typedef __kernel_uid32_t	uid_t;
+typedef __kernel_gid32_t	gid_t;
+typedef __kernel_uid16_t        uid16_t;
+typedef __kernel_gid16_t        gid16_t;
+typedef __kernel_size_t		size_t;
+typedef __kernel_ssize_t	ssize_t;
+typedef __kernel_ptrdiff_t	ptrdiff_t;
+
+/* bsd */
+typedef unsigned char		u_char;
+typedef unsigned short		u_short;
+typedef unsigned int		u_int;
+typedef unsigned long		u_long;
+
+/* sysv */
+typedef unsigned char		unchar;
+typedef unsigned short		ushort;
+typedef unsigned int		uint;
+typedef unsigned long		ulong;
+
+#ifndef __BIT_TYPES_DEFINED__
+#define __BIT_TYPES_DEFINED__
+typedef		__u8		u_int8_t;
+typedef		__s8		int8_t;
+typedef		__u16		u_int16_t;
+typedef		__s16		int16_t;
+typedef		__u32		u_int32_t;
+typedef		__s32		int32_t;
 #endif
 
-#define	bool int
-enum {
-	false,
-	true
-};
+typedef		__u8		uint8_t;
+typedef		__u16		uint16_t;
+typedef		__u32		uint32_t;
 
-typedef unsigned long long	u64;
-typedef unsigned int		u32;
-typedef unsigned short		u16;
-typedef unsigned char		u8;
-typedef unsigned long long	__u64;
-typedef unsigned int		__u32;
-typedef unsigned short		__u16;
-typedef unsigned char		__u8;
+#if defined(__GNUC__)
+typedef		__u64		uint64_t;
+typedef		__u64		u_int64_t;
+typedef		__s64		int64_t;
+#endif
 
-typedef long long		s64;
-typedef int			s32;
-typedef short			s16;
-typedef char			s8;
-typedef long long		__s64;
-typedef int			__s32;
-typedef short			__s16;
-typedef char			__s8;
+/* this is a special 64bit data type that is 8-byte aligned */
+#define aligned_u64	__u64	__attribute__((aligned(8)))
+#define aligned_be64	__be64	__attribute__((aligned(8)))
+#define aligned_le64	__le64	__attribute__((aligned(8)))
 
-/*
- * TODO: Some POSIX definitons???
+/**
+ * The type used for indexing onto a disc or disc partition.
+ *
+ * Sandix always considers sectors to be 512 bytes long independently
+ * of the devices real block size.
+ *
+ * blkcnt_t is the type of the inode's block count.
  */
-typedef unsigned int	pid_t;
-typedef unsigned int	phys_addr_t;
-typedef int		ptrdiff_t;
+#ifdef CONFIG_LBDAF
+typedef u64 sector_t;
+typedef u64 blkcnt_t;
+#else
+typedef unsigned long sector_t;
+typedef unsigned long blkcnt_t;
+#endif
 
-/*
- * Use size_t to count number of bytes
- * Use ssize_t to count number of bytes OR return negtive error value.
- */
-typedef unsigned int size_t;
-typedef int ssize_t;
+typedef u32 phys_addr_t;
+typedef phys_addr_t resource_size_t;
 
-/*
- * Use typedef struct to avoid some programming mistake. If typedef int atomic_t
- * directly, then compiler will not complain about your incorrect usage.
- */
 typedef struct {
 	int counter;
 } atomic_t;
+
+struct list_head {
+	struct list_head *next, *prev;
+};
 
 #endif /* __ASSEMBLY__ */
 #endif /* _SANDIX_TYPES_H_ */

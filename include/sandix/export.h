@@ -21,6 +21,10 @@
 #ifndef _SANDIX_EXPORT_H_
 #define _SANDIX_EXPORT_H_
 
+/* TODO  Add Module Support First.
+	 Then we can talk about export symbols.
+ */
+
 #define __EXPORT_SYMBOL(sym)	extern typeof(sym) sym;
 
 #define EXPORT_SYMBOL(sym)	__EXPORT_SYMBOL(sym)

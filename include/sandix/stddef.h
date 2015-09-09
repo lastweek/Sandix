@@ -1,5 +1,5 @@
 /*
- *	include/asm/swab.h - Arch Swab Byte
+ *	include/sandix/stddef.h
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
@@ -18,45 +18,33 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _ASM_SWAB_H_
-#define _ASM_SWAB_H_
+#ifndef _SANDIX_STDDEF_H_
+#define _SANDIX_STDDEF_H_
 
-#include <sandix/compiler.h>
-#include <sandix/types.h>
+#include <sandix/compiler.h>	/* For builtin-offset */
 
-#define __arch_swab32 __arch_swab32
-#define __arch_swab64 __arch_swab64
+#undef  NULL
+#define NULL ((void *)0)
 
-static inline __attribute_const __u32 __arch_swab32(__u32 val)
-{
-	asm volatile (
-		"bswapl %0"
-		: "=r" (val)
-		: "0" (val)
-	);
-	return val;
-}
+enum {
+	false	= 0,
+	true	= 1
+};
 
-/* Life is easier in x86_64 */
-static inline __attribute_const __u64 __arch_swab64(__u64 val)
-{
-	union {
-		struct {
-			__u32 a;
-			__u32 b;
-		} s;
-		__u64 u;
-	} v;
-	
-	v.u = val;
-	asm volatile (
-		"bswapl %0"
-		"bswapl %1"
-		"xchgl %0,%1"
-		: "=r" (v.s.a), "=r" (v.s.b)
-		: "0" (v.s.a), "1" (v.s.b)
-	);
-	return v.u;
-}
+#undef  offsetof
+#ifdef __compiler_offsetof
+#define offsetof(TYPE, MEMBER)	__compiler_offsetof(TYPE, MEMBER)
+#else
+#define offsetof(TYPE, MEMBER)	((unsigned int)&((TYPE *)0)->MEMBER)
+#endif
 
-#endif /* _ASM_SWAB_H_ */
+/**
+ * offsetofend(TYPE, MEMBER)
+ *
+ * @TYPE: The type of the structure
+ * @MEMBER: The member within the structure to get the end offset of
+ */
+#define offsetofend(TYPE, MEMBER) \
+	(offsetof(TYPE, MEMBER)	+ sizeof(((TYPE *)0)->MEMBER))
+
+#endif /* _SANDIX_STDDEF_H_ */

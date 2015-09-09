@@ -238,6 +238,14 @@ extern void __chk_io_ptr(const volatile void __iomem *);
 
 #define __compiler_offsetof(a, b)	__builtin_offsetof(a, b)
 
+#if GCC_VERSION >= 40400
+#define __HAVE_BUILTIN_BSWAP32__
+#define __HAVE_BUILTIN_BSWAP64__
+#endif
+#if GCC_VERSION >= 40800
+#define __HAVE_BUILTIN_BSWAP16__
+#endif
+
 #endif	/* GCC_VERSION >= 40000 */
 
 /*

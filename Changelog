@@ -21,22 +21,23 @@
 #	[+] = New
 #	[M] = Modify		(Only Significant Modification)
 #	[D] = Description	(Nothing but some memos)
+#	 >  = More to say
 
 Mon Sep  7 CST 2015
 - [+] Diary/09-07-2015
 - [+] lib/ctype.c
-- [+] include/sandix/ctype.h
-- [M] lib/vsprintf.c				[D] Various modifications
+- [+] include/sandix/ctype.h			[D] Character Type API.
+- [M] lib/vsprintf.c				[D] Various modifications.
 
 
 Tue Sep  8 CST 2015
 - [+] Diary/09-08-2015
 - [+] Changelog
-- [+] lib/hexdump.c
-- [+] include/asm/swab.h
+- [+] lib/hexdump.c				[D] Add hexdump API.
+- [+] include/asm/swab.h			[D] Add byte swap API.
 - [+] include/sandix/swab.h
 - [+] include/asm/byteorder.h
-- [+] include/sandix/byteorder/generic.h
+- [+] include/sandix/byteorder/generic.h	[D] Add byteorder API.
 - [+] include/sandix/byteorder/big_endian.h
 - [+] include/sandix/byteorder/little_endian.h
 - [M] include/sandix/kernel.h			[D] Add declares of lib/hexdump.c
@@ -46,8 +47,15 @@ Tue Sep  8 CST 2015
 Wed Sep  9 CST 2015
 - [+] Diary/09-09-2015
 - [+] Kbuild
-- [+] crypto/
+- [+] crypto/					[D] Just new file. No Code!
 - [+] crypto/Kbuild
 - [+] crypto/Makefile
 - [+] crypto/md5.c
-- [M] include/sandix/compiler.h			[D] Add new features
+
+- [+] include/asm/posix_types.h			[D] Big changes about Kernel Types API. 
+- [+] include/asm/types.h			 >  Add Posix Types. Separate into architecture
+- [+] include/sandix/posix_types.h		 >  dependent and independent parts. Another big
+- [+] include/sandix/stddef.h			 >  change is separating types into two parts, too.
+- [M] include/sandix/types.h			 >  Why? Because "long" stands for 32 or 64 bits
+-						 >  on different architectures. 32 bit on x86.
+- [M] include/sandix/compiler.h			[D] GCC_VERSION. READ/WRITE/ACCESS ONCE
