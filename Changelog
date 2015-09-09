@@ -50,3 +50,4 @@ Wed Sep  9 CST 2015
 - [+] crypto/Kbuild
 - [+] crypto/Makefile
 - [+] crypto/md5.c
+- [M] include/sandix/compiler.h			[D] Add new features
