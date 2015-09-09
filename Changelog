@@ -45,3 +45,8 @@ Tue Sep  8 CST 2015
 
 Wed Sep  9 CST 2015
 - [+] Diary/09-09-2015
+- [+] Kbuild
+- [+] crypto/
+- [+] crypto/Kbuild
+- [+] crypto/Makefile
+- [+] crypto/md5.c
