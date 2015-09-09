@@ -31,54 +31,63 @@
 "
 
 " See <sandix/compiler.h>
-syn keyword	cLabel		__section
-syn keyword	cLabel		__init
-syn keyword	cLabel		__initdata
-syn keyword	cLabel		__read_mostly
-
-" See <sandix/compiler.h>
 syn keyword	cInclude	likely
 syn keyword	cInclude	unlikely
 
 " See <sandix/bug.h>
 syn keyword	cInclude	BUG
 syn keyword	cInclude	BUG_ON
+syn keyword	cInclude	WARN
 syn keyword	cInclude	WARN_ON
 syn keyword	cInclude	WARN_ON_ONCE
 
+" See <sandix/compiler.h>
+" Special labels for special sections.
+" Use cLabel to distinguish with those __weak attribute things.
+syn keyword	cLabel		__section
+syn keyword	cLabel		__init
+syn keyword	cLabel		__initdata
+syn keyword	cLabel		__read_mostly
+
 " See <asm/types.h>
-" Conform with variable types, all of them.
+" Conform with variable types.
+syn keyword	cType		__u8	__s8
 syn keyword	cType		__u16	__s16
 syn keyword	cType		__u32	__u32
 syn keyword	cType		__u64	__u64
+syn keyword	cType		u8	s8
 syn keyword	cType		u16	s16
 syn keyword	cType		u32	s32
 syn keyword	cType		u64	s64
 
 " See <sandix/linkage.h>
-" Conform with function return types, mostly.
-syn keyword	cStorageClass	asmlinkage
+" Conform with function return types.
+syn keyword	cType		asmlinkage
+
+" See <sandix/export.h>
+" Conform with function return types.
+syn keyword	cType		EXPORT_SYMBOL
 
 " See <sandix/compiler.h>
 " Conform with function return types, mostly.
-syn keyword	cStorageClass	__weak
-syn keyword	cStorageClass	__pure
-syn keyword	cStorageClass	__packed
-syn keyword	cStorageClass	__noreturn
-syn keyword	cStorageClass	__unused
-syn keyword	cStorageClass	__used
-syn keyword	cStorageClass	__maybe_unused
-syn keyword	cStorageClass	__always_unused
-syn keyword	cStorageClass	__attribute_const
-syn keyword	cStorageClass	__aligned
-syn keyword	cStorageClass	__scanf
-syn keyword	cStorageClass	__printf
-syn keyword	cStorageClass	__alias
-syn keyword	cStorageClass	__noinline
-syn keyword	cStorageClass	__noinline_for_stack
-syn keyword	cStorageClass	__always_inline
-syn keyword	cStorageClass	ALWAYS_INLINE
-syn keyword	cStorageClass	INLINE
-syn keyword	cStorageClass	__must_check
-syn keyword	cStorageClass	__cold
-syn keyword	cStorageClass	__visible
+syn keyword	cType		__weak
+syn keyword	cType		__pure
+syn keyword	cType		__packed
+syn keyword	cType		__noreturn
+syn keyword	cType		__unused
+syn keyword	cType		__used
+syn keyword	cType		__maybe_unused
+syn keyword	cType		__always_unused
+syn keyword	cType		__attribute_const
+syn keyword	cType		__aligned
+syn keyword	cType		__scanf
+syn keyword	cType		__printf
+syn keyword	cType		__alias
+syn keyword	cType		__noinline
+syn keyword	cType		__noinline_for_stack
+syn keyword	cType		__always_inline
+syn keyword	cType		ALWAYS_INLINE
+syn keyword	cType		INLINE
+syn keyword	cType		__must_check
+syn keyword	cType		__cold
+syn keyword	cType		__visible
