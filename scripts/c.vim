@@ -1,12 +1,8 @@
 "
-"	c.vim - VIM Colorful Syntax For Sandix
+"	c.vim - VIM Colorful Syntax For C Language
 "	To Make Life Easier When Coding Sandix. ;)
 "
 "	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
-"
-"	HOWTO:
-"	1) Create ~/.vim/after/syntax/c.vim
-"	2) Run [:syntax enable] or [:syntax on] in VIM
 "
 "	This program is free software; you can redistribute it and/or modify
 "	it under the terms of the GNU General Public License as published by
@@ -23,13 +19,16 @@
 "	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 "
 
-" See <asm/types.h>
-syn keyword	cType		__u16	__s16
-syn keyword	cType		__u32	__u32
-syn keyword	cType		__u64	__u64
-syn keyword	cType		u16	s16
-syn keyword	cType		u32	s32
-syn keyword	cType		u64	s64
+"
+"	HOWTO:
+"	1) Create ~/.vim/after/syntax/c.vim
+"	2) Run [:syntax enable] or [:syntax on] in VIM
+"
+"	Actually, we only concern about the colors, not the syntax groups.
+"	Hence the additional colorful words should not mess up the code. In my
+"	opinion, the principle of color choosing is: Reduce Cross-Color Code!
+"	Of course, feel free to choose your own favorite color schemes.
+"
 
 " See <sandix/compiler.h>
 syn keyword	cLabel		__section
@@ -47,7 +46,21 @@ syn keyword	cInclude	BUG_ON
 syn keyword	cInclude	WARN_ON
 syn keyword	cInclude	WARN_ON_ONCE
 
+" See <asm/types.h>
+" Conform with variable types, all of them.
+syn keyword	cType		__u16	__s16
+syn keyword	cType		__u32	__u32
+syn keyword	cType		__u64	__u64
+syn keyword	cType		u16	s16
+syn keyword	cType		u32	s32
+syn keyword	cType		u64	s64
+
+" See <sandix/linkage.h>
+" Conform with function return types, mostly.
+syn keyword	cStorageClass	asmlinkage
+
 " See <sandix/compiler.h>
+" Conform with function return types, mostly.
 syn keyword	cStorageClass	__weak
 syn keyword	cStorageClass	__pure
 syn keyword	cStorageClass	__packed
