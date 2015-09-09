@@ -19,8 +19,8 @@
 #
 
 VERSION		=	1
+MINORLEVEL	=	0
 PATCHLEVEL	=	0
-SUBLEVEL	=	0
 NAME		=	Sandix
 
 # Beautify output
@@ -161,7 +161,9 @@ ifeq ($(CONFIG_X86_32),y)
     # Prevent gcc from generating any FP code by mistake
     KBUILD_CFLAGS += -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx
     
-    # No builtin-function?
+    # __STDC_HOSTED = 0;
+    # GCC __builtin_ still works, but you need to invoke __builtin_
+    # functions manually. See <sandix/compiler.h> for more details.
     KBUILD_CFLAGS += -ffreestanding
 endif
 

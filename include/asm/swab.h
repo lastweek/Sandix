@@ -21,13 +21,14 @@
 #ifndef _ASM_SWAB_H_
 #define _ASM_SWAB_H_
 
+#ifndef _SANDIX_SWAB_H_
+# error INCLUDE ERROR: Do Not Include This File Directly.
+#endif
+
 #include <sandix/compiler.h>
 #include <sandix/types.h>
 
-#define __arch_swab32 __arch_swab32
-#define __arch_swab64 __arch_swab64
-
-static inline __attribute_const __u32 __arch_swab32(__u32 val)
+INLINE __attribute_const __u32 __arch_swab32(__u32 val)
 {
 	asm volatile (
 		"bswapl %0"
@@ -36,9 +37,10 @@ static inline __attribute_const __u32 __arch_swab32(__u32 val)
 	);
 	return val;
 }
+#define __arch_swab32 __arch_swab32
 
 /* Life is easier in x86_64 */
-static inline __attribute_const __u64 __arch_swab64(__u64 val)
+INLINE __attribute_const __u64 __arch_swab64(__u64 val)
 {
 	union {
 		struct {
@@ -58,5 +60,6 @@ static inline __attribute_const __u64 __arch_swab64(__u64 val)
 	);
 	return v.u;
 }
+#define __arch_swab64 __arch_swab64
 
 #endif /* _ASM_SWAB_H_ */

@@ -151,7 +151,7 @@ extern void __chk_io_ptr(const volatile void __iomem *);
 #define __alias(symbol)		__attribute__((alias(#symbol)))
 
 #define __same_type(a, b)	__builtin_types_compatible_p(typeof(a), typeof(b))
-#define __constant(exp)		__builtin_constant_(exp)
+#define __constant(exp)		__builtin_constant_p(exp)
 
 #define likely(x)		__builtin_expect(!!(x), 1)
 #define unlikely(x)		__builtin_expect(!!(x), 0)
