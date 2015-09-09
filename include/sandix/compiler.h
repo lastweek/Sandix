@@ -2,6 +2,9 @@
  *	include/sandix/compiler.h - I mean, GCC...
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *
+ *	For VIM users, i strongly recommend you add some labels defined in
+ *	this file, such as INLINE, ALWAYS_INLINE, to your C reserved words.
  *	
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
