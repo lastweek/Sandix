@@ -55,17 +55,25 @@ typedef __kernel_size_t		size_t;
 typedef __kernel_ssize_t	ssize_t;
 typedef __kernel_ptrdiff_t	ptrdiff_t;
 
-/* bsd */
+/* BSD */
 typedef unsigned char		u_char;
 typedef unsigned short		u_short;
 typedef unsigned int		u_int;
 typedef unsigned long		u_long;
 
-/* sysv */
+/* SYS V */
 typedef unsigned char		unchar;
 typedef unsigned short		ushort;
 typedef unsigned int		uint;
 typedef unsigned long		ulong;
+
+/* Byte Order */
+typedef		__u16		__be16;
+typedef		__u16		__le16;
+typedef		__u32		__be32;
+typedef		__u32		__le32;
+typedef		__u64		__be64;
+typedef		__u64		__le64;
 
 #ifndef __BIT_TYPES_DEFINED__
 #define __BIT_TYPES_DEFINED__
@@ -87,12 +95,12 @@ typedef		__u64		u_int64_t;
 typedef		__s64		int64_t;
 #endif
 
-/* this is a special 64bit data type that is 8-byte aligned */
+/* Special 64bit data type that is 8-byte aligned */
 #define aligned_u64	__u64	__attribute__((aligned(8)))
 #define aligned_be64	__be64	__attribute__((aligned(8)))
 #define aligned_le64	__le64	__attribute__((aligned(8)))
 
-/**
+/*
  * The type used for indexing onto a disc or disc partition.
  *
  * Sandix always considers sectors to be 512 bytes long independently

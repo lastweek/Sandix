@@ -53,12 +53,16 @@ syn keyword	cLabel		__read_mostly
 " Conform with variable types.
 syn keyword	cType		__u8	__s8
 syn keyword	cType		__u16	__s16
-syn keyword	cType		__u32	__u32
-syn keyword	cType		__u64	__u64
+syn keyword	cType		__u32	__s32
+syn keyword	cType		__u64	__s64
 syn keyword	cType		u8	s8
 syn keyword	cType		u16	s16
 syn keyword	cType		u32	s32
 syn keyword	cType		u64	s64
+
+syn keyword	cType		__be16	__le16
+syn keyword	cType		__be32	__le32
+syn keyword	cType		__be64	__le64
 
 " See <sandix/linkage.h>
 " Conform with function return types.

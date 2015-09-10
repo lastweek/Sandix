@@ -1,5 +1,6 @@
 /*
  *	include/sandix/byteorder/little_endian.h
+ *	For Little-Endian Machines
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
@@ -21,6 +22,7 @@
 #ifndef _SANDIX_BYTEORDER_LITTLE_ENDIAN_H_
 #define _SANDIX_BYTEORDER_LITTLE_ENDIAN_H_
 
+#include <sandix/compiler.h>
 #include <sandix/swab.h>
 #include <sandix/types.h>
 
@@ -57,67 +59,67 @@
 #define __cpu_to_be16(x) ((__force __be16)__swab16((x)))
 #define __be16_to_cpu(x) __swab16((__force __u16)(__be16)(x))
 
-static inline __le64 __cpu_to_le64p(const __u64 *p)
+INLINE __le64 __cpu_to_le64p(const __u64 *p)
 {
 	return (__force __le64)*p;
 }
-static inline __u64 __le64_to_cpup(const __le64 *p)
+INLINE __u64 __le64_to_cpup(const __le64 *p)
 {
 	return (__force __u64)*p;
 }
-static inline __le32 __cpu_to_le32p(const __u32 *p)
+INLINE __le32 __cpu_to_le32p(const __u32 *p)
 {
 	return (__force __le32)*p;
 }
-static inline __u32 __le32_to_cpup(const __le32 *p)
+INLINE __u32 __le32_to_cpup(const __le32 *p)
 {
 	return (__force __u32)*p;
 }
-static inline __le16 __cpu_to_le16p(const __u16 *p)
+INLINE __le16 __cpu_to_le16p(const __u16 *p)
 {
 	return (__force __le16)*p;
 }
-static inline __u16 __le16_to_cpup(const __le16 *p)
+INLINE __u16 __le16_to_cpup(const __le16 *p)
 {
 	return (__force __u16)*p;
 }
-static inline __be64 __cpu_to_be64p(const __u64 *p)
+INLINE __be64 __cpu_to_be64p(const __u64 *p)
 {
 	return (__force __be64)__swab64p(p);
 }
-static inline __u64 __be64_to_cpup(const __be64 *p)
+INLINE __u64 __be64_to_cpup(const __be64 *p)
 {
 	return __swab64p((__u64 *)p);
 }
-static inline __be32 __cpu_to_be32p(const __u32 *p)
+INLINE __be32 __cpu_to_be32p(const __u32 *p)
 {
 	return (__force __be32)__swab32p(p);
 }
-static inline __u32 __be32_to_cpup(const __be32 *p)
+INLINE __u32 __be32_to_cpup(const __be32 *p)
 {
 	return __swab32p((__u32 *)p);
 }
-static inline __be16 __cpu_to_be16p(const __u16 *p)
+INLINE __be16 __cpu_to_be16p(const __u16 *p)
 {
 	return (__force __be16)__swab16p(p);
 }
-static inline __u16 __be16_to_cpup(const __be16 *p)
+INLINE __u16 __be16_to_cpup(const __be16 *p)
 {
 	return __swab16p((__u16 *)p);
 }
 
-#define __cpu_to_le64s(x) do { (void)(x); } while (0)
-#define __le64_to_cpus(x) do { (void)(x); } while (0)
-#define __cpu_to_le32s(x) do { (void)(x); } while (0)
-#define __le32_to_cpus(x) do { (void)(x); } while (0)
-#define __cpu_to_le16s(x) do { (void)(x); } while (0)
-#define __le16_to_cpus(x) do { (void)(x); } while (0)
-#define __cpu_to_be64s(x) __swab64s((x))
-#define __be64_to_cpus(x) __swab64s((x))
-#define __cpu_to_be32s(x) __swab32s((x))
-#define __be32_to_cpus(x) __swab32s((x))
-#define __cpu_to_be16s(x) __swab16s((x))
-#define __be16_to_cpus(x) __swab16s((x))
+#define __cpu_to_le64s(x)	do { (void)(x); } while (0)
+#define __le64_to_cpus(x)	do { (void)(x); } while (0)
+#define __cpu_to_le32s(x)	do { (void)(x); } while (0)
+#define __le32_to_cpus(x)	do { (void)(x); } while (0)
+#define __cpu_to_le16s(x)	do { (void)(x); } while (0)
+#define __le16_to_cpus(x)	do { (void)(x); } while (0)
+#define __cpu_to_be64s(x)	__swab64s((x))
+#define __be64_to_cpus(x)	__swab64s((x))
+#define __cpu_to_be32s(x)	__swab32s((x))
+#define __be32_to_cpus(x)	__swab32s((x))
+#define __cpu_to_be16s(x)	__swab16s((x))
+#define __be16_to_cpus(x)	__swab16s((x))
 
 #include <sandix/byteorder/generic.h>
 
