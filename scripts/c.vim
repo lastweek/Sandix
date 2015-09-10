@@ -42,6 +42,12 @@ syn keyword	cInclude	WARN_ON
 syn keyword	cInclude	WARN_ON_ONCE
 
 " See <sandix/compiler.h>
+syn keyword	cInclude	READ_ONCE
+syn keyword	cInclude	WRITE_ONCE
+syn keyword	cInclude	ACCESS_ONCE
+
+
+" See <sandix/compiler.h>
 " Special labels for special sections.
 " Use cLabel to distinguish with those __weak attribute things.
 syn keyword	cLabel		__section
@@ -59,7 +65,6 @@ syn keyword	cType		u8	s8
 syn keyword	cType		u16	s16
 syn keyword	cType		u32	s32
 syn keyword	cType		u64	s64
-
 syn keyword	cType		__be16	__le16
 syn keyword	cType		__be32	__le32
 syn keyword	cType		__be64	__le64

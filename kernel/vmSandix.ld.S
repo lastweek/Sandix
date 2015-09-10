@@ -22,8 +22,8 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <sandix/compiler.h>
-#include <asm/page.h>
+#include <sandix/compiler.h>		/* For cache line size */
+#include <asm/page.h>			/* For page size */
 
 /*
  * Kernel Virtual Address Offset.

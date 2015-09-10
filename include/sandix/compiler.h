@@ -33,6 +33,8 @@
 # error Sorry, please use GCC
 #endif
 
+#include <sandix/types.h>
+
 #define GCC_VERSION				\
 (						\
 	__GNUC__		* 10000	+	\
@@ -277,6 +279,7 @@ extern void __chk_io_ptr(const volatile void __iomem *);
  * If possible use READ_ONCE()/WRITE_ONCE() instead.
  */
 
+#ifndef __ASSEMBLY__
 ALWAYS_INLINE void __read_once_size(const volatile void *p, void *res, int size)
 {
 	switch (size) {
@@ -304,6 +307,7 @@ ALWAYS_INLINE void __write_once_size(volatile void *p, void *res, int size)
 		barrier();
 	}
 }
+#endif
 
 #define READ_ONCE(x)						\
 ({								\

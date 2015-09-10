@@ -41,8 +41,10 @@
 #include <sandix/compiler.h>
 #include <sandix/console.h>
 #include <sandix/errno.h>
+#include <sandix/export.h>
 #include <sandix/tty.h>
 #include <sandix/types.h>
+
 #include <video/video.h>
 
 /*

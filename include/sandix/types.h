@@ -31,7 +31,6 @@ typedef _Bool			bool;
 
 typedef unsigned short		umode_t;
 typedef __u32			nlink_t;
-typedef __kernel_fd_set		fd_set;
 typedef __kernel_dev_t		dev_t;
 typedef __kernel_ino_t		ino_t;
 typedef __kernel_mode_t		mode_t;
@@ -44,8 +43,6 @@ typedef __kernel_timer_t	timer_t;
 typedef __kernel_clockid_t	clockid_t;
 typedef __kernel_caddr_t	cadder_t;
 typedef __kernel_daddr_t	daddr_t;
-typedef __kernel_key_t		key_t;
-typedef __kernel_mqd_t		mqd_t;
 typedef __kernel_suseconds_t	suseconds_t;
 typedef __kernel_uid32_t	uid_t;
 typedef __kernel_gid32_t	gid_t;

@@ -63,6 +63,7 @@
  * @irq_set_irqchip_state:	set the internal state of a interrupt
  * @flags:		chip specific flags
  */
+/*
 struct irq_chip {
 	const char	*name;
 	unsigned int	(*irq_startup)(struct irq_data *data);
@@ -105,5 +106,5 @@ struct irq_chip {
 
 	unsigned long	flags;
 };
-
+*/
 #endif /* _SANDIX_IRQ_H_ */
