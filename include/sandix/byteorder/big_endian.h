@@ -1,5 +1,6 @@
 /*
  *	include/sandix/byteorder/big_endian.h
+ *
  *	For Big-Endian Machines
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
@@ -107,18 +108,18 @@ INLINE __u16 __be16_to_cpup(const __be16 *p)
 {
 	return (__force __u16)*p;
 }
-#define __cpu_to_le64s(x) __swab64s((x))
-#define __le64_to_cpus(x) __swab64s((x))
-#define __cpu_to_le32s(x) __swab32s((x))
-#define __le32_to_cpus(x) __swab32s((x))
-#define __cpu_to_le16s(x) __swab16s((x))
-#define __le16_to_cpus(x) __swab16s((x))
-#define __cpu_to_be64s(x) do { (void)(x); } while (0)
-#define __be64_to_cpus(x) do { (void)(x); } while (0)
-#define __cpu_to_be32s(x) do { (void)(x); } while (0)
-#define __be32_to_cpus(x) do { (void)(x); } while (0)
-#define __cpu_to_be16s(x) do { (void)(x); } while (0)
-#define __be16_to_cpus(x) do { (void)(x); } while (0)
+#define __cpu_to_le64s(x)	__swab64s((x))
+#define __le64_to_cpus(x)	__swab64s((x))
+#define __cpu_to_le32s(x)	__swab32s((x))
+#define __le32_to_cpus(x)	__swab32s((x))
+#define __cpu_to_le16s(x)	__swab16s((x))
+#define __le16_to_cpus(x)	__swab16s((x))
+#define __cpu_to_be64s(x)	do { (void)(x); } while (0)
+#define __be64_to_cpus(x)	do { (void)(x); } while (0)
+#define __cpu_to_be32s(x)	do { (void)(x); } while (0)
+#define __be32_to_cpus(x)	do { (void)(x); } while (0)
+#define __cpu_to_be16s(x)	do { (void)(x); } while (0)
+#define __be16_to_cpus(x)	do { (void)(x); } while (0)
 
 #include <sandix/byteorder/generic.h>
 

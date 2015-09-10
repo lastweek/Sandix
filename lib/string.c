@@ -1,5 +1,7 @@
 /*
- *	lib/string.c - X86 String Functions
+ *	lib/string.c - x86 String Functions
+ *
+ *	Really vague code. Bless you a happy trip.
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
@@ -18,12 +20,12 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <sandix/export.h>
 #include <sandix/types.h>
 #include <sandix/string.h>
 
-#ifdef __X86_SPECIFIC_STRING	/* in <sandix/string.h> */
-
 /*
+ * TO_BE_MOVED
  * I have read the LKML about why using "memory"
  * clobber in all string functions including strlen().
  * As Linus said, even if you do NOT modify memory
@@ -56,6 +58,29 @@ char *strcpy(char *dest, const char *src)
 	);
 	return dest;
 }
+EXPORT_SYMBOL(strcpy);
+
+char *strncpy(char *dest, const char *src, size_t count)
+{
+	int d0, d1, d2, d3;
+	asm volatile (
+		"1:\n\t"
+		"decl %2\n\t"
+		"js 2f\n\t"
+		"lodsb\n\t"
+		"stosb\n\t"
+		"testb %%al,%%al\n\t"
+		"jne 1b\n\t"
+		"rep\n\t"
+		"stosb\n\t"
+		"2:"
+		: "=&S"(d0), "=&D"(d1), "=&c"(d2), "=&a"(d3)
+		: "0"(src), "1"(dest), "2"(count)
+		: "memory"
+	);
+	return dest;
+}
+EXPORT_SYMBOL(strncpy);
 
 int strcmp(const char *s0, const char *s1)
 {
@@ -79,6 +104,35 @@ int strcmp(const char *s0, const char *s1)
 	);
 	return ret;
 }
+EXPORT_SYMBOL(strcmp);
+
+int strncmp(const char *cs, const char *ct, size_t count)
+{
+	int res;
+	int d0, d1, d2;
+	asm volatile (
+		"1:\n\t"
+		"decl %3\n\t"
+		"js 2f\n\t"
+		"lodsb\n\t"
+		"scasb\n\t"
+		"jne 3f\n\t"
+		"testb %%al,%%al\n\t"
+		"jne 1b\n\t"
+		"2:\n\t"
+		"xorl %%eax,%%eax\n\t"
+		"jmp 4f\n\t"
+		"3:\n\t"
+		"sbbl %%eax,%%eax\n\t"
+		"orb $1,%%al\n\t"
+		"4:"
+		: "=a"(res), "=&S"(d0), "=&D"(d1), "=&c"(d2)
+		: "1"(cs), "2"(ct), "3"(count)
+		: "memory"
+	);
+	return res;
+}
+EXPORT_SYMBOL(strncmp);
 
 size_t strlen(const char *s)
 {
@@ -86,24 +140,51 @@ size_t strlen(const char *s)
 	size_t len;
 	asm volatile (
 		"repne ; scasb"
-		: "=&D" (d0), "=c" (len)
-		: "0" (s), "1" (0xffffffffu), "a" (0)
+		: "=&D"(d0), "=c"(len)
+		: "0"(s), "1"(0xffffffffu), "a"(0)
 		: "memory"
 	);
 	return ~len - 1;
 }
+EXPORT_SYMBOL(strlen);
+
+size_t strnlen(const char *s, size_t count)
+{
+	int d0;
+	int res;
+	asm volatile (
+		"movl %2,%0\n\t"
+		"jmp 2f\n\t"
+		"1:\n\t"
+		"cmpb $0,(%0)\n\t"
+		"je 3f\n\t"
+		"incl %0\n\t"
+		"2:\n\t"
+		"decl %1\n\t"
+		"cmpl $-1,%1\n\t"
+		"jne 1b\n\t"
+		"3:\n\t"
+		"subl %2,%0"
+		: "=a"(res), "=&d"(d0)
+		: "c"(s), "1"(count)
+		: "memory"
+	);
+	return res;
+}
+EXPORT_SYMBOL(strnlen);
 
 void *memset(void *s, char c, size_t n)
 {
 	int d0, d1, d2;
 	asm volatile (
 		"rep ; stosb"
-		: "=&D" (d0), "=a" (d1), "=&c" (d2)
-		: "0" (s), "1" (c), "2" (n)
+		: "=&D"(d0), "=a"(d1), "=&c"(d2)
+		: "0"(s), "1"(c), "2"(n)
 		: "memory"
 	);
 	return s;
 }
+EXPORT_SYMBOL(memset);
 
 void *memcpy(void *to, const void *from, size_t n)
 {
@@ -115,11 +196,10 @@ void *memcpy(void *to, const void *from, size_t n)
 		"jz 1f\n\t"
 		"rep ; movsb\n\t"
 		"1:"
-		: "=&D" (d0), "=&S" (d1), "=&c" (d2)
-		: "g" (n), "0" (to), "1" (from), "2" (n / 4)
+		: "=&D"(d0), "=&S"(d1), "=&c"(d2)
+		: "g"(n), "0"(to), "1"(from), "2"(n/4)
 		: "memory"
 	);
 	return to;
 }
-
-#endif /* __X86_SPECIFIC_STRING */
+EXPORT_SYMBOL(memcpy);

@@ -1,14 +1,38 @@
+/*
+ *	include/asm/cmpxchg.h - Compare and Exchange
+ *
+ *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	
+ *	This program is free software; you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation; either version 2 of the License, or
+ *	(at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
+ *
+ *	You should have received a copy of the GNU General Public License along
+ *	with this program; if not, write to the Free Software Foundation, Inc.,
+ *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #ifndef _ASM_CMPXCHG_H_
 #define _ASM_CMPXCHG_H_
 
+#include <sanidx/compiler.h>
 #include <sandix/types.h>
 #include <asm/asm.h>
 
 /*
- * Non-existant functions to indicate usage errors at link time
+ * Non-existant functions to indicate usage errors at link time,
+ * or compile time if compiler has __compiletime_error.
  */
 extern void __xchg_wrong_size(void);
+	__compiletime_error("Bad argument size for xchg");
 extern void __cmpxchg_wrong_size(void);
+	__compiletime_error("Bad argument size for cmpxchg");
 
 #define __X86_CASE_B	1
 #define __X86_CASE_W	2
@@ -135,12 +159,17 @@ extern void __cmpxchg_wrong_size(void);
 	__ret;								\
 })
 
+#define __cmpxchg(ptr, old, new, size)					\
+	__raw_cmpxchg((ptr), (old), (new), (size), LOCK_PREFIX)
+
+#define __cmpxchg_local(ptr, old, new, size)				\
+	__raw_cmpxchg((ptr), (old), (new), (size), "")
 
 #define cmpxchg(ptr, old, new)						\
-	__raw_cmpxchg((ptr), (old), (new), sizeof(*(ptr)), LOCK_PREFIX)
+	__cmpxchg(ptr, old, new, sizeof(*(ptr)))
 
 #define cmpxchg_local(ptr, old, new)					\
-	__raw_cmpxchg((ptr), (old), (new), (size), "")
+	__cmpxchg_local(ptr, old, new, sizeof(*(ptr)))
 
 
 #endif /* _ASM_CMPXCHG_H_ */

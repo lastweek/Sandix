@@ -280,6 +280,7 @@ extern void __chk_io_ptr(const volatile void __iomem *);
  */
 
 #ifndef __ASSEMBLY__
+
 ALWAYS_INLINE void __read_once_size(const volatile void *p, void *res, int size)
 {
 	switch (size) {
@@ -307,7 +308,6 @@ ALWAYS_INLINE void __write_once_size(volatile void *p, void *res, int size)
 		barrier();
 	}
 }
-#endif
 
 #define READ_ONCE(x)						\
 ({								\
@@ -334,5 +334,7 @@ ALWAYS_INLINE void __write_once_size(volatile void *p, void *res, int size)
 	__maybe_unused typeof(x) __var = (__force typeof(x)) 0;	\
 	*(volatile typeof(x) *)&(x);				\
 })
+
+#endif /* __ASSEMBLY__ */
 
 #endif /* _SANDIX_COMPILER_H_ */

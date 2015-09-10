@@ -40,3 +40,5 @@ System.map
 # Special Dot Files
 #
 !.gitignore
+
+arch/*

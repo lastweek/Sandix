@@ -1,5 +1,6 @@
 /*
  *	include/sandix/byteorder/little_endian.h
+ *
  *	For Little-Endian Machines
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>

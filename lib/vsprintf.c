@@ -19,16 +19,19 @@
  */
 
 #include <stdarg.h>
-
+#include <asm/byteorder.h>		/* For Endian */
 #include <sandix/ctype.h>
 #include <sandix/compiler.h>
+#include <sandix/export.h>
 #include <sandix/bug.h>
 #include <sandix/kernel.h>
+#include <sandix/page.h>		/* For PAGE_SIZE */
 #include <sandix/string.h>
 #include <sandix/types.h>
 
 /*
- * FLAGS. KEEP THIS ORDER.
+ * FLAGS
+ * KEEP THIS ORDER!
  */
 #define SIGN		0x01		/* unsigned/signed */
 #define LEFT		0x02		/* left justified */
@@ -39,7 +42,8 @@
 #define SPECIAL		0x40		/* prefix hex with "0x", octal with "0" */
 
 /*
- * FORMAT TYPE. KEEP THIS ORDER.
+ * FORMAT TYPE
+ * KEEP THIS ORDER!
  */
 enum format_type {
 	FORMAT_TYPE_NONE,		/* Just a string part */
@@ -72,7 +76,7 @@ struct printf_spec {
 	signed short	precision;		/* # of digits/chars */
 };
 
-static __noinline int skip_atoi(const char **s)
+static __noinline_for_stack int skip_atoi(const char **s)
 {
 	int i = 0;
 
@@ -84,13 +88,16 @@ static __noinline int skip_atoi(const char **s)
 }
 
 /*
- * Decimal conversion is by far the most typical, and is used for
- * /proc and /sys data. This directly impacts e.g. top performance
- * with many processes running. We optimize it for speed by emitting
- * two characters at a time, using a 200 byte lookup table. This
- * roughly halves the number of multiplications compared to computing
- * the digits one at a time. Implementation strongly inspired by the
- * previous version, which in turn used ideas described at
+ * Black Magic Show Time.
+ */
+
+/*
+ * Decimal conversion is by far the most typical. This directly impacts
+ * e.g. top performance with many processes running. We optimize it for
+ * speed by emitting two characters at a time, using a 200 byte lookup
+ * table. This roughly halves the number of multiplications compared to
+ * computing the digits one at a time. Implementation strongly inspired
+ * by the previous version, which in turn used ideas described at
  * <http://www.cs.uiowa.edu/~jones/bcd/divide.html> (with permission
  * from the author, Douglas W. Jones).
  *
@@ -129,7 +136,7 @@ static const u16 decpair[100] = {
  * one of them accounted for in buf. This is needed by ip4_string
  * below. All other callers pass a non-zero value of r.
 */
-static __noinline char *put_dec_trunc8(char *buf, unsigned r)
+static __noinline_for_stack char *put_dec_trunc8(char *buf, unsigned r)
 {
 	unsigned q;
 
@@ -188,7 +195,7 @@ static void put_dec_full4(char *buf, unsigned r)
  * helper will ever be asked to convert is 1,125,520,955.
  * (second call in the put_dec code, assuming n is all-ones).
  */
-static __noinline unsigned put_dec_helper4(char *buf, unsigned x)
+static __noinline_for_stack unsigned put_dec_helper4(char *buf, unsigned x)
 {
         uint32_t q = (x * (uint64_t)0x346DC5D7) >> 43;
 
@@ -350,7 +357,7 @@ static char *number(char *buf, char *end, unsigned long long num,
 		}
 	}
 	
-	/* hmm even more zero padding? */
+	/* Even more zero padding? */
 	while (i <= --spec.precision) {
 		if (buf < end)
 			*buf = '0';
@@ -405,246 +412,14 @@ static char *string(char *buf, char *end, const char *s,
 	return buf;
 }
 
-/*
- * Show a '%p' thing.  A kernel extension is that the '%p' is followed by an
- * extra set of alphanumeric characters that are extended format specifiers.
- *
- * - 'F' For symbolic function descriptor pointers with offset
- * - 'f' For simple symbolic function names without offset
- * - 'S' For symbolic direct pointers with offset
- * - 's' For symbolic direct pointers without offset
- * - '[FfSs]R' as above with __builtin_extract_return_addr() translation
- * - 'B' For backtraced symbolic direct pointers with offset
- * - 'R' For decoded struct resource, e.g., [mem 0x0-0x1f 64bit pref]
- * - 'r' For raw struct resource, e.g., [mem 0x0-0x1f flags 0x201]
- * - 'b[l]' For a bitmap, the number of bits is determined by the field
- *       width which must be explicitly specified either as part of the
- *       format string '%32b[l]' or through '%*b[l]', [l] selects
- *       range-list format instead of hex format
- * - 'M' For a 6-byte MAC address, it prints the address in the
- *       usual colon-separated hex notation
- * - 'm' For a 6-byte MAC address, it prints the hex address without colons
- * - 'MF' For a 6-byte MAC FDDI address, it prints the address
- *       with a dash-separated hex notation
- * - '[mM]R' For a 6-byte MAC address, Reverse order (Bluetooth)
- * - 'I' [46] for IPv4/IPv6 addresses printed in the usual way
- *       IPv4 uses dot-separated decimal without leading 0's (1.2.3.4)
- *       IPv6 uses colon separated network-order 16 bit hex with leading 0's
- *       [S][pfs]
- *       Generic IPv4/IPv6 address (struct sockaddr *) that falls back to
- *       [4] or [6] and is able to print port [p], flowinfo [f], scope [s]
- * - 'i' [46] for 'raw' IPv4/IPv6 addresses
- *       IPv6 omits the colons (01020304...0f)
- *       IPv4 uses dot-separated decimal with leading 0's (010.123.045.006)
- *       [S][pfs]
- *       Generic IPv4/IPv6 address (struct sockaddr *) that falls back to
- *       [4] or [6] and is able to print port [p], flowinfo [f], scope [s]
- * - '[Ii][4S][hnbl]' IPv4 addresses in host, network, big or little endian order
- * - 'I[6S]c' for IPv6 addresses printed as specified by
- *       http://tools.ietf.org/html/rfc5952
- * - 'E[achnops]' For an escaped buffer, where rules are defined by combination
- *                of the following flags (see string_escape_mem() for the
- *                details):
- *                  a - ESCAPE_ANY
- *                  c - ESCAPE_SPECIAL
- *                  h - ESCAPE_HEX
- *                  n - ESCAPE_NULL
- *                  o - ESCAPE_OCTAL
- *                  p - ESCAPE_NP
- *                  s - ESCAPE_SPACE
- *                By default ESCAPE_ANY_NP is used.
- * - 'U' For a 16 byte UUID/GUID, it prints the UUID/GUID in the form
- *       "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
- *       Options for %pU are:
- *         b big endian lower case hex (default)
- *         B big endian UPPER case hex
- *         l little endian lower case hex
- *         L little endian UPPER case hex
- *           big endian output byte order is:
- *             [0][1][2][3]-[4][5]-[6][7]-[8][9]-[10][11][12][13][14][15]
- *           little endian output byte order is:
- *             [3][2][1][0]-[5][4]-[7][6]-[8][9]-[10][11][12][13][14][15]
- * - 'V' For a struct va_format which contains a format string * and va_list *,
- *       call vsnprintf(->format, *->va_list).
- *       Implements a "recursive vsnprintf".
- *       Do not use this feature without some mechanism to verify the
- *       correctness of the format string and va_list arguments.
- * - 'K' For a kernel pointer that should be hidden from unprivileged users
- * - 'NF' For a netdev_features_t
- * - 'h[CDN]' For a variable-length buffer, it prints it as a hex string with
- *            a certain separator (' ' by default):
- *              C colon
- *              D dash
- *              N no separator
- *            The maximum supported length is 64 bytes of the input. Consider
- *            to use print_hex_dump() for the larger input.
- * - 'a[pd]' For address types [p] phys_addr_t, [d] dma_addr_t and derivatives
- *           (default assumed to be phys_addr_t, passed by reference)
- * - 'd[234]' For a dentry name (optionally 2-4 last components)
- * - 'D[234]' Same as 'd' but for a struct file
- * - 'C' For a clock, it prints the name (Common Clock Framework) or address
- *       (legacy clock framework) of the clock
- * - 'Cn' For a clock, it prints the name (Common Clock Framework) or address
- *        (legacy clock framework) of the clock
- * - 'Cr' For a clock, it prints the current rate of the clock
- *
- * Note: The difference between 'S' and 'F' is that on ia64 and ppc64
- * function pointers are really function descriptors, which contain a
- * pointer to the real address.
- */
-static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
-		     struct printf_spec spec)
+/* TODO */
+static __noinline_for_stack char *pointer(const char *fmt,
+					  char *buf,
+					  char *end,
+					  void *ptr,
+					  struct printf_spec spec)
 {
-	int default_width = 2 * sizeof(void *) + (spec.flags & SPECIAL ? 2 : 0);
-
-	if (!ptr && *fmt != 'K') {
-		/*
-		 * Print (null) with the same width as a pointer so it makes
-		 * tabular output look nice.
-		 */
-		if (spec.field_width == -1)
-			spec.field_width = default_width;
-		return string(buf, end, "(null)", spec);
-	}
-
-	switch (*fmt) {
-	case 'F':
-	case 'f':
-		ptr = dereference_function_descriptor(ptr);
-		/* Fallthrough */
-	case 'S':
-	case 's':
-	case 'B':
-		return symbol_string(buf, end, ptr, spec, fmt);
-	case 'R':
-	case 'r':
-		return resource_string(buf, end, ptr, spec, fmt);
-	case 'h':
-		return hex_string(buf, end, ptr, spec, fmt);
-	case 'b':
-		switch (fmt[1]) {
-		case 'l':
-			return bitmap_list_string(buf, end, ptr, spec, fmt);
-		default:
-			return bitmap_string(buf, end, ptr, spec, fmt);
-		}
-	case 'M':			/* Colon separated: 00:01:02:03:04:05 */
-	case 'm':			/* Contiguous: 000102030405 */
-					/* [mM]F (FDDI) */
-					/* [mM]R (Reverse order; Bluetooth) */
-		return mac_address_string(buf, end, ptr, spec, fmt);
-	case 'I':			/* Formatted IP supported
-					 * 4:	1.2.3.4
-					 * 6:	0001:0203:...:0708
-					 * 6c:	1::708 or 1::1.2.3.4
-					 */
-	case 'i':			/* Contiguous:
-					 * 4:	001.002.003.004
-					 * 6:   000102...0f
-					 */
-		switch (fmt[1]) {
-		case '6':
-			return ip6_addr_string(buf, end, ptr, spec, fmt);
-		case '4':
-			return ip4_addr_string(buf, end, ptr, spec, fmt);
-		case 'S': {
-			const union {
-				struct sockaddr		raw;
-				struct sockaddr_in	v4;
-				struct sockaddr_in6	v6;
-			} *sa = ptr;
-
-			switch (sa->raw.sa_family) {
-			case AF_INET:
-				return ip4_addr_string_sa(buf, end, &sa->v4, spec, fmt);
-			case AF_INET6:
-				return ip6_addr_string_sa(buf, end, &sa->v6, spec, fmt);
-			default:
-				return string(buf, end, "(invalid address)", spec);
-			}}
-		}
-		break;
-	case 'E':
-		return escaped_string(buf, end, ptr, spec, fmt);
-	case 'U':
-		return uuid_string(buf, end, ptr, spec, fmt);
-	case 'V':
-		{
-			va_list va;
-
-			va_copy(va, *((struct va_format *)ptr)->va);
-			buf += vsnprintf(buf, end > buf ? end - buf : 0,
-					 ((struct va_format *)ptr)->fmt, va);
-			va_end(va);
-			return buf;
-		}
-	case 'K':
-		/*
-		 * %pK cannot be used in IRQ context because its test
-		 * for CAP_SYSLOG would be meaningless.
-		 */
-		if (kptr_restrict && (in_irq() || in_serving_softirq() ||
-				      in_nmi())) {
-			if (spec.field_width == -1)
-				spec.field_width = default_width;
-			return string(buf, end, "pK-error", spec);
-		}
-
-		switch (kptr_restrict) {
-		case 0:
-			/* Always print %pK values */
-			break;
-		case 1: {
-			/*
-			 * Only print the real pointer value if the current
-			 * process has CAP_SYSLOG and is running with the
-			 * same credentials it started with. This is because
-			 * access to files is checked at open() time, but %pK
-			 * checks permission at read() time. We don't want to
-			 * leak pointer values if a binary opens a file using
-			 * %pK and then elevates privileges before reading it.
-			 */
-			const struct cred *cred = current_cred();
-
-			if (!has_capability_noaudit(current, CAP_SYSLOG) ||
-			    !uid_eq(cred->euid, cred->uid) ||
-			    !gid_eq(cred->egid, cred->gid))
-				ptr = NULL;
-			break;
-		}
-		case 2:
-		default:
-			/* Always print 0's for %pK */
-			ptr = NULL;
-			break;
-		}
-		break;
-
-	case 'N':
-		switch (fmt[1]) {
-		case 'F':
-			return netdev_feature_string(buf, end, ptr, spec);
-		}
-		break;
-	case 'a':
-		return address_val(buf, end, ptr, spec, fmt);
-	case 'd':
-		return dentry_name(buf, end, ptr, spec, fmt);
-	case 'C':
-		return clock(buf, end, ptr, spec, fmt);
-	case 'D':
-		return dentry_name(buf, end,
-				   ((const struct file *)ptr)->f_path.dentry,
-				   spec, fmt);
-	}
-	spec.flags |= SMALL;
-	if (spec.field_width == -1) {
-		spec.field_width = default_width;
-		spec.flags |= ZEROPAD;
-	}
-	spec.base = 16;
-
-	return number(buf, end, (unsigned long) ptr, spec);
+	return NULL;
 }
 
 /*

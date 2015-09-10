@@ -1,5 +1,5 @@
 /*
- *	include/sandix/string.h - String Manipulation
+ *	include/sandix/string.h - API for String Manipulation
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
@@ -23,12 +23,12 @@
 
 #include <sandix/types.h>
 
-/* arch specific string functions */
-#define __X86_SPECIFIC_STRING
-
 char *strcpy(char *dest, const char *src);
+char *strncpy(char *dest, const char *src, size_t count);
 int strcmp(const char *s0, const char *s1);
+int strncmp(const char *cs, const char *ct, size_t count);
 size_t strlen(const char *s);
+size_t strnlen(const char *s, size_t count);
 
 void *memset(void *s, char c, size_t n);
 void *memcpy(void *to, const void *from, size_t n);
