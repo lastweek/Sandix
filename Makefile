@@ -23,6 +23,20 @@ MINORLEVEL	=	0
 PATCHLEVEL	=	0
 NAME		=	Sandix
 
+# o Do NOT use built-in rules and variables
+#   This increases performance and avoids hard-to-debug behaviour );
+# o Look for make include files relative to root of kernel src
+MAKEFLAGS += -rR --include-dir=$(CURDIR)
+
+# Avoid funny character set dependencies
+unexport LC_ALL
+LC_COLLATE=C
+LC_NUMERIC=C
+export LC_COLLATE LC_NUMERIC
+
+# Avoid interference with shell env settings
+unexport GREP_OPTIONS
+
 # Beautify output
 # ===========================================================================
 # Normally, we echo the whole command before executing it. By making
@@ -47,7 +61,6 @@ NAME		=	Sandix
 #
 # To put more focus on warnings, be less verbose as default
 # Use 'make V=1' to see the full commands
-
 ifeq ("$(origin V)", "command line")
   KBUILD_VERBOSE=$(V)
 endif
@@ -64,83 +77,243 @@ else
   Q=@
 endif
 
-#
-#	Check Source Code Before Build
-#
-KBUILD_CHECKER=0
-ifeq ("$(orgin C)", "command line")
-  KBUILD_CHECKER=$(C)
+# If the user is running "make -s", suppress echoing of commands
+ifneq ($(filter 4.%,$(MAKE_VERSION)),)	# make-4
+ifneq ($(filter %s ,$(firstword x$(MAKEFLAGS))),)
+  quiet=silent_
+endif
+else					# make-3.8x
+ifneq ($(filter s% -s%,$(MAKEFLAGS)),)
+  quiet=silent_
+endif
 endif
 
-export quiet Q KBUILD_VERBOSE C KBUILD_CHECKER
+export quiet Q KBUILD_VERBOSE
 
+# kbuild supports saving output files in a separate directory.
+# To locate output files in a separate directory two syntaxes are supported.
+# In both cases the working directory must be the root of the kernel src.
 #
-#	TODO
-#	Sandix does not support building in other directories.
+# 1) O=
+# Use "make O=dir/to/store/output/files/"
 #
-srctree = .
-objtree = .
+# 2) Set KBUILD_OUTPUT
+# Set the environment variable KBUILD_OUTPUT to point to the directory
+# where the output files shall be placed.
+# export KBUILD_OUTPUT=dir/to/store/output/files/
+# make
+#
+# The O= assignment takes precedence over the KBUILD_OUTPUT environment
+# variable.
+#
+# KBUILD_SRC is set on invocation of make in OBJ directory
+# KBUILD_SRC is not intended to be used by the regular user (for now)
+
+
+# ===========================================================================
+#	First Part of the Makefile	
+# ===========================================================================
+
+# OK, Make called in directory where kernel src resides
+# Do we want to locate output files in a separate directory?
+ifeq ($(KBUILD_SRC),)
+ifeq ("$(origin O)", "command line")
+  KBUILD_OUTPUT := $(O)
+endif
+
+# The default target!
+PHONY := _all
+_all:
+
+# Cancel implicit rules on top Makefile
+$(CURDIR)/Makefile Makefile: ;
+
+ifneq ($(KBUILD_OUTPUT),)
+saved-output := $(KBUILD_OUTPUT)
+KBUILD_OUTPUT := $(shell mkdir -p $(KBUILD_OUTPUT)	&& \
+			 cd $(KBUILD_OUTPUT)		&& \
+			 /bin/pwd)
+$(if $(KBUILD_OUTPUT),, \
+     $(error Failed to create output directory "$(saved-output)"))
+
+PHONY += $(MAKECMDGOALS) sub-make
+$(filter-out _all sub-make $(CURDIR)/Makefile, $(MAKECMDGOALS)) _all: sub-make
+	@:
+
+sub-make: FORCE
+	$(Q)$(MAKE) -C $(KBUILD_OUTPUT) KBUILD_SRC=$(CURDIR) \
+	-f $(CURDIR)/Makefile $(filter-out _all sub-make,$(MAKECMDGOALS))
+
+# Leave processing to sub-make
+skip-makefile := 1
+endif # ifneq ($(KBUILD_OUTPUT),)
+endif # ifeq ($(KBUILD_SRC),)
+
+
+# ===========================================================================
+#	Second Part of the Makefile	
+# ===========================================================================
+
+# Process the rest of the Makefile if this is the final invocation.
+ifeq ($(skip-makefile),)
+
+PHONY += all
+_all: all
+
+# Do not print "Entering directory ...",
+# but we want to display it when entering to the output directory
+# so that IDEs/editors are able to understand relative filenames.
+MAKEFLAGS += --no-print-directory
+
+# Call a source code checker (by default, "sparse") as part of the
+# C compilation.
+#
+# Use 'make C=1' to enable checking of only re-compiled files.
+# Use 'make C=2' to enable checking of *all* source files, regardless
+# of whether they are re-compiled or not.
+#
+# See the file "Documentation/sparse.txt" for more details, including
+# where to get the "sparse" utility.
+
+ifeq ("$(origin C)", "command line")
+  KBUILD_CHECKSRC = $(C)
+endif
+ifndef KBUILD_CHECKSRC
+  KBUILD_CHECKSRC = 0
+endif
+export KBUILD_CHECKSRC
+
+ifeq ($(KBUILD_SRC),)
+  srctree := .
+else
+  srctree := $(KBUILD_SRC)
+endif
+objtree		:= .
+src		:= $(srctree)
+obj		:= $(objtree)
 export srctree objtree
+export KBUILD_SRC
 
-#
-#	o Do not use make's built-in rules and variables,
-#	  this increases performance and avoids hard-to-debug behaviour.
-#	o Look for make include files relative to root of kernel src
-#
-MAKEFLAGS += -rR --include-dir=$(srctree)
+# Cross compiling and selecting different set of gcc/bin-utils
+# CROSS_COMPILE specify the prefix used for all executables used
+# during compilation. Only gcc and related bin-utils executables
+# are prefixed with $(CROSS_COMPILE).
 
-#
-#	FIXME i386-elf- toolchains in my macos.
-#
-CROSS_COMPILE = i386-elf-
+# FIXME
+HOST_ARCH := $(shell uname -m | sed -e s/i.86/x86/ -e s/x86_64/x86/ \
+				  -e s/sun4u/sparc64/ \
+				  -e s/arm.*/arm/ -e s/sa110/arm/ \
+				  -e s/s390x/s390/ -e s/parisc64/parisc/ \
+				  -e s/ppc.*/powerpc/ -e s/mips.*/mips/ \
+				  -e s/sh[234].*/sh/ -e s/aarch64.*/arm64/ )
+ifneq ("$(HOST_ARCH)", "i386")
+  CROSS_COMPILE	:= i386-elf-
+else
+  CROSS_COMPILE	:=
+endif
+export CROSS_COMPILE HOST_ARCH
 
-#
-#	VARIABLES
-#
-CC	= $(CROSS_COMPILE)gcc
-AS	= $(CROSS_COMPILE)as
-LD	= $(CROSS_COMPILE)ld
-CPP	= $(CC) -E
-AR	= $(CROSS_COMPILE)ar
-NM	= $(CROSS_COMPILE)nm
-STRIP	= $(CROSS_COMPILE)strip
-OBJCOPY	= $(CROSS_COMPILE)objcopy
-OBJDUMP	= $(CROSS_COMPILE)objdump
-MAKE	= make
-AWK 	= awk
+# Sandix has x86 ARCH only
+# Hmm, maybe use i386 instead.
+SRCARCH := x86
+export SRCARCH
 
-KBUILD_CFLAGS	:= -std=gnu11
-KBUILD_CFLAGS	+= -pipe -Wall -Wundef
-KBUILD_CFLAGS	+= -fno-strict-aliasing -fno-common
-KBUILD_CFLAGS	+= -Wno-format-security
-KBUILD_CFLAGS	+= -Wdeclaration-after-statement
-KBUILD_CFLAGS	+= -Werror=strict-prototypes
-KBUILD_CFLAGS	+= -Werror=implicit-function-declaration
-KBUILD_CFLAGS	+= -O2
+# ARCH specific headers
+hdr-arch := $(SRCARCH)
 
-KBUILD_CPPFLAGS	:= -D__KERNEL__
+KCONFIG_CONFIG ?= .config
+export KCONFIG_CONFIG
 
-KBUILD_AFLAGS	:= -D__ASSEMBLY__
+# SHELL used by kbuild
+CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
+	  else if [ -x /bin/bash ]; then echo /bin/bash; \
+	  else echo sh; fi ; fi)
 
-KBUILD_LDFLAGS	:=
+HOSTCC       = gcc
+HOSTCXX      = g++
+HOSTCFLAGS   = -std=gnu11 -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer
+HOSTCXXFLAGS = -O2
 
-SANDIXINCLUDE	:= -I$(srctree)/include/
+ifeq ($(shell $(HOSTCC) -v 2>&1 | grep -c "clang version"), 1)
+HOSTCFLAGS  += -Wno-unused-value -Wno-unused-parameter \
+		-Wno-missing-field-initializers -fno-delete-null-pointer-checks
+endif
+export CONFIG_SHELL HOSTCC HOSTCXX HOSTCFLAGS HOSTCXXFLAGS
 
-NOSTDINC_FLAGS	:= -nostdinc
+# Generic definitions
+scripts/Kbuild.include: ;
+include scripts/Kbuild.include
 
-#
-#	FIXME
-#	Ugly.. You can add more, but DO NOT DELETE them. 
-#
+CC			 = $(CROSS_COMPILE)gcc
+AS			 = $(CROSS_COMPILE)as
+LD			 = $(CROSS_COMPILE)ld
+CPP			 = $(CC) -E
+AR			 = $(CROSS_COMPILE)ar
+NM			 = $(CROSS_COMPILE)nm
+STRIP			 = $(CROSS_COMPILE)strip
+OBJCOPY			 = $(CROSS_COMPILE)objcopy
+OBJDUMP			 = $(CROSS_COMPILE)objdump
+MAKE			 = make
+AWK			 = awk
+PERL			 = perl
+PYTHON			 = python
+CHECK			 = sparse
+
+CHECKFLAGS		:= -D__sandix__ -Dsandix
+
+NOSTDINC_FLAGS		:= -nostdinc
+
+SANDIXINCLUDE		:=							\
+			-Iinclude						\
+			$(if $(KBUILD_SRC), -I$(srctree)/include)		\
+			-I$(srctree)/arch/$(hdr-arch)/include
+
+KBUILD_CFLAGS   	:=
+			-Wall -Wundef -Wstrict-prototypes -Wno-trigraphs	\
+			-fno-strict-aliasing -fno-common			\
+			-Werror-implicit-function-declaration			\
+			-Wno-format-security					\
+			-std=gnu11
+
+KBUILD_CPPFLAGS		:= -D__KERNEL__
+KBUILD_AFLAGS		:= -D__ASSEMBLY__
+KBUILD_LDFLAGS		:=
+
+# FIXME
+# Ugly.. You can add more, but DO NOT DELETE them. 
 OBJCOPYFLAGS	:= -j .text -j .text32 -j .data -j .rodata -j .init -O binary
 OBJDUMPFLAGS	:= -d -M att
 
-export VERSION PATCHLEVEL SUBLEVEL NAME0 NAME1 NAME2
+export VERSION PATCHLEVEL SUBLEVEL NAME
 export CC AS LD CPP AR NM STRIP OBJCOPY OBJDUMP
-export MAKE AWK PERL PYTHON
-export KBUILD_CFLAGS KBUILD_CPPFLAGS KBUILD_LDFLAGS KBUILD_AFLAGS
+export MAKE AWK PERL PYTHON CHECK CHECKFLAGS
 export SANDIXINCLUDE NOSTDINC_FLAGS
+export KBUILD_CFLAGS KBUILD_CPPFLAGS KBUILD_LDFLAGS KBUILD_AFLAGS
 export OBJCOPYFLAGS OBJDUMPFLAGS
+
+
+# ===========================================================================
+# Rules shared between *config targets and build targets
+
+# Basic helpers built in scripts/
+PHONY += scripts_basic
+script_basic:
+	$(Q)$(MAKE) $(build)=script/basic
+
+# Generates a Makefile in the output directory, if using a
+# separate output directory. This allows convenient use of
+# make in the output directory.
+PHONY += outputmakefile
+outputmakefile:
+ifneq ($(KBUILD_SRC),)
+	$(Q)ln -fsn $(srctree) source
+	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/mkmakefile \
+	    $(srctree) $(objtree) $(VERSION) $(PATCHLEVEL)
+endif
+
+
+
+
 
 #
 #	Fine, one architecture only.
@@ -202,11 +375,6 @@ BZIMAGE   := boot/bzImage
 RM_LD_CMD := boot/rm-image.ld
 PM_LD_CMD := kernel/vmSandix.ld
 
-#
-#	Some generic definitions and variables
-#
-include $(srctree)/scripts/Kbuild.include
-
 
 #
 #	COMMANDS FOR BUILD BZIMAGE
@@ -232,7 +400,6 @@ quiet_cmd_map := SYSTEM MAP
 #
 #	BUILD KERNEL
 # ===========================================================================
-PHONY := all
 all: bzImage vmsandix
 
 bzImage: vmsandix
@@ -284,6 +451,8 @@ help:
 	@echo "  make C=0 [targets] => Do _Not_ Check Source Code Before Build (default)"
 	@echo "  make C=1 [targets] => Check Source Code Before Build"
 	@echo "\n###################################################"
+
+endif  # ifeq ($(skip-makefile),)
 
 PHONY += FORCE
 FORCE:
