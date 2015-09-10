@@ -64,6 +64,7 @@ Wed Sep  9 CST 2015
 
 
 Thu Sep 10 CST 2015
-- [+] Diary/09-10-2015
+- [+] scripts/mkmakefile			[D] Script for generating makefile.
 - [+] include/asm/string.h			[D] Separate arch-specific string functions.
 - [M] include/sandix/string.h
+- [M] Makefile					[D] Rewrite. Based on linux-4.1

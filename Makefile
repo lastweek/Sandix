@@ -158,7 +158,7 @@ endif # ifeq ($(KBUILD_SRC),)
 ifeq ($(skip-makefile),)
 
 PHONY += all
-_all: all
+_all: outputmakefile
 
 # Do not print "Entering directory ...",
 # but we want to display it when entering to the output directory
