@@ -119,3 +119,5 @@ syn keyword	cType		__percpu
 syn keyword	cType		__pmem
 syn keyword	cType		__rcu
 syn keyword	cType		__pmem
+
+syn keyword	cError		__MUST_TODO_

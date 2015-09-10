@@ -109,7 +109,8 @@ OBJDUMP	= $(CROSS_COMPILE)objdump
 MAKE	= make
 AWK 	= awk
 
-KBUILD_CFLAGS	:= -std=gnu89 -pipe -Wall -Wundef
+KBUILD_CFLAGS	:= -std=gnu11
+KBUILD_CFLAGS	+= -pipe -Wall -Wundef
 KBUILD_CFLAGS	+= -fno-strict-aliasing -fno-common
 KBUILD_CFLAGS	+= -Wno-format-security
 KBUILD_CFLAGS	+= -Wdeclaration-after-statement

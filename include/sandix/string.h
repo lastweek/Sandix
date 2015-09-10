@@ -1,6 +1,8 @@
 /*
  *	include/sandix/string.h - API for String Manipulation
  *
+ *	__TODO__: Implement Generic String Library
+ *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify

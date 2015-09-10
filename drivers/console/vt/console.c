@@ -126,7 +126,8 @@ static void gotoxy(struct vc_struct *vc, int new_x, int new_y)
 		(((vc->vc_cols*vc->vc_y) + vc->vc_x) << 1);
 }
 
-static void respond(struct tty_struct *tty)
+__MUST_TODO__
+__unused static void respond(struct tty_struct *tty)
 {
 	
 }
@@ -353,7 +354,7 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 #define DEL	127		/* Delete */
 	int npar, c, state;
 	struct vc_struct *vc;
-	static struct con_driver *con;
+	const struct con_driver *con;
 
 	vc = tty->console;
 	con = tty->console->driver;

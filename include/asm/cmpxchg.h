@@ -21,7 +21,7 @@
 #ifndef _ASM_CMPXCHG_H_
 #define _ASM_CMPXCHG_H_
 
-#include <sanidx/compiler.h>
+#include <sandix/compiler.h>
 #include <sandix/types.h>
 #include <asm/asm.h>
 

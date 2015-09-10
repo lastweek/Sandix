@@ -26,6 +26,8 @@
 #ifndef _SANDIX_COMPILER_H_
 #define _SANDIX_COMPILER_H_
 
+#define __MUST_TODO__
+
 #ifdef __INTEL_COMPILER
 # error Sorry, please use GCC
 #endif

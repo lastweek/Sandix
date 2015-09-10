@@ -23,7 +23,7 @@ objcopy-y := bootsect.o
 
 M16_CFLAGS := $(call cc-option,-m16)
 
-KBUILD_CFLAGS := $(M16_CFLAGS) -std=gnu89 -march=i386
+KBUILD_CFLAGS := $(M16_CFLAGS) -std=gnu11 -march=i386
 KBUILD_CFLAGS += -pipe -Wall -Wundef -fomit-frame-pointer
 KBUILD_CFLAGS += -fno-pic -fno-strict-aliasing -fno-common
 KBUILD_CFLAGS += -Wdeclaration-after-statement

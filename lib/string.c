@@ -173,6 +173,7 @@ size_t strnlen(const char *s, size_t count)
 }
 EXPORT_SYMBOL(strnlen);
 
+
 void *memset(void *s, char c, size_t n)
 {
 	int d0, d1, d2;
