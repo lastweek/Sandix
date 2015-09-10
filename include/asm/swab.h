@@ -39,7 +39,7 @@ INLINE __attribute_const __u32 __arch_swab32(__u32 val)
 }
 #define __arch_swab32 __arch_swab32
 
-/* Life is easier in x86_64 */
+/* Life is easier in x86_64, bswapq %0 */
 INLINE __attribute_const __u64 __arch_swab64(__u64 val)
 {
 	union {

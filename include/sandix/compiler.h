@@ -3,9 +3,6 @@
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
- *	For VIM users, i strongly recommend you add some labels defined in
- *	this file, such as INLINE, ALWAYS_INLINE, to your C reserved words.
- *	
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +16,11 @@
  *	You should have received a copy of the GNU General Public License along
  *	with this program; if not, write to the Free Software Foundation, Inc.,
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+/*
+ *	For VIM hackers, i strongly recommend you add more reserved words to
+ *	your C syntax file. About how to make life easier, consult script/c.vim
  */
 
 #ifndef _SANDIX_COMPILER_H_

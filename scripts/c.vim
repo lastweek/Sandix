@@ -69,7 +69,7 @@ syn keyword	cType		asmlinkage
 syn keyword	cType		EXPORT_SYMBOL
 
 " See <sandix/compiler.h>
-" Conform with function return types, mostly.
+" Conform with function return and variable types.
 syn keyword	cType		__weak
 syn keyword	cType		__pure
 syn keyword	cType		__packed
@@ -91,3 +91,22 @@ syn keyword	cType		INLINE
 syn keyword	cType		__must_check
 syn keyword	cType		__cold
 syn keyword	cType		__visible
+
+" See <sandix/compiler.h>
+" Labels below are used by Sparse
+syn keyword	cType		__user
+syn keyword	cType		__kernel
+syn keyword	cType		__safe
+syn keyword	cType		__force
+syn keyword	cType		__nocast
+syn keyword	cType		__iomem
+syn keyword	cType		__must_hold
+syn keyword	cType		__acquires
+syn keyword	cType		__releases
+syn keyword	cType		__acquire
+syn keyword	cType		__release
+syn keyword	cType		__cond_lock
+syn keyword	cType		__percpu
+syn keyword	cType		__pmem
+syn keyword	cType		__rcu
+syn keyword	cType		__pmem

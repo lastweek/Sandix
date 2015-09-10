@@ -47,6 +47,7 @@ Tue Sep  8 CST 2015
 Wed Sep  9 CST 2015
 - [+] Diary/09-09-2015
 - [+] script/c.vim				[D] VIM Syntax! Make life easier!
+- [+] script/asm.vim
 - [+] Kbuild
 - [+] crypto/					[D] Just new file. No Code!
 - [+] crypto/Kbuild
@@ -60,3 +61,7 @@ Wed Sep  9 CST 2015
 - [M] include/sandix/types.h			 >  Why? Because "long" stands for 32 or 64 bits
 -						 >  on different architectures. 32 bit on x86.
 - [M] include/sandix/compiler.h			[D] GCC_VERSION. READ/WRITE/ACCESS ONCE
+
+
+Thu Sep 10 CST 2015
+- [+] Diary/09-10-2015
