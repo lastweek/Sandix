@@ -82,7 +82,7 @@ char *strncpy(char *dest, const char *src, size_t count)
 }
 EXPORT_SYMBOL(strncpy);
 
-int strcmp(const char *s0, const char *s1)
+int strcmp(const char *cs, const char *ct)
 {
 	int ret, d0, d1;
 	asm volatile (
@@ -99,7 +99,7 @@ int strcmp(const char *s0, const char *s1)
 		"orb $1, %%al\n\t"
 		"3:"
 		: "=&S"(d0), "=&D"(d1), "=a"(ret)
-		: "0"(s0), "1"(s1)
+		: "0"(cs), "1"(ct)
 		: "memory"
 	);
 	return ret;

@@ -21,16 +21,50 @@
 #ifndef _SANDIX_STRING_H_
 #define _SANDIX_STRING_H_
 
+#include <sandix/compiler.h>
 #include <sandix/types.h>
 
-char *strcpy(char *dest, const char *src);
-char *strncpy(char *dest, const char *src, size_t count);
-int strcmp(const char *s0, const char *s1);
-int strncmp(const char *cs, const char *ct, size_t count);
-size_t strlen(const char *s);
-size_t strnlen(const char *s, size_t count);
+/* Arch Specific String Functions */
+#include <asm/string.h>	
 
-void *memset(void *s, char c, size_t n);
-void *memcpy(void *to, const void *from, size_t n);
+#ifndef __HAVE_ARCH_STRCPY
+char *strcpy(char *,const char *);
+#endif
+
+#ifndef __HAVE_ARCH_STRNCPY
+char *strncpy(char *,const char *, size_t);
+#endif
+
+#ifndef __HAVE_ARCH_STRCAT
+char *strcat(char *, const char *);
+#endif
+
+#ifndef __HAVE_ARCH_STRNCAT
+char *strncat(char *, const char *, size_t);
+#endif
+
+#ifndef __HAVE_ARCH_STRCMP
+int strcmp(const char *,const char *);
+#endif
+
+#ifndef __HAVE_ARCH_STRNCMP
+int strncmp(const char *,const char *,size_t);
+#endif
+
+#ifndef __HAVE_ARCH_STRLEN
+size_t strlen(const char *);
+#endif
+
+#ifndef __HAVE_ARCH_STRNLEN
+size_t strnlen(const char *,size_t);
+#endif
+
+#ifndef __HAVE_ARCH_MEMSET
+void *memset(void *,int,size_t);
+#endif
+
+#ifndef __HAVE_ARCH_MEMCPY
+void *memcpy(void *,const void *,size_t);
+#endif
 
 #endif /* _SANDIX_STRING_H_ */
