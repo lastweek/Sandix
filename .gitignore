@@ -24,7 +24,6 @@
 .*
 *.o
 *.bin
-*.lib
 *.objdump
 vmSandix.ld
 
