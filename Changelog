@@ -18,6 +18,7 @@
 #	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+#	[-] = Remove
 #	[+] = New
 #	[M] = Modify		(Only Significant Modification)
 #	[D] = Description	(Nothing but some memos)
@@ -53,7 +54,6 @@ Wed Sep  9 CST 2015
 - [+] crypto/Kbuild
 - [+] crypto/Makefile
 - [+] crypto/md5.c
-
 - [+] include/asm/posix_types.h			[D] Big changes about Kernel Types API. 
 - [+] include/asm/types.h			 >  Add Posix Types. Separate into architecture
 - [+] include/sandix/posix_types.h		 >  dependent and independent parts. Another big
@@ -67,12 +67,15 @@ Thu Sep 10 CST 2015
 - [+] scripts/mkmakefile			[D] Script for generating makefile.
 - [+] include/asm/string.h			[D] Separate arch-specific string functions.
 - [M] include/sandix/string.h
-- [M] Makefile					[D] Rewrite. Based on linux-4.1
 
 
 Fri Sep 11 CST 2015
-- [+] script/basic/				[D] Add Kbuild system.
-- [+] script/kconfig/				 >  Diao De Fei Qi
-- [+] script/Makefile.host			[D] Add new features to Makefile.
-- [M] script/Makefile.build			 >  Basiclly, it is a total rewrite.
-- [M] script/Makefile.lib			 >  It is *not* funny.
+- [+] Diary/09-11-2015
+- [+] Documentation/Kbuild/*
+- [+] scripts/basic/*				[D] Add Kbuild System and fixdep.c
+- [+] scripts/kconfig/*				 >  Diao De Fei Qi
+- [+] scripts/Makefile.host			[D] Add new features to Makefile.
+- [M] scripts/Makefile.build			 >  Basiclly, it is a TOTAL REWRITE.
+- [M] scripts/Makefile.lib			 >  It is *not* easy.
+- [M] scripts/Kbuild.include
+- [M] Makefile					[D] Rewrite. Based on linux-4.1
