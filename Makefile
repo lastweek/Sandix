@@ -300,6 +300,9 @@ PHONY += scripts_basic
 script_basic:
 	$(Q)$(MAKE) $(build)=script/basic
 
+# To avoid any implicit rule to kick in, define an empty command.
+scripts/basic/%: scripts_basic ;
+
 # Generates a Makefile in the output directory, if using a
 # separate output directory. This allows convenient use of
 # make in the output directory.
@@ -310,6 +313,87 @@ ifneq ($(KBUILD_SRC),)
 	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/mkmakefile \
 	    $(srctree) $(objtree) $(VERSION) $(PATCHLEVEL)
 endif
+
+# Handle when user mixing *config targets and build targets.
+# For example 'make oldconfig all'.
+# Detect when mixed targets is specified, and make a second invocation
+# of make so .config is not included in this case either (for *config).
+ifneq ($(filter config %config,$(MAKECMDGOALS)),)
+  config-targets := 1
+  ifneq ($(words $(MAKECMDGOALS)),1)
+    mixed-targets := 1
+  endif
+else
+  config-targets := 0
+  mixed-targets  := 0
+endif
+
+# ===========================================================================
+# We're called with mixed targets (*config and build targets).
+# Handle them one by one.
+ifeq ($(mixed-targets),1)
+
+PHONY += $(MAKECMDGOALS) __build_one_by_one
+$(filter-out __build_one_by_one, $(MAKECMDGOALS)): __build_one_by_one
+	@:
+
+__build_one_by_one:
+	$(Q)set -e;					\
+	for i in $(MAKECMDGOALS); do			\
+		$(MAKE) -f $(srctree)/Makefile $$i;	\
+	done
+
+else
+
+ifeq ($(config-targets),1)
+# ===========================================================================
+# *config targets only
+
+include arch/$(SRCARCH)/Makefile
+export KBUILD_DEFCONFIG KBUILD_KCONFIG
+
+config:  scripts_basic outputmakefile FORCE
+	$(Q)$(MAKE) $(build)=scripts/kconfig $@
+
+%config: scripts_basic outputmakefile FORCE
+	$(Q)$(MAKE) $(build)=scripts/kconfig $@
+
+else
+# ===========================================================================
+# Build targets only - this includes vmlinux, arch specific targets, clean
+# targets and others. In general all targets except *config targets.
+
+boot-y		:= boot/
+init-y		:= init/
+core-y		:= kernel/ mm/ lib/
+drivers-y	:= drivers/
+vmsandix-dirs	:= $(patsubst %/, %, $(boot-y) $(init-y) $(core-y) $(drivers-y))
+
+boot-y		:= $(patsubst %/, %/built-in.o, $(boot-y))
+init-y		:= $(patsubst %/, %/built-in.o, $(init-y))
+core-y		:= $(patsubst %/, %/built-in.o, $(core-y))
+drivers-y	:= $(patsubst %/, %/built-in.o, $(drivers-y))
+vmsandix-deps	:= $(boot-y) $(init-y) $(core-y) $(drivers-y)
+
+KBUILD_VMSANDIX_BOOT := $(boot-y)
+KBUILD_VMSANDIX_MAIN := $(init-y) $(core-y) $(drivers-y)
+
+export KBUILD_VMSANDIX_BOOT KBUILD_VMSANDIX_MAIN
+
+all: bzImage vmsandix
+
+# The arch Makefile can set ARCH_{CPP,A,C}FLAGS to override the default
+# values of the respective KBUILD_* variables
+ARCH_CPPFLAGS :=
+ARCH_AFLAGS :=
+ARCH_CFLAGS :=
+include arch/$(SRCARCH)/Makefile
+
+endif #ifeq ($(config-targets),1)
+endif #ifeq ($(mixed-targets),1)
+
+
+
 
 
 
@@ -341,22 +425,6 @@ ifeq ($(CONFIG_X86_32),y)
     KBUILD_CFLAGS += -ffreestanding
 endif
 
-boot-y		:= boot/
-init-y		:= init/
-core-y		:= kernel/ mm/ lib/
-drivers-y	:= drivers/
-vmsandix-dirs	:= $(patsubst %/, %, $(boot-y) $(init-y) $(core-y) $(drivers-y))
-
-boot-y		:= $(patsubst %/, %/built-in.o, $(boot-y))
-init-y		:= $(patsubst %/, %/built-in.o, $(init-y))
-core-y		:= $(patsubst %/, %/built-in.o, $(core-y))
-drivers-y	:= $(patsubst %/, %/built-in.o, $(drivers-y))
-vmsandix-deps	:= $(boot-y) $(init-y) $(core-y) $(drivers-y)
-
-KBUILD_VMSANDIX_BOOT := $(boot-y)
-KBUILD_VMSANDIX_MAIN := $(init-y) $(core-y) $(drivers-y)
-
-export KBUILD_VMSANDIX_BOOT KBUILD_VMSANDIX_MAIN
 
 #
 #	BIG FAT NOTE:
@@ -400,7 +468,6 @@ quiet_cmd_map := SYSTEM MAP
 #
 #	BUILD KERNEL
 # ===========================================================================
-all: bzImage vmsandix
 
 bzImage: vmsandix
 	@chmod +x $(VMSANDIX)

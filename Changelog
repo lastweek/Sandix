@@ -68,3 +68,11 @@ Thu Sep 10 CST 2015
 - [+] include/asm/string.h			[D] Separate arch-specific string functions.
 - [M] include/sandix/string.h
 - [M] Makefile					[D] Rewrite. Based on linux-4.1
+
+
+Fri Sep 11 CST 2015
+- [+] script/basic/				[D] Add Kbuild system.
+- [+] script/kconfig/				 >  Diao De Fei Qi
+- [+] script/Makefile.host			[D] Add new features to Makefile.
+- [M] script/Makefile.build			 >  Basiclly, it is a total rewrite.
+- [M] script/Makefile.lib			 >  It is *not* funny.

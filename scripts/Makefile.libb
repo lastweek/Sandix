@@ -1,0 +1,90 @@
+#
+#	scripts/Makefile.lib
+#
+#	Figure out what we need to build from the various variables
+#
+#	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+#
+#	This program is free software; you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation; either version 2 of the License, or
+#	(at your option) any later version.
+#
+#	This program is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
+#
+#	You should have received a copy of the GNU General Public License along
+#	with this program; if not, write to the Free Software Foundation, Inc.,
+#	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+
+# Flags that take effect in sub directories
+export KBUILD_SUBDIR_ASFLAGS := $(KBUILD_SUBDIR_ASFLAGS) $(subdir-asflags-y)
+export KBUILD_SUBDIR_CCFLAGS := $(KBUILD_SUBDIR_CCFLAGS) $(subdir-ccflags-y)
+
+# Filter out objects already built-in
+# Suppose that yo have:
+#	obj-y += vsprintf.o
+#	lib-y += vsprintf.o
+# in one Makefile, then foo.o is built-in
+lib-y := $(filter-out $(obj-y), $(sort $(lib-y)))
+
+# ---------------------------------------------------------------------------
+# HANDLE OBJECTS IN SUBDIR
+# ---------------------------------------------------------------------------
+
+# o if we encounter foo/ in $(obj-y), replace it by foo/built-in.o
+#   and add the directory to the list of dirs to descend into: $(subdir-y)
+subdir-y	:= $(sort $(patsubst %/, %, $(filter %/, $(obj-y))))
+obj-y		:= $(patsubst %/, %/built-in.o, $(obj-y))
+
+# $(subdir-obj-y) is the list of objects in $(obj-y) which uses dir/ to
+# tell kbuild to descend
+subdir-obj-y	:= $(filter %/built-in.o, $(obj-y))
+
+# $(obj-dirs) is a list of directories that contain object files
+obj-dirs	:= $(dir $(obj-y))
+
+#
+# Add subdir path.
+#
+extra-y		:= $(addprefix $(obj)/,$(extra-y))
+always		:= $(addprefix $(obj)/,$(always))
+targets		:= $(addprefix $(obj)/,$(targets))
+obj-y		:= $(addprefix $(obj)/,$(obj-y))
+lib-y		:= $(addprefix $(obj)/,$(lib-y))
+obj-dirs	:= $(addprefix $(obj)/,$(obj-dirs))
+subdir-y	:= $(addprefix $(obj)/,$(subdir-y))
+subdir-obj-y	:= $(addprefix $(obj)/,$(subdir-obj-y))
+
+loader-y	:= $(addprefix $(obj)/,$(loader-y))
+objcopy-y	:= $(addprefix $(obj)/,$(objcopy-y))
+objdump-y	:= $(addprefix $(obj)/,$(objdump-y))
+
+# ---------------------------------------------------------------------------
+# GENERAL FLAGS FOR COMPILING
+# ---------------------------------------------------------------------------
+
+# o $(KBUILD_xFLAGS) are inherited from top Makefile
+# o $(basetarget) in scripts/Kbuild.include
+# o If foo.o need some EXTRA flags, it will have $(CFLAGS_foo.o) in Makefile.
+# o If foo.o DONT need some flags, it will have $(CFLAGS_REMOVE_foo.o) in Makefile
+# o If the value of ‘$@’ is dir/foo.o then ‘$(@F)’ is foo.o.
+#   ‘$(@F)’ is equivalent to ‘$(notdir $@)’.
+
+orig_c_flags = $(KBUILD_CPPFLAGS) $(KBUILD_CFLAGS) $(CFLAGS_$(basetarget).o) 
+
+_c_flags	= $(filter-out $(CFLAGS_REMOVE_$(basetarget).o), $(orig_c_flags))
+_a_flags	= $(KBUILD_CPPFLAGS) $(KBUILD_AFLAGS) $(AFLAGS_$(basetarget).o)
+_cpp_flags	= $(KBUILD_CPPFLAGS) $(CPPFLAGS_$(@F))
+
+c_flags		= -Wp,-MD,$(depfile),-MT,'$@' $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(_c_flags) 
+a_flags		= -Wp,-MD,$(depfile),-MT,'$@' $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(_a_flags)
+cpp_flags	= -Wp,-MD,$(depfile),-MT,'$@' $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(_cpp_flags)
+
+ld_flags	= $(KBUILD_LDFLAGS) $(LDFLAGS)
+
+objcopy_flags	= $(OBJCOPYFLAGS)
+objdump_flags	= $(OBJDUMPFLAGS)
