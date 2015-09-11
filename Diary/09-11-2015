@@ -5,7 +5,15 @@
 # Keyword: Kbuild
 
 What the fuck.
-Today i rewriting Makefiles and trying to build Kbuild system based on Linux.
+Rewriting Makefiles and trying to build Kbuild system based on Linux.
 The organization of Makefile is really bad, makes my eye hurt. ;(
 
-Stop talking, go to work.
+So actually, what is new?
+1) Support build in external directory. e.g. make O=/foo/bar
+2) Support Sparse checker. e.g. make C=1, make C=2
+3) Support Very Verbose build. e.g. make V=2
+4) Support architecture specific build. Ofcourse, x86 only.
+5) Support kernel config. e.g. make config, make menuconfig
+6) Various new scripts. e.g. scripts/basic/fixdep.c
+7) New link-vmSandix method. The previous one is too ugly.
+6) Reorganization. Cleaner and easier to read.

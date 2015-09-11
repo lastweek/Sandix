@@ -111,8 +111,11 @@ export quiet Q KBUILD_VERBOSE
 
 
 # ===========================================================================
-#	First Part of the Makefile	
+#  1	First Part of the Makefile	
 # ===========================================================================
+#
+# The first part handles externel building. When users want to build on other
+# directory, the first part normally invokes a sub-make to do this.
 
 # OK, Make called in directory where kernel src resides
 # Do we want to locate output files in a separate directory?
@@ -149,16 +152,19 @@ skip-makefile := 1
 endif # ifneq ($(KBUILD_OUTPUT),)
 endif # ifeq ($(KBUILD_SRC),)
 
-
-# ===========================================================================
-#	Second Part of the Makefile	
-# ===========================================================================
-
-# Process the rest of the Makefile if this is the final invocation.
+# Process The Rest of Makefile if this is the final invocation.
+# A reminder, The Rest means from here to the end of Makefile. ;)
 ifeq ($(skip-makefile),)
 
+# ===========================================================================
+#  2	Second Part of the Makefile	
+# ===========================================================================
+#
+# The second part complete all the preprocessing and variable initialization.
+# We leave the make targets processing to the third part.
+
 PHONY += all
-_all: outputmakefile
+_all: all
 
 # Do not print "Entering directory ...",
 # but we want to display it when entering to the output directory
@@ -198,14 +204,13 @@ export KBUILD_SRC
 # CROSS_COMPILE specify the prefix used for all executables used
 # during compilation. Only gcc and related bin-utils executables
 # are prefixed with $(CROSS_COMPILE).
-
-# FIXME
 HOST_ARCH := $(shell uname -m | sed -e s/i.86/x86/ -e s/x86_64/x86/ \
 				  -e s/sun4u/sparc64/ \
 				  -e s/arm.*/arm/ -e s/sa110/arm/ \
 				  -e s/s390x/s390/ -e s/parisc64/parisc/ \
 				  -e s/ppc.*/powerpc/ -e s/mips.*/mips/ \
 				  -e s/sh[234].*/sh/ -e s/aarch64.*/arm64/ )
+# TODO
 ifneq ("$(HOST_ARCH)", "i386")
   CROSS_COMPILE	:= i386-elf-
 else
@@ -261,27 +266,27 @@ PYTHON			 = python
 CHECK			 = sparse
 
 CHECKFLAGS		:= -D__sandix__ -Dsandix
-
 NOSTDINC_FLAGS		:= -nostdinc
-
-SANDIXINCLUDE		:=							\
-			-Iinclude						\
-			$(if $(KBUILD_SRC), -I$(srctree)/include)		\
-			-I$(srctree)/arch/$(hdr-arch)/include
-
-KBUILD_CFLAGS   	:=
-			-Wall -Wundef -Wstrict-prototypes -Wno-trigraphs	\
-			-fno-strict-aliasing -fno-common			\
-			-Werror-implicit-function-declaration			\
-			-Wno-format-security					\
-			-std=gnu11
-
 KBUILD_CPPFLAGS		:= -D__KERNEL__
 KBUILD_AFLAGS		:= -D__ASSEMBLY__
 KBUILD_LDFLAGS		:=
+KBUILD_ARFLAGS		:=
+
+SANDIXINCLUDE		:=							\
+			   -Iinclude						\
+			   $(if $(KBUILD_SRC), -I$(srctree)/include)		\
+			   -I$(srctree)/arch/$(hdr-arch)/include
+
+KBUILD_CFLAGS   	:=							\
+			   -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs	\
+			   -fno-strict-aliasing -fno-common			\
+			   -Werror-implicit-function-declaration		\
+			   -Wno-format-security					\
+			   -std=gnu11
 
 # FIXME
 # Ugly.. You can add more, but DO NOT DELETE them. 
+# read_mostly init initdata
 OBJCOPYFLAGS	:= -j .text -j .text32 -j .data -j .rodata -j .init -O binary
 OBJDUMPFLAGS	:= -d -M att
 
@@ -290,11 +295,15 @@ export CC AS LD CPP AR NM STRIP OBJCOPY OBJDUMP
 export MAKE AWK PERL PYTHON CHECK CHECKFLAGS
 export SANDIXINCLUDE NOSTDINC_FLAGS
 export KBUILD_CFLAGS KBUILD_CPPFLAGS KBUILD_LDFLAGS KBUILD_AFLAGS
-export OBJCOPYFLAGS OBJDUMPFLAGS
+export KBUILD_ARFLAGS OBJCOPYFLAGS OBJDUMPFLAGS
 
 
 # ===========================================================================
-# Rules shared between *config targets and build targets
+#   3	Third Part of the Makefile	
+# ===========================================================================
+#
+# The third part defines all the targets and their relations.
+# Reminder, __All_The_Build_And_Config_Targets__. ;)
 
 # Basic helpers built in scripts/
 PHONY += scripts_basic
@@ -315,23 +324,23 @@ ifneq ($(KBUILD_SRC),)
 	    $(srctree) $(objtree) $(VERSION) $(PATCHLEVEL)
 endif
 
-# Handle when user mixing *config targets and build targets.
-# For example 'make oldconfig all'.
+# ===========================================================================
+# Handle mixed targets one by one.
 # Detect when mixed targets is specified, and make a second invocation
 # of make so .config is not included in this case either (for *config).
+# For example:
+#	make defconfig all
+#	make oldconfig help
 ifneq ($(filter config %config,$(MAKECMDGOALS)),)
-  config-targets := 1
-  ifneq ($(words $(MAKECMDGOALS)),1)
-    mixed-targets := 1
-  endif
+        config-targets := 1
+        ifneq ($(words $(MAKECMDGOALS)),1)
+                mixed-targets := 1
+        endif
 else
-  config-targets := 0
-  mixed-targets  := 0
+        config-targets := 0
+        mixed-targets  := 0
 endif
 
-# ===========================================================================
-# We're called with mixed targets (*config and build targets).
-# Handle them one by one.
 ifeq ($(mixed-targets),1)
 
 PHONY += $(MAKECMDGOALS) __build_one_by_one
@@ -348,7 +357,12 @@ else
 
 ifeq ($(config-targets),1)
 # ===========================================================================
-# *config targets only
+# Config targets only
+# e.g.
+#	make config
+#	make menuconfig
+#	make oldconfig
+# ===========================================================================
 
 include arch/$(SRCARCH)/Makefile
 export KBUILD_DEFCONFIG KBUILD_KCONFIG
@@ -361,34 +375,146 @@ config:  scripts_basic outputmakefile FORCE
 
 else
 # ===========================================================================
-# Build targets only - this includes vmlinux, arch specific targets, clean
-# targets and others. In general all targets except *config targets.
+# Build targets only. All targets except *Config targets.
+# e.g.
+#	make scripts
+#	make all
+#	make vmSandix
+#	make clean
+#	make help
+# ===========================================================================
 
-boot-y		:= boot/
-init-y		:= init/
-core-y		:= kernel/ mm/ lib/
-drivers-y	:= drivers/
-vmsandix-dirs	:= $(patsubst %/, %, $(boot-y) $(init-y) $(core-y) $(drivers-y))
+# Additional Helper scripts
+PHONY += scripts
+scripts: scripts_basic
+	@:
 
-boot-y		:= $(patsubst %/, %/built-in.o, $(boot-y))
-init-y		:= $(patsubst %/, %/built-in.o, $(init-y))
-core-y		:= $(patsubst %/, %/built-in.o, $(core-y))
-drivers-y	:= $(patsubst %/, %/built-in.o, $(drivers-y))
-vmsandix-deps	:= $(boot-y) $(init-y) $(core-y) $(drivers-y)
+# The all: target is the default when no target is given on the command line.
+# This allow a user to issue only 'make' to build Sandix kernel.
+# Defaults to vmSandix, but the arch makefile usually adds further targets
+all: vmSandix
 
-KBUILD_VMSANDIX_BOOT := $(boot-y)
-KBUILD_VMSANDIX_MAIN := $(init-y) $(core-y) $(drivers-y)
 
-export KBUILD_VMSANDIX_BOOT KBUILD_VMSANDIX_MAIN
+###########################################################################
+# Start processing FLAGS
+#
 
-all: bzImage vmsandix
-
+# TODO ARCH!!!!
 # The arch Makefile can set ARCH_{CPP,A,C}FLAGS to override the default
 # values of the respective KBUILD_* variables
 ARCH_CPPFLAGS :=
 ARCH_AFLAGS :=
 ARCH_CFLAGS :=
 include arch/$(SRCARCH)/Makefile
+
+# Tell gcc to never replace conditional load with a non-conditional one
+KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
+
+# Tell gcc to never check null pointers
+KBUILD_CFLAGS	+= $(call cc-option,-fno-delete-null-pointer-checks,)
+
+# This warning generated too much noise in a regular build.
+# Use make W=1 to enable this warning (see scripts/Makefile.build)
+KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
+
+# warn about C99 declaration after statement
+KBUILD_CFLAGS += $(call cc-option,-Wdeclaration-after-statement,)
+
+# disable pointer signed / unsigned warnings in gcc 4.0
+KBUILD_CFLAGS += $(call cc-disable-warning, pointer-sign)
+
+# disable invalid "can't wrap" optimizations for signed / pointers
+KBUILD_CFLAGS	+= $(call cc-option,-fno-strict-overflow)
+
+# conserve stack if available
+KBUILD_CFLAGS   += $(call cc-option,-fconserve-stack)
+
+# disallow errors like 'EXPORT_GPL(foo);' with missing header
+KBUILD_CFLAGS   += $(call cc-option,-Werror=implicit-int)
+
+# require functions to have arguments in prototypes, not empty 'int foo()'
+KBUILD_CFLAGS   += $(call cc-option,-Werror=strict-prototypes)
+
+# Prohibit date/time macros, which would make the build non-deterministic
+KBUILD_CFLAGS   += $(call cc-option,-Werror=date-time)
+
+# use the deterministic mode of AR if available
+KBUILD_ARFLAGS := $(call ar-option,D)
+
+ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
+KBUILD_CFLAGS	+= -Os $(call cc-disable-warning,maybe-uninitialized,)
+else
+KBUILD_CFLAGS	+= -O2
+endif
+
+ifdef CONFIG_READABLE_ASM
+# Disable optimizations that make assembler listings hard to read.
+# reorder blocks reorders the control in the function
+# ipa clone creates specialized cloned functions
+# partial inlining inlines only parts of functions
+KBUILD_CFLAGS += $(call cc-option,-fno-reorder-blocks,) \
+                 $(call cc-option,-fno-ipa-cp-clone,) \
+                 $(call cc-option,-fno-partial-inlining)
+endif
+
+# check for 'asm goto'
+ifeq ($(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-goto.sh $(CC)), y)
+	KBUILD_CFLAGS += -DCC_HAVE_ASM_GOTO
+	KBUILD_AFLAGS += -DCC_HAVE_ASM_GOTO
+endif
+
+# Extra Warning if you really need
+include scripts/Makefile.extrawarn
+
+# Add any arch overrides and user supplied CPPFLAGS, AFLAGS and CFLAGS as the
+# last assignments
+KBUILD_CPPFLAGS += $(ARCH_CPPFLAGS) $(KCPPFLAGS)
+KBUILD_AFLAGS   += $(ARCH_AFLAGS)   $(KAFLAGS)
+KBUILD_CFLAGS   += $(ARCH_CFLAGS)   $(KCFLAGS)
+
+#
+# Done processing FLAGS
+###########################################################################
+
+
+# INSTALL_PATH specifies where to place the updated kernel and system map
+# images. Default is /boot, but you can set it to other values
+export	INSTALL_PATH ?= /boot
+
+# Components will be built into vmSandix
+boot-y		:= boot/
+init-y		:= init/
+core-y		:= kernel/ mm/ lib/
+drivers-y	:= drivers/
+vmSandix-dirs	:= $(patsubst %/, %, $(boot-y) $(init-y) $(core-y) $(drivers-y))
+
+boot-y		:= $(patsubst %/, %/built-in.o, $(boot-y))
+init-y		:= $(patsubst %/, %/built-in.o, $(init-y))
+core-y		:= $(patsubst %/, %/built-in.o, $(core-y))
+drivers-y	:= $(patsubst %/, %/built-in.o, $(drivers-y))
+vmSandix-deps	:= $(boot-y) $(init-y) $(core-y) $(drivers-y)
+
+KBUILD_VMSANDIX_BOOT := $(boot-y)
+KBUILD_VMSANDIX_MAIN := $(init-y) $(core-y) $(drivers-y)
+
+export KBUILD_VMSANDIX_BOOT KBUILD_VMSANDIX_MAIN
+
+vmSandix: scripts/link-vmSandix.sh $(vmSandix-deps) FORCE
+	$(call if_changed,link-vmSandix)
+
+# The actual objects are generated when descending,
+# make sure no implicit rule kicks in
+$(sort $(vmSandix-deps)): $(vmSandix-dirs) ;
+
+# Handle descending into subdirectories listed in $(vmlinux-dirs)
+# Preset locale variables to speed up the build process. Limit locale
+# tweaks to this spot to avoid wrong language settings when running
+# make menuconfig etc.
+# Error messages still appears in the original language
+
+PHONY += $(vmlinux-dirs)
+$(vmlinux-dirs): prepare scripts
+	$(Q)$(MAKE) $(build)=$@
 
 endif #ifeq ($(config-targets),1)
 endif #ifeq ($(mixed-targets),1)
@@ -397,10 +523,6 @@ endif #ifeq ($(mixed-targets),1)
 
 
 
-
-
-
-#
 #	Fine, one architecture only.
 #
 CONFIG_X86_32=y
@@ -463,7 +585,7 @@ quiet_cmd_bin_pm := OBJCOPY $(PM_IMAGE)
 quiet_cmd_catenate := CAT$(SS) $(VMSANDIX)
       cmd_catenate := boot/CATENATE
 
-quiet_cmd_map := SYSTEM MAP
+quiet_cmd_map := MAP
       cmd_map := $(NM) -n $(_PM_IMAGE) > boot/System.map
 
 #
@@ -490,8 +612,7 @@ PHONY += $(vmsandix-dirs)
 $(vmsandix-dirs):
 	$(Q)$(MAKE) $(BUILD)=$@
 
-#
-#	CLEAN
+# Clean
 # ===========================================================================
 
 # Trick: add prefix to avoid overriding the previous targets.
@@ -505,29 +626,16 @@ clean: $(CLEAN_DIRS)
 	@rm -f boot/System.map
 
 $(CLEAN_DIRS):
-	$(Q)$(MAKE) $(CLEAN)=$(patsubst __CLEAN__%,%,$@)
+	$(Q)$(MAKE) $(clean)=$(patsubst __CLEAN__%,%,$@)
 
-#
-#	HELP INSTRUCTIONS
-# ===========================================================================
+
 PHONY += help
 help:
-	@echo "\n###################################################"
-	@echo "\nBUILD SANDIX KERNEL\n"
-	@echo "  make V=0 [targets] => Quiet Build (default)"
-	@echo "  make V=1 [targets] => Verbose Build"
-	@echo "  make C=0 [targets] => Do _Not_ Check Source Code Before Build (default)"
-	@echo "  make C=1 [targets] => Check Source Code Before Build"
-	@echo "\n###################################################"
+	@echo Sandix Help
 
 endif  # ifeq ($(skip-makefile),)
 
 PHONY += FORCE
 FORCE:
 
-#
-#	There are two reasons to use a phony target:
-#	1) to avoid a conflict with a file of the same name,
-#	2) to improve performance.
-# ===========================================================================
 .PHONY: $(PHONY)

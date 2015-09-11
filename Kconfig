@@ -1,0 +1,6 @@
+
+mainmenu "Sandix Kernel Configuration for x86"
+
+config	WHATEVER
+	bool
+
