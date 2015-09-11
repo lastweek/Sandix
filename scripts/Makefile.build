@@ -46,7 +46,7 @@ include $(srctree)/scripts/Kbuild.include
 include $(srctree)/$(src)/Makefile
 include $(srctree)/scripts/Makefile.lib
 
-ifneq ($(hostprogs-y)$(hostprogs-m),)
+ifneq ($(hostprogs-y),)
 include scripts/Makefile.host
 endif
 
@@ -80,10 +80,12 @@ endif
 
 # Default target depends on everything
 # ------------------------------------------------------------------------
-__BUILD: $(builtin-target) $(lib-target) $(subdir-y) $(extra-y) \
-	 $(always) \
-	 $(loader-target) $(objcopy-target) $(objdump-target)
+__BUILD: $(builtin-target) $(lib-target) $(subdir-y)		\
+	 $(loader-target) $(objcopy-target) $(objdump-target)	\
+	 $(extra-y) $(always)
 	@:
+
+targets += $(lib-y) $(extra-y) $(always)
 
 # ------------------------------------------------------------------------
 # Build everything
@@ -118,6 +120,7 @@ quiet_cmd_link_o_target = LD $(quiet_modtag)  $@
 
 $(builtin-target): $(obj-y) FORCE
 	$(call if_changed,link_o_target)
+targets += $(builtin-target)
 endif
 
 #
@@ -129,6 +132,7 @@ quiet_cmd_link_l_target = AR $(quiet_modtag)  $@
 
 $(lib-target): $(lib-y) FORCE
 	$(call if_changed,link_l_target)
+targets += $(lib-target)
 endif
 
 #
@@ -140,6 +144,7 @@ quiet_cmd_loader = AS $(quiet_modtag)  $@
 
 $(loader-target): $(patsubst %.o,%.S,$(loader-y)) 
 	$(call if_changed_dep,loader)
+targets += $(loader-target)
 endif
 
 #
@@ -172,9 +177,11 @@ PHONY += $(subdir-y)
 $(subdir-y):
 	$(Q)$(MAKE) $(BUILD)=$@
 
-# include dependencies
-_dep_files := $(filter-out $(subdir-obj-y),$(obj-y) $(loader-y))
-dep_files  := $(foreach f,$(_dep_files),$(dir $(f)).$(notdir $(f)).d)
+
+# Include dependencies
+__dep_files	:= $(obj-y) $(lib-y) $(extra-y) $(always) $(loader-y)
+_dep_files	:= $(filter-out $(subdir-obj-y), $(__dep_files))
+dep_files	:= $(foreach f,$(_dep_files),$(dir $(f)).$(notdir $(f)).d)
 
 ifneq ($(dep_files),)
   -include $(dep_files)
@@ -190,7 +197,6 @@ quiet_cmd_cc_s_c = CC $(quiet_modtag)  $@
 
 $(obj)/%.s: $(src)/%.c FORCE
 	$(call if_changed_dep,cc_s_c)
-
 
 # .c --> .i
 quiet_cmd_cc_i_c = CPP $(quiet_modtag) $@

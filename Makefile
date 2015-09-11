@@ -297,8 +297,8 @@ export OBJCOPYFLAGS OBJDUMPFLAGS
 
 # Basic helpers built in scripts/
 PHONY += scripts_basic
-script_basic:
-	$(Q)$(MAKE) $(build)=script/basic
+scripts_basic:
+	$(Q)$(MAKE) $(build)=scripts/basic
 
 # To avoid any implicit rule to kick in, define an empty command.
 scripts/basic/%: scripts_basic ;
