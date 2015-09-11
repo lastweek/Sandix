@@ -320,7 +320,7 @@ PHONY += outputmakefile
 outputmakefile:
 ifneq ($(KBUILD_SRC),)
 	$(Q)ln -fsn $(srctree) source
-	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/mkmakefile \
+	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/mkmakefile.sh \
 	    $(srctree) $(objtree) $(VERSION) $(PATCHLEVEL)
 endif
 

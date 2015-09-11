@@ -72,6 +72,8 @@ Thu Sep 10 CST 2015
 Fri Sep 11 CST 2015
 - [+] Diary/09-11-2015
 - [+] Documentation/Kbuild/*
+- [+] scripts/mkmakefile.sh			[D] Generating new makefile
+- [+] scripts/link-vmSandix.sh			[D] Link final vmSandix image.
 - [+] scripts/basic/*				[D] Add Kbuild System and fixdep.c
 - [+] scripts/kconfig/*				 >  Diao De Fei Qi
 - [+] scripts/Makefile.host			[D] Add new features to Makefile.
