@@ -27,19 +27,22 @@
 # Both C and C++ are supported, but preferred language is C for such utilities.
 #
 # 1)
+#
 # hostprogs-y := bin2hex
 # Will compile bin2hex.c and create an executable named bin2hex
 #
 # 2)
-# hostprogs-y    := lxdialog
+# hostprogs-y   := lxdialog
 # lxdialog-objs := checklist.o lxdialog.o
+#
 # Will compile lxdialog.c and checklist.c, and then link the executable
 # lxdialog, based on checklist.o and lxdialog.o
 #
 # 3)
-# hostprogs-y      := qconf
+# hostprogs-y     := qconf
 # qconf-cxxobjs   := qconf.o
 # qconf-objs      := menu.o
+#
 # Will compile qconf as a C++ program, and menu as a C program.
 # They are linked as C++ code to the executable qconf
 

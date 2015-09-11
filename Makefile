@@ -215,8 +215,9 @@ export CROSS_COMPILE HOST_ARCH
 
 # Sandix has x86 ARCH only
 # Hmm, maybe use i386 instead.
-SRCARCH := x86
-export SRCARCH
+ARCH	:= x86
+SRCARCH	:= x86
+export SRCARCH ARCH
 
 # ARCH specific headers
 hdr-arch := $(SRCARCH)

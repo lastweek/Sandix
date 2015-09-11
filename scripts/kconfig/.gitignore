@@ -1,0 +1,5 @@
+conf
+mconf
+*.hash.c
+*.lex.c
+*.tab.c
