@@ -85,7 +85,7 @@ __BUILD: $(builtin-target) $(lib-target) $(subdir-y)		\
 	 $(extra-y) $(always)
 	@:
 
-targets := $(extra-y) $(always)
+targets += $(extra-y) $(always)
 
 # ------------------------------------------------------------------------
 # Build everything
@@ -206,10 +206,9 @@ PHONY += $(subdir-y)
 $(subdir-y):
 	$(Q)$(MAKE) $(build)=$@
 
+# Hmm, you see how $(targets) works?
 # Read all saved command lines and dependencies for the $(targets) we
-# may be building above, using $(if_changed{,_dep}). As an
-# optimization, we don't need to read them if the target does not
-# exist, we will rebuild anyway in that case.
+# may be building above, used by $(if_changed{,_dep,_rule}). 
 # ------------------------------------------------------------------------
 targets  := $(wildcard $(sort $(targets)))
 depfiles := $(wildcard $(foreach f,$(targets),$(dir $(f)).$(notdir $(f)).d))

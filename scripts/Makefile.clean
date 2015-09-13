@@ -28,17 +28,16 @@ include $(srctree)/$(src)/Makefile
 
 subdir-y	:= $(patsubst %/,%,$(filter %/, $(obj-y)))
 
-__clean-files	:= $(filter-out %/,$(obj-y))
-__clean-files	+= $(lib-y) $(always) $(hostprogs-y) $(extra-y)
+__clean-files	:= $(filter-out %/,$(obj-y)) $(lib-y) $(always) $(hostprogs-y) $(extra-y)
 __clean-files	+= $(foreach f, $(__clean-files), $(dir $f).$(notdir $f).d)
 __clean-files	+= $(foreach f, $(__clean-files), $(dir $f).$(notdir $f).cmd)
 __clean-files	+= $(clean-files)
 __clean-files	+= $(patsubst %.o,%.bin,$(objcopy-y))
 __clean-files	+= $(patsubst %,%.objdump,$(objdump-y))
+clean-files	:= $(__clean-files)
 
 subdir-y	:= $(addprefix $(obj)/,$(subdir-y))
-__clean-files	:= $(addprefix $(obj)/,$(__clean-files))
-clean-files	:= $(__clean-files)
+clean-files	:= $(addprefix $(obj)/,$(clean-files))
 
 quiet_cmd_clean    = CLEAN   $(obj)
       cmd_clean    = rm -f $(clean-files)
