@@ -34,7 +34,7 @@ __clean-files	+= $(foreach f, $(__clean-files), $(dir $f).$(notdir $f).d)
 __clean-files	+= $(foreach f, $(__clean-files), $(dir $f).$(notdir $f).cmd)
 __clean-files	+= $(clean-files)
 __clean-files	+= $(patsubst %.o,%.bin,$(objcopy-y))
-__clean-files	+= $(patsubst %,%-objdump,$(objdump-y))
+__clean-files	+= $(patsubst %,%.objdump,$(objdump-y))
 
 subdir-y	:= $(addprefix $(obj)/,$(subdir-y))
 __clean-files	:= $(addprefix $(obj)/,$(__clean-files))

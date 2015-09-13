@@ -19,6 +19,10 @@
 
 src := $(obj)
 
+ifndef obj
+$(warning Kbuild: Makefile.build is included improperly)
+endif
+
 PHONY += __BUILD
 __BUILD:
 
@@ -47,23 +51,19 @@ include $(srctree)/$(src)/Makefile
 include $(srctree)/scripts/Makefile.lib
 
 ifneq ($(hostprogs-y),)
-include scripts/Makefile.host
-endif
-
-ifndef obj
-$(warning Kbuild: Makefile.build is included improperly)
+include $(srctree)/scripts/Makefile.host
 endif
 
 # ------------------------------------------------------------------------
 # Figure out what $(srctree)/$(src)/Makefile want.
 # ------------------------------------------------------------------------
 
-ifneq ($(strip $(obj-y) $(obj-) $(lib-target)),)
-builtin-target := $(obj)/built-in.o
+ifneq ($(strip $(lib-y)),)
+lib-target := $(obj)/lib.a
 endif
 
-ifneq ($(strip $(lib-y) $(lib-)),)
-lib-target := $(obj)/lib.a
+ifneq ($(strip $(obj-y) $(lib-target)),)
+builtin-target := $(obj)/built-in.o
 endif
 
 ifneq ($(strip $(objcopy-y)),)
@@ -71,7 +71,7 @@ objcopy-target := $(patsubst %.o,%.bin,$(objcopy-y))
 endif
 
 ifneq ($(strip $(objdump-y)),)
-objdump-target := $(patsubst %,%-objdump,$(objdump-y))
+objdump-target := $(patsubst %,%.objdump,$(objdump-y))
 endif
 
 ifneq ($(strip $(loader-y)),)
@@ -85,7 +85,7 @@ __BUILD: $(builtin-target) $(lib-target) $(subdir-y)		\
 	 $(extra-y) $(always)
 	@:
 
-targets += $(lib-y) $(extra-y) $(always)
+targets := $(extra-y) $(always)
 
 # ------------------------------------------------------------------------
 # Build everything
@@ -120,6 +120,7 @@ quiet_cmd_link_o_target = LD $(quiet_modtag)  $@
 
 $(builtin-target): $(obj-y) FORCE
 	$(call if_changed,link_o_target)
+
 targets += $(builtin-target)
 endif
 
@@ -132,6 +133,8 @@ quiet_cmd_link_l_target = AR $(quiet_modtag)  $@
 
 $(lib-target): $(lib-y) FORCE
 	$(call if_changed,link_l_target)
+
+targets += $(lib-y)
 targets += $(lib-target)
 endif
 
@@ -165,6 +168,7 @@ quiet_cmd_loader = AS $(quiet_modtag)  $@
 
 $(loader-target): $(patsubst %.o,%.S,$(loader-y)) 
 	$(call if_changed_dep,loader)
+
 targets += $(loader-target)
 endif
 
@@ -196,14 +200,14 @@ endif
 $(sort $(subdir-obj-y)): $(subdir-y) ;
 PHONY += $(subdir-y)
 $(subdir-y):
-	$(Q)$(MAKE) $(BUILD)=$@
+	$(Q)$(MAKE) $(build)=$@
 
-
-# TODO add $(hostprogs-y)
-# Include dependencies
-__dep_files	:= $(obj-y) $(lib-y) $(extra-y) $(always) $(loader-y) $(hostprogs-y)
-_dep_files	:= $(filter-out $(subdir-obj-y), $(__dep_files))
-dep_files	:= $(foreach f,$(_dep_files),$(dir $(f)).$(notdir $(f)).d)
+# Read all saved command lines and dependencies for the $(targets) we
+# may be building above, using $(if_changed{,_dep}). As an
+# optimization, we don't need to read them if the target does not
+# exist, we will rebuild anyway in that case.
+targets  := $(wildcard $(sort $(targets)))
+dep_file := $(wildcard $(foreach f,$(targets),$(dir $(f)).$(notdir $(f)).d))
 
 ifneq ($(dep_files),)
   -include $(dep_files)

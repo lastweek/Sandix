@@ -27,7 +27,7 @@
 
 #define __EXPORT_SYMBOL(sym)	extern typeof(sym) sym;
 
-//#define EXPORT_SYMBOL(sym)	__EXPORT_SYMBOL(sym)
-#define EXPORT_SYMBOL(sym)
+#define EXPORT_SYMBOL(sym)	__EXPORT_SYMBOL(sym)
+//#define EXPORT_SYMBOL(sym)
 
 #endif /* _SANDIX_EXPORT_H_ */

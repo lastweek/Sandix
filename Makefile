@@ -563,9 +563,9 @@ help:
 	@echo  ''
 	@echo  'Execute "make" or "make all" to build all targets marked with [*] '
 
-endif # ifeq ($(config-targets),1)
-endif # ifeq ($(mixed-targets),1)
-endif # ifeq ($(skip-makefile),)
+endif # ! ifeq ($(config-targets),1)
+endif # ! ifeq ($(mixed-targets),1)
+endif # ! ifeq ($(skip-makefile),)
 
 PHONY += FORCE
 FORCE:

@@ -194,17 +194,20 @@ any-prereq = $(filter-out $(PHONY),$?) $(filter-out $(PHONY) $(wildcard $^),$^)
 
 # Execute command if command has changed or prerequisite(s) are updated.
 #
-if_changed = $(if $(strip $(any-prereq)),                                    \
+if_changed = $(if $(strip $(any-prereq) $(arg-check)),                       \
 	@set -e;                                                             \
 	$(echo-cmd) $(cmd_$(1));                                             \
 	printf '%s\n' 'cmd_$@ := $(make-cmd)' > $(dot-target).cmd)
 
-if_changed_dep = $(if $(strip $(any-prereq)),                                \
+# Actually, for now, i do not need fixdep. So just fork if_changed. 
+#
+if_changed_dep = $(if $(strip $(any-prereq) $(arg-check)),                   \
 	@set -e;                                                             \
 	$(echo-cmd) $(cmd_$(1));                                             \
 	printf '%s\n' 'cmd_$@ := $(make-cmd)' > $(dot-target).cmd)
 
 # Execute the command and also postprocess generated .d dependencies file.
+#
 #if_changed_dep = $(if $(strip $(any-prereq) $(arg-check) ),                  \
 #	@set -e;                                                             \
 #	$(echo-cmd) $(cmd_$(1));                                             \
@@ -215,7 +218,7 @@ if_changed_dep = $(if $(strip $(any-prereq)),                                \
 # Usage: $(call if_changed_rule,foo)
 # Will check if $(cmd_foo) or any of the prerequisites changed,
 # and if so will execute $(rule_foo).
-if_changed_rule = $(if $(strip $(any-prereq)),                               \
+if_changed_rule = $(if $(strip $(any-prereq) $(arg-check)),                  \
 	@set -e;                                                             \
 	$(rule_$(1)))
 
