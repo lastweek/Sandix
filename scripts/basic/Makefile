@@ -11,6 +11,3 @@
 hostprogs-y	:= fixdep
 hostprogs-y     += bin2c
 always		:= $(hostprogs-y)
-
-# fixdep is needed to compile other host programs
-#$(addprefix $(obj)/,$(filter-out fixdep,$(always))): $(obj)/fixdep

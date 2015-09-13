@@ -1,1 +1,1 @@
-obj-y := a.s b.o c.o
+obj-y := a.o b.o c.o

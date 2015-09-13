@@ -1,6 +1,9 @@
 #
 #	scripts/Makefile.clean
 #
+#	Specify additional files to be cleaned in $(clean-files) in your
+#	Makefile. Kbuild will handle that and clean them.
+#
 #	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
 #
 #	This program is free software; you can redistribute it and/or modify
@@ -17,7 +20,6 @@
 #	with this program; if not, write to the Free Software Foundation, Inc.,
 #	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-
 src := $(obj)
 
 PHONY := __clean
@@ -26,18 +28,43 @@ __clean:
 include $(srctree)/scripts/Kbuild.include
 include $(srctree)/$(src)/Makefile
 
+##
+# Sub-directory used to descend into.
+#
 subdir-y	:= $(patsubst %/,%,$(filter %/, $(obj-y)))
 
-__clean-files	:= $(filter-out %/,$(obj-y)) $(lib-y) $(always) $(hostprogs-y) $(extra-y)
-__clean-files	+= $(foreach f, $(__clean-files), $(dir $f).$(notdir $f).d)
-__clean-files	+= $(foreach f, $(__clean-files), $(dir $f).$(notdir $f).cmd)
+##
+# Kernel built-in object files, dependency files, command files
+#
+__clean-target	:= $(filter-out %/,$(obj-y)) $(lib-y) $(always) $(hostprogs-y) $(extra-y)
+__clean-files	:= $(foreach f, $(__clean-target), $(dir $f).$(notdir $f).d)
+__clean-files	+= $(foreach f, $(__clean-target), $(dir $f).$(notdir $f).cmd)
+
+##
+# User specified additional $(clean-files)
+#
 __clean-files	+= $(clean-files)
-__clean-files	+= $(patsubst %.o,%.bin,$(objcopy-y))
-__clean-files	+= $(patsubst %,%.objdump,$(objdump-y))
+
+##
+# Objcopy and Objdump generated files
+#
+__clean-files	+= $(patsubst %.o, %.bin, $(objcopy-y))
+__clean-files	+= $(patsubst %, %.objdump, $(objdump-y))
+
+##
+# Host programs, dependency files, command files 
+#
+hostprogs-files	:= $(addsuffix -objs, $(hostprogs-y))
+hostprogs-files	+= $(addsuffix -cxxobjs, $(hostprogs-y))
+hostprogs-files	:= $(foreach f, $(hostprogs-files), $($(f)))
+__clean-files	+= $(hostprogs-files)
+__clean-files	+= $(foreach f, $(hostprogs-files), $(dir $f).$(notdir $f).d)
+__clean-files	+= $(foreach f, $(hostprogs-files), $(dir $f).$(notdir $f).cmd)
 clean-files	:= $(__clean-files)
 
-subdir-y	:= $(addprefix $(obj)/,$(subdir-y))
-clean-files	:= $(addprefix $(obj)/,$(clean-files))
+
+subdir-y	:= $(addprefix $(obj)/, $(subdir-y))
+clean-files	:= $(addprefix $(obj)/, $(clean-files))
 
 quiet_cmd_clean    = CLEAN   $(obj)
       cmd_clean    = rm -f $(clean-files)
@@ -47,7 +74,6 @@ ifneq ($(strip $(clean-files)),)
 	+$(call cmd,clean)
 endif
 
-# Descending
 PHONY += $(subdir-y)
 $(subdir-y):
 	$(Q)$(MAKE) $(clean)=$@
