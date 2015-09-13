@@ -404,8 +404,7 @@ scripts: scripts_basic
 PHONY += all
 all: vmSandix
 
-test-y		:= test/
-boot-y		:= boot/
+boot-y		:=
 init-y		:= init/
 core-y		:= kernel/ mm/
 libs-y		:= lib/
@@ -416,23 +415,22 @@ ARCH_AFLAGS	:=
 ARCH_CFLAGS	:=
 
 # Let arch Makefile overrides.
-# Also, include more Compiler and Linker flags.
 include arch/$(SRCARCH)/Makefile
+# Add more Compiler and Linker flags.
 include scripts/Makefile.flags
 
-vmSandix-dirs	:= $(patsubst %/, %, $(boot-y) $(init-y) $(core-y) $(libs-y) $(drivers-y))
-boot-y		:= $(patsubst %/, %/built-in.o, $(boot-y))
+vmSandix-dirs	:= $(patsubst %/, %, $(init-y) $(core-y) $(libs-y) $(drivers-y))
 init-y		:= $(patsubst %/, %/built-in.o, $(init-y))
 core-y		:= $(patsubst %/, %/built-in.o, $(core-y))
 libs-y		:= $(patsubst %/, %/built-in.o, $(libs-y))
 net-y		:= $(patsubst %/, %/built-in.o, $(net-y))
 drivers-y	:= $(patsubst %/, %/built-in.o, $(drivers-y))
-vmSandix-deps	:= $(boot-y) $(init-y) $(core-y) $(libs-y) $(net-y) $(drivers-y)
+vmSandix-deps	:= $(init-y) $(core-y) $(libs-y) $(net-y) $(drivers-y)
 
 # Externally visible to link-vmSandix.sh
 export KBUILD_VMSANDIX_LDS  := arch/$(SRCARCH)/kernel/vmSandix.ld.S
 export KBUILD_VMSANDIX_BOOT := $(boot-y)
-export KBUILD_VMSANDIX_MAIN := $(init-y) $(core-y) $(drivers-y)
+export KBUILD_VMSANDIX_MAIN := $(init-y) $(core-y) $(libs-y) $(net-y) $(drivers-y)
 
 # Default kernel image to build.
 export KBUILD_IMAGE	?= vmSandix

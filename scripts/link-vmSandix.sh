@@ -2,7 +2,7 @@
 #
 #
 
-set -e
+set -e;
 
 # Beautiful output in kbuild format
 # Will be suppressed by "make -s"
@@ -29,6 +29,3 @@ if [ "$1" == "clean" ]; then
 	cleanup
 	exit 0
 fi
-
-# Link vmSandix.o
-info LD vmSandix.o
