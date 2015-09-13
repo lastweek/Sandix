@@ -214,7 +214,6 @@ HOST_ARCH := $(shell uname -m | sed -e s/i.86/x86/ -e s/x86_64/x86/ \
 # TODO
 # Sandix has x86 ARCH only
 # Hmm, maybe use i386 instead.
-
 ifneq ("$(HOST_ARCH)", "i386")
   CROSS_COMPILE	:= i386-elf-
 else
@@ -244,7 +243,9 @@ HOSTCFLAGS  += -Wno-unused-value -Wno-unused-parameter \
 endif
 export CONFIG_SHELL HOSTCC HOSTCXX HOSTCFLAGS HOSTCXXFLAGS
 
+##
 # Generic definitions
+#
 scripts/Kbuild.include: ;
 include scripts/Kbuild.include
 
@@ -313,7 +314,9 @@ export KBUILD_ARFLAGS OBJCOPYFLAGS OBJDUMPFLAGS
 #	clean
 #	help
 
+##
 # Basic helpers built in scripts/
+#
 PHONY += scripts_basic
 scripts_basic:
 	$(Q)$(MAKE) $(build)=scripts/basic
@@ -321,9 +324,11 @@ scripts_basic:
 # To avoid any implicit rule to kick in, define an empty command.
 scripts/basic/%: scripts_basic ;
 
+##
 # Generates a Makefile in the output directory, if using a
 # separate output directory. This allows convenient use of
 # make in the output directory.
+#
 PHONY += outputmakefile
 outputmakefile:
 ifneq ($(KBUILD_SRC),)
@@ -393,14 +398,18 @@ else
 # ===========================================================================
 
 # TODO
+##
 # Additional Helper scripts
+#
 PHONY += scripts
 scripts: scripts_basic
 	@:
 
+##
 # The all: target is the default when no target is given on the command line.
 # This allow a user to issue only 'make' to build Sandix kernel.
 # Defaults to vmSandix, but the arch makefile usually adds further targets
+#
 PHONY += all
 all: vmSandix
 
@@ -443,12 +452,16 @@ export INSTALL_PATH	?= /boot
 quiet_cmd_link-vmSandix = LINK    $@
       cmd_link-vmSandix = $(CONFIG_SHELL) $< $(LD) $(LDFLAGS)
 
+##
 # Finally, we reach the vmSandix. Build it!
+#
 vmSandix: scripts/link-vmSandix.sh $(vmSandix-deps) FORCE
-	+$(call if_changed,link-vmSandix)
+	$(call if_changed,link-vmSandix)
 
+##
 # The actual objects are generated when descending.
 # Make sure no implicit rule kicks in
+#
 PHONY += $(vmSandix-dirs)
 $(sort $(vmSandix-deps)): $(vmSandix-dirs) ;
 $(vmSandix-dirs):
@@ -476,6 +489,7 @@ PHONY += vmSandix-clean
 vmSandix-clean:
 	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/link-vmSandix.sh clean
 
+# Clean files by descending into sub-directories
 PHONY += $(clean-dirs)
 $(clean-dirs):
 	$(Q)$(MAKE) $(clean)=$(patsubst __clean__%,%,$@)
@@ -546,6 +560,18 @@ help:
 	@echo  '		Multiple levels can be combined with W=12 or W=123'
 	@echo  ''
 	@echo  'Execute "make" or "make all" to build all targets marked with [*] '
+
+##
+# Generate Editor Tags
+#
+tags:
+	@echo
+
+##
+# Generate Kernel Docs
+#
+docs:
+	@echo
 
 endif # ! ifeq ($(config-targets),1)
 endif # ! ifeq ($(mixed-targets),1)

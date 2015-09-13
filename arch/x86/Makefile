@@ -31,7 +31,7 @@ KBUILD_DEFCONFIG := i386_defconfig
 # that way we can complain to the user if the CPU is insufficient.
 # The -m16 option is supported by GCC>=4.9. For older versions of GCC, include
 # an assembly header to make sure GCC does not play any games behind our back.
-# ===========================================================================
+#
 CODE16GCC_CFLAGS := -m32 -Wa,$(srctree)/arch/x86/boot/code16gcc.h
 M16_CFLAGS	 := $(call cc-option, -m16, $(CODE16GCC_CFLAGS))
 
@@ -47,7 +47,7 @@ export REALMODE_CFLAGS
 ##
 # x86 Architecture-Dependent Kernel Objects
 # Little trick to separate arch-independent/dependent code.
-# ===========================================================================
+#
 libs-y		+= $(srctree)/arch/x86/lib/
 core-y		+= $(srctree)/arch/x86/kernel/
 core-y		+= $(srctree)/arch/x86/mm/
@@ -55,13 +55,17 @@ drivers-y	+= $(srctree)/arch/x86/pci/
 
 boot-y		:= $(srctree)/arch/x86/boot
 
+##
+# Add one more dependency to all:, so the real-mode boot image
+# can be built along with the kernel part.
+#
 all: bzImage
 
 bzImage:
-	$(Q)$(MAKE) $(build)=$(boot-y) $(KBUILD_IMAGW)
+	$(Q)$(MAKE) $(build)=$(boot-y)
 
 ##
-# Nothing for now
-# ===========================================================================
+# Architecture Specific Clean
+#
 arch-clean:
 	@echo "  CLEAN   arch-clean"

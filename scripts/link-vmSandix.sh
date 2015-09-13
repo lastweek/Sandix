@@ -15,7 +15,7 @@ info()
 
 cleanup()
 {
-	echo "Hello!!!!"
+	rm -f .vmSandix.cmd
 }
 
 # Enable Debug Mode; Print commands.
