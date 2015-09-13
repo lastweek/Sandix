@@ -37,6 +37,7 @@ squote  :='
 empty   :=
 space   :=$(empty) $(empty)
 SS      :=\$(space)\$(space)\$(space)\$(space)
+quiet_modtag := $(empty)   $(empty)
 
 # Name of target with a '.' as filename prefix. foo/bar.o => foo/.bar.o
 # ---------------------------------------------------------------------------
@@ -240,7 +241,7 @@ if_changed_rule = $(if $(strip $(any-prereq) $(arg-check)),                  \
 #     options changes
 # (5) No dir/.target.cmd file (used to store command line)
 # (6) No dir/.target.cmd file and target not listed in $(targets)
-#     This is a good hint that there is a bug in the kbuild file
+#     This is a good hint that there is a BUG in the kbuild file
 ifeq ($(KBUILD_VERBOSE),2)
 why =                                                                        \
     $(if $(filter $@, $(PHONY)),- due to target is PHONY,                    \
