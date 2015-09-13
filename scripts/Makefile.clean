@@ -36,9 +36,10 @@ subdir-y	:= $(patsubst %/,%,$(filter %/, $(obj-y)))
 ##
 # Kernel built-in object files, dependency files, command files
 #
-__clean-target	:= $(filter-out %/,$(obj-y)) $(lib-y) $(always) $(hostprogs-y) $(extra-y)
-__clean-files	:= $(foreach f, $(__clean-target), $(dir $f).$(notdir $f).d)
-__clean-files	+= $(foreach f, $(__clean-target), $(dir $f).$(notdir $f).cmd)
+__clean-targets	:= $(filter-out %/, $(obj-y)) $(lib-y) $(loader-y) $(always) $(hostprogs-y) $(extra-y)
+__clean-files	:= $(__clean-targets)
+__clean-files	+= $(foreach f, $(__clean-targets), $(dir $f).$(notdir $f).d)
+__clean-files	+= $(foreach f, $(__clean-targets), $(dir $f).$(notdir $f).cmd)
 
 ##
 # User specified additional $(clean-files)
@@ -62,7 +63,7 @@ __clean-files	+= $(foreach f, $(hostprogs-files), $(dir $f).$(notdir $f).d)
 __clean-files	+= $(foreach f, $(hostprogs-files), $(dir $f).$(notdir $f).cmd)
 clean-files	:= $(__clean-files)
 
-
+# Add prefix
 subdir-y	:= $(addprefix $(obj)/, $(subdir-y))
 clean-files	:= $(addprefix $(obj)/, $(clean-files))
 

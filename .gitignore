@@ -18,8 +18,8 @@
 #	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-#
-# General Residues
+##
+# General Rubbish
 #
 .*
 *.o
@@ -27,17 +27,14 @@
 *.objdump
 vmSandix.ld
 
-#
+##
 # Described in Makefile
 #
 *image
-vmsandix
-bzImage
+vmSandix
 System.map
 
-#
+##
 # Special Dot Files
 #
 !.gitignore
-
-arch/*
