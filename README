@@ -8,10 +8,34 @@ WHAT IS SANDIX?
 	- Sandix is a clone of the operating system Unix, written based
 	  on Linux kernel. Sandix is the abbreviation for Sandy Unix.
 
-WHY SANDIX?
-
-	- No why.
 
 WHO IS DEVELOPING SANDIX?
 
-	- Yizhou Shan
+	- Yizhou Shan <shanyizhou@ict.ac.cn>
+	- For more information, you can email me. ;)
+
+BUILD INSTRUCTIONS:
+	
+	You can invoke make using mixed targets, e.g.:
+		make config all
+		make defconfig all
+
+	- 1) Config Kernel
+
+		make config
+	    or  make menuconfig
+	    or  make defconfig
+	    or  make oldconfig
+	
+	- 2) Build Kernel
+
+		make
+	    or  make all
+
+	- 3) Clean
+
+		make clean
+
+	- 4) Help
+
+		make help
