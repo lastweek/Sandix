@@ -27,14 +27,16 @@ include $(srctree)/scripts/Kbuild.include
 include $(srctree)/$(src)/Makefile
 
 subdir-y	:= $(patsubst %/,%,$(filter %/, $(obj-y)))
-subdir-y	:= $(addprefix $(obj)/,$(subdir-y))
 
-__clean-files	:= $(obj-y) $(lib-y) $(always) $(hostprogs-y) $(extra-y)
+__clean-files	:= $(filter-out %/,$(obj-y))
+__clean-files	+= $(lib-y) $(always) $(hostprogs-y) $(extra-y)
 __clean-files	+= $(foreach f, $(__clean-files), $(dir $f).$(notdir $f).d)
 __clean-files	+= $(foreach f, $(__clean-files), $(dir $f).$(notdir $f).cmd)
 __clean-files	+= $(clean-files)
 __clean-files	+= $(patsubst %.o,%.bin,$(objcopy-y))
 __clean-files	+= $(patsubst %,%-objdump,$(objdump-y))
+
+subdir-y	:= $(addprefix $(obj)/,$(subdir-y))
 __clean-files	:= $(addprefix $(obj)/,$(__clean-files))
 clean-files	:= $(__clean-files)
 
@@ -49,6 +51,6 @@ endif
 # Descending
 PHONY += $(subdir-y)
 $(subdir-y):
-	$(Q)$(MAKE) $(CLEAN)=$@
+	$(Q)$(MAKE) $(clean)=$@
 
 .PHONY: $(PHONY)

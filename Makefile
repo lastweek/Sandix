@@ -429,9 +429,8 @@ net-y		:= $(patsubst %/, %/built-in.o, $(net-y))
 drivers-y	:= $(patsubst %/, %/built-in.o, $(drivers-y))
 vmSandix-deps	:= $(boot-y) $(init-y) $(core-y) $(libs-y) $(net-y) $(drivers-y)
 
-# TODO
-vmSandix-dirs	:= test/
-vmSandix-deps	:= test/builtin.o
+#vmSandix-dirs	:= test/
+#vmSandix-deps	:= test/builtin.o
 
 # Externally visible to link-vmSandix.sh
 export KBUILD_VMSANDIX_LDS  := arch/$(SRCARCH)/kernel/vmSandix.ld.S
