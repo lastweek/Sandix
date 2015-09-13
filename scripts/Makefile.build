@@ -199,8 +199,9 @@ $(subdir-y):
 	$(Q)$(MAKE) $(BUILD)=$@
 
 
+# TODO add $(hostprogs-y)
 # Include dependencies
-__dep_files	:= $(obj-y) $(lib-y) $(extra-y) $(always) $(loader-y)
+__dep_files	:= $(obj-y) $(lib-y) $(extra-y) $(always) $(loader-y) $(hostprogs-y)
 _dep_files	:= $(filter-out $(subdir-obj-y), $(__dep_files))
 dep_files	:= $(foreach f,$(_dep_files),$(dir $(f)).$(notdir $(f)).d)
 

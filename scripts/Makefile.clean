@@ -1,34 +1,44 @@
 #
-#	Makefile.clean
-#	Cleaning up ;)
+#	scripts/Makefile.clean
 #
+#	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+#
+#	This program is free software; you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation; either version 2 of the License, or
+#	(at your option) any later version.
+#
+#	This program is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
+#
+#	You should have received a copy of the GNU General Public License along
+#	with this program; if not, write to the Free Software Foundation, Inc.,
+#	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 
 src := $(obj)
 
 PHONY := __clean
 __clean:
 
-# The information about files which we need
-# to clean are all in $(srctree)/$(src)/Makefile.
 include $(srctree)/scripts/Kbuild.include
 include $(srctree)/$(src)/Makefile
-include $(srctree)/scripts/Makefile.lib
 
-obj-y		:=	$(filter-out %/built-in.o, $(obj-y))
+subdir-y	:= $(patsubst %/,%,$(filter %/, $(obj-y)))
+subdir-y	:= $(addprefix $(obj)/,$(subdir-y))
 
-clean-files	:=	$(obj-y)
-clean-files	+=	$(foreach f, $(obj-y), $(dir $f).$(notdir $f).d)
+__clean-files	:= $(obj-y) $(lib-y) $(always) $(hostprogs-y) $(extra-y)
+__clean-files	+= $(foreach f, $(__clean-files), $(dir $f).$(notdir $f).d)
+__clean-files	+= $(foreach f, $(__clean-files), $(dir $f).$(notdir $f).cmd)
+__clean-files	+= $(clean-files)
+__clean-files	+= $(patsubst %.o,%.bin,$(objcopy-y))
+__clean-files	+= $(patsubst %,%-objdump,$(objdump-y))
+__clean-files	:= $(addprefix $(obj)/,$(__clean-files))
+clean-files	:= $(__clean-files)
 
-clean-files	+=	$(loader-y)
-clean-files	+=	$(dir $(loader-y)).$(notdir $(loader-y)).d
-
-clean-files	+=	$(obj)/built-in.o
-
-clean-files	+=	$(patsubst %.o,%.bin,$(objcopy-y))
-
-clean-files	+=	$(patsubst %,%-objdump,$(objdump-y))
-
-quiet_cmd_clean    = CLEAN  $(SS)  $(obj)
+quiet_cmd_clean    = CLEAN   $(obj)
       cmd_clean    = rm -f $(clean-files)
 
 __clean: $(subdir-y)

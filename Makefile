@@ -17,6 +17,11 @@
 #	with this program; if not, write to the Free Software Foundation, Inc.,
 #	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
+#	Note that:
+#	arch/x86/Makefile Plays an important role.
+#	1st Part:	Argument Processing/External Sub-Make
+#	2st Part:	Variable Initialization/Preprocessing
+#	3st Part:	Targets Definitions/Relationships
 
 VERSION		=	1
 MINORLEVEL	=	0
@@ -87,8 +92,32 @@ ifneq ($(filter s% -s%,$(MAKEFLAGS)),)
   quiet=silent_
 endif
 endif
-
 export quiet Q KBUILD_VERBOSE
+
+# Call a source code checker (by default, "sparse") as part of the
+# C compilation.
+#
+# Use 'make C=1' to enable checking of only re-compiled files.
+# Use 'make C=2' to enable checking of *all* source files, regardless
+# of whether they are re-compiled or not.
+#
+# See the file "Documentation/sparse.txt" for more details, including
+# where to get the "sparse" utility.
+ifeq ("$(origin C)", "command line")
+  KBUILD_CHECKSRC = $(C)
+endif
+ifndef KBUILD_CHECKSRC
+  KBUILD_CHECKSRC = 0
+endif
+export KBUILD_CHECKSRC
+
+
+# ===========================================================================
+#  1st	First Part of the Makefile	
+# ===========================================================================
+#
+# The first part handles externel building. When users want to build on other
+# directory, the first part normally invokes a sub-make to do this.
 
 # kbuild supports saving output files in a separate directory.
 # To locate output files in a separate directory two syntaxes are supported.
@@ -109,14 +138,6 @@ export quiet Q KBUILD_VERBOSE
 # KBUILD_SRC is set on invocation of make in OBJ directory
 # KBUILD_SRC is not intended to be used by the regular user (for now)
 
-
-# ===========================================================================
-#  1	First Part of the Makefile	
-# ===========================================================================
-#
-# The first part handles externel building. When users want to build on other
-# directory, the first part normally invokes a sub-make to do this.
-
 # OK, Make called in directory where kernel src resides
 # Do we want to locate output files in a separate directory?
 ifeq ($(KBUILD_SRC),)
@@ -124,7 +145,6 @@ ifeq ("$(origin O)", "command line")
   KBUILD_OUTPUT := $(O)
 endif
 
-# The default target!
 PHONY := _all
 _all:
 
@@ -136,6 +156,7 @@ saved-output := $(KBUILD_OUTPUT)
 KBUILD_OUTPUT := $(shell mkdir -p $(KBUILD_OUTPUT)	&& \
 			 cd $(KBUILD_OUTPUT)		&& \
 			 /bin/pwd)
+
 $(if $(KBUILD_OUTPUT),, \
      $(error Failed to create output directory "$(saved-output)"))
 
@@ -152,42 +173,23 @@ skip-makefile := 1
 endif # ifneq ($(KBUILD_OUTPUT),)
 endif # ifeq ($(KBUILD_SRC),)
 
+
 # Process The Rest of Makefile if this is the final invocation.
 # A reminder, The Rest means from here to the end of Makefile. ;)
 ifeq ($(skip-makefile),)
 
 # ===========================================================================
-#  2	Second Part of the Makefile	
+#  2st	Second Part of the Makefile	
 # ===========================================================================
 #
 # The second part complete all the preprocessing and variable initialization.
 # We leave the make targets processing to the third part.
 
-PHONY += all
 _all: all
 
-# Do not print "Entering directory ...",
-# but we want to display it when entering to the output directory
-# so that IDEs/editors are able to understand relative filenames.
+# Do not print "Entering directory ..."
+# But we want to display it when entering to the output directory.
 MAKEFLAGS += --no-print-directory
-
-# Call a source code checker (by default, "sparse") as part of the
-# C compilation.
-#
-# Use 'make C=1' to enable checking of only re-compiled files.
-# Use 'make C=2' to enable checking of *all* source files, regardless
-# of whether they are re-compiled or not.
-#
-# See the file "Documentation/sparse.txt" for more details, including
-# where to get the "sparse" utility.
-
-ifeq ("$(origin C)", "command line")
-  KBUILD_CHECKSRC = $(C)
-endif
-ifndef KBUILD_CHECKSRC
-  KBUILD_CHECKSRC = 0
-endif
-export KBUILD_CHECKSRC
 
 ifeq ($(KBUILD_SRC),)
   srctree := .
@@ -197,8 +199,7 @@ endif
 objtree		:= .
 src		:= $(srctree)
 obj		:= $(objtree)
-export srctree objtree
-export KBUILD_SRC
+export KBUILD_SRC srctree objtree
 
 # Cross compiling and selecting different set of gcc/bin-utils
 # CROSS_COMPILE specify the prefix used for all executables used
@@ -211,26 +212,23 @@ HOST_ARCH := $(shell uname -m | sed -e s/i.86/x86/ -e s/x86_64/x86/ \
 				  -e s/ppc.*/powerpc/ -e s/mips.*/mips/ \
 				  -e s/sh[234].*/sh/ -e s/aarch64.*/arm64/ )
 # TODO
+# Sandix has x86 ARCH only
+# Hmm, maybe use i386 instead.
+
 ifneq ("$(HOST_ARCH)", "i386")
   CROSS_COMPILE	:= i386-elf-
 else
   CROSS_COMPILE	:=
 endif
-export CROSS_COMPILE HOST_ARCH
 
-# Sandix has x86 ARCH only
-# Hmm, maybe use i386 instead.
 ARCH	:= x86
 SRCARCH	:= x86
-export SRCARCH ARCH
-
-# ARCH specific headers
-hdr-arch := $(SRCARCH)
+export SRCARCH ARCH HOST_ARCH CROSS_COMPILE
 
 KCONFIG_CONFIG ?= .config
 export KCONFIG_CONFIG
 
-# SHELL used by kbuild
+# Shell used by kbuild
 CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 	  else if [ -x /bin/bash ]; then echo /bin/bash; \
 	  else echo sh; fi ; fi)
@@ -275,7 +273,7 @@ KBUILD_ARFLAGS		:=
 SANDIXINCLUDE		:=							\
 			   -Iinclude						\
 			   $(if $(KBUILD_SRC), -I$(srctree)/include)		\
-			   -I$(srctree)/arch/$(hdr-arch)/include
+			   -I$(srctree)/arch/$(SRCARCH)/include
 
 KBUILD_CFLAGS   	:=							\
 			   -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs	\
@@ -285,7 +283,6 @@ KBUILD_CFLAGS   	:=							\
 			   -std=gnu11
 
 # FIXME
-# Ugly.. You can add more, but DO NOT DELETE them. 
 # read_mostly init initdata
 OBJCOPYFLAGS	:= -j .text -j .text32 -j .data -j .rodata -j .init -O binary
 OBJDUMPFLAGS	:= -d -M att
@@ -297,13 +294,24 @@ export SANDIXINCLUDE NOSTDINC_FLAGS
 export KBUILD_CFLAGS KBUILD_CPPFLAGS KBUILD_LDFLAGS KBUILD_AFLAGS
 export KBUILD_ARFLAGS OBJCOPYFLAGS OBJDUMPFLAGS
 
-
 # ===========================================================================
-#   3	Third Part of the Makefile	
+#   3st	Third Part of the Makefile	
 # ===========================================================================
 #
-# The third part defines all the targets and their relations.
-# Reminder, __All_The_Build_And_Config_Targets__. ;)
+# The third part defines all the targets and their relationships
+# Note that: All_The_Build_And_Config_Targets. ;)
+#
+# List of Targets:
+#
+#	scipts_basic:
+#	outputmakefile:
+#	config
+#	%config
+#	scripts
+#	all
+#	vmSandix
+#	clean
+#	help
 
 # Basic helpers built in scripts/
 PHONY += scripts_basic
@@ -343,11 +351,11 @@ endif
 
 ifeq ($(mixed-targets),1)
 
-PHONY += $(MAKECMDGOALS) __build_one_by_one
-$(filter-out __build_one_by_one, $(MAKECMDGOALS)): __build_one_by_one
+PHONY += $(MAKECMDGOALS) build_one_by_one
+$(filter-out build_one_by_one, $(MAKECMDGOALS)): build_one_by_one
 	@:
 
-__build_one_by_one:
+build_one_by_one:
 	$(Q)set -e;					\
 	for i in $(MAKECMDGOALS); do			\
 		$(MAKE) -f $(srctree)/Makefile $$i;	\
@@ -361,9 +369,11 @@ ifeq ($(config-targets),1)
 # e.g.
 #	make config
 #	make menuconfig
-#	make oldconfig
+#	...
 # ===========================================================================
 
+KBUILD_DEFCONFIG	:=
+KBUILD_KCONFIG		:=
 include arch/$(SRCARCH)/Makefile
 export KBUILD_DEFCONFIG KBUILD_KCONFIG
 
@@ -377,13 +387,12 @@ else
 # ===========================================================================
 # Build targets only. All targets except *Config targets.
 # e.g.
-#	make scripts
 #	make all
-#	make vmSandix
 #	make clean
-#	make help
+#	...
 # ===========================================================================
 
+# TODO
 # Additional Helper scripts
 PHONY += scripts
 scripts: scripts_basic
@@ -392,161 +401,86 @@ scripts: scripts_basic
 # The all: target is the default when no target is given on the command line.
 # This allow a user to issue only 'make' to build Sandix kernel.
 # Defaults to vmSandix, but the arch makefile usually adds further targets
+PHONY += all
 all: vmSandix
 
-
-###########################################################################
-# Start processing FLAGS
-#
-
-# TODO ARCH!!!!
-# The arch Makefile can set ARCH_{CPP,A,C}FLAGS to override the default
-# values of the respective KBUILD_* variables
-ARCH_CPPFLAGS :=
-ARCH_AFLAGS :=
-ARCH_CFLAGS :=
-include arch/$(SRCARCH)/Makefile
-
-# Tell gcc to never replace conditional load with a non-conditional one
-KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
-
-# Tell gcc to never check null pointers
-KBUILD_CFLAGS	+= $(call cc-option,-fno-delete-null-pointer-checks,)
-
-# This warning generated too much noise in a regular build.
-# Use make W=1 to enable this warning (see scripts/Makefile.build)
-KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
-
-# warn about C99 declaration after statement
-KBUILD_CFLAGS += $(call cc-option,-Wdeclaration-after-statement,)
-
-# disable pointer signed / unsigned warnings in gcc 4.0
-KBUILD_CFLAGS += $(call cc-disable-warning, pointer-sign)
-
-# disable invalid "can't wrap" optimizations for signed / pointers
-KBUILD_CFLAGS	+= $(call cc-option,-fno-strict-overflow)
-
-# conserve stack if available
-KBUILD_CFLAGS   += $(call cc-option,-fconserve-stack)
-
-# disallow errors like 'EXPORT_GPL(foo);' with missing header
-KBUILD_CFLAGS   += $(call cc-option,-Werror=implicit-int)
-
-# require functions to have arguments in prototypes, not empty 'int foo()'
-KBUILD_CFLAGS   += $(call cc-option,-Werror=strict-prototypes)
-
-# Prohibit date/time macros, which would make the build non-deterministic
-KBUILD_CFLAGS   += $(call cc-option,-Werror=date-time)
-
-# use the deterministic mode of AR if available
-KBUILD_ARFLAGS := $(call ar-option,D)
-
-ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
-KBUILD_CFLAGS	+= -Os $(call cc-disable-warning,maybe-uninitialized,)
-else
-KBUILD_CFLAGS	+= -O2
-endif
-
-ifdef CONFIG_READABLE_ASM
-# Disable optimizations that make assembler listings hard to read.
-# reorder blocks reorders the control in the function
-# ipa clone creates specialized cloned functions
-# partial inlining inlines only parts of functions
-KBUILD_CFLAGS += $(call cc-option,-fno-reorder-blocks,) \
-                 $(call cc-option,-fno-ipa-cp-clone,) \
-                 $(call cc-option,-fno-partial-inlining)
-endif
-
-# check for 'asm goto'
-ifeq ($(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-goto.sh $(CC)), y)
-	KBUILD_CFLAGS += -DCC_HAVE_ASM_GOTO
-	KBUILD_AFLAGS += -DCC_HAVE_ASM_GOTO
-endif
-
-# Extra Warning if you really need
-include scripts/Makefile.extrawarn
-
-# Add any arch overrides and user supplied CPPFLAGS, AFLAGS and CFLAGS as the
-# last assignments
-KBUILD_CPPFLAGS += $(ARCH_CPPFLAGS) $(KCPPFLAGS)
-KBUILD_AFLAGS   += $(ARCH_AFLAGS)   $(KAFLAGS)
-KBUILD_CFLAGS   += $(ARCH_CFLAGS)   $(KCFLAGS)
-
-#
-# Done processing FLAGS
-###########################################################################
-
-
-# INSTALL_PATH specifies where to place the updated kernel and system map
-# images. Default is /boot, but you can set it to other values
-export	INSTALL_PATH ?= /boot
-
-# Components will be built into vmSandix
-boot-y		:= boot/
+test-y		:= test/
+boot-y		:=
 init-y		:= init/
-core-y		:= kernel/ mm/ lib/
+core-y		:= kernel/ mm/
+libs-y		:= lib/
+net-y		:= net/
 drivers-y	:= drivers/
-vmSandix-dirs	:= $(patsubst %/, %, $(boot-y) $(init-y) $(core-y) $(drivers-y))
+ARCH_CPPFLAGS	:=
+ARCH_AFLAGS	:=
+ARCH_CFLAGS	:=
 
+# Let arch Makefile overrides.
+# Also, include more Compiler and Linker flags.
+include arch/$(SRCARCH)/Makefile
+include scripts/Makefile.flags
+
+vmSandix-dirs	:= $(patsubst %/, %, $(boot-y) $(init-y) $(core-y) $(libs-y) $(drivers-y))
 boot-y		:= $(patsubst %/, %/built-in.o, $(boot-y))
 init-y		:= $(patsubst %/, %/built-in.o, $(init-y))
 core-y		:= $(patsubst %/, %/built-in.o, $(core-y))
+libs-y		:= $(patsubst %/, %/built-in.o, $(libs-y))
+net-y		:= $(patsubst %/, %/built-in.o, $(net-y))
 drivers-y	:= $(patsubst %/, %/built-in.o, $(drivers-y))
-vmSandix-deps	:= $(boot-y) $(init-y) $(core-y) $(drivers-y)
+vmSandix-deps	:= $(boot-y) $(init-y) $(core-y) $(libs-y) $(net-y) $(drivers-y)
 
-KBUILD_VMSANDIX_BOOT := $(boot-y)
-KBUILD_VMSANDIX_MAIN := $(init-y) $(core-y) $(drivers-y)
+# TODO
+vmSandix-dirs	:= test/
+vmSandix-deps	:= test/builtin.o
 
-export KBUILD_VMSANDIX_BOOT KBUILD_VMSANDIX_MAIN
+# Externally visible to link-vmSandix.sh
+export KBUILD_VMSANDIX_LDS  := arch/$(SRCARCH)/kernel/vmSandix.ld.S
+export KBUILD_VMSANDIX_BOOT := $(boot-y)
+export KBUILD_VMSANDIX_MAIN := $(init-y) $(core-y) $(drivers-y)
 
+# Default kernel image to build.
+export KBUILD_IMAGE	?= vmSandix
+
+# INSTALL_PATH specifies where to place the updated kernel and system map
+# images. Default is /boot, but you can set it to other values
+export INSTALL_PATH	?= /boot
+
+# Final link of vmSandix
+quiet_cmd_link-vmSandix = LINK    $@
+      cmd_link-vmSandix = $(CONFIG_SHELL) $< $(LD) $(LDFLAGS)
+
+# Finally, we reach the vmSandix. Build it!
 vmSandix: scripts/link-vmSandix.sh $(vmSandix-deps) FORCE
-	$(call if_changed,link-vmSandix)
+	+$(call if_changed,link-vmSandix)
 
-# The actual objects are generated when descending,
-# make sure no implicit rule kicks in
+# The actual objects are generated when descending.
+# Make sure no implicit rule kicks in
 $(sort $(vmSandix-deps)): $(vmSandix-dirs) ;
 
-# Handle descending into subdirectories listed in $(vmlinux-dirs)
-# Preset locale variables to speed up the build process. Limit locale
-# tweaks to this spot to avoid wrong language settings when running
-# make menuconfig etc.
-# Error messages still appears in the original language
-
-PHONY += $(vmlinux-dirs)
-$(vmlinux-dirs): prepare scripts
+# Descending into subdirectories
+PHONY += $(vmSandix-dirs)
+$(vmSandix-dirs): scripts
 	$(Q)$(MAKE) $(build)=$@
 
-endif #ifeq ($(config-targets),1)
-endif #ifeq ($(mixed-targets),1)
-
-
-
-
-
-#	Fine, one architecture only.
+###
+# Clean
 #
-CONFIG_X86_32=y
-ifeq ($(CONFIG_X86_32),y)
-    KBUILD_AFLAGS += -m32
-	
-    KBUILD_CFLAGS += -m32
 
-    KBUILD_CFLAGS += -mregparm=3 -freg-struct-return
+# Add prefix to avoid overriding the previous targets.
+clean-dirs := $(addprefix __clean__,$(vmSandix-dirs))
 
-    # Never want PIC in kernel
-    KBUILD_CFLAGS += -fno-pic
+PHONY += clean
+clean: $(clean-dirs) arch-clean vmSandix-clean
 
-    # Prevent gcc from keeping the stack 16 byte aligned
-    KBUILD_CFLAGS += -mpreferred-stack-boundary=2
-    
-    # Prevent gcc from generating any FP code by mistake
-    KBUILD_CFLAGS += -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx
-    
-    # __STDC_HOSTED = 0;
-    # GCC __builtin_ still works, but you need to invoke __builtin_
-    # functions manually. See <sandix/compiler.h> for more details.
-    KBUILD_CFLAGS += -ffreestanding
-endif
+arch-clean: ;
+
+vmSandix-clean: ;
+#	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/link-vmSandix.sh clean
+
+PHONY += $(clean-dirs)
+$(clean-dirs):
+	$(Q)$(MAKE) $(clean)=$(patsubst __clean__%,%,$@)
+
 
 
 #
@@ -588,14 +522,6 @@ quiet_cmd_catenate := CAT$(SS) $(VMSANDIX)
 quiet_cmd_map := MAP
       cmd_map := $(NM) -n $(_PM_IMAGE) > boot/System.map
 
-#
-#	BUILD KERNEL
-# ===========================================================================
-
-bzImage: vmsandix
-	@chmod +x $(VMSANDIX)
-	@mv $(VMSANDIX) $(BZIMAGE)
-
 # FIXME boot/ should be separated from deps
 vmsandix: $(vmsandix-deps)
 	$(call if_changed,link_pm)
@@ -605,35 +531,42 @@ vmsandix: $(vmsandix-deps)
 	$(call if_changed,map)
 	$(call if_changed,catenate)
 
-$(sort $(vmsandix-deps)): $(vmsandix-dirs) ;
 
-# Descending into sub-directory
-PHONY += $(vmsandix-dirs)
-$(vmsandix-dirs):
-	$(Q)$(MAKE) $(BUILD)=$@
-
-# Clean
-# ===========================================================================
-
-# Trick: add prefix to avoid overriding the previous targets.
-CLEAN_DIRS := $(addprefix __CLEAN__,$(vmsandix-dirs))
-
-PHONY += clean
-clean: $(CLEAN_DIRS)
-	@rm -f $(_RM_IMAGE) $(RM_IMAGE)
-	@rm -f $(_PM_IMAGE) $(PM_IMAGE)
-	@rm -f $(VMSANDIX) $(BZIMAGE)
-	@rm -f boot/System.map
-
-$(CLEAN_DIRS):
-	$(Q)$(MAKE) $(clean)=$(patsubst __CLEAN__%,%,$@)
-
-
-PHONY += help
 help:
-	@echo Sandix Help
+	@echo  'Cleaning targets:'
+	@echo  '  clean		  - Remove most generated files but keep the config and'
+	@echo  '                    enough build support to build external modules'
+	@echo  '  mrproper	  - Remove all generated files + config + various backup files'
+	@echo  '  distclean	  - mrproper + remove editor backup and patch files'
+	@echo  ''
+	@echo  'Configuration targets:'
+	@$(MAKE) -f $(srctree)/scripts/kconfig/Makefile help
+	@echo  ''
+	@echo  'Other generic targets:'
+	@echo  '  all		  - Build all targets marked with [*]'
+	@echo  '* vmSandix	  - Build the bare kernel'
+	@echo  '  dir/            - Build all files in dir and below'
+	@echo  '  dir/file.[oisS] - Build specified target only'
+	@echo  '  dir/file.lst    - Build specified mixed source/assembly target only'
+	@echo  '                    (requires a recent binutils and recent build (System.map))'
+	@echo  ''
+	@echo  'Building opinions:'
+	@echo  '  make V=0|1 [targets] 0 => quiet build (default), 1 => verbose build'
+	@echo  '  make V=2   [targets] 2 => give reason for rebuild of target'
+	@echo  '  make O=dir [targets] Locate all output files in "dir", including .config'
+	@echo  '  make C=1   [targets] Check all c source with $(CHECK) (sparse by default)'
+	@echo  '  make C=2   [targets] Force check of all c source with $(CHECK)'
+	@echo  '  make W=n   [targets] Enable extra gcc checks, n=1,2,3 where'
+	@echo  '		1: warnings which may be relevant and do not occur too often'
+	@echo  '		2: warnings which occur quite often but may still be relevant'
+	@echo  '		3: more obscure warnings, can most likely be ignored'
+	@echo  '		Multiple levels can be combined with W=12 or W=123'
+	@echo  ''
+	@echo  'Execute "make" or "make all" to build all targets marked with [*] '
 
-endif  # ifeq ($(skip-makefile),)
+endif # ifeq ($(config-targets),1)
+endif # ifeq ($(mixed-targets),1)
+endif # ifeq ($(skip-makefile),)
 
 PHONY += FORCE
 FORCE:

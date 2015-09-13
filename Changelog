@@ -64,7 +64,6 @@ Wed Sep  9 CST 2015
 
 
 Thu Sep 10 CST 2015
-- [+] scripts/mkmakefile			[D] Script for generating makefile.
 - [+] include/asm/string.h			[D] Separate arch-specific string functions.
 - [M] include/sandix/string.h
 
@@ -75,7 +74,7 @@ Fri Sep 11 CST 2015
 - [+] scripts/mkmakefile.sh			[D] Generating new makefile
 - [+] scripts/link-vmSandix.sh			[D] Link final vmSandix image.
 - [+] scripts/basic/*				[D] Add Kbuild System and fixdep.c
-- [+] scripts/kconfig/*				 >  Diao De Fei Qi
+- [+] scripts/kconfig/*
 - [+] scripts/Makefile.host			[D] Add new features to Makefile.
 - [M] scripts/Makefile.build			 >  Basiclly, it is a TOTAL REWRITE.
 - [M] scripts/Makefile.lib			 >  It is *not* easy.
