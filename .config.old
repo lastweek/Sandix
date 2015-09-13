@@ -2,3 +2,4 @@
 # Automatically generated file; DO NOT EDIT.
 # Sandix Kernel Configuration for x86
 #
+CONFIG_WHATEVER=y

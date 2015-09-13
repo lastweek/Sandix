@@ -1,0 +1,74 @@
+#
+#	Tutorial for writing Makefile in Sandix
+#
+
+##
+# Host programs
+#
+# Suppose you have print.c
+#
+# 1) hostprogs-y := print
+#
+# For more information about how to add host programs
+# please consult Makefile.host for details!
+
+##
+# Built-in
+#
+# Suppose you have foo.c or foo.S,
+# 
+# 1) obj-y := foo.o
+#	Compile foo.c OR foo.s to foo.o
+# 2) obj-y := foo.s
+#	Compile foo.c OR foo.s to foo.s
+# 3) obj-y := foo.i
+#	Preprocess foo.c to foo.i
+
+##
+# Library
+#
+# Suppose you have bar.c or bar.S,
+#
+# 1) lib-y := bar.o
+#	Compile bar.c OR bar.S to bar.o
+#
+
+##
+# Caveat
+# If you do this:
+#	obj-y += bob.o
+#	lib-y += bob.o
+# Then Kbuild will take bob.o into Built-in
+# For now, in Sandix, the $(lib-y) is useless.
+# I add files to $(lib-y) just to remind me that
+# it is supposed to be a library!
+###
+
+##
+# Clean files
+#
+# Suppose you have additional files generated
+# in building process other than general object
+# files listed in obj-y, for example, foo.tab.c
+# then you can use:
+# 
+# 1) clean-files := foo.tab.c
+#	Kbuild will remove this file.
+
+##
+# Objcopy
+#
+# Suppose you want to convert some ELF object files
+# into raw binary files, then you can use:
+#
+# 1) objcopy-y := alice.o
+#	Kbuild will generate alice.bin in your directory.
+
+##
+# Objdump
+#
+# Suppose you want to view assembly code of some ELF
+# object files, then you can use:
+#
+# 1) objdump-y := ada.o
+#	Kbuild will generate ada.objdump in your directory.
