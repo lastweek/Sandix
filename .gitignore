@@ -38,3 +38,5 @@ System.map
 # Special Dot Files
 #
 !.gitignore
+!.config
+!.config.old
