@@ -80,3 +80,16 @@ Fri Sep 11 CST 2015
 - [M] scripts/Makefile.lib			 >  It is *not* easy.
 - [M] scripts/Kbuild.include
 - [M] Makefile					[D] Rewrite. Based on linux-4.1
+
+
+Sun Sep 13 CST 2015
+- [+] Diary/09-13-2015
+- [+] arch/x86/Makefile
+- [+] arch/x86/boot/*				[D] Renamed from boo/
+- [+] arch/x86/configs/i386_defconfig		[D] Empty
+- [+] arch/x86/kernel/Makefile			[D] Empty
+- [+] arch/x86/lib/Makefile			[D] Empty
+- [+] arch/x86/mm/Makefile			[D] Empty
+- [+] arch/x86/pci/Makefile			[D] Empty. To show $(drivers-y)
+- [+] scripts/Makefile.flags			[D] Compiler and Linker flags
+- [M] scripts/Makefile.clean			[D] Clean hostprogs
