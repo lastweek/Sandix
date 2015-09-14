@@ -21,9 +21,7 @@ ifneq ($(ARCH),x86)
   $(error arch/x86/Makefile is included improperly)
 endif
 
-##
 # Default .config for Kconfig
-#
 KBUILD_DEFCONFIG := i386_defconfig
 
 ##
@@ -53,19 +51,30 @@ core-y		+= $(srctree)/arch/x86/kernel/
 core-y		+= $(srctree)/arch/x86/mm/
 drivers-y	+= $(srctree)/arch/x86/pci/
 
+# Specific boot part.
 boot-y		:= $(srctree)/arch/x86/boot
 
-##
-# Add one more dependency to all:, so the real-mode boot image
-# can be built along with the kernel part.
-#
 all: bzImage
 
+##
+# Build the x86 bzImage:
+#	Bootloader
+#	Real-Mode Image
+#	Bare Kernel(Protected Mode)
+#
 bzImage:
 	$(Q)$(MAKE) $(build)=$(boot-y)
 
 ##
 # Architecture Specific Clean
 #
+PHONY += arch-clean
 arch-clean:
 	@echo "  CLEAN   arch-clean"
+
+##
+# Architecture Specific Help
+#
+PHONY += arch-help
+arch-help:
+	@echo  'x86 help'

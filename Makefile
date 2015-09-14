@@ -270,6 +270,9 @@ KBUILD_CPPFLAGS		:= -D__KERNEL__
 KBUILD_AFLAGS		:= -D__ASSEMBLY__
 KBUILD_LDFLAGS		:=
 KBUILD_ARFLAGS		:=
+OBJCOPYFLAGS		:=
+OBJDUMPFLAGS		:= -d -M att
+#OBJCOPYFLAGS := -j .text -j .text32 -j .data -j .rodata -j .init -O binary
 
 SANDIXINCLUDE		:=							\
 			   -Iinclude						\
@@ -282,11 +285,6 @@ KBUILD_CFLAGS   	:=							\
 			   -Werror-implicit-function-declaration		\
 			   -Wno-format-security					\
 			   -std=gnu11
-
-# FIXME
-# read_mostly init initdata
-OBJCOPYFLAGS	:= -j .text -j .text32 -j .data -j .rodata -j .init -O binary
-OBJDUMPFLAGS	:= -d -M att
 
 export VERSION PATCHLEVEL SUBLEVEL NAME
 export CC AS LD CPP AR NM STRIP OBJCOPY OBJDUMP
@@ -411,7 +409,7 @@ scripts: scripts_basic
 # Defaults to vmSandix, but the arch makefile usually adds further targets
 #
 PHONY += all
-all: vmSandix
+all: scripts_basic vmSandix
 
 boot-y		:=
 init-y		:= init/
@@ -541,11 +539,10 @@ help:
 	@echo  ''
 	@echo  'Other generic targets:'
 	@echo  '  all		  - Build all targets marked with [*]'
+	@echo  '* bzImage         - Build the loadable kernel(with Bootloader, boot part)'
 	@echo  '* vmSandix	  - Build the bare kernel'
 	@echo  '  dir/            - Build all files in dir and below'
 	@echo  '  dir/file.[oisS] - Build specified target only'
-	@echo  '  dir/file.lst    - Build specified mixed source/assembly target only'
-	@echo  '                    (requires a recent binutils and recent build (System.map))'
 	@echo  ''
 	@echo  'Building opinions:'
 	@echo  '  make V=0|1 [targets] 0 => quiet build (default), 1 => verbose build'

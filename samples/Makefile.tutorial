@@ -2,6 +2,15 @@
 #	Tutorial for writing Makefile in Sandix
 #
 
+######################################################
+#
+#
+#	PART ONE: Targets
+#
+#
+######################################################
+
+
 ##
 # Host programs
 #
@@ -56,15 +65,6 @@
 #	Kbuild will remove this file.
 
 ##
-# Objcopy
-#
-# Suppose you want to convert some ELF object files
-# into raw binary files, then you can use:
-#
-# 1) objcopy-y := alice.o
-#	Kbuild will generate alice.bin in your directory.
-
-##
 # Objdump
 #
 # Suppose you want to view assembly code of some ELF
@@ -72,3 +72,21 @@
 #
 # 1) objdump-y := ada.o
 #	Kbuild will generate ada.objdump in your directory.
+
+
+######################################################
+#
+#
+#	PART TWO: FLAGS
+#
+#
+######################################################
+
+subdir-ccflags-y
+subdir-asflags-y
+AFLAGS_foo.o
+CFLAGS_foo.o
+CFLAGS_REMOVE_foo.o
+
+asflags-y
+ccflags-y

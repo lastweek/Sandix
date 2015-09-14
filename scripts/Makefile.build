@@ -23,9 +23,10 @@ ifndef obj
 $(warning Kbuild: Makefile.build is included improperly)
 endif
 
-PHONY += __BUILD
-__BUILD:
+PHONY += __build
+__build:
 
+##
 # Init all relevant variables used in kbuild files so
 # 1) they have correct type
 # 2) they do not inherit any value from the environment
@@ -43,13 +44,21 @@ subdir-asflags-y :=
 subdir-ccflags-y :=
 
 loader-y :=
-objcopy-y :=
 objdump-y :=
 
+##
+# Black Magic?
+# Included order matters. Makefile.lib is responsible
+# for processing variables defined in $(src)/Makefile.
+#
 include $(srctree)/scripts/Kbuild.include
 include $(srctree)/$(src)/Makefile
 include $(srctree)/scripts/Makefile.lib
 
+##
+# Do NOT include Makefile.host only if $(src)/Makefile
+# need building host programs.
+#
 ifneq ($(hostprogs-y),)
 include $(srctree)/scripts/Makefile.host
 endif
@@ -66,10 +75,6 @@ ifneq ($(strip $(obj-y) $(lib-target)),)
 builtin-target := $(obj)/built-in.o
 endif
 
-ifneq ($(strip $(objcopy-y)),)
-objcopy-target := $(patsubst %.o,%.bin,$(objcopy-y))
-endif
-
 ifneq ($(strip $(objdump-y)),)
 objdump-target := $(patsubst %,%.objdump,$(objdump-y))
 endif
@@ -78,10 +83,11 @@ ifneq ($(strip $(loader-y)),)
 loader-target := $(loader-y)
 endif
 
+##
 # Default target depends on everything
 # ------------------------------------------------------------------------
-__BUILD: $(builtin-target) $(lib-target) $(subdir-y)		\
-	 $(loader-target) $(objcopy-target) $(objdump-target)	\
+__build: $(builtin-target) $(lib-target) $(subdir-y)	\
+	 $(loader-target) $(objdump-target)		\
 	 $(extra-y) $(always)
 	@:
 
@@ -91,7 +97,9 @@ targets += $(extra-y) $(always)
 # Build everything
 # ------------------------------------------------------------------------
 
+##
 # Check source sanitary
+#
 ifneq ($(KBUILD_CHECKSRC),0)
   ifeq ($(KBUILD_CHECKSRC),2)
     quiet_cmd_force_checksrc = CHECK   $<
@@ -102,7 +110,7 @@ ifneq ($(KBUILD_CHECKSRC),0)
   endif
 endif
 
-#
+##
 # Rule to compile a set of .o files into one .o file
 #
 # ------------------------------------------------------------------------
@@ -123,7 +131,7 @@ targets += $(obj-y)
 targets += $(builtin-target)
 endif
 
-#
+##
 # Rule to compile a set of .o files into one .a file
 #
 # ------------------------------------------------------------------------
@@ -138,7 +146,7 @@ targets += $(lib-y)
 targets += $(lib-target)
 endif
 
-#
+##
 # Rule to link composite objects
 #
 #  Composite objects are specified in kbuild makefile as follows:
@@ -161,7 +169,7 @@ $(call multi_depend, $(multi-used-y), .o, -objs -y)
 
 targets += $(multi-used-y)
 
-#
+##
 # Rule to compile simple boot loader
 #
 # ------------------------------------------------------------------------
@@ -175,19 +183,7 @@ $(loader-target): $(patsubst %.o,%.S,$(loader-y))
 targets += $(loader-target)
 endif
 
-#
-# Rule to use objcopy
-#
-# ------------------------------------------------------------------------
-ifdef objcopy-target
-quiet_cmd_objcopy = OBJCOPY $@
-      cmd_objcopy = $(OBJCOPY) $(objcopy_flags) $< $@
-
-$(objcopy-target): $(objcopy-y) FORCE
-	$(call if_changed_dep,objcopy)
-endif
-
-#
+##
 # Rule to use objdump
 #
 # ------------------------------------------------------------------------
@@ -199,13 +195,17 @@ $(objdump-target): $(objdump-y) FORCE
 	$(call if_changed_dep,objdump)
 endif
 
+
+##
 # Descending into sub-directory
+#
 # ------------------------------------------------------------------------
 $(sort $(subdir-obj-y)): $(subdir-y) ;
 PHONY += $(subdir-y)
 $(subdir-y):
 	$(Q)$(MAKE) $(build)=$@
 
+##
 # Hmm, you see how $(targets) works?
 # Read all saved command lines and dependencies for the $(targets) we
 # may be building above, used by $(if_changed{,_dep,_rule}). 

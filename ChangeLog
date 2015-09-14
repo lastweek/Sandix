@@ -93,3 +93,7 @@ Sun Sep 13 CST 2015
 - [+] arch/x86/pci/Makefile			[D] Empty. To show $(drivers-y)
 - [+] scripts/Makefile.flags			[D] Compiler and Linker flags
 - [M] scripts/Makefile.clean			[D] Clean hostprogs
+
+
+Mon Sep 14 CST 2015
+- [+] arch/x86/configs/i386_defconfig		[D] To be added

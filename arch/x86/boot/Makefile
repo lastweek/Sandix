@@ -1,33 +1,58 @@
 #
-# Real-Mode Kernel Image Makefile
+#	arch/x86/boot/Makefile - Build the final bzImage
 #
+#	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+#
+#	This program is free software; you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation; either version 2 of the License, or
+#	(at your option) any later version.
+#
+#	This program is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
+#
+#	You should have received a copy of the GNU General Public License along
+#	with this program; if not, write to the Free Software Foundation, Inc.,
+#	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-loader-y := bootsect.o
+hostprogs-y := tools/build
 
-# header.o main.o MUST come first
-obj-y := header.o
-obj-y += main.o
-obj-y += a20.o
-obj-y += bioscall.o
-obj-y += string.o
-obj-y += tty.o
-obj-y += video.o
-obj-y += memory.o
-obj-y += printf.o
-obj-y += regs.o
-obj-y += pm.o
-obj-y += pmjump.o 
+obj-y	:= a20.o
 
-objcopy-y := bootsect.o
-#objdump-y := bootsect.o built-in.o
 
-M16_CFLAGS := $(call cc-option,-m16)
+##
+# Safe to override KBUILD_CFLAGS, KBUILD_AFLAGS,
+# since this is the last step of our build.
+#
+KBUILD_CFLAGS	:= $(USERINCLUDE) $(REALMODE_CFLAGS) -D__SETUP__
+KBUILD_AFLAGS	:= $(KBUILD_CFLAGS) -D__ASSEMBLY_
 
-KBUILD_CFLAGS := $(M16_CFLAGS) -std=gnu11 -march=i386
-KBUILD_CFLAGS += -pipe -Wall -Wundef -fomit-frame-pointer
-KBUILD_CFLAGS += -fno-pic -fno-strict-aliasing -fno-common
-KBUILD_CFLAGS += -Wdeclaration-after-statement
-KBUILD_CFLAGS += -Werror=strict-prototypes
-KBUILD_CFLAGS += -Werror=implicit-function-declaration
-KBUILD_CFLAGS += -mno-sse -mno-mmx -mno-sse2 -mno-3dnow -mno-avx
-KBUILD_CFLAGS += -ffreestanding
+##
+# BUILD THE FINAL arch/x86/boot/bzImage
+# bzImage need four things:
+#	tools/build	-	Tool to concatenate
+#	bootsect.bin	-	The so-called bootloader
+#	setup.bin	-	The real-mode kernel image
+#	vmSandix.bin	-	The bare kernel itself
+#
+quiet_cmd_image = BUILD   $@
+      cmd_image = $(obj)/tools/build
+$(obj)/bzImage: $(obj)/setup.bin $(obj)/vmSandix.bin $(obj)/tools/build FORCE
+	$(call if_changed,image)
+	@echo 'Sandix Kernel: $@ is ready'
+##
+# Convert vmSandix to raw binary file
+#
+OBJCOPYFLAGS_vmSandix.bin := -O binary -R .note -R .comment -S
+$(obj)/vmSandix.bin: $(obj)/vmSandix FORCE
+	$(call if_changed,objcopy)
+
+##
+# Convert setup to raw binary file
+#
+OBJCOPYFLAGS_setup.bin := -O binary
+$(obj)/setup.bin: $(obj)/setup FORCE
+	$(call if_changed,objcopy)
+
