@@ -417,7 +417,7 @@ init-y		:= init/
 #core-y		:= kernel/ mm/
 #libs-y		:= lib/
 #net-y		:= net/
-#drivers-y	:= drivers/
+drivers-y	:= drivers/
 ARCH_CPPFLAGS	:=
 ARCH_AFLAGS	:=
 ARCH_CFLAGS	:=
@@ -433,22 +433,25 @@ core-y		:= $(patsubst %/, %/built-in.o, $(core-y))
 libs-y		:= $(patsubst %/, %/built-in.o, $(libs-y))
 net-y		:= $(patsubst %/, %/built-in.o, $(net-y))
 drivers-y	:= $(patsubst %/, %/built-in.o, $(drivers-y))
-vmSandix-deps	:= $(init-y) $(core-y) $(libs-y) $(net-y) $(drivers-y)
+vmSandix-deps	:= $(head-y) $(init-y) $(core-y) $(libs-y) $(net-y) $(drivers-y)
 
+##
 # Externally visible to link-vmSandix.sh
+#
 export KBUILD_VMSANDIX_INIT := $(head-y) $(init-y)
 export KBUILD_VMSANDIX_MAIN := $(core-y) $(libs-y) $(net-y) $(drivers-y)
-export KBUILD_VMSANDIX_LDS  := arch/$(SRCARCH)/kernel/vmSandix.ld.S
+export KBUILD_VMSANDIX_LDS  := arch/$(SRCARCH)/kernel/vmSandix.ld
 
 ##
 # Default kernel image to build.
-# It is bzImage in x86
 #
-export KBUILD_IMAGE	?= vmSandix
+export KBUILD_IMAGE ?= bzImage
 
+##
 # INSTALL_PATH specifies where to place the updated kernel and system map
 # images. Default is /boot, but you can set it to other values
-export INSTALL_PATH	?= /boot
+#
+export INSTALL_PATH ?= /boot
 
 ##
 # Final link of vmSandix
@@ -494,41 +497,7 @@ PHONY += $(clean-dirs)
 $(clean-dirs):
 	$(Q)$(MAKE) $(clean)=$(patsubst __clean__%,%,$@)
 
-
-#	o Real-Mode kernel image is boot/rmimage.
-#	o Link $(init-y) $(core-y) $(drivers-y) together to form protected-mode
-#	  kernel image. Move and rename the pm kernel image to boot/pmimage.
-#	o boot/CATENATE is used to catenate bootloader, rmimage and
-#	  pmimage together to form bzImage.
-#
-_RM_IMAGE := boot/rmimage
-_PM_IMAGE := boot/pmimage
-RM_IMAGE  := boot/rmimage.bin
-PM_IMAGE  := boot/pmimage.bin
-VMSANDIX  := boot/vmsandix
-BZIMAGE   := boot/bzImage
-RM_LD_CMD := boot/rm-image.ld
-PM_LD_CMD := kernel/vmSandix.ld
-quiet_cmd_link_rm := LD $(SS)  $(_RM_IMAGE)
-      cmd_link_rm := $(LD) -T $(RM_LD_CMD) -o $(_RM_IMAGE) $(KBUILD_VMSANDIX_BOOT)
-quiet_cmd_link_pm := LD $(SS)  $(_PM_IMAGE)
-      cmd_link_pm := $(LD) -T $(PM_LD_CMD) -o $(_PM_IMAGE) $(KBUILD_VMSANDIX_MAIN)
-quiet_cmd_bin_rm := OBJCOPY $(RM_IMAGE)
-      cmd_bin_rm := $(OBJCOPY) $(OBJCOPYFLAGS) $(_RM_IMAGE) $(RM_IMAGE)
-quiet_cmd_bin_pm := OBJCOPY $(PM_IMAGE)
-      cmd_bin_pm := $(OBJCOPY) $(OBJCOPYFLAGS) $(_PM_IMAGE) $(PM_IMAGE)
-quiet_cmd_catenate := CAT$(SS) $(VMSANDIX)
-      cmd_catenate := boot/CATENATE
-quiet_cmd_map := MAP
-      cmd_map := $(NM) -n $(_PM_IMAGE) > boot/System.map
-vmsandix: $(vmsandix-deps)
-	$(call if_changed,link_pm)
-	$(call if_changed,link_rm)
-	$(call if_changed,bin_pm)
-	$(call if_changed,bin_rm)
-	$(call if_changed,map)
-	$(call if_changed,catenate)
-
+PHONY += help
 help:
 	@echo  'Cleaning targets:'
 	@echo  '  clean		  - Remove most generated files but keep the config and'
@@ -563,14 +532,16 @@ help:
 ##
 # Generate Editor Tags
 #
+PHONY += tags
 tags:
-	@echo
+	@echo ''
 
 ##
 # Generate Kernel Docs
 #
+PHONY += docs
 docs:
-	@echo
+	@echo ''
 
 endif # ! ifeq ($(config-targets),1)
 endif # ! ifeq ($(mixed-targets),1)

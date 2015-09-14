@@ -46,10 +46,11 @@ export REALMODE_CFLAGS
 # x86 Architecture-Dependent Kernel Objects
 # Little trick to separate arch-independent/dependent code.
 #
-libs-y		+= arch/x86/lib/
+head-y		:= arch/x86/kernel/head.o
 core-y		+= arch/x86/kernel/
-core-y		+= arch/x86/mm/
-drivers-y	+= arch/x86/pci/
+#libs-y		+= arch/x86/lib/
+#core-y		+= arch/x86/mm/
+#drivers-y	+= arch/x86/pci/
 
 ##
 # Future: Bootloader support, like GRUB2

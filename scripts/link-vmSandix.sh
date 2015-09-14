@@ -21,7 +21,7 @@
 # System.map is generated to document addresses of all kernel symbols
 #
 
-set -e;
+set -e
 
 # Beautiful output in kbuild format
 # Will be suppressed by "make -s"
@@ -32,16 +32,20 @@ info()
 	fi
 }
 
-vmSandix_link()
+vmSandix_ld()
 {
 	local lds="${objtree}/${KBUILD_VMSANDIX_LDS}"
 
-	${LD} -T ${lds} ${KBUILD_VMSANDIX_INIT} ${KBUILD_VMSANDIX_MAIN}
+	${LD} -T ${lds} -o ${1}			\
+		${KBUILD_VMSANDIX_INIT}		\
+		--start-group			\
+		${KBUILD_VMSANDIX_MAIN}		\
+		--end-group
 }
 
 mksysmap()
 {
-	$NM -n ${1} > ${2}
+	${NM} -n ${1} > ${2}
 }
 
 cleanup()
@@ -51,22 +55,29 @@ cleanup()
 	rm -f vmSandix
 }
 
+##
 # Enable Debug Mode; Print commands.
+#
 if [ "${KBUILD_VERBOSE}" = "1" ]; then
 	set -x;
 fi
 
+##
 # Cleaning
+#
 if [ "$1" == "clean" ]; then
 	info CLEAN vmSandix
 	cleanup
 	exit 0
 fi
 
+##
+# Link vmSandix
+#
 if [ "$1" == "LD" ]; then
-	info LD vmSandix
-	vmSandix_link vmSandix
+	info LD vmSandix.o
+	vmSandix_ld vmSandix.o
 
-	info SYSMAP  System.map
-	mksysmap vmSandix System.map
+	info SYSMAP System.map
+	mksysmap vmSandix.o System.map
 fi

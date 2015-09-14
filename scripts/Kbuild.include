@@ -200,8 +200,6 @@ if_changed = $(if $(strip $(any-prereq) $(arg-check)),                       \
 	$(echo-cmd) $(cmd_$(1));                                             \
 	printf '%s\n' 'cmd_$@ := $(make-cmd)' > $(dot-target).cmd)
 
-# Actually, for now, i do not need fixdep. So just fork if_changed. 
-#
 if_changed_dep = $(if $(strip $(any-prereq) $(arg-check)),                   \
 	@set -e;                                                             \
 	$(echo-cmd) $(cmd_$(1));                                             \

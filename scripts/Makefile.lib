@@ -100,9 +100,6 @@ a_flags		= -Wp,-MD,$(depfile),-MT,'$@' $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(__a_
 cpp_flags	= -Wp,-MD,$(depfile),-MT,'$@' $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(__cpp_flags)
 ld_flags	= $(KBUILD_LDFLAGS) $(LDFLAGS)
 
-objcopy_flags	= $(OBJCOPYFLAGS)
-objdump_flags	= $(OBJDUMPFLAGS)
-
 # Useful for describing the dependency of composite objects
 # Usage:
 #   $(call multi_depend, multi_used_targets, suffix_to_remove, suffix_to_add)
@@ -185,6 +182,16 @@ $(obj)/%: $(src)/%_shipped
 quiet_cmd_ld = LD      $@
 cmd_ld = $(LD) $(LDFLAGS) $(ldflags-y) $(LDFLAGS_$(@F)) \
 	       $(filter-out FORCE,$^) -o $@
+
+# Objdump
+# Output to $@
+# For example:
+#	$(obj)/foo.dump: foo.o FORCE
+#		$(if_changed,objdump)
+# ---------------------------------------------------------------------------
+
+quiet_cmd_objdump = OBJDUMP $@
+cmd_objcopy = $(OBJDUMP) $(OBJDUMPFLAGS) $(OBJCOPYFLAGS_$(@F)) $< > $@
 
 # Objcopy
 # ---------------------------------------------------------------------------
