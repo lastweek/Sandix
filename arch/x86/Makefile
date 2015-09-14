@@ -89,7 +89,7 @@ KBUILD_CFLAGS	+= -mno-sse -mno-mmx -mno-sse2 -mno-3dnow
 #
 head-y		:= arch/x86/kernel/head.o
 core-y		+= arch/x86/kernel/
-#libs-y		+= arch/x86/lib/
+libs-y		+= arch/x86/lib/
 #core-y		+= arch/x86/mm/
 #drivers-y	+= arch/x86/pci/
 

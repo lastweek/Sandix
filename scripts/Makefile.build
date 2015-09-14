@@ -57,8 +57,9 @@ __build:
 #		(Note that: every [target:] built via $(if_changed_xx)
 #		 should add itself to $(targets). Since Kbuild.include
 #		 will use $(arg-check) to decide if the saved command
-#		 is out-dated. Further more, those command files are
-#		 saved by Makefile.build, which using $(targets))
+#		 is out-dated. Those command files are saved by Makefile.build,
+#		 which using $(targets))
+#		(Examples using $(targets), please see arch/x86/boot/Makefile)
 #
 #	subdir-y - Sub-Directory to descend into
 #

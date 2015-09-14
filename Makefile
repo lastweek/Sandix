@@ -273,8 +273,7 @@ KBUILD_AFLAGS		:= -D__ASSEMBLY__
 KBUILD_LDFLAGS		:=
 KBUILD_ARFLAGS		:=
 OBJCOPYFLAGS		:=
-OBJDUMPFLAGS		:= -d -M att
-#OBJCOPYFLAGS := -j .text -j .text32 -j .data -j .rodata -j .init -O binary
+OBJDUMPFLAGS		:= -M att
 
 SANDIXINCLUDE		:=							\
 			   -Iinclude						\

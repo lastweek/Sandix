@@ -1,6 +1,8 @@
 #!/bin/bash
 #
-# link vmSandix
+# Link vmSandix
+#
+# System.map is generated to document addresses of all kernel symbols
 #
 # vmSandix is linked from the objects selected by $(KBUILD_VMLINUX_INIT) and
 # $(KBUILD_VMLINUX_MAIN). Most are built-in.o files from top-level directories
@@ -11,15 +13,10 @@
 #   ^
 #   |
 #   +-< $(KBUILD_VMLINUX_INIT)
-#   |   +--< init/main.o + more
+#   |   +--< arch/${SRCARCH}/kernel/head.o + init/main.o + more
 #   |
 #   +--< $(KBUILD_VMLINUX_MAIN)
 #   |    +--< drivers/built-in.o mm/built-in.o + more
-#   |
-#   +-< ${kallsymso} (see description in KALLSYMS section)
-#
-# System.map is generated to document addresses of all kernel symbols
-#
 
 set -e
 
@@ -65,15 +62,6 @@ if [ "${KBUILD_VERBOSE}" = "1" ]; then
 fi
 
 ##
-# Cleaning
-#
-if [ "$1" == "clean" ]; then
-	info CLEAN vmSandix
-	cleanup
-	exit 0
-fi
-
-##
 # Link vmSandix
 #
 if [ "$1" == "LD" ]; then
@@ -82,6 +70,19 @@ if [ "$1" == "LD" ]; then
 	info SYSMAP System.map
 	mksysmap vmSandix System.map
 	
+	##
+	# Copy to make boot/Makefile happy
+	#
 	cp vmSandix arch/${SRCARCH}/boot/
 	cp System.map arch/${SRCARCH}/boot/
 fi
+
+##
+# Cleaning
+#
+if [ "$1" == "clean" ]; then
+	info CLEAN vmSandix
+	cleanup
+	exit 0
+fi
+

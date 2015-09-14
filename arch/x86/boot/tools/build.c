@@ -93,7 +93,7 @@ int main(int argc, char **argv)
 	}
 	
 	// make it 512 byte alignment.
-	if (pad = len_si % SECTOR_SIZE) {
+	if ((pad = len_si % SECTOR_SIZE)) {
 		pad = SECTOR_SIZE - pad;
 		for (i = 0; i < pad; i++)
 			fputc(NOP, fp_out);
@@ -112,7 +112,7 @@ int main(int argc, char **argv)
 	 }
 	
 	// make it 512 byte alignment.
-	if (pad = len_ki % SECTOR_SIZE) {
+	if ((pad = len_ki % SECTOR_SIZE)) {
 		pad = SECTOR_SIZE - pad;
 		for (i = 0; i < pad; i++)
 			fputc(NOP, fp_out);
@@ -127,10 +127,10 @@ int main(int argc, char **argv)
 	lower_bound_of_sp = sectors_header * SECTOR_SIZE + 0x90000;
 	
 	printf("\n");
-	printf("[bootloader]    : %-10d bytes (%-5d sector)\n", len_bl, 1);
-	printf("[setup.bin] : %-10d bytes (%-5d sectors)\n", len_si, sectors_header);
+	printf("[bootloader]   : %-10d bytes (%-5d sector)\n", len_bl, 1);
+	printf("[setup.bin]    : %-10d bytes (%-5d sectors)\n", len_si, sectors_header);
 	printf("[vmSandix.bin] : %-10d bytes (%-5d sectors)\n", len_ki, sectors_image);
-	printf("[bzImage]     : %-10d bytes (%-5d sectors)\n", sectors_bzimage*SECTOR_SIZE, sectors_bzimage);
+	printf("[bzImage]      : %-10d bytes (%-5d sectors)\n", sectors_bzimage*SECTOR_SIZE, sectors_bzimage);
 	printf("The lower bound of %%SP in boot/header.S is %X\n", lower_bound_of_sp);
 	printf("Remember change the sector number in boot/bootsect.S!\n");
 

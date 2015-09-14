@@ -185,7 +185,7 @@ void *memset(void *s, char c, size_t n)
 	);
 	return s;
 }
-EXPORT_SYMBOL(memset);
+//EXPORT_SYMBOL(memset);
 
 void *memcpy(void *to, const void *from, size_t n)
 {
@@ -203,4 +203,4 @@ void *memcpy(void *to, const void *from, size_t n)
 	);
 	return to;
 }
-EXPORT_SYMBOL(memcpy);
+//EXPORT_SYMBOL(memcpy);

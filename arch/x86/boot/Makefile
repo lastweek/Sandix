@@ -36,11 +36,8 @@ hostprogs-y := tools/build
 loader-y := bootloader.o
 
 ##
-# Since they used $(if_changed,cmd), so
-# we have to add them to make Kbuild happy.
-#(In Makefile.build, $(targets) was used to
-# include their corresponding saved old commands,
-# those saved commands are used by $(if_changed))
+# Since Makefile.build has no rules for these
+# targets, so we have to add them manually.
 #
 targets += bootloader.bin
 targets += setup.elf
@@ -82,7 +79,6 @@ $(obj)/bzImage: $(obj)/bootloader.bin $(obj)/setup.bin \
 	@echo 'Cheers!'
 	@echo 'Sandix Kernel: $@ is ready.'
 
-#FIXME objcopyflags
 OBJCOPYFLAGS_bootloader.bin := -O binary -R .note -R .comment -S
 $(obj)/bootloader.bin: $(obj)/bootloader.o FORCE
 	$(call if_changed,objcopy)
@@ -91,7 +87,7 @@ OBJCOPYFLAGS_vmSandix.bin := -O binary -R .note -R .comment -S
 $(obj)/vmSandix.bin: $(obj)/vmSandix FORCE
 	$(call if_changed,objcopy)
 
-OBJCOPYFLAGS_setup.bin := -O binary
+OBJCOPYFLAGS_setup.bin := -O binary -R .note -R .comment
 $(obj)/setup.bin: $(obj)/setup.elf FORCE
 	$(call if_changed,objcopy)
 

@@ -27,17 +27,13 @@
 *.elf
 *.dump
 *.objdump
-vmSandix.ld
 
-##
-# Described in Makefile
-#
-*image
+bzImage
 vmSandix
 System.map
 
 ##
-# Special Dot Files
+# Commit Special Dot Files
 #
 !.gitignore
 !.config
