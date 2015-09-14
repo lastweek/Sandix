@@ -69,11 +69,11 @@ bzImage:
 #
 PHONY += arch-clean
 arch-clean:
-	$(Q)$(MAKE) $(clean)=$(srctree)/arch/x86/boot/tools
+	@echo '  CLEAN   arch-clean'
 
 ##
 # Architecture Specific Help
 #
 PHONY += arch-help
 arch-help:
-	@echo  'x86 help'
+	@echo  'x86 HELP'

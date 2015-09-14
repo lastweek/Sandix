@@ -412,11 +412,12 @@ PHONY += all
 all: scripts_basic vmSandix
 
 boot-y		:=
+head-y		:=
 init-y		:= init/
-core-y		:= kernel/ mm/
-libs-y		:= lib/
-net-y		:= net/
-drivers-y	:= drivers/
+#core-y		:= kernel/ mm/
+#libs-y		:= lib/
+#net-y		:= net/
+#drivers-y	:= drivers/
 ARCH_CPPFLAGS	:=
 ARCH_AFLAGS	:=
 ARCH_CFLAGS	:=
@@ -435,24 +436,25 @@ drivers-y	:= $(patsubst %/, %/built-in.o, $(drivers-y))
 vmSandix-deps	:= $(init-y) $(core-y) $(libs-y) $(net-y) $(drivers-y)
 
 # Externally visible to link-vmSandix.sh
+export KBUILD_VMSANDIX_INIT := $(head-y) $(init-y)
+export KBUILD_VMSANDIX_MAIN := $(core-y) $(libs-y) $(net-y) $(drivers-y)
 export KBUILD_VMSANDIX_LDS  := arch/$(SRCARCH)/kernel/vmSandix.ld.S
-export KBUILD_VMSANDIX_BOOT := $(boot-y)
-export KBUILD_VMSANDIX_MAIN := $(init-y) $(core-y) $(libs-y) $(net-y) $(drivers-y)
 
+##
 # Default kernel image to build.
+# It is bzImage in x86
+#
 export KBUILD_IMAGE	?= vmSandix
 
 # INSTALL_PATH specifies where to place the updated kernel and system map
 # images. Default is /boot, but you can set it to other values
 export INSTALL_PATH	?= /boot
 
-# Final link of vmSandix
-quiet_cmd_link-vmSandix = LINK    $@
-      cmd_link-vmSandix = $(CONFIG_SHELL) $< $(LD) $(LDFLAGS)
-
 ##
-# Finally, we reach the vmSandix. Build it!
+# Final link of vmSandix
 #
+quiet_cmd_link-vmSandix = LINK    $@
+      cmd_link-vmSandix = $(CONFIG_SHELL) $< LD
 vmSandix: scripts/link-vmSandix.sh $(vmSandix-deps) FORCE
 	$(call if_changed,link-vmSandix)
 
