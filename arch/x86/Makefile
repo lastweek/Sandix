@@ -51,26 +51,25 @@ core-y		+= $(srctree)/arch/x86/kernel/
 core-y		+= $(srctree)/arch/x86/mm/
 drivers-y	+= $(srctree)/arch/x86/pci/
 
-# Specific boot part.
+##
+# Future: Bootloader support, like GRUB2
+#
 boot-y		:= $(srctree)/arch/x86/boot
-
-all: bzImage
+KBUILD_IMAGE	:= $(boot-y)/bzImage
 
 ##
-# Build the x86 bzImage:
-#	Bootloader
-#	Real-Mode Image
-#	Bare Kernel(Protected Mode)
+# BUILD the x86 bzImage:
 #
+all: bzImage
 bzImage:
-	$(Q)$(MAKE) $(build)=$(boot-y)
+	$(Q)$(MAKE) $(build)=$(boot-y) $(KBUILD_IMAGE)
 
 ##
 # Architecture Specific Clean
 #
 PHONY += arch-clean
 arch-clean:
-	@echo "  CLEAN   arch-clean"
+	$(Q)$(MAKE) $(clean)=$(srctree)/arch/x86/boot/tools
 
 ##
 # Architecture Specific Help

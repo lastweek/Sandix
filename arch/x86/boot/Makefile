@@ -37,22 +37,19 @@ KBUILD_AFLAGS	:= $(KBUILD_CFLAGS) -D__ASSEMBLY_
 #	setup.bin	-	The real-mode kernel image
 #	vmSandix.bin	-	The bare kernel itself
 #
-quiet_cmd_image = BUILD   $@
-      cmd_image = $(obj)/tools/build
+quiet_cmd_build_image = BUILD   $@
+      cmd_build_image = $(obj)/tools/build
 $(obj)/bzImage: $(obj)/setup.bin $(obj)/vmSandix.bin $(obj)/tools/build FORCE
-	$(call if_changed,image)
+	$(call if_changed,build_image)
 	@echo 'Sandix Kernel: $@ is ready'
-##
-# Convert vmSandix to raw binary file
-#
+
 OBJCOPYFLAGS_vmSandix.bin := -O binary -R .note -R .comment -S
 $(obj)/vmSandix.bin: $(obj)/vmSandix FORCE
 	$(call if_changed,objcopy)
 
-##
-# Convert setup to raw binary file
-#
 OBJCOPYFLAGS_setup.bin := -O binary
 $(obj)/setup.bin: $(obj)/setup FORCE
 	$(call if_changed,objcopy)
 
+$(obj)/vmSandix: ;
+$(obj)/setup: ;
