@@ -97,3 +97,5 @@ Sun Sep 13 CST 2015
 
 Mon Sep 14 CST 2015
 - [+] arch/x86/configs/i386_defconfig		[D] To be added
+- [M] arch/x86/Makefile				[D] Add flags
+- [M] arch/x86/boot/Makefile			[D] build bzImage

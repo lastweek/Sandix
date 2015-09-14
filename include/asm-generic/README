@@ -1,0 +1,5 @@
+#
+#	include/asm-generic is intended for generic architectures
+#
+#	Take linux for a detailed look.
+#
