@@ -1,6 +1,8 @@
 #
 #	Build Sandix Kernel
 #
+#	For more information, please read samples/Makefile.tutorial
+#
 #	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
 #
 #	This program is free software; you can redistribute it and/or modify
@@ -411,6 +413,16 @@ scripts: scripts_basic
 PHONY += all
 all: scripts_basic vmSandix
 
+##
+# Generally, final kernel image has 7 parts:
+#	boot-y		-	Architecture Setup Part(Real-Mode in x86)
+#	head-y		-	Kernel Image Header(Normally, head.S)
+#	init-y		-	Kernel Init Part(init/*)
+#	core-y		-	Kernel Built-in Part(e.g. kernel/ mm/)
+#	libs-y		-	Kernel Library
+#	net-y		-	Kernel Network Sub-system
+#	drivers-y	-	Kernel Various Drivers
+#
 boot-y		:=
 head-y		:=
 init-y		:= init/
@@ -516,7 +528,8 @@ help:
 	@echo  '  dir/file.[oisS] - Build specified target only'
 	@echo  ''
 	@echo  'Building opinions:'
-	@echo  '  make V=0|1 [targets] 0 => quiet build (default), 1 => verbose build'
+	@echo  '  make V=0   [targets] 0 => quiet build (default)'
+	@echo  '  make V=1   [targets] 1 => verbose build'
 	@echo  '  make V=2   [targets] 2 => give reason for rebuild of target'
 	@echo  '  make O=dir [targets] Locate all output files in "dir", including .config'
 	@echo  '  make C=1   [targets] Check all c source with $(CHECK) (sparse by default)'
@@ -528,6 +541,7 @@ help:
 	@echo  '		Multiple levels can be combined with W=12 or W=123'
 	@echo  ''
 	@echo  'Execute "make" or "make all" to build all targets marked with [*] '
+	@echo  'For more information, please read samples/Makefile.tutorial'
 
 ##
 # Generate Editor Tags

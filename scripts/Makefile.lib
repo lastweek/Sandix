@@ -63,11 +63,12 @@ obj-dirs := $(dir $(multi-objs) $(obj-y))
 #
 # Add subdir path.
 #
+obj-y		:= $(addprefix $(obj)/,$(obj-y))
+lib-y		:= $(addprefix $(obj)/,$(lib-y))
+setup-y		:= $(addprefix $(obj)/,$(setup-y))
 extra-y		:= $(addprefix $(obj)/,$(extra-y))
 always		:= $(addprefix $(obj)/,$(always))
 targets		:= $(addprefix $(obj)/,$(targets))
-obj-y		:= $(addprefix $(obj)/,$(obj-y))
-lib-y		:= $(addprefix $(obj)/,$(lib-y))
 obj-dirs	:= $(addprefix $(obj)/,$(obj-dirs))
 subdir-y	:= $(addprefix $(obj)/,$(subdir-y))
 subdir-obj-y	:= $(addprefix $(obj)/,$(subdir-obj-y))

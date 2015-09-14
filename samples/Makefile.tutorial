@@ -2,10 +2,66 @@
 #	Tutorial for writing Makefile in Sandix
 #
 
+
 ######################################################
 #
 #
-#	PART ONE: Targets
+#	PART ZERO: OBJECTS, FILES
+#
+#
+######################################################
+
+##
+#
+# 1) Top-Makefile and Arch-Makefile
+#
+#    Kernel Image Component:
+#
+#	boot-y		-	Architecture Setup Part(e.g. Real-Mode in x86)
+#	head-y		-	Kernel Image Header(Normally, head.S)
+#	init-y		-	Kernel Init Part(init/*)
+#	core-y		-	Kernel Built-in Part(e.g. kernel/ mm/)
+#	libs-y		-	Kernel Library
+#	net-y		-	Kernel Network Sub-system
+#	drivers-y	-	Kernel Various Drivers
+#
+# 2) In each Makefile
+#
+#    Compiled/Generated/Linked variables:
+#
+#	obj-y	 - Kernel Built-in Object
+#			Compile each one.
+#			Link them into built-in.o automatically.
+#
+#	lib-y	 - Kernel Library Object
+#			Compile each one.
+#			Archive into lib.a automatically.
+#
+#	setup-y	 - Kernel Setup Part Object(e.g. Real-Mode code in x86)
+#			Compile each one
+#			Architecture Makefile will link them together.
+#
+#	extra-y	 - Object to be compiled but NOT linked into kernel.
+#			Compile each one
+#			No object is linked(e.g. vmSandix.ld.S).
+#
+#	always	 - Object used by HOST program, always rebuild.
+#			Compile each one
+#			Linking depends on Makefile.host
+#
+#	targets	 - Used to include *.d and *.cmd files.
+#			List all compiled/generated/linked objects.
+#		(Note that: every [target:] built via $(if_changed_xx)
+#		 should add itself to $(targets). Since Kbuild.include
+#		 will use $(arg-check) to decide if the saved command
+#		 is out-dated. Further more, those command files are
+#		 saved by Makefile.build, which using $(targets))
+
+
+######################################################
+#
+#
+#	PART ONE: USING CONVENTION
 #
 #
 ######################################################

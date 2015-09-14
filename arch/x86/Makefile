@@ -70,7 +70,7 @@ bzImage:
 #
 PHONY += arch-clean
 arch-clean:
-	@echo '  CLEAN   arch-clean'
+	$(Q)$(MAKE) $(clean)=$(boot-y)
 
 ##
 # Architecture Specific Help

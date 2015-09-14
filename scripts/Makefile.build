@@ -30,15 +30,49 @@ __build:
 # Init all relevant variables used in kbuild files so
 # 1) they have correct type
 # 2) they do not inherit any value from the environment
+#
+# Intended usage:
+#	obj-y	 - Kernel Built-in Object
+#			Compile each one.
+#			Link them into built-in.o automatically.
+#
+#	lib-y	 - Kernel Library Object
+#			Compile each one.
+#			Archive into lib.a automatically.
+#
+#	setup-y	 - Kernel Setup Part Object(Real-Mode code in x86)
+#			Compile each one
+#			Architecture Makefile links them together.
+#
+#	extra-y	 - Object to be compiled but not linked into kernel.
+#			Compile each one
+#			No object is linked
+#
+#	always	 - Object used by HOST program, always rebuild.
+#			Compile each one
+#			Linking depends on Makefile.host
+#
+#	targets	 - Used to include *.d and *.cmd files.
+#			List all compiled/generated/linked objects.
+#		(Note that: every [target:] built via $(if_changed_xx)
+#		 should add itself to $(targets). Since Kbuild.include
+#		 will use $(arg-check) to decide if the saved command
+#		 is out-dated. Further more, those command files are
+#		 saved by Makefile.build, which using $(targets))
+#
+#	subdir-y - Sub-Directory to descend into
+#
 obj-y :=
 lib-y :=
+setup-y :=
+extra-y :=
+always :=
+targets :=
 subdir-y :=
 asflags-y  :=
 ccflags-y  :=
 cppflags-y :=
 ldflags-y  :=
-always :=
-targets :=
 
 subdir-asflags-y :=
 subdir-ccflags-y :=
@@ -88,10 +122,10 @@ endif
 # ------------------------------------------------------------------------
 __build: $(builtin-target) $(lib-target) $(subdir-y)	\
 	 $(loader-target) $(objdump-target)		\
-	 $(extra-y) $(always)
+	 $(extra-y) $(always) $(setup-y)
 	@:
 
-targets += $(extra-y) $(always)
+targets += $(extra-y) $(always) $(setup-y)
 
 # ------------------------------------------------------------------------
 # Build everything
@@ -204,9 +238,10 @@ $(subdir-y):
 	$(Q)$(MAKE) $(build)=$@
 
 ##
-# Hmm, you see how $(targets) works?
+# Hmm, now you know how $(targets) works?
 # Read all saved command lines and dependencies for the $(targets) we
-# may be building above, used by $(if_changed{,_dep,_rule}). 
+# may be building above, using by $(if_changed{,_dep,_rule}). 
+# Linux Kernel put .d and .cmd together, but i prefer separating them.
 # ------------------------------------------------------------------------
 targets  := $(wildcard $(sort $(targets)))
 depfiles := $(wildcard $(foreach f,$(targets),$(dir $(f)).$(notdir $(f)).d))

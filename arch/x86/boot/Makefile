@@ -17,21 +17,44 @@
 #	with this program; if not, write to the Free Software Foundation, Inc.,
 #	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+##
+# HOST BUILD
+#
 hostprogs-y := tools/build
 
-obj-y	:= a20.o
+##
+# Yes, they are targets. Because they use $(if_changed_)
+# Add them to targets to make Kbuild happy.
+#
+targets		+= setup.elf setup.bin
 
+##
+# Kernel Setup Part. (Real-Mode in x86, actually)
+# Using $(setup-y) to compile setup code.
+#
+setup-y	:= header.o
+setup-y	+= main.o
+setup-y	+= a20.o
+setup-y	+= bioscall.o
+setup-y	+= string.o
+setup-y	+= tty.o
+setup-y	+= video.o
+setup-y	+= memory.o
+setup-y	+= printf.o
+setup-y	+= regs.o
+setup-y	+= pm.o
+setup-y	+= pmjump.o 
+setup-targets := $(addprefix $(obj)/, $(setup-y))
 
 ##
 # Safe to override KBUILD_CFLAGS, KBUILD_AFLAGS,
-# since this is the last step of our build.
+# since this is the last step of kbuild.
 #
 KBUILD_CFLAGS	:= $(USERINCLUDE) $(REALMODE_CFLAGS) -D__SETUP__
 KBUILD_AFLAGS	:= $(KBUILD_CFLAGS) -D__ASSEMBLY_
 
 ##
-# BUILD THE FINAL arch/x86/boot/bzImage
-# bzImage need four things:
+# Building bzImage need four things:
 #	tools/build	-	Tool to concatenate
 #	bootsect.bin	-	The so-called bootloader
 #	setup.bin	-	The real-mode kernel image
@@ -48,8 +71,11 @@ $(obj)/vmSandix.bin: $(obj)/vmSandix FORCE
 	$(call if_changed,objcopy)
 
 OBJCOPYFLAGS_setup.bin := -O binary
-$(obj)/setup.bin: $(obj)/setup FORCE
+$(obj)/setup.bin: $(obj)/setup.elf FORCE
 	$(call if_changed,objcopy)
 
+LDFLAGS_setup.elf := -T
+$(obj)/setup.elf: $(src)/setup.ld $(setup-targets) FORCE
+	$(call if_changed,ld)
+
 $(obj)/vmSandix: ;
-$(obj)/setup: ;
