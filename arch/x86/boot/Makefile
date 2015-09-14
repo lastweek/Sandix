@@ -76,7 +76,6 @@ quiet_cmd_build_image = BUILD   $@
 $(obj)/bzImage: $(obj)/bootloader.bin $(obj)/setup.bin \
                 $(obj)/vmSandix.bin $(obj)/tools/build FORCE
 	$(call if_changed,build_image)
-	@echo 'Cheers!'
 	@echo 'Sandix Kernel: $@ is ready.'
 
 OBJCOPYFLAGS_bootloader.bin := -O binary -R .note -R .comment -S
@@ -87,7 +86,7 @@ OBJCOPYFLAGS_vmSandix.bin := -O binary -R .note -R .comment -S
 $(obj)/vmSandix.bin: $(obj)/vmSandix FORCE
 	$(call if_changed,objcopy)
 
-OBJCOPYFLAGS_setup.bin := -O binary -R .note -R .comment
+OBJCOPYFLAGS_setup.bin := -O binary -R .note -R .comment -S
 $(obj)/setup.bin: $(obj)/setup.elf FORCE
 	$(call if_changed,objcopy)
 

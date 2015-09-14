@@ -26,7 +26,7 @@ SECTIONS
 {
 	. = 0;
 	.text		: { *(.text) }
-	.text32		: { *(.text32)}
+	.text32		: { *(.text32) }
 	
 	. = ALIGN(16);
 	.data		: { *(.data*) }

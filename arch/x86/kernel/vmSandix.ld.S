@@ -1,9 +1,12 @@
 /*
  *	Sandix Linker Script - Assembly Version
  *
- *	BIG FAT NOTE:
- *	Make sure you do not _eliminate_ any sections you need!
- *	If you happenly miss something, it will lead to hard-to-debug errors.
+ *	vmSandix has 5 sections:
+ *		.text		-	Kernel Built-in Code
+ *		.rodata		-	Kernel Read-Only Data
+ *		.data		-	Kernel Writable Data
+ *		.init		-	Kernel Init Code
+ *		.bss		-	BSS Section
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
@@ -52,7 +55,6 @@ SECTIONS
 		__etext__ = .;
 	}
 	
-	/* Add wildcard after rodata. GCC will add f*ing suffix */
 	. = ALIGN(PAGE_SIZE);
 	.rodata : {
 		__srodata__ = .;
