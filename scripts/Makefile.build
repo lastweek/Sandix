@@ -206,7 +206,7 @@ targets += $(multi-used-y)
 #
 # ------------------------------------------------------------------------
 ifdef loader-target
-quiet_cmd_loader = AS $(quiet_modtag)  $@
+quiet_cmd_loader = LOADER  $@
       cmd_loader = $(CC) $(a_flags) -c -o $@ $<
 
 $(loader-target): $(patsubst %.o,%.S,$(loader-y)) 

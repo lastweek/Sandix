@@ -25,6 +25,6 @@ config	WHATEVER
 	bool "Kconfig Test"
 	default y
 	---help---
-	Say yes to fuck you.
+	Say yes to what?
 
 

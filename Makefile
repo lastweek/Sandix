@@ -471,7 +471,7 @@ export INSTALL_PATH ?= /boot
 quiet_cmd_link-vmSandix = LINK    $@
       cmd_link-vmSandix = $(CONFIG_SHELL) $< LD
 vmSandix: scripts/link-vmSandix.sh $(vmSandix-deps) FORCE
-	$(call if_changed,link-vmSandix)
+	$(call if_changed_pre,link-vmSandix)
 
 ##
 # The actual objects are generated when descending.

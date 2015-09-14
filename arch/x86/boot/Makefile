@@ -23,10 +23,20 @@
 hostprogs-y := tools/build
 
 ##
-# Yes, they are targets. Because they use $(if_changed_)
-# Add them to targets to make Kbuild happy.
+# Simple Boot Loader
+# TO BE REPLACED. Sandix should work with GRUB or something.
 #
-targets		+= setup.elf setup.bin
+loader-y := bootloader.o
+
+##
+# Since they used $(if_changed,cmd), so
+# we have to add them to make Kbuild happy.
+#
+targets += bootloader.bin
+targets += setup.elf
+targets += setup.bin
+targets += vmSandix.bin
+targets += bzImage
 
 ##
 # Kernel Setup Part. (Real-Mode in x86, actually)
@@ -62,9 +72,16 @@ KBUILD_AFLAGS	:= $(KBUILD_CFLAGS) -D__ASSEMBLY_
 #
 quiet_cmd_build_image = BUILD   $@
       cmd_build_image = $(obj)/tools/build
-$(obj)/bzImage: $(obj)/setup.bin $(obj)/vmSandix.bin $(obj)/tools/build FORCE
+
+$(obj)/bzImage: $(obj)/bootloader.bin $(obj)/setup.bin \
+                $(obj)/vmSandix.bin $(obj)/tools/build FORCE
 	$(call if_changed,build_image)
-	@echo 'Sandix Kernel: $@ is ready'
+	@echo 'Cheers!'
+	@echo 'Sandix Kernel: $@ is ready.'
+
+OBJCOPYFLAGS_bootloader.bin := -O binary -R .note -R .comment -S
+$(obj)/bootloader.bin: $(obj)/bootloader.o FORCE
+	$(call if_changed,objcopy)
 
 OBJCOPYFLAGS_vmSandix.bin := -O binary -R .note -R .comment -S
 $(obj)/vmSandix.bin: $(obj)/vmSandix FORCE
@@ -77,5 +94,3 @@ $(obj)/setup.bin: $(obj)/setup.elf FORCE
 LDFLAGS_setup.elf := -T
 $(obj)/setup.elf: $(src)/setup.ld $(setup-targets) FORCE
 	$(call if_changed,ld)
-
-$(obj)/vmSandix: ;

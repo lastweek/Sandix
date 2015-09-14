@@ -16,10 +16,10 @@
 #define MAGIC_512	0xAA
 
 // We are in sandix/ when we call this C file.
-const char *bootloader	= "./boot/bootsect.bin";
-const char *setup	= "./boot/rmimage.bin";
-const char *kernel	= "./boot/pmimage.bin";
-const char *vmsandix	= "./boot/vmsandix";
+const char *bootloader	= "arch/x86/boot/bootloader.bin";
+const char *setup	= "arch/x86/boot/setup.bin";
+const char *kernel	= "arch/x86/boot/vmSandix.bin";
+const char *bzImage	= "arch/x86/boot/bzImage";
 
 int main(int argc, char **argv)
 {
@@ -48,8 +48,8 @@ int main(int argc, char **argv)
 		exit(-1);
 	}
 
-	if ((fp_out = fopen(vmsandix, "w+")) == NULL) {
-		printf("Create %s failed\n", vmsandix);
+	if ((fp_out = fopen(bzImage, "w+")) == NULL) {
+		printf("Create %s failed\n", bzImage);
 		exit(-1);
 	}
 	fseek(fp_out, 0, SEEK_SET);
@@ -127,9 +127,9 @@ int main(int argc, char **argv)
 	lower_bound_of_sp = sectors_header * SECTOR_SIZE + 0x90000;
 	
 	printf("\n");
-	printf("[bootsect]    : %-10d bytes (%-5d sector)\n", len_bl, 1);
-	printf("[rmimage.bin] : %-10d bytes (%-5d sectors)\n", len_si, sectors_header);
-	printf("[pmimage.bin] : %-10d bytes (%-5d sectors)\n", len_ki, sectors_image);
+	printf("[bootloader]    : %-10d bytes (%-5d sector)\n", len_bl, 1);
+	printf("[setup.bin] : %-10d bytes (%-5d sectors)\n", len_si, sectors_header);
+	printf("[vmSandix.bin] : %-10d bytes (%-5d sectors)\n", len_ki, sectors_image);
 	printf("[bzImage]     : %-10d bytes (%-5d sectors)\n", sectors_bzimage*SECTOR_SIZE, sectors_bzimage);
 	printf("The lower bound of %%SP in boot/header.S is %X\n", lower_bound_of_sp);
 	printf("Remember change the sector number in boot/bootsect.S!\n");

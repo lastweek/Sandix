@@ -75,9 +75,11 @@ fi
 # Link vmSandix
 #
 if [ "$1" == "LD" ]; then
-	info LD vmSandix.o
-	vmSandix_ld vmSandix.o
+	vmSandix_ld vmSandix
 
 	info SYSMAP System.map
-	mksysmap vmSandix.o System.map
+	mksysmap vmSandix System.map
+	
+	cp vmSandix arch/${SRCARCH}/boot/
+	cp System.map arch/${SRCARCH}/boot/
 fi

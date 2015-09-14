@@ -165,11 +165,17 @@ objectify = $(foreach o,$(1),$(if $(filter /%,$(o)),$(o),$(obj)/$(o)))
 
 # ---------------------------------------------------------------------------
 # ---------------------------------------------------------------------------
+#
+# if_changed_pre  - execute if any prerequisite are updated
+#
 # if_changed      - execute command if any prerequisite is newer than
 #                   target, or command line has changed
+#
 # if_changed_dep  - as if_changed, but uses fixdep to reveal dependencies
 #                   including used config symbols
+#
 # if_changed_rule - as if_changed but execute rule instead
+#
 # See Documentation/kbuild/makefiles.txt for more info
 
 ifneq ($(KBUILD_NOCMDDEP),1)
@@ -193,6 +199,7 @@ make-cmd = $(call escsq,$(subst \#,\\\#,$(subst $$,$$$$,$(cmd_$(1)))))
 # PHONY targets skipped in both cases.
 any-prereq = $(filter-out $(PHONY),$?) $(filter-out $(PHONY) $(wildcard $^),$^)
 
+##
 # Execute command if command has changed or prerequisite(s) are updated.
 #
 if_changed = $(if $(strip $(any-prereq) $(arg-check)),                       \
@@ -200,10 +207,23 @@ if_changed = $(if $(strip $(any-prereq) $(arg-check)),                       \
 	$(echo-cmd) $(cmd_$(1));                                             \
 	printf '%s\n' 'cmd_$@ := $(make-cmd)' > $(dot-target).cmd)
 
+##
+# Execute command if prerequisite(s) are updated
+# Without old-saved commands checking.
+#
+if_changed_pre = $(if $(strip $(any-prereq)),                                \
+	@set -e;                                                             \
+	$(echo-cmd) $(cmd_$(1)))
+
+##
+# Execute command if command has changed or prerequisite(s) are updated.
+# Using fixdep to fix dependencies.
+#
 if_changed_dep = $(if $(strip $(any-prereq) $(arg-check)),                   \
 	@set -e;                                                             \
 	$(echo-cmd) $(cmd_$(1));                                             \
 	printf '%s\n' 'cmd_$@ := $(make-cmd)' > $(dot-target).cmd)
+
 
 # Execute the command and also postprocess generated .d dependencies file.
 #

@@ -24,6 +24,7 @@
 .*
 *.o
 *.bin
+*.elf
 *.dump
 *.objdump
 vmSandix.ld
