@@ -397,7 +397,6 @@ else
 #	...
 # ===========================================================================
 
-# TODO
 ##
 # Additional Helper scripts
 #
@@ -405,13 +404,16 @@ PHONY += scripts
 scripts: scripts_basic
 	@:
 
+$(KCONFIG_CONFIG): ;
+-include .config
+
 ##
 # The all: target is the default when no target is given on the command line.
 # This allow a user to issue only 'make' to build Sandix kernel.
 # Defaults to vmSandix, but the arch makefile usually adds further targets
 #
 PHONY += all
-all: scripts_basic vmSandix
+all: scripts $(KCONFIG_CONFIG) vmSandix
 
 ##
 # Generally, final kernel image has 7 parts:
@@ -430,13 +432,16 @@ init-y		:= init/
 #libs-y		:= lib/
 #net-y		:= net/
 drivers-y	:= drivers/
+
 ARCH_CPPFLAGS	:=
 ARCH_AFLAGS	:=
 ARCH_CFLAGS	:=
 
-# Let arch Makefile overrides.
+##
+# Let ARCH Makefile overrides.
+# Add Compiler and Linker flags
+#
 include arch/$(SRCARCH)/Makefile
-# Add more Compiler and Linker flags.
 include scripts/Makefile.flags
 
 vmSandix-dirs	:= $(patsubst %/, %, $(init-y) $(core-y) $(libs-y) $(drivers-y))
@@ -447,23 +452,10 @@ net-y		:= $(patsubst %/, %/built-in.o, $(net-y))
 drivers-y	:= $(patsubst %/, %/built-in.o, $(drivers-y))
 vmSandix-deps	:= $(head-y) $(init-y) $(core-y) $(libs-y) $(net-y) $(drivers-y)
 
-##
 # Externally visible to link-vmSandix.sh
-#
 export KBUILD_VMSANDIX_INIT := $(head-y) $(init-y)
 export KBUILD_VMSANDIX_MAIN := $(core-y) $(libs-y) $(net-y) $(drivers-y)
 export KBUILD_VMSANDIX_LDS  := arch/$(SRCARCH)/kernel/vmSandix.ld
-
-##
-# Default kernel image to build.
-#
-export KBUILD_IMAGE ?= bzImage
-
-##
-# INSTALL_PATH specifies where to place the updated kernel and system map
-# images. Default is /boot, but you can set it to other values
-#
-export INSTALL_PATH ?= /boot
 
 ##
 # Final link of vmSandix

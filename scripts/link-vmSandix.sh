@@ -53,6 +53,8 @@ cleanup()
 	rm -f .vmSandix.cmd
 	rm -f System.map
 	rm -f vmSandix
+	rm -f arch/${SRCARCH}/boot/System.map
+	rm -f arch/${SRCARCH}/boot/vmSandix
 }
 
 ##

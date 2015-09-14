@@ -18,6 +18,13 @@
 #	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ##
+# Safe to override KBUILD_CFLAGS, KBUILD_AFLAGS,
+# since this is the last step of kbuild.
+#
+KBUILD_CFLAGS	:= $(USERINCLUDE) $(REALMODE_CFLAGS) -D__SETUP__
+KBUILD_AFLAGS	:= $(KBUILD_CFLAGS) -D__ASSEMBLY_
+
+##
 # HOST BUILD
 #
 hostprogs-y := tools/build
@@ -31,6 +38,9 @@ loader-y := bootloader.o
 ##
 # Since they used $(if_changed,cmd), so
 # we have to add them to make Kbuild happy.
+#(In Makefile.build, $(targets) was used to
+# include their corresponding saved old commands,
+# those saved commands are used by $(if_changed))
 #
 targets += bootloader.bin
 targets += setup.elf
@@ -57,13 +67,6 @@ setup-y	+= pmjump.o
 setup-targets := $(addprefix $(obj)/, $(setup-y))
 
 ##
-# Safe to override KBUILD_CFLAGS, KBUILD_AFLAGS,
-# since this is the last step of kbuild.
-#
-KBUILD_CFLAGS	:= $(USERINCLUDE) $(REALMODE_CFLAGS) -D__SETUP__
-KBUILD_AFLAGS	:= $(KBUILD_CFLAGS) -D__ASSEMBLY_
-
-##
 # Building bzImage need four things:
 #	tools/build	-	Tool to concatenate
 #	bootsect.bin	-	The so-called bootloader
@@ -79,6 +82,7 @@ $(obj)/bzImage: $(obj)/bootloader.bin $(obj)/setup.bin \
 	@echo 'Cheers!'
 	@echo 'Sandix Kernel: $@ is ready.'
 
+#FIXME objcopyflags
 OBJCOPYFLAGS_bootloader.bin := -O binary -R .note -R .comment -S
 $(obj)/bootloader.bin: $(obj)/bootloader.o FORCE
 	$(call if_changed,objcopy)

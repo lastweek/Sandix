@@ -1,5 +1,5 @@
 #
-#	arch/x86/Makefile - x86 Architecture
+#	arch/x86/Makefile - Build x86 Architecture
 #
 #	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
 #
@@ -21,7 +21,13 @@ ifneq ($(ARCH),x86)
   $(error arch/x86/Makefile is included improperly)
 endif
 
-# Default .config for Kconfig
+ifneq ($(CONFIG_X86_32),y)
+  $(error CONFIG_X86_32 is not set)
+endif
+
+##
+# Default .config prepared for Kconfig
+#
 KBUILD_DEFCONFIG := i386_defconfig
 
 ##
@@ -43,8 +49,43 @@ REALMODE_CFLAGS  := $(M16_CFLAGS) -Os -D__KERNEL__ \
 export REALMODE_CFLAGS
 
 ##
-# x86 Architecture-Dependent Kernel Objects
-# Little trick to separate arch-independent/dependent code.
+# FLAGS for 32-bit Kernel
+#
+
+CHECKFLAGS	+= -D__i386__
+LDFLAGS		+= -m elf_i386
+
+BINARCH		:= $(call cc-option,-m32)
+KBUILD_CFLAGS	+= $(BINARCH)
+KBUILD_AFLAGS	+= $(BINARCH)
+
+# Freestanding
+KBUILD_CFLAGS	+= -ffreestanding
+       
+# Use registers to pass parameters
+KBUILD_CFLAGS	+= -mregparm=3
+
+# Return struct, union in registers when possible
+KBUILD_CFLAGS	+= -freg-struct-return
+
+# Never want PIC in 32-bit kernel
+KBUILD_CFLAGS	+= -fno-pic
+
+# Prevent GCC from keeping stack 16 bytes aligned
+KBUILD_CFLAGS	+= $(call cc-opinon,-mpreferred-stack-boundary=2)
+
+# Speed up the build
+KBUILD_CFLAGS	+= -pipe
+
+# Prevent GCC from generating any FP code by mistake
+KBUILD_CFLAGS	+= -mno-sse -mno-mmx -mno-sse2 -mno-3dnow
+
+##
+# x86 Architecture-Dependent Kernel Built-in
+#
+# Note that: We separate kernel into different parts,
+# $(head-y), $(init-y), $(core-y) and so on. Normally,
+# the $(head-y) is head.o only, used to jump to $(init-y)
 #
 head-y		:= arch/x86/kernel/head.o
 core-y		+= arch/x86/kernel/
@@ -53,15 +94,21 @@ core-y		+= arch/x86/kernel/
 #drivers-y	+= arch/x86/pci/
 
 ##
-# Future: Bootloader support, like GRUB2
+# x86 Architecture-Dependent Kernel Setup
+#
+# Note that: In x86, the setup part is under real-mode.
+# The setup part of x86 needs to communicate with bootloader
+# such as GRUB or LILO.
 #
 boot-y		:= arch/x86/boot
 KBUILD_IMAGE	:= $(boot-y)/bzImage
 
-##
-# BUILD the x86 bzImage:
-#
 all: bzImage
+
+##
+# A phony bzImage. The real bzImage is built in $(boot-y)
+#
+PHONY += bzImage
 bzImage:
 	$(Q)$(MAKE) $(build)=$(boot-y) $(KBUILD_IMAGE)
 
