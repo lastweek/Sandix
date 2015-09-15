@@ -1,0 +1,28 @@
+#
+# Tue Sep 15 16:00:16 CST 2015
+#
+
+# Keyword: setup, boot loader
+
+Now i know how kernel work with boot loader!
+
+Looking into arch/x86/boot/header.S:
+In the very start, header.S handles if kernel is loaded by BIOS directly into
+0x7c00:0000. In that case, header.S just print some message to tell user that
+Sandix need a boot loader and then quit or reboot.
+At the end of the first bootsect(Maybe call it MBR is more understandable) are
+header data defined by linux boot protocol.
+At the very start of the second sector is a short jump instruction, which jumps
+to the real entry point(described below). Followed, are more header data defined
+by linux boot protocol. In order to work with GRUB or LILO, i copied all of them
+for future coding.
+Then comes our real entry point. This entry point must work with boot loaders.
+General boot loaders load real-mode kernel image at 0x9000:0000, and then jump
+to the short jump instruction(0x9000:0200) we described before, which, jumps here.
+
+OK boring enough. Best way is RTFC.
+
+The key idea is bootloader will look into header.S(Compiled object, of course..)
+for some header data in header, such as BootsectsOfSetup, KernelVerison and so on.
+After bootloader know how much to load, whom to load, it will load the setup image
+to 0x9000:0000 normally, load protected-mode image to 0x100000 normally.
