@@ -102,4 +102,8 @@ Mon Sep 14 CST 2015
 
 
 Tue Sep 15 CST 2015
-- [M] arch/x86/boot/header.S			[D]
+- [+] Diary/09-15-2015
+- [M] arch/x86/Makefile				[D] Remove -mregparm=3 from REALMODEFLAGS
+- [M] arch/x86/boot/header.S			[D] Add more header datas, for future
+-						 >  boot loader support.
+- [M] arch/x86/include/asm/*			[D] Move from include/asm/*
