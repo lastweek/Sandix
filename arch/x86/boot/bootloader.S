@@ -19,8 +19,7 @@ INITSEG		= 0x9000	# Real-Mode Kernel Image Segment.
 SYSSEG		= 0x1000	# Protected-Mode Kernel Image Segment.
 
 SETUP_OFFSET	= 512		# offset of entry point in Real-mode image.
-SECTORS_HEADER	= 13		# sectors of Real-mode image
-
+SECTORS_SETUP	= 13		# sectors of Real-mode image
 SECTORS_KERNEL	= 25       	# sectors of Protected-mode image
 
 	.code16
@@ -54,7 +53,7 @@ bs_load_setup:
 	xor %bx, %bx		# dest mem-->es:bx
 
 	mov $0x02, %ah			# service 2
-	mov $SECTORS_HEADER, %al	# nr of sectors
+	mov $SECTORS_SETUP, %al	# nr of sectors
 	xor %dx, %dx			# drive 0, head 0
 	mov $0x80, %dl
 	mov $2, %cl			# sector 2, track 0
@@ -75,7 +74,7 @@ bs_load_kernel:
 	mov $SECTORS_KERNEL, %al	# nr of sectors
 	xor %dx, %dx			# drive 0, head 0
 	mov $0x80, %dl
-	mov $(SECTORS_HEADER+2), %cl	# sector SH+2, track 0
+	mov $(SECTORS_SETUP+2), %cl	# sector SH+2, track 0
 	int $0x13
 	jc bs_kernel_fail		# CF set on error, go die
 	

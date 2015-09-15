@@ -10,6 +10,10 @@ asm(".code16gcc");
 
 #include <sandix/types.h>
 
+#define STACK_SIZE	512
+
+#ifndef __ASSEMBLY__
+
 typedef unsigned int addr_t;
 
 /* header.S */
@@ -236,5 +240,5 @@ void go_to_protected_mode(void);
 void protected_mode_jump(u32 code_addr, u32 param_addr)
 __attribute__ ((regparm(3)));
 
-
+#endif /* __ASSEMBLY__ */
 #endif /* _BOOT_BOOT_H */

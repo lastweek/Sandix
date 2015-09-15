@@ -25,15 +25,30 @@ ENTRY(_start)
 SECTIONS
 {
 	. = 0;
+	.bstext		: { *(.bstext) }
+	.bsdata		: { *(.bsdata) }
+
+	. = 495;
+	.header		: { *(.header) }
+	.entrytext	: { *(.entrytext) }
+	.entrydata	: { *(.entrydata) }
+	__end_header_S	= .;
+
 	.text		: { *(.text) }
 	.text32		: { *(.text32) }
 	
 	. = ALIGN(16);
-	.data		: { *(.data*) }
-	
-	. = ALIGN(16);
 	.rodata		: { *(.rodata*) }
 	
+	. = ALIGN(16);
+	.data		: { *(.data*) }
+	
+	.signature	:
+	{
+		setup_sig = .;
+		LONG(0x5a5aaa55)
+	}
+
 	. = ALIGN(16);
 	.bss		:
 	{

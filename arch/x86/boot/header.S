@@ -1,102 +1,300 @@
-/*
- *	arch/x86/boot/header.S
- *
- *	Fit Linux x86 boot protocol, can work with BootLoader
- *
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
- *
- *	This program is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
- *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
- *
- *	You should have received a copy of the GNU General Public License along
- *	with this program; if not, write to the Free Software Foundation, Inc.,
- *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
+#
+#	arch/x86/boot/header.S
+#
+#	Fit Linux x86 boot protocol, can work with BootLoader
+#
+#	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+#
+#	This program is free software; you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation; either version 2 of the License, or
+#	(at your option) any later version.
+#
+#	This program is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
+#
+#	You should have received a copy of the GNU General Public License along
+#	with this program; if not, write to the Free Software Foundation, Inc.,
+#	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-BOOTSEG = 0x07C0
-INITSEG = 0X9000
 
+BOOTSEG	= 0x07C0	# Historically boot sect address
+SYSSEG	= 0x1000	# Historically load address >> 4
+INITSEG	= 0X9000	# Setup load address >> 4
+
+#ifndef ROOT_RDONLY
+#define ROOT_RDONLY	1
+#endif
+
+#define STACK_SIZE	512
+
+##
+# Sandix should be loaded by boot loader. If no loader is
+# avaliable, the bootsect is loaded by BIOS directly into
+# 0x7c00. If that happens, we do nothing but print some
+# message to tell the user that a boot loader is needed.
+#
+
+##
+# The So-called Useless Bootsect
+#
 	.code16
-	.text
-	.global header_start
-header_start:
-	
-	# For future use...
-	.space 512
-	
+
 #------------------------------------------------------------
-# OFFSET 512, ENTRY POINT
+# SECTOR 0, OFFSET 0
+	.section ".bstext", "ax"
+	.global boosect_start
+bootsect_start:
+	# Normalize the start address
+	ljmp	$BOOTSEG, $start2
+start2:
+	movw	%cs, %ax
+	movw	%ax, %ds
+	movw	%ax, %es
+	movw	%ax, %ss
+	xorw	%sp, %sp
+	sti
+	cld
+	movw	$bootsect_msg, %si
+msg_loop:
+	lodsb
+	andb	%al, %al
+	jz	bootsect_die
+	movb	$0xe, %ah
+	movw	$7, %bx
+	int	$0x10
+	jmp	msg_loop
+bootsect_die:
+	# Allow the user to press a key, then reboot
+	xorw	%ax, %ax
+	int	$0x16
+	int	$0x19
+	# Int 0x19 never return. In case it does
+	# anyway, invoke the BIOS reset code.
+	ljmp	$0xf000,$0xfff0
+
+	.section ".bsdata", "a"
+bootsect_msg:
+	.ascii "Please use a boot loader.\r\n"
+	.ascii "\n"
+	.ascii "Remove disk and press any key to reboot..."
+	.byte  0
+
+##
+# Kernel attributes. Used by setup.
+# This is part 1 of the header, for the old boot sector.
+#
+
+##
+# Start of setup header ###################################################
+#
+
+#------------------------------------------------------------
+# SECTOR 0, OFFSET 495
+	.section ".header", "a"
+sentinel:	.byte 0xff, 0xff	# Used to detect broken loaders
+
+	.globl	hdr
+hdr:
+setup_sects:	.byte 0			# Filled in by build.c
+root_flags:	.word ROOT_RDONLY
+syssize:	.long 0			# Filled in by build.c
+ram_size:	.word 0			# Obsolete
+vid_mode:	.word 0xfffd
+root_dev:	.word 0			# Filled in by build.c
+boot_flag:	.word 0xAA55
+
+#------------------------------------------------------------
+# SECTOR 1, OFFSET 0
 	.global _start
 _start:
-	jmp start_of_setup
+	# Explicitly enter this as bytes, or the assembler
+	# tries to generate a 3-byte jump here, which causes
+	# everything else to push off to the wrong offset.
+	.byte	0xeb		# short (2-byte) jump
+	.byte	start_of_setup-1f
+1:
 
-#------------------------------------------------------------
-# START of setup_header
-	
-	.globl hdr
-hdr:
-header_version:
-	.long 0x1				# header version number 0.0.0.1
-code32_start:
-	.long 0x10000			# Entry of Protected-Mode Kernel
-video_mode:
-	.long 0x3				# Video mode that kernel supports
-rm_kernel_sects:
-	.long 0x0				# Sections of RM Kernel Image
-pm_kernel_sects:
-	.long 0x0				# Sections of PM kernel Image
-header_signature:
-	.ascii "_SANDIX_"		# header signature
+##
+# Part 2 of the header
+#
+	.ascii	"HdrS"					# header signature
+	.word	0x020d					# header version number (>= 0x0105)
+							# or else old loadlin-1.5 will fail)
+	.globl realmode_swtch
+realmode_swtch:	 .word	0, 0				# default_switch, SETUPSEG
+start_sys_seg:	 .word	SYSSEG				# obsolete and meaningless, but just
+							# in case something decided to "use" it
+		 #.word	kernel_version-512 		# pointing to kernel version string
+		 .word	0				# pointing to kernel version string
+							# above section of header is compatible
+							# with loadlin-1.5 (header v1.5). Don't
+							# change it.
 
-# END   of setup_header
-#------------------------------------------------------------
+type_of_loader:	 .byte	0				# 0 means ancient bootloader, newer
+							# bootloaders know to change this.
+							# See Documentation/x86/boot.txt for
+							# assigned ids
 
-# Real start entry point
+loadflags:	 .byte	LOADED_HIGH			# The kernel is to be loaded high
+							# Unused bits must be zero bit
+
+setup_move_size: .word  0x8000				# size to move, when setup is not
+							# loaded at 0x90000. We will move setup
+							# to 0x90000 then just before jumping
+							# into the kernel. However, only the
+							# loader knows how much data behind
+							# us also needs to be loaded.
+
+code32_start:						# here loaders can put a different
+							# start address for 32-bit code.
+		.long	0x100000			# 0x100000 = default for big kernel
+
+ramdisk_image:	.long	0				# address of loaded ramdisk image
+							# Here the loader puts the 32-bit
+							# address where it loaded the image.
+							# This only will be read by the kernel.
+
+ramdisk_size:	.long	0				# its size in bytes
+
+bootsect_kludge:
+		.long	0				# obsolete
+
+heap_end_ptr:	.word	_end+STACK_SIZE-512
+							# (Header version 0x0201 or later)
+							# space from here (exclusive) down to
+							# end of setup code can be used by setup
+							# for local heap purposes.
+ext_loader_ver:
+		.byte	0				# Extended boot loader version
+ext_loader_type:
+		.byte	0				# Extended boot loader type
+
+cmd_line_ptr:	.long	0				# (Header version 0x0202 or later)
+							# If nonzero, a 32-bit pointer
+							# to the kernel command line.
+							# The command line should be
+							# located between the start of
+							# setup and the end of low
+							# memory (0xa0000), or it may
+							# get overwritten before it
+							# gets read.  If this field is
+							# used, there is no longer
+							# anything magical about the
+							# 0x90000 segment; the setup
+							# can be located anywhere in
+							# low memory 0x10000 or higher.
+initrd_addr_max:	.long 0x7fffffff
+							# (Header version 0x0203 or later)
+							# The highest safe address for
+							# the contents of an initrd
+							# The current kernel allows up to 4 GB,
+							# but leave it at 2 GB to avoid
+							# possible bootloader bugs.
+
+kernel_alignment:	.long CONFIG_PHYSICAL_ALIGN	#physical addr alignment
+							#required for protected mode
+							#kernel
+#ifdef CONFIG_RELOCATABLE
+relocatable_kernel:	.byte 1
+#else
+relocatable_kernel:	.byte 0
+#endif
+
+min_alignment:		.byte MIN_KERNEL_ALIGN_LG2	# minimum alignment
+xloadflags:		.word 0
+cmdline_size:		.long COMMAND_LINE_SIZE-1	#length of the command line,
+                                                	#added with boot protocol
+                                                	#version 2.06
+
+hardware_subarch:	.long 0				# subarchitecture, added with 2.07
+							# default to 0 for normal x86 PC
+hardware_subarch_data:	.quad 0
+payload_offset:		.long ZO_input_data
+payload_length:		.long ZO_z_input_len
+setup_data:		.quad 0				# 64-bit physical pointer to
+							# single linked list of
+							# struct setup_data
+
+pref_address:		.quad LOAD_PHYSICAL_ADDR	# preferred load addr
+
+init_size:		.long INIT_SIZE			# kernel initialization size
+
+handover_offset:	.long 0				# Filled in by build.c
+
+#
+# End of setup header #####################################################
+##
+
+
+##
+# Now comes the real entry point of kernel setup part.
+# Normally, with boot loader, the first instruction executed
+# of kernel starts from here.
+#
+
+	.section ".entrytext", "ax"
 start_of_setup:
-	# Print some message to indicate we are here.
-	movw $INITSEG, %ax
-	movw %ax, %ds
-	movw %ax, %ss
-	movw %ax, %es
-	movw %ax, %fs
-	movw %ax, %gs
-
-	movb $0x03, %ah	# read cursor pos
-	xor %bh, %bh
-	int $0x10
-	movw $(end-Debug_msg), %cx # length of msg.
-	movw $0x0007, %bx # page 0, attribute 7.
-	movw $Debug_msg, %bp # pointer to msg.
-	movw $0x1301, %ax # write msg, move cursor.
-	int $0x10
-
-	# FIXME: Tentative %sp
-	movw $0x3000, %sp
+	# Force %es = %ss = %ds
+	movw	%ds, %ax
+	movw	%ax, %es
+	movw	%ax, %ss
+	cld
+	
+	# Set the stack
+	movw	$_end, %ax
+	addw	$STACK_SIZE, %ax
+	andw	$~3, %ax		# Make it dword aligned
+	jnz	1f
+	movw	$0xfffc, %ax		# Make sure it's not zero
+1:	movzwl	%ax, %esp		# Clear uppper half of %esp
+	
+	# Check signature at end of setup
+	cmpl	$0x5a5aaa55, setup_sig
+	jne	setup_bad
 
 	# Zero the bss
-	# __bss_start & __bss_end defined in linker scripts
-	movw    $__bss_start, %di 
-	movw    $__bss_end, %cx 
-	xorl    %eax, %eax
+	movw	$__bss_start, %di 
+	movw	$__bss_end, %cx 
+	xorl	%eax, %eax
 	subw    %di, %cx 
 	shrw    $2, %cx 
-	rep
-	stosl
+	rep; stosl
 	
-	# Go to RM kernel, should not return ...
-	calll main
-die:
+	# Pint message
+	movw	$setup_msg, %si
+setup_msg_loop:
+	lodsb
+	andb	%al, %al
+	jz	1f
+	movb	$0xe, %ah
+	movw	$7, %bx
+	int	$0x10
+	jmp	setup_msg_loop
+1:
+	# Jump to C code
+	calll	main
+
+setup_bad:
+	movw	$setup_corrupt, %si
+1:
+	lodsb
+	andb	%al, %al
+	jz	2f
+	movb	$0xe, %ah
+	movw	$7, %bx
+	int	$0x10
+	jmp	1b
+2:
 	hlt
-	jmp die
-Debug_msg:
-	.ascii "\n\rDEBUG: RM header.S, going to RM main() ...\n\r"
-end:
-	hlt
-	nop
+	jmp	2b
+
+	.section ".entrydata", "a"
+setup_msg:
+	.ascii "header.S, heading to setup main() ...\n\r"
+	.byte 0
+setup_corrupt:
+	.ascii "header.S, no setup signature found...\n\r"
+	.byte 0
