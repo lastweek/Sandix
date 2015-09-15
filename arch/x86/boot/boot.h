@@ -3,16 +3,16 @@
  *	boot.h: Header file for real-mode boot process.
  */
 
-#ifndef _BOOT_BOOT_H_
-#define _BOOT_BOOT_H_
+#ifndef _X86_BOOT_BOOT_H_
+#define _X86_BOOT_BOOT_H_
 
 asm(".code16gcc");
-
-#include <sandix/types.h>
 
 #define STACK_SIZE	512
 
 #ifndef __ASSEMBLY__
+
+#include <sandix/types.h>
 
 typedef unsigned int addr_t;
 
@@ -241,4 +241,4 @@ void protected_mode_jump(u32 code_addr, u32 param_addr)
 __attribute__ ((regparm(3)));
 
 #endif /* __ASSEMBLY__ */
-#endif /* _BOOT_BOOT_H */
+#endif /* _ARCH_BOOT_BOOT_H_ */

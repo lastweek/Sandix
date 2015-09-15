@@ -1,6 +1,4 @@
 /*
- *	include/asm/cmpxchg.h - Compare and Exchange
- *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
  *	This program is free software; you can redistribute it and/or modify
@@ -18,8 +16,8 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _ASM_CMPXCHG_H_
-#define _ASM_CMPXCHG_H_
+#ifndef _ASM_X86_CMPXCHG_H_
+#define _ASM_X86_CMPXCHG_H_
 
 #include <sandix/compiler.h>
 #include <sandix/types.h>
@@ -172,4 +170,4 @@ extern void __cmpxchg_wrong_size(void);
 	__cmpxchg_local(ptr, old, new, sizeof(*(ptr)))
 
 
-#endif /* _ASM_CMPXCHG_H_ */
+#endif /* _ASM_X86_CMPXCHG_H_ */

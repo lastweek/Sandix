@@ -1,10 +1,9 @@
 #########################################################################
 # 2015/04/01. Created by Shan Yizhou.
 #
-# bootsect.s: Bootloader for Sandix.
-# Load Real-mode kernel image at 0x90000, load Protected-mode kernel
-# image at 0x10000. It's Real-mode kernel image's job to move
-# Protected-mode kernel to 0x100000.
+# bootloader.S: Simple Bootloader for Sandix.
+# Load Real-mode kernel at 0x90000, load Protected-mode kernel at 0x10000.
+# It's Real-mode kernel image's job to move Protected-mode kernel to 0x100000.
 #
 #########################################################################
 # bootsect.s is the conventional MBR sector of disk, which is loaded
@@ -18,9 +17,9 @@ BOOTSEG		= 0x07c0	# Bootloader Segment.
 INITSEG		= 0x9000	# Real-Mode Kernel Image Segment.
 SYSSEG		= 0x1000	# Protected-Mode Kernel Image Segment.
 
-SETUP_OFFSET	= 512		# offset of entry point in Real-mode image.
-SECTORS_SETUP	= 13		# sectors of Real-mode image
-SECTORS_KERNEL	= 25       	# sectors of Protected-mode image
+SETUP_OFFSET	= 512		# Offset of entry point in Real-mode image.
+SECTORS_SETUP	= 7		# Sectors of Real-mode setup image
+SECTORS_KERNEL	= 33		# Sectors of Protected-mode image
 
 	.code16
 	
@@ -32,33 +31,33 @@ bs_start_msg:
 	movw %ax, %es
 	movw %ax, %ss
 	
-	movb $0x03, %ah	# read cursor pos
+	movb $0x03, %ah				# read cursor pos
 	xor %bh, %bh
 	int $0x10
 	
-	movw $(setup_fail_msg-start_msg), %cx # length of msg.
-	movw $0x0007, %bx # page 0, attribute 7.
-	movw $start_msg, %bp # pointer to msg.
-	movw $0x1301, %ax # write msg, move cursor.
+	movw $(setup_fail_msg-start_msg), %cx	# length of msg.
+	movw $0x0007, %bx			# page 0, attribute 7.
+	movw $start_msg, %bp			# pointer to msg.
+	movw $0x1301, %ax			# write msg, move cursor.
 	int $0x10
 
 bs_load_setup:
-	xor %ah, %ah	# reset FDC
+	xor %ah, %ah				# reset FDC
 	xor %dl, %dl
 	int $0x13
 	
 	# Load RM kernel image
-	mov $INITSEG, %ax	#0x9000
+	mov $INITSEG, %ax			# 0x9000
 	mov %ax, %es
-	xor %bx, %bx		# dest mem-->es:bx
+	xor %bx, %bx				# dest mem-->es:bx
 
-	mov $0x02, %ah			# service 2
-	mov $SECTORS_SETUP, %al	# nr of sectors
-	xor %dx, %dx			# drive 0, head 0
+	mov $0x02, %ah				# service 2
+	mov $SECTORS_SETUP, %al			# nr of sectors
+	xor %dx, %dx				# drive 0, head 0
 	mov $0x80, %dl
-	mov $2, %cl			# sector 2, track 0
+	mov $2, %cl				# sector 2, track 0
 	int $0x13
-	jc bs_setup_fail		# CF set on error, go die
+	jc bs_setup_fail			# CF set on error, go die
 
 bs_load_kernel:
 	xor %ah, %ah		# reset FDC
@@ -116,11 +115,11 @@ bs_kernel_fail:
 	jmp bs_die
 	
 start_msg:
-	.ascii "\n\rDEBUG: Bootloader Loading System ..."
+	.ascii "Bootloader Start Loading System ...\n\r"
 setup_fail_msg:
-	.ascii "\n\rMBR: Loading Real-Mode Kernel Image Fail ..."
+	.ascii "BootLoader: loading setup kernel fail ...\n\r"
 kernel_fail_msg:
-	.ascii "\n\rMBR: Loading Protected-Mode Kernel Image Kernel Fail ..."
+	.ascii "BootLoader: loading kernel image fail ...\n\r"
 bs_die:
 	hlt
 	jmp bs_die

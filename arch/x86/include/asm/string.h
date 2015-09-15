@@ -1,6 +1,4 @@
 /*
- *	include/asm/string.h - x86 Specific String Functions
- *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
@@ -18,8 +16,8 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _ASM_STRING_H_
-#define _ASM_STRING_H_
+#ifndef _ASM_X86_STRING_H_
+#define _ASM_X86_STRING_H_
 
 #include <sandix/compiler.h>
 #include <sandix/types.h>
@@ -287,4 +285,4 @@ ALWAYS_INLINE void *__constant_c_and_count_memset(void *s,
 	: __memset((s), (c), (count)))
 #endif
 
-#endif /* _ASM_STRING_H_ */
+#endif /* _ASM_X86_STRING_H_ */

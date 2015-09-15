@@ -1,6 +1,4 @@
 /*
- *	x86 Two-Level Paging Mapping
- *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
@@ -18,8 +16,8 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _ASM_PGTABLE_H_
-#define _ASM_PGTABLE_H_
+#ifndef _ASM_X86_PGTABLE_H_
+#define _ASM_X86_PGTABLE_H_
 
 #include <sandix/const.h>
 #include <sandix/types.h>
@@ -76,4 +74,4 @@ static inline void set_pde(pde_t pdeval, pde_t *pdep)
 }
 
 
-#endif /* _ASM_PGTABLE_H_ */
+#endif /* _ASM_X86_PGTABLE_H_ */

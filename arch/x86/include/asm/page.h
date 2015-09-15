@@ -1,6 +1,4 @@
 /*
- *	x86 Two-Level Paging Infrastructure
- *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
@@ -18,8 +16,8 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _ASM_PAGE_H_
-#define _ASM_PAGE_H_
+#ifndef _ASM_X86_PAGE_H_
+#define _ASM_X86_PAGE_H_
 
 #include <sandix/const.h>
 #include <sandix/types.h>
@@ -27,7 +25,6 @@
 #define PAGE_SHIFT	12
 #define PAGE_SIZE	(_AC(1,UL) << PAGE_SHIFT)
 #define PAGE_MASK	(~(PAGE_SIZE-1))
-
 
 /*
  * Physical / Virtual address mask.
@@ -59,4 +56,4 @@
 #define THREAD_PAGE_NR		1
 #define THREAD_SIZE		(PAGE_SIZE << THREAD_PAGE_NR)
 
-#endif /* _ASM_PAGE_H_ */
+#endif /* _ASM_X86_PAGE_H_ */

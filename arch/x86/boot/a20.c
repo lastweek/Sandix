@@ -108,5 +108,5 @@ void enable_a20(void)
 		enable_a20_fast();
 	}
 
-	puts("DEBUG: Enable A20 Line ... FAIL\n");
+	puts("Fail to enable A20 Line ...\n");
 }

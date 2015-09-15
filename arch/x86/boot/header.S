@@ -1,7 +1,7 @@
 #
-#	arch/x86/boot/header.S
+#	arch/x86/boot/header.S - The head of kernel.
 #
-#	Fit Linux x86 boot protocol, can work with BootLoader
+#	Fit with linux x86 boot protocol, can work with BootLoader
 #
 #	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
 #
@@ -19,16 +19,20 @@
 #	with this program; if not, write to the Free Software Foundation, Inc.,
 #	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+#include <asm/boot.h>
+#include <asm/bootparam.h>
 
 BOOTSEG	= 0x07C0	# Historically boot sect address
 SYSSEG	= 0x1000	# Historically load address >> 4
 INITSEG	= 0X9000	# Setup load address >> 4
 
 #ifndef ROOT_RDONLY
-#define ROOT_RDONLY	1
+# define ROOT_RDONLY	1
 #endif
 
-#define STACK_SIZE	512
+#ifndef STACK_SIZE
+# define STACK_SIZE	512
+#endif
 
 ##
 # Sandix should be loaded by boot loader. If no loader is
@@ -37,9 +41,6 @@ INITSEG	= 0X9000	# Setup load address >> 4
 # message to tell the user that a boot loader is needed.
 #
 
-##
-# The So-called Useless Bootsect
-#
 	.code16
 
 #------------------------------------------------------------
@@ -71,6 +72,7 @@ bootsect_die:
 	xorw	%ax, %ax
 	int	$0x16
 	int	$0x19
+	
 	# Int 0x19 never return. In case it does
 	# anyway, invoke the BIOS reset code.
 	ljmp	$0xf000,$0xfff0
@@ -102,7 +104,7 @@ setup_sects:	.byte 0			# Filled in by build.c
 root_flags:	.word ROOT_RDONLY
 syssize:	.long 0			# Filled in by build.c
 ram_size:	.word 0			# Obsolete
-vid_mode:	.word 0xfffd
+vid_mode:	.word NORMAL_VGA	# DO NOT NEED TO ASK
 root_dev:	.word 0			# Filled in by build.c
 boot_flag:	.word 0xAA55
 
@@ -194,14 +196,11 @@ initrd_addr_max:	.long 0x7fffffff
 							# but leave it at 2 GB to avoid
 							# possible bootloader bugs.
 
-kernel_alignment:	.long CONFIG_PHYSICAL_ALIGN	#physical addr alignment
+#define PHYSICAL_ALIGN	0x100000
+kernel_alignment:	.long PHYSICAL_ALIGN		#physical addr alignment
 							#required for protected mode
 							#kernel
-#ifdef CONFIG_RELOCATABLE
-relocatable_kernel:	.byte 1
-#else
 relocatable_kernel:	.byte 0
-#endif
 
 min_alignment:		.byte MIN_KERNEL_ALIGN_LG2	# minimum alignment
 xloadflags:		.word 0
@@ -211,6 +210,9 @@ cmdline_size:		.long COMMAND_LINE_SIZE-1	#length of the command line,
 
 hardware_subarch:	.long 0				# subarchitecture, added with 2.07
 							# default to 0 for normal x86 PC
+#define INIT_SIZE		0
+#define ZO_input_data		0
+#define ZO_z_input_len		0
 hardware_subarch_data:	.quad 0
 payload_offset:		.long ZO_input_data
 payload_length:		.long ZO_z_input_len
@@ -235,15 +237,26 @@ handover_offset:	.long 0				# Filled in by build.c
 # of kernel starts from here.
 #
 
+##
+# I do not how other boot loaders work, but i know mine.
+# Our bootloader always load setup kernel to: 0x9000:0000,
+# and protected-mode kernel to: 0x1000:0000. Therefore, in
+# code below, set %ds %ss %es %fs %gs equal to %cs
+#
+
 	.section ".entrytext", "ax"
 start_of_setup:
-	# Force %es = %ss = %ds
-	movw	%ds, %ax
-	movw	%ax, %es
+	movw	%cs, %ax
+	movw	%ax, %ds
 	movw	%ax, %ss
+	movw	%ax, %es
+	movw	%ax, %fs
+	movw	%ax, %gs
 	cld
 	
-	# Set the stack
+	##
+	# Set the stack behind the setup image.
+	# 512 is thought to be enough
 	movw	$_end, %ax
 	addw	$STACK_SIZE, %ax
 	andw	$~3, %ax		# Make it dword aligned
@@ -273,6 +286,9 @@ setup_msg_loop:
 	movw	$7, %bx
 	int	$0x10
 	jmp	setup_msg_loop
+1:
+	hlt
+	jmp 1b
 1:
 	# Jump to C code
 	calll	main

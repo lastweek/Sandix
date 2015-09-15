@@ -1,11 +1,7 @@
 /*
- *	boot/main.c - Real Mode Kernel Main Body.
+ *	arch/x86/boot/main.c - Real-Mode Setup Part Kernel
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
- *
- *	This code asks the BIOS for memory/disk/other parameters, and puts them
- *	in a "safe" place. After necessary preparation, control will be
- *	transfered to protected-mode kernel.
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -22,11 +18,17 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ *	This code asks the BIOS for memory/disk/other parameters, and puts them
+ *	in a "safe" place. After necessary preparation, control will be
+ *	transfered to protected-mode kernel.
+ */
+
 #include "boot.h"
 #include <asm/bootparam.h>
 
 /*
- * bss section
+ * Sleep in bss section:
  * &boot_params == __bss_start
  */
 struct boot_params boot_params;
@@ -60,7 +62,7 @@ void main(void)
 	enable_a20();
 	
 	/* Don't print anything after set_video() */
-	/* Because we have stored cursor position etc. already */
+	/* Because we have stored cursor position etc., already */
 	set_video();
 	go_to_protected_mode();
 }

@@ -1,8 +1,6 @@
 /*
- *	arch/x86/boot/setup.ld - Kernel Setup Part Linker Script
- *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
- *
+ *	
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
@@ -18,49 +16,21 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-OUTPUT_FORMAT("elf32-i386")
-OUTPUT_ARCH(i386)
-ENTRY(_start)
+#ifndef _ASM_X86_BOOT_H_
+#define _ASM_X86_BOOT_H_
 
-SECTIONS
-{
-	. = 0;
-	.bstext		: { *(.bstext) }
-	.bsdata		: { *(.bsdata) }
+#include <sandix/const.h>
+#include <asm/page.h>
 
-	. = 495;
-	.header		: { *(.header) }
-	.entrytext	: { *(.entrytext) }
-	.entrydata	: { *(.entrydata) }
-	__end_header_S	= .;
+/* Physical address where kernel is loaded */
+#define LOAD_PHYSICAL_ADDR	0x100000
 
-	.text		: { *(.text) }
-	.text32		: { *(.text32) }
-	
-	. = ALIGN(16);
-	.rodata		: { *(.rodata*) }
-	
-	. = ALIGN(16);
-	.data		: { *(.data*) }
-	
-	.signature	:
-	{
-		setup_sig = .;
-		LONG(0x5a5aaa55)
-	}
+/* Minimum kernel alignment, as a power of two */
+#define MIN_KERNEL_ALIGN_LG2	(PAGE_SHIFT + THREAD_PAGE_NR)
+#define MIN_KERNEL_ALIGN	(_AC(1, UL) << MIN_KERNEL_ALIGN_LG2)
 
-	. = ALIGN(16);
-	.bss		:
-	{
-		__bss_start = .;
-		*(.bss)
-		__bss_end = .;
-	}
+#define BOOT_STACK_SIZE		0x1000
 
-	. = ALIGN(16);
-	_end = .;
-	
-	/DISCARD/ : { *(.note*) }
-	/DISCARD/ : { *(.eh_frame) }
-	/DISCARD/ : { *(.comment) }
-}
+#define COMMAND_LINE_SIZE	2048
+
+#endif /* _ASM_X86_BOOT_H_ */

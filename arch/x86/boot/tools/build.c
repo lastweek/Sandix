@@ -29,7 +29,6 @@ int main(int argc, char **argv)
 	int sectors_header;		// Sectors of header
 	int sectors_image;		// Sectors of image
 	int sectors_bzimage;		// Sectors of bzimage
-	int lower_bound_of_sp;		// The lower bound of stack point, %sp
 	int i, pad;
 	char c;
 
@@ -124,15 +123,13 @@ int main(int argc, char **argv)
 	sectors_header    = (len_si % SECTOR_SIZE)? (len_si/SECTOR_SIZE+1): len_si/SECTOR_SIZE;
 	sectors_image     = (len_ki % SECTOR_SIZE)? (len_ki/SECTOR_SIZE+1): len_ki/SECTOR_SIZE;
 	sectors_bzimage   = sectors_header + sectors_image + 1;
-	lower_bound_of_sp = sectors_header * SECTOR_SIZE + 0x90000;
 	
 	printf("\n");
 	printf("[bootloader]   : %-10d bytes (%-5d sector)\n", len_bl, 1);
 	printf("[setup.bin]    : %-10d bytes (%-5d sectors)\n", len_si, sectors_header);
 	printf("[vmSandix.bin] : %-10d bytes (%-5d sectors)\n", len_ki, sectors_image);
 	printf("[bzImage]      : %-10d bytes (%-5d sectors)\n", sectors_bzimage*SECTOR_SIZE, sectors_bzimage);
-	printf("The lower bound of %%SP in boot/header.S is %X\n", lower_bound_of_sp);
-	printf("Remember change the sector number in boot/bootsect.S!\n");
+	printf("Remember changing the sector number in boot loader!\n");
 
 	fclose(fp_bl);
 	fclose(fp_si);

@@ -22,7 +22,7 @@
 # since this is the last step of kbuild.
 #
 KBUILD_CFLAGS	:= $(USERINCLUDE) $(REALMODE_CFLAGS) -D__SETUP__
-KBUILD_AFLAGS	:= $(KBUILD_CFLAGS) -D__ASSEMBLY_
+KBUILD_AFLAGS	:= $(KBUILD_CFLAGS) -D__ASSEMBLY__
 
 ##
 # HOST BUILD
@@ -37,7 +37,9 @@ loader-y := bootloader.o
 
 ##
 # Since Makefile.build has no rules for these
-# targets, so we have to add them manually.
+# targets, so we have to add them manually. Then
+# they can get their saved-old commands included,
+# then they can use $(if_changed_cmd) freely.
 #
 targets += bootloader.bin
 targets += setup.elf
@@ -76,6 +78,7 @@ quiet_cmd_build_image = BUILD   $@
 $(obj)/bzImage: $(obj)/bootloader.bin $(obj)/setup.bin \
                 $(obj)/vmSandix.bin $(obj)/tools/build FORCE
 	$(call if_changed,build_image)
+	@chmod +x $(obj)/bzImage
 	@echo 'Sandix Kernel: $@ is ready.'
 
 OBJCOPYFLAGS_bootloader.bin := -O binary -R .note -R .comment -S

@@ -1,5 +1,5 @@
 /*
- *	init/head.S - Kernel Entry Point
+ *	init/head.S - 32-bit Kernel Entry Point
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
