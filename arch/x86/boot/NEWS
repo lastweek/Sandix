@@ -1,3 +1,7 @@
+#
+# set tabstop=4 to view this file.
+#
+
 2015/04/14. 
 
 Call C functions from assemble is a little tricky.

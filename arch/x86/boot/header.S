@@ -1,21 +1,24 @@
-#########################################################################
-#	2015/04/11. Created by Shan Yizhou.
-#	Based on Linux/x86/boot/header.S
-#
-#	header.S: 16-bit image header.
-#	The first thing is moving Protected-mode kernel image to 0x100000.
-#	After that, this code will set up the %sp, then transfer to main()
-#	who is responsible for other dirty work.
-#
-#
-#	05/17
-#	Maybe we can use grub or lilo to boot! In that way we can put our
-#	kernel image in /boot directory, let grub to choose boot from Sandix
-#	or the original Linux.
-#	It's a better idea!!!!!
-#
-#	FIXME!!!!!
-#########################################################################
+/*
+ *	arch/x86/boot/header.S
+ *
+ *	Fit Linux x86 boot protocol, can work with BootLoader
+ *
+ *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *
+ *	This program is free software; you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation; either version 2 of the License, or
+ *	(at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
+ *
+ *	You should have received a copy of the GNU General Public License along
+ *	with this program; if not, write to the Free Software Foundation, Inc.,
+ *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
 BOOTSEG = 0x07C0
 INITSEG = 0X9000
