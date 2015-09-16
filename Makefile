@@ -140,6 +140,7 @@ export KBUILD_CHECKSRC
 # Do we want to locate output files in a separate directory?
 ifeq ($(KBUILD_SRC),)
 ifeq ("$(origin O)", "command line")
+  $(error make O= Opinion not well suppoted)
   KBUILD_OUTPUT := $(O)
 endif
 
@@ -163,6 +164,7 @@ $(filter-out _all sub-make $(CURDIR)/Makefile, $(MAKECMDGOALS)) _all: sub-make
 	@:
 
 sub-make: FORCE
+	@echo "sub-make"
 	$(Q)$(MAKE) -C $(KBUILD_OUTPUT) KBUILD_SRC=$(CURDIR) \
 	-f $(CURDIR)/Makefile $(filter-out _all sub-make,$(MAKECMDGOALS))
 
@@ -391,15 +393,14 @@ else
 # Additional helpers built in scripts/
 PHONY += scripts
 scripts: scripts_basic include/config/auto.conf include/config/tristate.conf
-	@:
+	$(Q)$(MAKE) $(build)=$@
 
 ifeq ($(dot-config),1)
-##
-# o Read in config
-# o Read in dependencies to all Kconfig* files, make sure to
-#   run oldconfig if changes are detected.
-#
+# Read in config
 -include include/config/auto.conf
+
+# Read in dependencies to all Kconfig* files, make sure to
+# run oldconfig if changes are detected.
 -include include/config/auto.conf.cmd
 
 # To avoid any implicit rule to kick in.
@@ -410,12 +411,11 @@ $(KCONFIG_CONFIG) include/config/auto.conf.cmd: ;
 # tinkered with it and forgot to run "make oldconfig".
 # If auto.conf.cmd is missing then we are probably in a cleaned
 # tree so we execute the config step to be sure to catch updates.
-# %.conf = auto.conf + tristate.conf
 #
-include/config/auto.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
-	@echo "$^"
-	@echo "$?"
-#$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
+# FIXME WHY????????
+# why this target always get build
+include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
+	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
 
 else
 # Dummy target needed, since it is used as prerequisite.
@@ -620,4 +620,6 @@ endif # ! ifeq ($(skip-makefile),)
 PHONY += FORCE
 FORCE:
 
+# Declare the contents of the .PHONY variable as phony.  We keep that
+# information in a variable so we can use it in if_changed and friends.
 .PHONY: $(PHONY)
