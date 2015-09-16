@@ -1,7 +1,8 @@
 #
 #	Build Sandix Kernel
 #
-#	For more information, please read samples/Makefile.tutorial
+#	For more information, please read samples/Makefile.tutorial and
+#	Documentation/kbuild/makefiles.txt
 #
 #	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
 #
@@ -19,15 +20,18 @@
 #	with this program; if not, write to the Free Software Foundation, Inc.,
 #	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
+
+
 #	Note that:
 #	arch/x86/Makefile Plays an important role.
 #	1st Part:	Argument Processing/External Sub-Make
 #	2st Part:	Variable Initialization/Preprocessing
 #	3st Part:	Targets Definitions/Relationships
 
-VERSION		=	1
-MINORLEVEL	=	0
-PATCHLEVEL	=	0
+# 3.1.0? Just for fun.
+VERSION		=	3
+PATCHLEVEL	=	1
+SUBLEVEL	=	0
 NAME		=	Sandix
 
 # o Do NOT use built-in rules and variables
@@ -176,17 +180,15 @@ endif # ifneq ($(KBUILD_OUTPUT),)
 endif # ifeq ($(KBUILD_SRC),)
 
 
-# Process The Rest of Makefile if this is the final invocation.
-# A reminder, The Rest means from here to the end of Makefile. ;)
-ifeq ($(skip-makefile),)
-
 # ===========================================================================
 #  2st	Second Part of the Makefile	
 # ===========================================================================
 #
-# The second part complete all the preprocessing and variable initialization.
+# The second part finish all the preprocessing and variable initialization.
 # We leave the make targets processing to the third part.
 
+# Process The Rest of Makefile if this is the final invocation.
+ifeq ($(skip-makefile),)
 _all: all
 
 # Do not print "Entering directory ..."
@@ -245,9 +247,7 @@ HOSTCFLAGS  += -Wno-unused-value -Wno-unused-parameter \
 endif
 export CONFIG_SHELL HOSTCC HOSTCXX HOSTCFLAGS HOSTCXXFLAGS
 
-##
 # Generic definitions
-#
 scripts/Kbuild.include: ;
 include scripts/Kbuild.include
 
@@ -287,10 +287,12 @@ KBUILD_CFLAGS   	:=							\
 			   -Wno-format-security					\
 			   -std=gnu11
 
-export VERSION PATCHLEVEL SUBLEVEL NAME
-export CC AS LD CPP AR NM STRIP OBJCOPY OBJDUMP
-export MAKE AWK PERL PYTHON CHECK CHECKFLAGS
-export SANDIXINCLUDE NOSTDINC_FLAGS
+KERNELRELEASE	= $(shell cat include/config/kernel.release 2> /dev/null)
+KERNELVERSION	= $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)
+
+export VERSION PATCHLEVEL SUBLEVEL KERNELRELEASE KERNELVERSION
+export CC AS LD CPP AR NM STRIP OBJCOPY OBJDUMP MAKE AWK PERL PYTHON CHECK
+export CHECKFLAGS SANDIXINCLUDE NOSTDINC_FLAGS
 export KBUILD_CFLAGS KBUILD_CPPFLAGS KBUILD_LDFLAGS KBUILD_AFLAGS
 export KBUILD_ARFLAGS OBJCOPYFLAGS OBJDUMPFLAGS
 
@@ -300,27 +302,13 @@ export KBUILD_ARFLAGS OBJCOPYFLAGS OBJDUMPFLAGS
 #
 # The third part defines all the targets and their relationships
 # Note that: All_The_Build_And_Config_Targets. ;)
-#
-# List of Targets:
-#
-#	scipts_basic:
-#	outputmakefile:
-#	config
-#	%config
-#	scripts
-#	all
-#	vmSandix
-#	clean
-#	help
 
-##
 # Basic helpers built in scripts/
-#
 PHONY += scripts_basic
 scripts_basic:
 	$(Q)$(MAKE) $(build)=scripts/basic
 
-# To avoid any implicit rule to kick in, define an empty command.
+# To avoid any implicit rule
 scripts/basic/%: scripts_basic ;
 
 ##
@@ -336,24 +324,41 @@ ifneq ($(KBUILD_SRC),)
 	    $(srctree) $(objtree) $(VERSION) $(PATCHLEVEL)
 endif
 
-# ===========================================================================
-# Handle mixed targets one by one.
+##
+# To make sure we do not include .config for any of the *config targets.
+# Catch them early, and hand them over to scripts/kconfig/Makefile.
+# It is allowed to specify more targets when calling make, including
+# mixing *config targets and build targets. e.g. "make config all"
 # Detect when mixed targets is specified, and make a second invocation
 # of make so .config is not included in this case either (for *config).
-# For example:
-#	make defconfig all
-#	make oldconfig help
+#
+
+version_h	:= include/generated/version.h
+utsrelease_h	:= include/generated/utsrelease.h
+
+# Targets that do not need .config
+no-dot-config-targets := clean archclean help $(version_h) $(utsrelease_h) \
+			kernelversion kernelrelease tags docs
+
+config-targets	:= 0
+mixed-targets	:= 0
+dot-config	:= 1
+
+ifeq ($(filter-out $(no-dot-config-targets), $(MAKECMDGOALS)),)
+        dot-config := 0
+endif
+
 ifneq ($(filter config %config,$(MAKECMDGOALS)),)
         config-targets := 1
         ifneq ($(words $(MAKECMDGOALS)),1)
                 mixed-targets := 1
         endif
-else
-        config-targets := 0
-        mixed-targets  := 0
 endif
 
 ifeq ($(mixed-targets),1)
+# ===========================================================================
+# We are called with mixed targets(*config and build targets).
+# Handle them one by one
 
 PHONY += $(MAKECMDGOALS) build_one_by_one
 $(filter-out build_one_by_one, $(MAKECMDGOALS)): build_one_by_one
@@ -369,13 +374,13 @@ else
 
 ifeq ($(config-targets),1)
 # ===========================================================================
-# Config targets only
-# e.g.
-#	make config
-#	make menuconfig
-#	...
-# ===========================================================================
+# *config targets only - make sure prerequisites are updated,
+# and descend in scripts/kconfig to make the *config target.
 
+##
+# Read arch specific Makefile to set KBUILD_DEFCONFIG as needed.
+# KBUILD_DEFCONFIG may point out an alternative default configuration.
+#
 KBUILD_DEFCONFIG	:=
 KBUILD_KCONFIG		:=
 include arch/$(SRCARCH)/Makefile
@@ -389,22 +394,35 @@ config:  scripts_basic outputmakefile FORCE
 
 else
 # ===========================================================================
-# Build targets only. All targets except *Config targets.
-# e.g.
-#	make all
-#	make clean
-#	...
-# ===========================================================================
+# Build targets only - All targets except *config targets.
 
-##
-# Additional Helper scripts
-#
+# Additional helpers built in scripts/
 PHONY += scripts
-scripts: scripts_basic
+scripts: scripts_basic include/config/auto.conf include/config/tristate.conf
 	@:
 
-$(KCONFIG_CONFIG): ;
--include .config
+ifeq ($(dot-config),1)
+# o Read in config
+# o Read in dependencies to all Kconfig* files, make sure to
+#   run oldconfig if changes are detected.
+-include include/config/auto.conf
+-include include/config/auto.conf.cmd
+
+# To avoid any implicit rule to kick in.
+$(KCONFIG_CONFIG) include/config/auto.conf.cmd: ;
+
+# If .config is newer than include/config/auto.conf, someone
+# tinkered with it and forgot to run "make oldconfig".
+# If auto.conf.cmd is missing then we are probably in a cleaned
+# tree so we execute the config step to be sure to catch updates.
+# %.conf = auto.conf + tristate.conf
+include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
+	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
+
+else
+# Dummy target needed, since it is used as prerequisite.
+include/config/auto.conf: ;
+endif
 
 ##
 # The all: target is the default when no target is given on the command line.
@@ -412,7 +430,7 @@ $(KCONFIG_CONFIG): ;
 # Defaults to vmSandix, but the arch makefile usually adds further targets
 #
 PHONY += all
-all: scripts $(KCONFIG_CONFIG) vmSandix
+all: scripts vmSandix
 
 ##
 # Generally, final kernel image has 7 parts:
@@ -436,10 +454,6 @@ ARCH_CPPFLAGS	:=
 ARCH_AFLAGS	:=
 ARCH_CFLAGS	:=
 
-##
-# Let ARCH Makefile overrides.
-# Add Compiler and Linker flags
-#
 include arch/$(SRCARCH)/Makefile
 include scripts/Makefile.flags
 
@@ -456,22 +470,61 @@ export KBUILD_VMSANDIX_INIT := $(head-y) $(init-y)
 export KBUILD_VMSANDIX_MAIN := $(core-y) $(libs-y) $(net-y) $(drivers-y)
 export KBUILD_VMSANDIX_LDS  := arch/$(SRCARCH)/kernel/vmSandix.ld
 
+quiet_cmd_link-vmSandix = LINK    $@
+      cmd_link-vmSandix = $(CONFIG_SHELL) $< LD
+
 ##
 # Final link of vmSandix
 #
-quiet_cmd_link-vmSandix = LINK    $@
-      cmd_link-vmSandix = $(CONFIG_SHELL) $< LD
+# deps: include/config/%.conf include/config/kernel.release
+#	include/generated/utsrelease.h
+#
 vmSandix: scripts/link-vmSandix.sh $(vmSandix-deps) FORCE
 	$(call if_changed_pre,link-vmSandix)
 
-##
-# The actual objects are generated when descending.
 # Make sure no implicit rule kicks in
-#
-PHONY += $(vmSandix-dirs)
 $(sort $(vmSandix-deps)): $(vmSandix-dirs) ;
-$(vmSandix-dirs):
+
+PHONY += $(vmSandix-dirs)
+$(vmSandix-dirs): scripts prepare
 	$(Q)$(MAKE) $(build)=$@
+
+prepare: include/config/kernel.release		\
+	 include/generated/version.h		\
+	 include/generated/utsrelease.h FORCE
+
+# ===========================================================================
+# Gnenerate some files before building vmSandix. Mimic Linux
+# Actually, Sandix does NOT need any version files for now.
+# In case you ask, uts stands for: Unix Time Sharing
+
+define filechk_kernel.release
+	echo "$(KERNELVERSION)"
+endef
+
+define filechk_version.h
+	(echo \#define SANDIX_VERSION_CODE $(shell                         \
+	expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 0$(SUBLEVEL)); \
+	echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))';)
+endef
+
+uts_len := 64
+define filechk_utsrelease.h
+	if [ `echo -n "$(KERNELRELEASE)" | wc -c ` -gt $(uts_len) ]; then \
+	  echo '"$(KERNELRELEASE)" exceeds $(uts_len) characters' >&2;    \
+	  exit 1;                                                         \
+	fi;                                                               \
+	(echo \#define UTS_RELEASE \"$(KERNELRELEASE)\";)
+endef
+
+include/config/kernel.release: Makefile FORCE
+	$(call filechk,kernel.release)
+
+include/generated/version.h: Makefile FORCE
+	$(call filechk,version.h)
+
+include/generated/utsrelease.h: Makefile FORCE
+	$(call filechk,utsrelease.h)
 
 ###
 # Clean
@@ -490,15 +543,15 @@ clean-dirs := $(addprefix __clean__,$(clean-dirs))
 PHONY += clean
 clean: $(clean-dirs) arch-clean vmSandix-clean
 
-# Clean files generated by linking vmSandix
-PHONY += vmSandix-clean
-vmSandix-clean:
-	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/link-vmSandix.sh clean
-
 # Clean files by descending into sub-directories
 PHONY += $(clean-dirs)
 $(clean-dirs):
 	$(Q)$(MAKE) $(clean)=$(patsubst __clean__%,%,$@)
+
+# Clean files generated by linking vmSandix
+PHONY += vmSandix-clean
+vmSandix-clean:
+	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/link-vmSandix.sh clean
 
 PHONY += help
 help:
@@ -534,16 +587,18 @@ help:
 	@echo  'Execute "make" or "make all" to build all targets marked with [*] '
 	@echo  'For more information, please read samples/Makefile.tutorial'
 
-##
+kernelrelease:
+	@echo $(KERNELVERSION)
+
+kernelversion:
+	@echo $(KERNELVERSION)
+
 # Generate Editor Tags
-#
 PHONY += tags
 tags:
 	@echo ''
 
-##
 # Generate Kernel Docs
-#
 PHONY += docs
 docs:
 	@echo ''

@@ -12,7 +12,6 @@
 # memory, it just transfer control to 16-bit setup image.(2015/04/11)
 #########################################################################	
 
-
 BOOTSEG		= 0x07c0	# Bootloader Segment.
 INITSEG		= 0x9000	# Real-Mode Kernel Image Segment.
 SYSSEG		= 0x1000	# Protected-Mode Kernel Image Segment.

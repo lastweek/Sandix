@@ -32,6 +32,9 @@ bzImage
 vmSandix
 System.map
 
+include/generated
+include/config
+
 ##
 # Commit Special Dot Files
 #

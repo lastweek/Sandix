@@ -40,11 +40,13 @@ loader-y := bootloader.o
 # targets, so we have to add them manually. Then
 # they can get their saved-old commands included,
 # then they can use $(if_changed_cmd) freely.
+# Also, Makefile.clean knows how to clean them too.
 #
+targets += voffset.h
+targets += vmSandix.bin
 targets += bootloader.bin
 targets += setup.elf
 targets += setup.bin
-targets += vmSandix.bin
 targets += bzImage
 
 ##
@@ -67,26 +69,37 @@ setup-targets := $(addprefix $(obj)/, $(setup-y))
 
 ##
 # Building bzImage need four things:
-#	tools/build	-	Tool to concatenate
-#	bootsect.bin	-	The so-called bootloader
+#	bootloader.bin	-	The so-called bootloader
 #	setup.bin	-	The real-mode kernel image
 #	vmSandix.bin	-	The bare kernel itself
+#	tools/build	-	Tool to concatenate
+#	voffset.h	-	Kernel virtual address offset
 #
 quiet_cmd_build_image = BUILD   $@
       cmd_build_image = $(obj)/tools/build
 
-$(obj)/bzImage: $(obj)/bootloader.bin $(obj)/setup.bin \
+$(obj)/bzImage: $(obj)/bootloader.bin $(obj)/setup.bin $(obj)/voffset.h \
                 $(obj)/vmSandix.bin $(obj)/tools/build FORCE
 	$(call if_changed,build_image)
 	@chmod +x $(obj)/bzImage
 	@echo 'Sandix Kernel: $@ is ready.'
 
-OBJCOPYFLAGS_bootloader.bin := -O binary -R .note -R .comment -S
-$(obj)/bootloader.bin: $(obj)/bootloader.o FORCE
-	$(call if_changed,objcopy)
+sed-voffset := -e 's/^\([0-9a-fA-F]*\) [ABCDGRSTVW] \(kstart\|kend\)/\#define VO_\2 0x\1/p'
+quiet_cmd_voffset = VOFFSET $@
+      cmd_voffset = $(NM) $< | sed -n $(sed-voffset) > $@
+
+$(obj)/voffset.h: $(obj)/vmSandix FORCE
+	$(call if_changed,voffset)
+
+AFLAGS_header.o := -I$(obj)
+$(obj)/header.o: $(obj)/voffset.h
 
 OBJCOPYFLAGS_vmSandix.bin := -O binary -R .note -R .comment -S
 $(obj)/vmSandix.bin: $(obj)/vmSandix FORCE
+	$(call if_changed,objcopy)
+
+OBJCOPYFLAGS_bootloader.bin := -O binary -R .note -R .comment -S
+$(obj)/bootloader.bin: $(obj)/bootloader.o FORCE
 	$(call if_changed,objcopy)
 
 OBJCOPYFLAGS_setup.bin := -O binary -R .note -R .comment -S
