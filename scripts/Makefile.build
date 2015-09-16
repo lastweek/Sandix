@@ -211,7 +211,7 @@ quiet_cmd_loader = LOADER  $@
       cmd_loader = $(CC) $(a_flags) -c -o $@ $<
 
 $(loader-target): $(patsubst %.o,%.S,$(loader-y)) 
-	$(call if_changed_dep,loader)
+	$(call if_changed,loader)
 
 targets += $(loader-target)
 endif
@@ -225,7 +225,7 @@ quiet_cmd_objdump = OBJDUMP $@
       cmd_objdump = $(OBJDUMP) $(objdump_flags) $(patsubst %-objdump,%,$@) >$@
 
 $(objdump-target): $(objdump-y) FORCE
-	$(call if_changed_dep,objdump)
+	$(call if_changed,objdump)
 endif
 
 

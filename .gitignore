@@ -39,5 +39,3 @@ include/config
 # Commit Special Dot Files
 #
 !.gitignore
-!.config
-!.config.old
