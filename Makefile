@@ -301,7 +301,9 @@ export KBUILD_ARFLAGS OBJCOPYFLAGS OBJDUMPFLAGS
 # The third part defines all the targets and their relationships
 # Note that: All_The_Build_And_Config_Targets. ;)
 
+# ===========================================================================
 # Basic helpers built in scripts/
+#
 PHONY += scripts_basic
 scripts_basic:
 	$(Q)$(MAKE) $(build)=scripts/basic
@@ -309,7 +311,7 @@ scripts_basic:
 # To avoid any implicit rule
 scripts/basic/%: scripts_basic ;
 
-##
+# ===========================================================================
 # Generates a Makefile in the output directory, if using a
 # separate output directory. This allows convenient use of
 # make in the output directory.
@@ -421,9 +423,6 @@ ifeq ($(dot-config),1)
 #
 # '-q' and '-n' do not prevent updating of Makefiles, because an out-of-date
 # Makefile would result in the wrong output for other targets.
-#
-# END.
-#
 
 # Read in config
 -include include/config/auto.conf
@@ -433,17 +432,21 @@ ifeq ($(dot-config),1)
 -include include/config/auto.conf.cmd
 
 # To avoid any implicit rule
-$(KCONFIG_CONFIG) include/config/auto.conf.cmd: ;
+include/config/auto.conf.cmd: ;
+$(KCONFIG_CONFIG): ;
 
-##
-# If .config is newer than include/config/auto.conf, someone
-# tinkered with it and forgot to run "make oldconfig".
-# If auto.conf.cmd is missing then we are probably in a cleaned
-# tree so we execute the config step to be sure to catch updates.
-#
 ##
 # As explained above, we have an explicit rule for included file "auto.conf"
 # So before make read "auto.conf", it will do the recipe for "auto.conf" first.
+# That is why in a clean tree, this target always got built even you invoke with
+# a non-exsit target, for example, "make ABCDEF".
+#
+
+##
+# If .config is newer than include/config/auto.conf, someone tinkered with it
+# and forgot to run "make oldconfig".
+# If auto.conf.cmd is missing then we are probably in a cleaned tree so we
+# execute the config step to be sure to catch updates.
 #
 include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
 	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
@@ -453,7 +456,7 @@ else
 include/config/auto.conf: ;
 endif
 
-##
+# ===========================================================================
 # The all: target is the default when no target is given on the command line.
 # This allow a user to issue only 'make' to build Sandix kernel.
 # Defaults to vmSandix, but the arch makefile usually adds further targets
@@ -506,7 +509,7 @@ export KBUILD_VMSANDIX_LDS  := arch/$(SRCARCH)/kernel/vmSandix.ld
 quiet_cmd_link-vmSandix = LINK    $@
       cmd_link-vmSandix = $(CONFIG_SHELL) $< LD
 
-##
+# ===========================================================================
 # Final link of vmSandix
 # Before building vmSandix, we need to do some preparation first.
 # After that we descending into sub-directories to build vmSandix.
@@ -521,14 +524,23 @@ PHONY += $(vmSandix-dirs)
 $(vmSandix-dirs): scripts prepare
 	$(Q)$(MAKE) $(build)=$@
 
-prepare: include/config/kernel.release		\
+##
+# Things we need to do before we recursively start building the kernel.
+# Some are alreay listed in targets scripts or else, we list them here
+# again to emphasize their importance in preparation.
+#
+PHONY += prepare
+prepare: outputmakefile				\
+	 include/config/auto.conf		\
+	 include/config/kernel.release		\
 	 include/generated/version.h		\
-	 include/generated/utsrelease.h FORCE
+	 include/generated/utsrelease.h		\
+	 include/generated/compile.h FORCE
 
 # ===========================================================================
-# Gnenerate some files before building vmSandix. Mimic Linux.
-# Actually, Sandix does NOT need any version files for now.
-# In case you ask, uts stands for: Unix Time Sharing.
+# Gnenerate some files before building vmSandix. Mimic Linux. Actually,
+# Sandix does NOT need any version files for now. In case you ask, uts stands
+# for: Unix Time Sharing.
 
 define filechk_kernel.release
 	echo "$(KERNELVERSION)"
@@ -549,20 +561,30 @@ define filechk_utsrelease.h
 	(echo \#define UTS_RELEASE \"$(KERNELRELEASE)\";)
 endef
 
-include/config/kernel.release: $(srctree)/include/config/auto.conf FORCE
+include/config/kernel.release: include/config/auto.conf FORCE
 	$(call filechk,kernel.release)
 
-include/generated/version.h: $(srctree)/Makefile FORCE
+include/generated/version.h: Makefile FORCE
 	$(call filechk,version.h)
 
 include/generated/utsrelease.h: include/config/kernel.release FORCE
 	$(call filechk,utsrelease.h)
 
-###
-# Clean
+       chk_compile.h = :
+ quiet_chk_compile.h = echo '  CHK     $@'
+silent_chk_compile.h = :
+include/generated/compile.h: Makefile FORCE
+	@$($(quiet)chk_compile.h)
+	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/mkcompile_h $@ \
+	"$(UTS_MACHINE)" "$(CONFIG_SMP)" "$(CONFIG_PREEMPT)" "$(CC) $(KBUILD_CFLAGS)"
+
+
+# ===========================================================================
+# We have three levels cleaning targets.
 #
-# Mr.Proper:	make mrproper	- Clean all generated and compiled files
-# Mr.Clean:	make clean	- Clean all compiled files
+# Distclean  make distclean  - Clean all editor-tags and generated and compiled files
+# Proper     make mrproper   - Clean all generated and compiled files
+# Clean      make clean      - Clean all compiled files
 #
 
 quiet_cmd_rmdirs = $(if $(wildcard $(rm-dirs)),CLEAN   $(wildcard $(rm-dirs)))
@@ -574,7 +596,13 @@ quiet_cmd_rmfiles = $(if $(wildcard $(rm-files)),CLEAN   $(wildcard $(rm-files))
 rm-dirs  := include/config include/generated
 rm-files := .config .config.old
 
-# Mr.Proper
+PHONY += distclean
+distclean: mrproper
+	@:
+
+##
+# Mr.Proper  ---> mrproper
+#
 PHONY += mrproper
 mrproper: clean
 	$(call cmd,rmdirs)
@@ -597,13 +625,13 @@ PHONY += vmSandix-clean
 vmSandix-clean:
 	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/link-vmSandix.sh clean
 
+# ===========================================================================
 PHONY += help
 help:
 	@echo  'Cleaning targets:'
-	@echo  '  clean		  - Remove most generated files but keep the config and'
-	@echo  '                    enough build support to build external modules'
+	@echo  '  clean		  - Remove most generated files but keep the config'
 	@echo  '  mrproper	  - Remove all generated files + config + various backup files'
-	@echo  '  distclean	  - mrproper + remove editor backup and patch files'
+	@echo  '  distclean	  - mrproper + remove editor backup'
 	@echo  ''
 	@echo  'Configuration targets:'
 	@$(MAKE) -f $(srctree)/scripts/kconfig/Makefile help
@@ -628,9 +656,13 @@ help:
 	@echo  '		3: more obscure warnings, can most likely be ignored'
 	@echo  '		Multiple levels can be combined with W=12 or W=123'
 	@echo  ''
-	@echo  'Execute "make" or "make all" to build all targets marked with [*] '
 	@echo  'For more information, please read samples/Makefile.tutorial'
+	@echo  'For instructions on how to write Makefiles, please read Documentation/kbuild/*'
+	@echo  ''
 
+# ===========================================================================
+# Some generic targets
+#
 PHONY += kernelrelease
 kernelrelease:
 	@echo $(KERNELVERSION)
@@ -641,11 +673,46 @@ kernelversion:
 
 PHONY += tags
 tags:
-	@echo ''
+	@echo 'tags'
 
 PHONY += docs
 docs:
-	@echo ''
+	@echo 'docs'
+
+# ===========================================================================
+# Single target - Most useful when you want to see, for example, the assembly
+# code of C code, or the preprocessing file .i of C code. It is NOT intended
+# for general users.
+#
+# Worth to mention, now it is your responsibility to clean generated files.
+# I do NOT write rules for cleaning such rubbish.
+#
+# Single targets are compatible with:
+# - build with mixed source and output
+# - build with separate output dir 'make O=...'
+#
+#  target-dir => where to store outputfile
+#  build-dir  => directory in kernel source tree to use
+
+ifeq ($(KBUILD_EXTMOD),)
+        build-dir  = $(patsubst %/,%,$(dir $@))
+        target-dir = $(dir $@)
+else
+        zap-slash=$(filter-out .,$(patsubst %/,%,$(dir $@)))
+        build-dir  = $(KBUILD_EXTMOD)$(if $(zap-slash),/$(zap-slash))
+        target-dir = $(if $(KBUILD_EXTMOD),$(dir $<),$(dir $@))
+endif
+
+%.s: %.c prepare scripts FORCE
+	$(Q)$(MAKE) $(build)=$(build-dir) $(target-dir)$(notdir $@)
+%.i: %.c prepare scripts FORCE
+	$(Q)$(MAKE) $(build)=$(build-dir) $(target-dir)$(notdir $@)
+%.o: %.c prepare scripts FORCE
+	$(Q)$(MAKE) $(build)=$(build-dir) $(target-dir)$(notdir $@)
+%.s: %.S prepare scripts FORCE
+	$(Q)$(MAKE) $(build)=$(build-dir) $(target-dir)$(notdir $@)
+%.o: %.S prepare scripts FORCE
+	$(Q)$(MAKE) $(build)=$(build-dir) $(target-dir)$(notdir $@)
 
 endif # ! ifeq ($(config-targets),1)
 endif # ! ifeq ($(mixed-targets),1)

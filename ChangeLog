@@ -108,5 +108,6 @@ Thu Sep 17 CST 2015
 - [+] Diary/09-17-2015				[D] Some words about Makefile
 - [+] include/sandix/kconfig.h			[D] IMPORTANT
 - [+] Makefile					[D] -include include/sandix/kconfig.h
+- [+] scripts/mkcompile_h.sh			[D] Generate: include/generate/compile.h
 - [M] arch/x86/boot/tools/build.c		[D] Fill holes header.S
 - [M] arch/x86/boot/bootloader.S		[D] Fit linux boot protocol

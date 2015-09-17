@@ -52,8 +52,9 @@ export REALMODE_CFLAGS
 # FLAGS for 32-bit Kernel
 #
 
+UTS_MACHINE	:= i386
 CHECKFLAGS	+= -D__i386__
-LDFLAGS		+= -m elf_i386
+LDFLAGS		+= -m elf_$(UTS_MACHINE)
 
 BINARCH		:= $(call cc-option,-m32)
 KBUILD_CFLAGS	+= $(BINARCH)
