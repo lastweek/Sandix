@@ -94,7 +94,7 @@ Tue Sep 15 CST 2015
 
 Wed Sep 16 CST 2015
 - [M] Makefile					[D] --silentoldconfig
--						 >  let Kconfig build include/config/*
+-						 >  let Kconfig create include/config/*
 -						 >  and include/generated/*
 -						 >  Also, we add version.h and utsrelease.h
 - [M] scripts/Makefile.build			[D] OK, using .cmd file only!
@@ -109,5 +109,9 @@ Thu Sep 17 CST 2015
 - [+] include/sandix/kconfig.h			[D] IMPORTANT
 - [+] Makefile					[D] -include include/sandix/kconfig.h
 - [+] scripts/mkcompile_h.sh			[D] Generate: include/generate/compile.h
+- [+] arch/x86/boot/version.c			[D] kernel_version string
+- [M] arch/x86/boot/header.S			[D] kernel_version support
+-						 >  start_of_setup fix: error if setup is
+-						 >  not loaded at 0x9000:0000
 - [M] arch/x86/boot/tools/build.c		[D] Fill holes header.S
 - [M] arch/x86/boot/bootloader.S		[D] Fit linux boot protocol

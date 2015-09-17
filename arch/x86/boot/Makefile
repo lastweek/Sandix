@@ -51,20 +51,21 @@ targets += bzImage
 
 ##
 # Kernel Setup Part. (Real-Mode in x86, actually)
-# Using $(setup-y) to compile setup code.
+# header.o must come first, as its name.
 #
 setup-y	:= header.o
 setup-y	+= main.o
 setup-y	+= a20.o
 setup-y	+= bioscall.o
-setup-y	+= string.o
-setup-y	+= tty.o
-setup-y	+= video.o
 setup-y	+= memory.o
-setup-y	+= printf.o
-setup-y	+= regs.o
 setup-y	+= pm.o
 setup-y	+= pmjump.o 
+setup-y	+= printf.o
+setup-y	+= regs.o
+setup-y	+= string.o
+setup-y	+= tty.o
+setup-y += version.o
+setup-y	+= video.o
 setup-targets := $(addprefix $(obj)/, $(setup-y))
 
 ##
@@ -76,7 +77,8 @@ setup-targets := $(addprefix $(obj)/, $(setup-y))
 #	voffset.h	-	Kernel virtual address offset
 #
 quiet_cmd_build_image = BUILD   $@
-      cmd_build_image = $(obj)/tools/build
+      cmd_build_image = $(obj)/tools/build $(obj)/bootloader.bin	\
+      			$(obj)/setup.bin $(obj)/vmSandix.bin $@
 
 $(obj)/bzImage: $(obj)/bootloader.bin $(obj)/setup.bin $(obj)/voffset.h \
                 $(obj)/vmSandix.bin $(obj)/tools/build FORCE

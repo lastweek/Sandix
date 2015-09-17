@@ -220,6 +220,8 @@ setup_data:		.quad 0				# 64-bit physical pointer to
 
 pref_address:		.quad LOAD_PHYSICAL_ADDR	# preferred load addr
 
+#define VO__text 0
+#define VO__end  1
 #define INIT_SIZE (VO__end - VO__text)
 init_size:		.long INIT_SIZE			# kernel initialization size
 
@@ -285,7 +287,7 @@ start_of_setup:
 
 setup_bad_signature:
 	movw	$setup_msg_sig, %si
-	jmp	print
+	jmp	setup_print
 setup_bad_segment:
 	movw	%ax, %ds
 	movw	$setup_msg_seg, %si

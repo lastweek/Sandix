@@ -74,7 +74,7 @@ if [ "$1" == "LD" ]; then
 		echo 1 > .version
 	else
 		mv .version .version.old
-		expr 0$(cat .old_version) + 1 >.version
+		expr 0$(cat .version.old) + 1 >.version
 	fi
 
 	info SYSMAP System.map
