@@ -2,7 +2,7 @@
 # Thu Sep 17 10:53:58 CST 2015
 #
 
-# Keyword: include in Makefile
+# Keyword: include in Makefile, include/config/* include/generated/*
 
 It is important to know how Makefiles are remade and how 'include'
 directive works. Here are some words form GNU Make Manual:
@@ -24,3 +24,15 @@ Makefile as the target, and an empty recipe.
 
 '-q' and '-n' do not prevent updating of Makefiles, because an out-of-date
 Makefile would result in the wrong output for other targets.
+
+# END
+##
+
+OK, now let us talk about Kconfig with his --silentoldconfig.
+Kconfig read auto.conf and make two new directories: include/config and
+include/generated. The first one include/config is used by fixdep.c to use
+a clever trick! Another one is used to store autoconf.h which all source files
+included, and some version files.
+
+So in Linux kernel, Kconfig and fixdep.c works together. I mimic everything,
+actually, i do nothing. The only work i do is copying. ;)
