@@ -17,15 +17,6 @@
  *
  */
 
-/*
- * build.c: Concatenate three images.
- *
- * The three images are:
- *	--> Bootloader.bin
- *	--> Setup.bin
- *	--> vmSandix.bin
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -34,106 +25,109 @@
 #define MAGIC_511	0x55
 #define MAGIC_512	0xAA
 
-/* Current di*/
-const char *bootloader	= "arch/x86/boot/bootloader.bin";
-const char *setup	= "arch/x86/boot/setup.bin";
-const char *kernel	= "arch/x86/boot/vmSandix.bin";
-const char *bzImage	= "arch/x86/boot/bzImage";
+static void usage(void)
+{
+	printf("Usage: build bootloader setup system image\n");
+	exit(-1);
+}
 
 int main(int argc, char **argv)
 {
-	FILE *fp_bl, *fp_si, *fp_ki;	// Input file handles
-	FILE *fp_out;			// Output file handle
-	int len_bl, len_si, len_ki;	// Input files's length
-	int sectors_header;		// Sectors of header
-	int sectors_image;		// Sectors of image
-	int sectors_bzimage;		// Sectors of bzimage
+	FILE *fp_loader, *fp_setup, *fp_sys;	// Input file handles
+	FILE *fp_image;				// Output file handle
+	int len_bl, len_si, len_ki;		// Input files's length
+	int sectors_header;			// Sectors of header
+	int sectors_image;			// Sectors of image
+	int sectors_bzimage;			// Sectors of bzimage
 	int i, pad;
 	char c;
 
-	if ((fp_bl = fopen(bootloader, "r+")) == NULL) {
-		printf("Open %s failed\n", bootloader);
+	if (argc != 5)
+		usage();
+
+	if ((fp_loader = fopen(argv[1], "r+")) == NULL) {
+		printf("Open %s failed\n", argv[1]);
 		exit(-1);
 	}
 
-	if ((fp_si = fopen(setup, "r+")) == NULL) {
-		printf("Open %s failed\n", setup);
+	if ((fp_setup = fopen(argv[2], "r+")) == NULL) {
+		printf("Open %s failed\n", argv[2]);
 		exit(-1);
 	}
 	
-	if ((fp_ki = fopen(kernel, "r+")) == NULL) {
-		printf("Open %s failed\n", kernel);
+	if ((fp_sys = fopen(argv[3], "r+")) == NULL) {
+		printf("Open %s failed\n", argv[3]);
 		exit(-1);
 	}
 
-	if ((fp_out = fopen(bzImage, "w+")) == NULL) {
-		printf("Create %s failed\n", bzImage);
+	if ((fp_image = fopen(argv[4], "w+")) == NULL) {
+		printf("Create %s failed\n", argv[4]);
 		exit(-1);
 	}
-	fseek(fp_out, 0, SEEK_SET);
+	fseek(fp_image, 0, SEEK_SET);
 
 	
 	/**
 	 * Step1: Handle bootloader
 	 **/
 
-	fseek(fp_bl, 0, SEEK_END);
-	len_bl = ftell(fp_bl);
-	fseek(fp_bl, 0, SEEK_SET);
+	fseek(fp_loader, 0, SEEK_END);
+	len_bl = ftell(fp_loader);
+	fseek(fp_loader, 0, SEEK_SET);
 	if (len_bl > (SECTOR_SIZE - 2)) {
 		printf("bootloader is %d bytes which is too large\n", len_bl);
 		exit(-1);
 	}
 
 	for (i = 0; i < len_bl; i++) {
-	 	c = fgetc(fp_bl);
-		fputc(c, fp_out);
+	 	c = fgetc(fp_loader);
+		fputc(c, fp_image);
 	}
 
 	for (i = (SECTOR_SIZE-2); i > len_bl; i--) {
-		fputc(NOP, fp_out);
+		fputc(NOP, fp_image);
 	}
 	
 	// MBR MAGIC
-	fputc(MAGIC_511, fp_out);
-	fputc(MAGIC_512, fp_out);
+	fputc(MAGIC_511, fp_image);
+	fputc(MAGIC_512, fp_image);
 
 	/**
 	 * Step2: Handle Real-Mode Kernel Image
 	 **/
 
-	fseek(fp_si, 0, SEEK_END);
-	len_si = ftell(fp_si);
-	fseek(fp_si, 0, SEEK_SET);
+	fseek(fp_setup, 0, SEEK_END);
+	len_si = ftell(fp_setup);
+	fseek(fp_setup, 0, SEEK_SET);
 	for (i = 0; i < len_si; i++) {
-		c = fgetc(fp_si);
-		fputc(c, fp_out);
+		c = fgetc(fp_setup);
+		fputc(c, fp_image);
 	}
 	
 	// make it 512 byte alignment.
 	if ((pad = len_si % SECTOR_SIZE)) {
 		pad = SECTOR_SIZE - pad;
 		for (i = 0; i < pad; i++)
-			fputc(NOP, fp_out);
+			fputc(NOP, fp_image);
 	}
 
 	/**
 	 * Step3: Handle Protected-Mode Kernel Image
 	 **/
 
-	 fseek(fp_ki, 0, SEEK_END);
-	 len_ki = ftell(fp_ki);
-	 fseek(fp_ki, 0, SEEK_SET);
+	 fseek(fp_sys, 0, SEEK_END);
+	 len_ki = ftell(fp_sys);
+	 fseek(fp_sys, 0, SEEK_SET);
 	 for (i = 0; i < len_ki; i++) {
-	 	c = fgetc(fp_ki);
-		fputc(c, fp_out);
+	 	c = fgetc(fp_sys);
+		fputc(c, fp_image);
 	 }
 	
 	// make it 512 byte alignment.
 	if ((pad = len_ki % SECTOR_SIZE)) {
 		pad = SECTOR_SIZE - pad;
 		for (i = 0; i < pad; i++)
-			fputc(NOP, fp_out);
+			fputc(NOP, fp_image);
 	}
 
 	/**
@@ -148,12 +142,11 @@ int main(int argc, char **argv)
 	printf("[setup.bin]    : %-10d bytes (%-5d sectors)\n", len_si, sectors_header);
 	printf("[vmSandix.bin] : %-10d bytes (%-5d sectors)\n", len_ki, sectors_image);
 	printf("[bzImage]      : %-10d bytes (%-5d sectors)\n", sectors_bzimage*SECTOR_SIZE, sectors_bzimage);
-	printf("Remember changing the sector number in boot loader!\n");
 
-	fclose(fp_bl);
-	fclose(fp_si);
-	fclose(fp_ki);
-	fclose(fp_out);
+	fclose(fp_loader);
+	fclose(fp_setup);
+	fclose(fp_sys);
+	fclose(fp_image);
 
 	return 0;
 }
