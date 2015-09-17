@@ -21,9 +21,9 @@
 #include <asm/boot.h>
 #include <asm/bootparam.h>
 
-BOOTSEG	= 0x07C0	# Historically boot sect address
-SYSSEG	= 0x1000	# Historically load address >> 4
-INITSEG	= 0X9000	# Setup load address >> 4
+BOOTSEG		= 0x07C0	# Historically boot sect address
+SYSSEG		= 0x1000	# Kernel System load address >> 4
+SETUPSEG	= 0x9000	# Kernel Setup load address >> 4
 
 #ifndef ROOT_RDONLY
 # define ROOT_RDONLY	1
@@ -43,7 +43,7 @@ INITSEG	= 0X9000	# Setup load address >> 4
 	.code16
 
 #------------------------------------------------------------
-# SECTOR 0, OFFSET 0
+# SECTOR 0, OFFSET 0, 0x9000:0000
 	.section ".bstext", "ax"
 	.global boosect_start
 bootsect_start:
@@ -93,7 +93,7 @@ bootsect_msg:
 #
 
 #------------------------------------------------------------
-# SECTOR 0, OFFSET 495
+# SECTOR 0, OFFSET 495, 0x9000:1ef
 	.section ".header", "a"
 sentinel:	.byte 0xff, 0xff	# Used to detect broken loaders
 
@@ -108,7 +108,7 @@ root_dev:	.word 0			# Filled in by build.c
 boot_flag:	.word 0xAA55
 
 #------------------------------------------------------------
-# SECTOR 1, OFFSET 0
+# SECTOR 1, OFFSET 0, 0x9000:0200
 	.global _start
 _start:
 	# Explicitly enter this as bytes, or the assembler
@@ -163,7 +163,7 @@ ramdisk_size:	.long	0				# its size in bytes
 bootsect_kludge:
 		.long	0				# obsolete
 
-heap_end_ptr:	.word	_end+STACK_SIZE-512
+heap_end_ptr:	.word	__end+STACK_SIZE-512
 							# (Header version 0x0201 or later)
 							# space from here (exclusive) down to
 							# end of setup code can be used by setup
@@ -229,7 +229,6 @@ handover_offset:	.long 0				# Filled in by build.c
 # End of setup header #####################################################
 ##
 
-
 ##
 # Now comes the real entry point of kernel setup part.
 # Normally, with boot loader, the first instruction executed
@@ -239,13 +238,18 @@ handover_offset:	.long 0				# Filled in by build.c
 ##
 # I do not how other boot loaders work, but i know mine.
 # Our bootloader always load setup kernel to: 0x9000:0000,
-# and protected-mode kernel to: 0x1000:0000. Therefore, in
-# code below, set %ds %ss %es %fs %gs equal to %cs
+# and protected-mode kernel to: 0x1000:0000.
 #
 
 	.section ".entrytext", "ax"
 start_of_setup:
+	# Sorry, but we are NOT relocatable
+	# Please put us to 0x9000:0000
 	movw	%cs, %ax
+	cmpw	$SETUPSEG, %ax
+	jne	setup_not_relocatable
+	
+	# Normalize everything.
 	movw	%ax, %ds
 	movw	%ax, %ss
 	movw	%ax, %es
@@ -253,10 +257,9 @@ start_of_setup:
 	movw	%ax, %gs
 	cld
 	
-	##
 	# Set the stack behind the setup image.
-	# 512 is thought to be enough
-	movw	$_end, %ax
+	# 512 is thought to be enough, if not, call 110
+	movw	$__end, %ax
 	addw	$STACK_SIZE, %ax
 	andw	$~3, %ax		# Make it dword aligned
 	jnz	1f
@@ -275,41 +278,34 @@ start_of_setup:
 	shrw    $2, %cx 
 	rep; stosl
 	
-	# Pint message
-	movw	$setup_msg, %si
-setup_msg_loop:
-	lodsb
-	andb	%al, %al
-	jz	1f
-	movb	$0xe, %ah
-	movw	$7, %bx
-	int	$0x10
-	jmp	setup_msg_loop
-1:
-	hlt
-	jmp 1b
-1:
-	# Jump to C code
+##
+# Jump to kernel setup C code
+##
 	calll	main
 
 setup_bad:
 	movw	$setup_corrupt, %si
-1:
+	jmp	print
+setup_not_relocatable:
+	movw	%ax, %ds
+	movw	$setup_bad_position, %si
+print:
 	lodsb
 	andb	%al, %al
-	jz	2f
+	jz	setup_die
 	movb	$0xe, %ah
 	movw	$7, %bx
 	int	$0x10
-	jmp	1b
-2:
+	jmp	print
+
+setup_die:
 	hlt
-	jmp	2b
+	jmp	setup_die
 
 	.section ".entrydata", "a"
-setup_msg:
-	.ascii "header.S, heading to setup main() ...\n\r"
-	.byte 0
 setup_corrupt:
-	.ascii "header.S, no setup signature found...\n\r"
+	.ascii "header.S: No setup signature found...\n\r"
+	.byte 0
+setup_bad_position:
+	.ascii "header.S: Setup is not relocatable...\n\r"
 	.byte 0

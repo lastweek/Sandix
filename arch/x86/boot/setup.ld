@@ -32,7 +32,6 @@ SECTIONS
 	.header		: { *(.header) }
 	.entrytext	: { *(.entrytext) }
 	.entrydata	: { *(.entrydata) }
-	__end_header_S	= .;
 
 	.text		: { *(.text) }
 	.text32		: { *(.text32) }
@@ -58,9 +57,12 @@ SECTIONS
 	}
 
 	. = ALIGN(16);
-	_end = .;
+	__end = .;
 	
 	/DISCARD/ : { *(.note*) }
 	/DISCARD/ : { *(.eh_frame) }
 	/DISCARD/ : { *(.comment) }
+	
+	. = ASSERT(__end <= 0x8000, "Setup too big!");
+	. = ASSERT(hdr == 0x1f1, "The setup header has the wrong offset!");
 }
