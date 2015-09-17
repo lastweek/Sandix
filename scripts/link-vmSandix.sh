@@ -65,13 +65,23 @@ fi
 # Link vmSandix
 #
 if [ "$1" == "LD" ]; then
+	info LD vmSandix
 	vmSandix_ld vmSandix
+
+	info GEN .version
+	if [ ! -r .version ]; then
+		rm -f .version
+		echo 1 > .version
+	else
+		mv .version .version.old
+		expr 0$(cat .old_version) + 1 >.version
+	fi
 
 	info SYSMAP System.map
 	mksysmap vmSandix System.map
 	
 	##
-	# Copy to make boot/Makefile happy
+	# Copy to make arch/$(SRCARCH)/boot/Makefile happy
 	#
 	cp vmSandix arch/${SRCARCH}/boot/
 	cp System.map arch/${SRCARCH}/boot/

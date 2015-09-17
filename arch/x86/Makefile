@@ -21,10 +21,6 @@ ifneq ($(ARCH),x86)
   $(error arch/x86/Makefile is included improperly)
 endif
 
-ifneq ($(CONFIG_X86_32),y)
-  $(warning CONFIG_X86_32 is not set)
-endif
-
 ##
 # Default .config prepared for Kconfig
 #
