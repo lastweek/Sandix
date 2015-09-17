@@ -3,6 +3,9 @@
 |									|
 |		Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>	|	
 
+CAVEAT:  THE KERNEL IS STILL UNDER DEVELOPMENT
+LICENSE: GNU GENERAL PUBLIC LICENSE Version 2
+
 WHAT IS SANDIX?
 
 	- Sandix is a clone of the operating system Unix, written based
@@ -38,10 +41,19 @@ BUILD INSTRUCTIONS:
 	    or  make all
 
 	- 3) Cleanup
+		make mrproper
 		make clean
 
-	- 4) Building Help
+	- 4) Help
 		make help
+	
+	- 5) Version
+		make kernelversion
+		make kernelrelease
 
-CAVEAT:  THE KERNEL IS STILL UNDER DEVELOPMENT
-LICENSE: GNU GENERAL PUBLIC LICENSE Version 2
+	- 6) Editor Tags
+		make tags
+
+	- 7) Kernel Docs
+		make docs
+
