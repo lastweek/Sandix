@@ -22,7 +22,7 @@ ifneq ($(ARCH),x86)
 endif
 
 ifneq ($(CONFIG_X86_32),y)
-  $(error CONFIG_X86_32 is not set)
+  $(warning CONFIG_X86_32 is not set)
 endif
 
 ##

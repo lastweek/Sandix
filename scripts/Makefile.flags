@@ -86,6 +86,8 @@ ifeq ($(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-goto.sh $(CC)), y)
 	KBUILD_AFLAGS += -DCC_HAVE_ASM_GOTO
 endif
 
+# To avoid any implicit rules
+scripts/Makefile.extrawarn: ;
 include scripts/Makefile.extrawarn
 
 # Add any arch overrides and user supplied CPPFLAGS, AFLAGS and CFLAGS as the

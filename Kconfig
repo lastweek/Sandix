@@ -21,36 +21,16 @@
 
 mainmenu "Sandix Kernel Configuration for x86"
 
-menu	Test1
-
-config	WHATEVER
-	bool "Kconfig Test"
-	default y
-	---help---
-	Say yes to what?
-
-config	where
-	bool
-	default y
-config	haha
+menu	Architecture
+config	X86_32
 	bool
 	default y
 endmenu
 
 menu	Test2
-
 config	AHAH
 	bool "Kconfig Test"
 	default y
 	---help---
 	Say yes to what?
-
-config	LLLLL
-	bool
-	default y
-
-config	KKK
-	bool
-	default y
-
 endmenu

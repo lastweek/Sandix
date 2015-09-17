@@ -1,0 +1,26 @@
+#
+# Thu Sep 17 10:53:58 CST 2015
+#
+
+# Keyword: include in Makefile
+
+It is important to know how Makefiles are remade and how 'include'
+directive works. Here are some words form GNU Make Manual:
+
+If a Makefile can be remade from other files, you probably want make to
+get an up-to-date version of the Makefile to read in. After reading in all
+Makefiles, make will consider each as a goal target and attempt to update
+it. If a Makefile has a rule which says how to update it(found either in
+that very Makefile or in other one) or if an implicit rule applies to it,
+it will be updated if necessary. After all Makefiles have been checked, if
+any have actually been changed, make starts with a clean slate and reads all
+the Makefiles again.
+
+If you know that one or more of your Makefiles can NOT be remade and you want
+to keep make from performing an implicit rule search on them, perhaps for
+effiency reasons, you can use any normal method of preventing implicit rule
+look-up to do so. For example, you can write an explicit rule wuth the
+Makefile as the target, and an empty recipe.
+
+'-q' and '-n' do not prevent updating of Makefiles, because an out-of-date
+Makefile would result in the wrong output for other targets.

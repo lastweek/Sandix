@@ -54,6 +54,4 @@ ifeq ("$(strip $(warning))","")
 endif
 
 KBUILD_CFLAGS += $(warning)
-else
-
 endif

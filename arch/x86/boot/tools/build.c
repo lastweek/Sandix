@@ -1,10 +1,29 @@
 /*
+ *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	
+ *	This program is free software; you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation; either version 2 of the License, or
+ *	(at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
+ *
+ *	You should have received a copy of the GNU General Public License along
+ *	with this program; if not, write to the Free Software Foundation, Inc.,
+ *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ */
+
+/*
  * build.c: Concatenate three images.
  *
  * The three images are:
- * 1. Bootloader object
- * 2. 16-bit Real-Mode Kernel Image
- * 3. 32-bit Protected-Mode Kernel Image
+ *	--> Bootloader.bin
+ *	--> Setup.bin
+ *	--> vmSandix.bin
  */
 
 #include <stdio.h>
@@ -15,7 +34,7 @@
 #define MAGIC_511	0x55
 #define MAGIC_512	0xAA
 
-// We are in sandix/ when we call this C file.
+/* Current di*/
 const char *bootloader	= "arch/x86/boot/bootloader.bin";
 const char *setup	= "arch/x86/boot/setup.bin";
 const char *kernel	= "arch/x86/boot/vmSandix.bin";

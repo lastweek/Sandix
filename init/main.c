@@ -78,6 +78,7 @@ void hlt(void)
 
 void __init kernel_init(void)
 {
+#ifdef CONFIG_X86_32
 	struct tty_struct tty;
 	int i;
 	const char *s = "\033[5mHello!34mABCl\033[0mBBB\n\r~~~";
@@ -89,4 +90,5 @@ void __init kernel_init(void)
 	con_write(&tty, s, strlen(s));
 	
 	hlt();
+#endif
 }

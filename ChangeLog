@@ -1,22 +1,5 @@
-#
 #	ChangeLog of Sandix
-#
 #	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
-#
-#	This program is free software; you can redistribute it and/or modify
-#	it under the terms of the GNU General Public License as published by
-#	the Free Software Foundation; either version 2 of the License, or
-#	(at your option) any later version.
-#
-#	This program is distributed in the hope that it will be useful,
-#	but WITHOUT ANY WARRANTY; without even the implied warranty of
-#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#	GNU General Public License for more details.
-#
-#	You should have received a copy of the GNU General Public License along
-#	with this program; if not, write to the Free Software Foundation, Inc.,
-#	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#
 
 #	[-] = Remove
 #	[+] = New
@@ -107,3 +90,18 @@ Tue Sep 15 CST 2015
 - [M] arch/x86/boot/header.S			[D] Add more header datas, for future
 -						 >  boot loader support.
 - [M] arch/x86/include/asm/*			[D] Move from include/asm/*
+
+
+Wed Sep 16 CST 2015
+- [M] Makefile					[D] --silentoldconfig
+-						 >  let Kconfig build include/config/*
+-						 >  and include/generated/*
+-						 >  Also, we add version.h and utsrelease.h
+
+
+Thu Sep 17 CST 2015
+- [+] Diary/09-17-2015				[D] Some words about Makefile
+- [+] include/sandix/kconfig.h			[D] IMPORTANT
+- [+] Makefile					[D] -include include/sandix/kconfig.h
+- [M] arch/x86/boot/tools/build.c		[D] Fill holes header.S
+- [M] arch/x86/boot/bootloader.S		[D] Fit linux boot protocol

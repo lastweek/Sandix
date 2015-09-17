@@ -242,18 +242,21 @@ $(subdir-y):
 # Hmm, now you know how $(targets) works?
 # Read all saved command lines and dependencies for the $(targets) we
 # may be building above, using by $(if_changed{,_dep,_rule}). 
-# Linux Kernel put .d and .cmd together, but i prefer separating them.
 # ------------------------------------------------------------------------
 targets  := $(wildcard $(sort $(targets)))
-depfiles := $(wildcard $(foreach f,$(targets),$(dir $(f)).$(notdir $(f)).d))
 cmdfiles := $(wildcard $(foreach f,$(targets),$(dir $(f)).$(notdir $(f)).cmd))
-
-ifneq ($(depfiles),)
-  include $(depfiles)
-endif
 ifneq ($(cmdfiles),)
   include $(cmdfiles)
 endif
+
+###
+# DO NOT INCLUDE
+# FOR COMPARISON ONLY
+#
+#depfiles := $(wildcard $(foreach f,$(targets),$(dir $(f)).$(notdir $(f)).d))
+#ifneq ($(depfiles),)
+#  include $(depfiles)
+#endif
 
 # ------------------------------------------------------------------------
 # Compile C sources (.c)

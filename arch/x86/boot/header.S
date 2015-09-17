@@ -1,6 +1,5 @@
 #
-#	arch/x86/boot/header.S - The head of kernel.
-#
+#	arch/x86/boot/header.S - The real head of Sandix kernel.
 #	Fit with linux x86 boot protocol, can work with BootLoader
 #
 #	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
@@ -115,7 +114,7 @@ _start:
 	# Explicitly enter this as bytes, or the assembler
 	# tries to generate a 3-byte jump here, which causes
 	# everything else to push off to the wrong offset.
-	.byte	0xeb		# short (2-byte) jump
+	.byte	0xeb	# short (2-byte) jump
 	.byte	start_of_setup-1f
 1:
 

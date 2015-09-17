@@ -28,6 +28,7 @@ NAME		=	Sandix
 
 # o Do NOT use built-in rules and variables
 #   This increases performance and avoids hard-to-debug behaviour );
+#   Yes, we will have very hard-to-debug errors!
 # o Look for make include files relative to root of kernel src
 MAKEFLAGS += -rR --include-dir=$(CURDIR)
 
@@ -108,7 +109,6 @@ ifndef KBUILD_CHECKSRC
   KBUILD_CHECKSRC = 0
 endif
 export KBUILD_CHECKSRC
-
 
 # ===========================================================================
 #  1st	First Part of the Makefile	
@@ -241,8 +241,10 @@ HOSTCFLAGS  += -Wno-unused-value -Wno-unused-parameter \
 endif
 export CONFIG_SHELL HOSTCC HOSTCXX HOSTCFLAGS HOSTCXXFLAGS
 
-# Generic definitions
+# Cancel implicit rules
 scripts/Kbuild.include: ;
+
+# Generic definitions
 include scripts/Kbuild.include
 
 CC			 = $(CROSS_COMPILE)gcc
@@ -272,7 +274,9 @@ OBJDUMPFLAGS		:= -M att
 SANDIXINCLUDE		:=							\
 			   -Iinclude						\
 			   $(if $(KBUILD_SRC), -I$(srctree)/include)		\
-			   -I$(srctree)/arch/$(SRCARCH)/include
+			   -I$(srctree)/arch/$(SRCARCH)/include			\
+			   -include $(srctree)/include/sandix/kconfig.h
+
 
 KBUILD_CFLAGS   	:=							\
 			   -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs	\
@@ -281,8 +285,8 @@ KBUILD_CFLAGS   	:=							\
 			   -Wno-format-security					\
 			   -std=gnu11
 
-KERNELRELEASE	= $(shell cat include/config/kernel.release 2> /dev/null)
-KERNELVERSION	= $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)
+KERNELRELEASE		= $(shell cat include/config/kernel.release 2> /dev/null)
+KERNELVERSION		= $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)
 
 export VERSION PATCHLEVEL SUBLEVEL KERNELRELEASE KERNELVERSION
 export CC AS LD CPP AR NM STRIP OBJCOPY OBJDUMP MAKE AWK PERL PYTHON CHECK
@@ -377,9 +381,9 @@ ifeq ($(config-targets),1)
 #
 KBUILD_DEFCONFIG	:=
 KBUILD_KCONFIG		:=
-include arch/$(SRCARCH)/Makefile
 export KBUILD_DEFCONFIG KBUILD_KCONFIG
 
+PHONY += config %config
 config:  scripts_basic outputmakefile FORCE
 	$(Q)$(MAKE) $(build)=scripts/kconfig $@
 
@@ -396,6 +400,31 @@ scripts: scripts_basic include/config/auto.conf include/config/tristate.conf
 	$(Q)$(MAKE) $(build)=$@
 
 ifeq ($(dot-config),1)
+##
+# It is important to know how Makefiles are remade and how 'include'
+# directive works. Here are some words form GNU Make Manual:
+#
+# If a Makefile can be remade from other files, you probably want make to
+# get an up-to-date version of the Makefile to read in. After reading in all
+# Makefiles, make will consider each as a goal target and attempt to update
+# it. If a Makefile has a rule which says how to update it(found either in
+# that very Makefile or in other one) or if an implicit rule applies to it,
+# it will be updated if necessary. After all Makefiles have been checked, if
+# any have actually been changed, make starts with a clean slate and reads all
+# the Makefiles again.
+#
+# If you know that one or more of your Makefiles can NOT be remade and you want
+# to keep make from performing an implicit rule search on them, perhaps for
+# effiency reasons, you can use any normal method of preventing implicit rule
+# look-up to do so. For example, you can write an explicit rule wuth the
+# Makefile as the target, and an empty recipe.
+#
+# '-q' and '-n' do not prevent updating of Makefiles, because an out-of-date
+# Makefile would result in the wrong output for other targets.
+#
+# END.
+#
+
 # Read in config
 -include include/config/auto.conf
 
@@ -403,7 +432,7 @@ ifeq ($(dot-config),1)
 # run oldconfig if changes are detected.
 -include include/config/auto.conf.cmd
 
-# To avoid any implicit rule to kick in.
+# To avoid any implicit rule
 $(KCONFIG_CONFIG) include/config/auto.conf.cmd: ;
 
 ##
@@ -412,8 +441,10 @@ $(KCONFIG_CONFIG) include/config/auto.conf.cmd: ;
 # If auto.conf.cmd is missing then we are probably in a cleaned
 # tree so we execute the config step to be sure to catch updates.
 #
-# FIXME WHY????????
-# why this target always get build
+##
+# As explained above, we have an explicit rule for included file "auto.conf"
+# So before make read "auto.conf", it will do the recipe for "auto.conf" first.
+#
 include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
 	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
 
@@ -452,6 +483,10 @@ ARCH_CPPFLAGS	:=
 ARCH_AFLAGS	:=
 ARCH_CFLAGS	:=
 
+# To avoid any implicit rules
+arch/$(SRCARCH)/Makefile: ;
+scripts/Makefile.flags: ;
+
 include arch/$(SRCARCH)/Makefile
 include scripts/Makefile.flags
 
@@ -473,9 +508,8 @@ quiet_cmd_link-vmSandix = LINK    $@
 
 ##
 # Final link of vmSandix
-#
-# deps: include/config/%.conf include/config/kernel.release
-#	include/generated/utsrelease.h
+# Before building vmSandix, we need to do some preparation first.
+# After that we descending into sub-directories to build vmSandix.
 #
 vmSandix: scripts/link-vmSandix.sh $(vmSandix-deps) FORCE
 	$(call if_changed_pre,link-vmSandix)
@@ -492,9 +526,9 @@ prepare: include/config/kernel.release		\
 	 include/generated/utsrelease.h FORCE
 
 # ===========================================================================
-# Gnenerate some files before building vmSandix. Mimic Linux
+# Gnenerate some files before building vmSandix. Mimic Linux.
 # Actually, Sandix does NOT need any version files for now.
-# In case you ask, uts stands for: Unix Time Sharing
+# In case you ask, uts stands for: Unix Time Sharing.
 
 define filechk_kernel.release
 	echo "$(KERNELVERSION)"
@@ -515,13 +549,13 @@ define filechk_utsrelease.h
 	(echo \#define UTS_RELEASE \"$(KERNELRELEASE)\";)
 endef
 
-include/config/kernel.release: Makefile FORCE
+include/config/kernel.release: $(srctree)/include/config/auto.conf FORCE
 	$(call filechk,kernel.release)
 
-include/generated/version.h: Makefile FORCE
+include/generated/version.h: $(srctree)/Makefile FORCE
 	$(call filechk,version.h)
 
-include/generated/utsrelease.h: Makefile FORCE
+include/generated/utsrelease.h: include/config/kernel.release FORCE
 	$(call filechk,utsrelease.h)
 
 ###
@@ -597,18 +631,18 @@ help:
 	@echo  'Execute "make" or "make all" to build all targets marked with [*] '
 	@echo  'For more information, please read samples/Makefile.tutorial'
 
+PHONY += kernelrelease
 kernelrelease:
 	@echo $(KERNELVERSION)
 
+PHONY += kernelversion
 kernelversion:
 	@echo $(KERNELVERSION)
 
-# Generate Editor Tags
 PHONY += tags
 tags:
 	@echo ''
 
-# Generate Kernel Docs
 PHONY += docs
 docs:
 	@echo ''
