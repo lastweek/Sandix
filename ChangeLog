@@ -117,4 +117,4 @@ Thu Sep 17 CST 2015
 
 Fri Sep 18 CST 2015
 - [M] arch/x86/boot/tools/build.c		[D] Rewrite, fill holes in header.S
-- [M] arch/x86/boot/bootloader.S		[D] Fit linux boot protocol
+- [M] arch/x86/boot/bootloader.S		[D] Rewrite, read data from header.S
