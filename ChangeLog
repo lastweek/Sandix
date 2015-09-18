@@ -113,5 +113,8 @@ Thu Sep 17 CST 2015
 - [M] arch/x86/boot/header.S			[D] kernel_version support
 -						 >  start_of_setup fix: error if setup is
 -						 >  not loaded at 0x9000:0000
-- [M] arch/x86/boot/tools/build.c		[D] Fill holes header.S
+
+
+Fri Sep 18 CST 2015
+- [M] arch/x86/boot/tools/build.c		[D] Rewrite, fill holes in header.S
 - [M] arch/x86/boot/bootloader.S		[D] Fit linux boot protocol

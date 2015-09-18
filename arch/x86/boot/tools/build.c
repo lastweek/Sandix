@@ -1,4 +1,6 @@
 /*
+ *	arch/x86/boot/tools/build.c
+ *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
  *	This program is free software; you can redistribute it and/or modify
@@ -14,134 +16,178 @@
  *	You should have received a copy of the GNU General Public License along
  *	with this program; if not, write to the Free Software Foundation, Inc.,
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
  */
 
+/*
+ * This file builds a disk-image from three different files:
+ *
+ * - bootloader:	Simple bootloader for Sandix
+ * - setup:		8086 machine code, sets up system parameters
+ * - system:		80386 code for actual system
+ *
+ * It does some checking that all files are of the correct type, and writes
+ * the result to the specified destination, padding to the right amount.
+ * It also print some information to the stdout, error message to stderr.
+ */
+
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#define NOP		0x90
-#define SECTOR_SIZE	512
-#define MAGIC_511	0x55
-#define MAGIC_512	0xAA
+/* x86 NOP instruction */
+#define NOP			0x90
+
+#define DEFAULT_MAJOR_ROOT	0
+#define DEFAULT_MINOR_ROOT	0
+#define DEFAULT_ROOT_DEV	(DEFAULT_MAJOR_ROOT << 8 | DEFAULT_MINOR_ROOT)
+
+#define SETUP_SECT_MIN		5
+#define SETUP_SECT_MAX		64
+
+unsigned char buf[SETUP_SECT_MAX*512];
+
+static void die(const char * str, ...)
+{
+	va_list args;
+	va_start(args, str);
+	vfprintf(stderr, str, args);
+	exit(1);
+}
 
 static void usage(void)
 {
-	printf("Usage: build bootloader setup system image\n");
-	exit(-1);
+	die("Usage: build bootloader setup system image\n");
+}
+
+static inline void __put_unaligned_le16(unsigned short val, unsigned char *p)
+{
+	*p++ = val;
+	*p++ = val >> 8;
+}
+
+static inline void put_unaligned_le16(unsigned short val, unsigned char *p)
+{
+	__put_unaligned_le16(val, p);
+}
+
+static inline void put_unaligned_le32(unsigned int val, unsigned char *p)
+{
+	__put_unaligned_le16(val, p);
+	__put_unaligned_le16(val >> 16, p + 2);
 }
 
 int main(int argc, char **argv)
 {
-	FILE *fp_loader, *fp_setup, *fp_sys;	// Input file handles
-	FILE *fp_image;				// Output file handle
-	int len_bl, len_si, len_ki;		// Input files's length
-	int sectors_header;			// Sectors of header
-	int sectors_image;			// Sectors of image
-	int sectors_bzimage;			// Sectors of bzimage
-	int i, pad;
+	FILE *fp_loader, *fp_setup, *fp_sys, *fp_image;
+	int len_loader, len_setup, len_sys;
+	int sectors_setup, sectors_sys, sectors_image;
+	int i, j, pad, sys_size;
 	char c;
 
 	if (argc != 5)
 		usage();
 
-	if ((fp_loader = fopen(argv[1], "r+")) == NULL) {
-		printf("Open %s failed\n", argv[1]);
-		exit(-1);
-	}
+	if ((fp_loader = fopen(argv[1], "r")) == NULL)
+		die("Open %s failed\n", argv[1]);
 
-	if ((fp_setup = fopen(argv[2], "r+")) == NULL) {
-		printf("Open %s failed\n", argv[2]);
-		exit(-1);
-	}
+	if ((fp_setup = fopen(argv[2], "r")) == NULL)
+		die("Open %s failed\n", argv[2]);
 	
-	if ((fp_sys = fopen(argv[3], "r+")) == NULL) {
-		printf("Open %s failed\n", argv[3]);
-		exit(-1);
-	}
+	if ((fp_sys = fopen(argv[3], "r")) == NULL)
+		die("Open %s failed\n", argv[3]);
 
-	if ((fp_image = fopen(argv[4], "w+")) == NULL) {
-		printf("Create %s failed\n", argv[4]);
-		exit(-1);
-	}
+	if ((fp_image = fopen(argv[4], "w")) == NULL)
+		die("Create %s failed\n", argv[4]);
 	fseek(fp_image, 0, SEEK_SET);
-
 	
-	/**
-	 * Step1: Handle bootloader
-	 **/
-
+	/* Read Bootloader */
 	fseek(fp_loader, 0, SEEK_END);
-	len_bl = ftell(fp_loader);
+	len_loader = ftell(fp_loader);
 	fseek(fp_loader, 0, SEEK_SET);
-	if (len_bl > (SECTOR_SIZE - 2)) {
-		printf("bootloader is %d bytes which is too large\n", len_bl);
-		exit(-1);
-	}
 
-	for (i = 0; i < len_bl; i++) {
+	if (len_loader > (512 - 2))
+		die("Bootloader is %d bytes which is too big\n", len_loader);
+	
+	/* Write Bootloader to image */
+	for (i = 0; i < len_loader; i++) {
 	 	c = fgetc(fp_loader);
 		fputc(c, fp_image);
 	}
-
-	for (i = (SECTOR_SIZE-2); i > len_bl; i--) {
+	for (i = (512 - 2); i > len_loader; i--)
 		fputc(NOP, fp_image);
-	}
+	fputc(0x55, fp_image);
+	fputc(0xAA, fp_image);
+
+	/* Read Setup */
+	len_setup = fread(buf, 1, sizeof(buf), fp_setup);
+	if(ferror(fp_setup))
+		die("Read error on `setup'\n");
+
+	sectors_setup = (len_setup + 511) / 512;
+	if (sectors_setup > SETUP_SECT_MAX)
+		die("Setup is %d sectors which is too big\n", sectors_setup);
+	if (sectors_setup < SETUP_SECT_MIN)
+		sectors_setup = SETUP_SECT_MIN;
+	j = sectors_setup * 512;
+	memset(buf+len_setup, NOP, j-len_setup);
+
+	/* Read System */
+	fseek(fp_sys, 0, SEEK_END);
+	len_sys = ftell(fp_sys);
+	fseek(fp_sys, 0, SEEK_SET);
+
+	/*
+	 * Patch the header of setup
+	 * The exact offset of each field if defined in header.S
+	 * Those fields are supposed to work with boot loader.
+	 */
+
+	/* Set the number of 16-bytes paragraphs */
+	sys_size = (len_sys + 15) / 16;
+	put_unaligned_le32(sys_size, &buf[0x1f4]);
 	
-	// MBR MAGIC
-	fputc(MAGIC_511, fp_image);
-	fputc(MAGIC_512, fp_image);
+	/* Set the default root device  What is this? */
+	put_unaligned_le16(DEFAULT_ROOT_DEV, &buf[508]);
 
-	/**
-	 * Step2: Handle Real-Mode Kernel Image
-	 **/
+	/* Set the sectors of setup */
+	buf[0x1f1] = sectors_setup - 1;
 
-	fseek(fp_setup, 0, SEEK_END);
-	len_si = ftell(fp_setup);
-	fseek(fp_setup, 0, SEEK_SET);
-	for (i = 0; i < len_si; i++) {
-		c = fgetc(fp_setup);
+	/* Write Setup to image */
+	if (fwrite(buf, 1, j, fp_image) != j )
+		die("Write Setup failed\n");
+
+	/* Write System to image */
+	for (i = 0; i < len_sys; i++) {
+		c = fgetc(fp_sys);
 		fputc(c, fp_image);
 	}
 	
-	// make it 512 byte alignment.
-	if ((pad = len_si % SECTOR_SIZE)) {
-		pad = SECTOR_SIZE - pad;
+	/*
+	 * Yes, i choose to pad system to 512-bytes align, because
+	 * loader have to load an entire sector even if you just want
+	 * to read one byte. Load more than we need do no harms, but
+	 * omit something is really harmful.
+	 *
+	 * Also, i choose to write sys_size which is 16-bytes align
+	 * to setup header. So the loader knows the 'precise' size.
+	 */
+
+	/* Make it 512 bytes align */
+	if ((pad = len_sys % 512)) {
+		pad = 512 - pad;
 		for (i = 0; i < pad; i++)
 			fputc(NOP, fp_image);
 	}
 
-	/**
-	 * Step3: Handle Protected-Mode Kernel Image
-	 **/
-
-	 fseek(fp_sys, 0, SEEK_END);
-	 len_ki = ftell(fp_sys);
-	 fseek(fp_sys, 0, SEEK_SET);
-	 for (i = 0; i < len_ki; i++) {
-	 	c = fgetc(fp_sys);
-		fputc(c, fp_image);
-	 }
+	/* Print Info */
+	sectors_sys	= (len_sys + 511) / 512; 
+	sectors_image	= 1 + sectors_setup + sectors_sys;
 	
-	// make it 512 byte alignment.
-	if ((pad = len_ki % SECTOR_SIZE)) {
-		pad = SECTOR_SIZE - pad;
-		for (i = 0; i < pad; i++)
-			fputc(NOP, fp_image);
-	}
-
-	/**
-	 * Step4: Print some infomation.
-	 **/
-	sectors_header    = (len_si % SECTOR_SIZE)? (len_si/SECTOR_SIZE+1): len_si/SECTOR_SIZE;
-	sectors_image     = (len_ki % SECTOR_SIZE)? (len_ki/SECTOR_SIZE+1): len_ki/SECTOR_SIZE;
-	sectors_bzimage   = sectors_header + sectors_image + 1;
-	
-	printf("\n");
-	printf("[bootloader]   : %-10d bytes (%-5d sector)\n", len_bl, 1);
-	printf("[setup.bin]    : %-10d bytes (%-5d sectors)\n", len_si, sectors_header);
-	printf("[vmSandix.bin] : %-10d bytes (%-5d sectors)\n", len_ki, sectors_image);
-	printf("[bzImage]      : %-10d bytes (%-5d sectors)\n", sectors_bzimage*SECTOR_SIZE, sectors_bzimage);
+	printf("[loader]  : %-8d Bytes (pad to %-4d sector)\n",  len_loader, 1);
+	printf("[setup]   : %-8d Bytes (pad to %-4d sectors)\n", len_setup, sectors_setup);
+	printf("[system]  : %-8d Bytes (pad to %-4d sectors)\n", len_sys, sectors_sys);
+	printf("[bzImage] : %-8d Bytes (Total: %-4d sectors)\n", sectors_image*512, sectors_image);
 
 	fclose(fp_loader);
 	fclose(fp_setup);
