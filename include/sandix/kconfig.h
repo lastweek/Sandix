@@ -18,8 +18,8 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __SANDIX_KCONFIG_H
-#define __SANDIX_KCONFIG_H
+#ifndef _SANDIX_KCONFIG_H_
+#define _SANDIX_KCONFIG_H_
 
 #include <generated/autoconf.h>
 
