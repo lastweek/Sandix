@@ -87,6 +87,8 @@ bootsect_msg:
 ##
 # Start of setup header ###################################################
 #
+# These fields appeared in old arch/i386/boot/bootsect.S
+#
 
 #------------------------------------------------------------
 # SECTOR 0, OFFSET 495, 0x9000:1ef
