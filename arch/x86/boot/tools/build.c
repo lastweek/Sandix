@@ -42,6 +42,7 @@
 #define DEFAULT_MINOR_ROOT	0
 #define DEFAULT_ROOT_DEV	(DEFAULT_MAJOR_ROOT << 8 | DEFAULT_MINOR_ROOT)
 
+/* Normally, confine setup beyond 64 sectors to avoid cross-cylinder */
 #define SETUP_SECT_MIN		5
 #define SETUP_SECT_MAX		64
 
