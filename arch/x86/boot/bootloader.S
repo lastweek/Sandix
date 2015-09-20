@@ -47,7 +47,11 @@ start:
 ##
 # Get Disk Geometry Parameters. In Modern BIOS(e.g. SeaBIOS),
 # the CHS scheme used in INT 0x13 is translated to LBA scheme
-# to address disk. We need: sectors/track, heads/cylinder.
+# to address disk.
+#
+# In CHS scheme, Cylinder and Head start from 0, Sector start
+# form 1, which means the fisrt sector is: 0/0/1. In LBA scheme,
+# the first sector starts from 0.
 #
 # Using Cylinder/Head/Sector to calculate LBA:
 #	LBA = (Cylinder * hPc + Head) * sPt + (Sector - 1)
@@ -81,7 +85,7 @@ start:
 	xorw	%bx, %bx			# 0x9000:0000
 	movw	$0x0201, %ax			# Service 2, nr_of_sectors = 1
 	movw	$2, %cx				# Cylinder = 0, Sector = 2
-	andw	$0x80, %dx			# Head = 0, hard disk
+	movw	$0x80, %dx			# Head = 0, hard disk
 	int	$0x13
 	jc	bs_fail
 
@@ -100,14 +104,14 @@ start:
 	movw	$0x200, %bx			# 0x9000:0200
 	movb	$0x02, %ah			# Service 2
 	movw	$3, %cx				# Cylinder = 0, Sector = 3
-	andw	$0x80, %dx			# Head = 0, hard disk
+	movw	$0x80, %dx			# Head = 0, hard disk
 	int	$0x13
 	jc	bs_fail
 
 ##
-# Before loading System, we calculate the size of system image first.
-# Note that the sys_size field is in 16-bytes unit, so:
-# sectors_of_system = (sys_size*16 + 511)/512
+# Before loading System, calculating the size of system image first.
+# Note that the sys_size field is in 16-bytes unit, therefore:
+# sectors_of_system = (sys_size * 16 + 511) / 512
 
 	xorw	%ax, %ax
 	movw	$0x1f4, %bx			# Defined in header.S
@@ -116,28 +120,96 @@ start:
 	sall	$4, %eax			# * 16
 	addl	$511, %eax			# + 511
 	shrl	$9, %eax			# / 512
+	movw	%ax, sremain			# Store it
 
 ##
-# Now loading System
-# eax = secors to read
-#
+# Loading System in an ugly way.
+# First, load the first portion that sleep in head 0. After that, we load
+# the remaining. I am NOT good at assembly code, here you go.
+
 	movw	$SYSSEG, %bx
 	movw	%bx, %es
-	xorw	%bx, %bx			# 0x1000:0000
 
-	mov	$0x02, %ah			# service 2
-	xor	%dx, %dx			# drive 0, head 0
-	mov	$0x80, %dl
-	pop	%cx				# Restore sectors_of_setup
-	add	$3, %cx				# Starting sector number
+	popw	%cx				# Restore sectors_of_setup
+	addw	$3, %cx				# Starting sector number
+	movw	%cx, sread			# I am pretty sure setup is small
+	movw	$0, head			# So move to sread directly :)
+
+	movw	sPt, %cx
+	subw	sread, %cx
+	addw	$1, %cx				# %cx = sPt - sread + 1
+	cmpw	sremain, %cx			# Quick check if head 0 is enough
+	jnl	1f				# Jump if (%cx >= sremain)
+	subw	%cx, sremain			# else do sremain -= %cx
+	movw	%cx, %ax			# nr_of_sectors to read
+	jmp	head0
+1:
+	movw	sremain, %ax			# nr_of_sectors to read
+	movw	$0, sremain
+head0:
+	xorw	%bx, %bx			# 0x1000:0000
+	movb	$0x2, %ah			# Service 2
+	movw	sread, %cx			# Starting sector number
+	movw	$0x80, %dx			# Head = 0, hard disk
 	int	$0x13
-	jc	bs_fail				# CF set on error, go die
+	jc	bs_fail
+
+	movw	sremain, %ax
+	testw	%ax, %ax
+	jz	bs_go
+
+##
+# Now the remaining sectors after head 0
+#
+	movw	sPt, %bx			# Adjust loading base address
+	subw	sread, %bx			# Really UGLY
+	addw	$1, %bx
+	salw    $9, %bx				# * 512
+loop:
+	movw	$1, sread
+	addw	$1, head
+	movw	sremain, %cx
+	cmpw	sPt, %cx			# (sremain - sPt)
+	jnl	1f
+	movw	sremain, %ax			# if (sremain < sPt)
+	movw	$0, sremain			# then move sremain to %al
+	jmp	2f				#      move 0 to sremain
+1:
+	movw	sPt, %ax			# if (sremain >= sPt)
+	subw	%ax, sremain			# then move sPt to %al
+						#      sub sPt from sremain
+2:
+	movb	$0x2, %ah			# Service 2
+	movw	sread, %cx			# Starting sector number
+	movb	head, %dh			# Head
+	movb	$0x80, %dl			# Hard disk
+	int	$0x13
+	jc	bs_fail
+	
+	movw	sremain, %ax
+	testw	%ax, %ax
+	jz	bs_go				# Still have sectors?
+	
+	movw	sPt, %ax
+	salw    $9, %ax
+	addw	%ax, %bx			# Adjust base address
+
+	jmp	loop
 
 ##
 # Oooooo We are done
 # Go to kernel setup
 
+bs_go:
 	ljmp	$SETUPSEG, $SETUP_OFFSET
+	
+# Some variables for disk operation
+hPc:		.word 0				# Heads/Cylinder
+sPt:		.word 0				# Sectors/Track
+sread:		.word 0				# Starting sector number to read
+head:		.word 0				# Current head
+cylinder:	.word 0				# Current cylinder(not used)
+sremain:	.word 0				# Sectors remained to read
 
 bs_fail:
 	mov	$bs_msg, %si
@@ -153,13 +225,6 @@ bs_loop:
 bs_die:
 	hlt
 	jmp bs_die
-
-##
-# heads/cylinder
-# sectors/track
-hPc:	.word 0
-sPt:	.word 0
-
 bs_msg:
 	.ascii "Fail to load Sandix...\n\r"
 	.byte 0
