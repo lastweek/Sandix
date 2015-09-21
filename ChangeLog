@@ -132,6 +132,10 @@ Mon Sep 21 CST 2015
 - [M] arch/x86/boot/pm.c			[D] Pass 0x100000
 - [M] arch/x86/pmjump.S				[D] Jump to 0x100000
 - [M] arch/x86/kernel/vmSandix.ld.S		[D] Set LOAD_OFFSET to 0xC0000000
-- [M] arch/x86/kernel/head.S			[D] Rewrite, fit to LOAD_OFFSET
--						 >  Change Page Table etc.
--						 >  Add kernel_sig to check image integrity
+-						 >  Add section: brk after bss.
+-						 >  brk is used for page tables now.
+-						 >  Because we do NOT know how much tables kernel need.
+- [M] arch/x86/kernel/head.S			[D] Rewrite, fit to LOAD_OFFSET.
+-						 >  Remove early_page_table, use brk_base instead.
+-						 >  Map to both virtual address 0 and 0xC0000000.
+-						 >  Add kernel_sig to check image integrity.
