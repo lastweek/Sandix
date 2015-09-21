@@ -45,25 +45,23 @@ start:
 	movl	$520, %esp
 
 ##
-# Get Disk Geometry Parameters. In Modern BIOS(e.g. SeaBIOS),
-# the CHS scheme used in INT 0x13 is translated to LBA scheme
-# to address disk.
-#
-# In CHS scheme, Cylinder and Head start from 0, Sector start
-# form 1, which means the fisrt sector is: 0/0/1. In LBA scheme,
-# the first sector starts from 0.
+# Get Disk Geometry Parameters.
+# In Modern BIOS(e.g. SeaBIOS), the CHS scheme used in INT 0x13 is
+# translated to LBA scheme to address disk. In CHS scheme, Cylinder
+# and Head start from 0, Sector start form 1, which means the fisrt
+# sector is: 0/0/1. In LBA scheme, the first sector starts from 0.
 #
 # Using Cylinder/Head/Sector to calculate LBA:
 #	LBA = (Cylinder * hPc + Head) * sPt + (Sector - 1)
 # Where hPc is heads/cylinder, sPt is sectors/track
 #
-# In QEMU with SeaBIOS, normally, hPc=15, sPt=63, means the cylinder
+# In QEMU with SeaBIOS, normally, hPc=15, sPt=63, means one cylinder
 # has capacity of 16*63*0.5 KB = 504KB. So, normally, it is NOT
-# possible to cross-cylinder, if you do cross, call 110.
+# possible to load cross-cylinder, if you do cross, call 110.
 
-	movb	$8,%ah				# Function number
+	movb	$8,%ah
 	movb	$0x80, %dl			# 0x80 for hard disk
-	int	$0x13
+	int	$0x13				# Get Disk Parameters
 	
 	xorw	%ax, %ax
 	movb	%dh, %al
@@ -72,20 +70,20 @@ start:
 	andw	$0x3f, %cx
 	movw	%cx, sPt			# Store sectors/track
 	
-	xorw	%ax, %ax
-	xorw	%dx, %dx
-	int	$0x13				# Reset FDC
-	
 ##
 # Load Kernel Setup
 # Load one sector first, then we read the sectors_of_setup
 # and sys_size to decide how many sectors we need to load.
 # We have %es = %fs = SETUPSEG = 0x9000
 
+	xorw	%ax, %ax
+	xorw	%dx, %dx
+	int	$0x13				# Reset FDC
+	
 	xorw	%bx, %bx			# 0x9000:0000
 	movw	$0x0201, %ax			# Service 2, nr_of_sectors = 1
 	movw	$2, %cx				# Cylinder = 0, Sector = 2
-	movw	$0x80, %dx			# Head = 0, hard disk
+	movw	$0x80, %dx			# Head = 0, Hard Disk
 	int	$0x13
 	jc	bs_fail
 
@@ -102,9 +100,9 @@ start:
 # Note that we have %al=number of sectors to read already.
 
 	movw	$0x200, %bx			# 0x9000:0200
-	movb	$0x02, %ah			# Service 2
+	movb	$0x2, %ah			# Service 2
 	movw	$3, %cx				# Cylinder = 0, Sector = 3
-	movw	$0x80, %dx			# Head = 0, hard disk
+	movw	$0x80, %dx			# Head = 0, Hard Disk
 	int	$0x13
 	jc	bs_fail
 
@@ -129,6 +127,7 @@ start:
 
 	movw	$SYSSEG, %bx
 	movw	%bx, %es
+	xorw	%bx, %bx			# 0x1000:0000
 
 	popw	%cx				# Restore sectors_of_setup
 	addw	$3, %cx				# Starting sector number
@@ -138,39 +137,45 @@ start:
 	movw	sPt, %cx
 	subw	sread, %cx
 	addw	$1, %cx				# %cx = sPt - sread + 1
-	cmpw	sremain, %cx			# Quick check if head 0 is enough
-	jnl	1f				# Jump if (%cx >= sremain)
-	subw	%cx, sremain			# else do sremain -= %cx
-	movw	%cx, %ax			# nr_of_sectors to read
-	jmp	head0
+	cmpw	sremain, %cx
+	jnl	1f				# JUMP if (%cx - sremain) >= 0
+	subw	%cx, sremain			# if (%cx < sremain)
+	movw	%cx, %ax			# then do sremain -= %cx
+	jmp	2f				#      move %cx to %ax
 1:
-	movw	sremain, %ax			# nr_of_sectors to read
-	movw	$0, sremain
-head0:
-	xorw	%bx, %bx			# 0x1000:0000
+	movw	sremain, %ax			# if (%cx >= sremain)
+	movw	$0, sremain			# then move sremain to %ax
+						#      move 0 to sremain
+2:
 	movb	$0x2, %ah			# Service 2
 	movw	sread, %cx			# Starting sector number
-	movw	$0x80, %dx			# Head = 0, hard disk
+	movw	$0x80, %dx			# Head = 0, Hard Disk
 	int	$0x13
 	jc	bs_fail
 
 	movw	sremain, %ax
-	testw	%ax, %ax
-	jz	bs_go
+	testw	%ax, %ax			# Quick Test
+	jz	bs_go				# No more? Jump to setup
+
+	movw	sPt, %bx			# Adjust loading base address
+	subw	sread, %bx
+	addw	$1, %bx				# %bx = sPt - sread + 1
+	salw    $9, %bx				# %bx *= 512
 
 ##
 # Now the remaining sectors after head 0
-#
-	movw	sPt, %bx			# Adjust loading base address
-	subw	sread, %bx			# Really UGLY
-	addw	$1, %bx
-	salw    $9, %bx				# * 512
-loop:
+# (Should merge with the code above) :(
+
 	movw	$1, sread
+loop:
 	addw	$1, head
+	movw	hPc, %cx
+	cmpw	head, %cx			# Quick Test if cross-cylinder
+	jl	bs_fail				# JUMP if (hPc - head) < 0
+
 	movw	sremain, %cx
-	cmpw	sPt, %cx			# (sremain - sPt)
-	jnl	1f
+	cmpw	sPt, %cx
+	jnl	1f				# JUMP if (sremain - sPt) >= 0
 	movw	sremain, %ax			# if (sremain < sPt)
 	movw	$0, sremain			# then move sremain to %al
 	jmp	2f				#      move 0 to sremain
@@ -181,25 +186,22 @@ loop:
 2:
 	movb	$0x2, %ah			# Service 2
 	movw	sread, %cx			# Starting sector number
-	movb	head, %dh			# Head
+	movb	head, %dh			# Head X
 	movb	$0x80, %dl			# Hard disk
 	int	$0x13
 	jc	bs_fail
 	
 	movw	sremain, %ax
-	testw	%ax, %ax
-	jz	bs_go				# Still have sectors?
+	testw	%ax, %ax			# Quick Test
+	jz	bs_go				# No more? Jump to setup
 	
-	movw	sPt, %ax
+	movw	sPt, %ax			# Adjust loading base address
 	salw    $9, %ax
-	addw	%ax, %bx			# Adjust base address
+	addw	%ax, %bx			# %bx += (sPt * 512)
 
-	jmp	loop
+	jmp	loop				# Next head
 
-##
-# Oooooo We are done
-# Go to kernel setup
-
+# Jump to kernel setup
 bs_go:
 	ljmp	$SETUPSEG, $SETUP_OFFSET
 	
@@ -211,6 +213,7 @@ head:		.word 0				# Current head
 cylinder:	.word 0				# Current cylinder(not used)
 sremain:	.word 0				# Sectors remained to read
 
+# Simple message, should be more specific
 bs_fail:
 	mov	$bs_msg, %si
 bs_loop:
