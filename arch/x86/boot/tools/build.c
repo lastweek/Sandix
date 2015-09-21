@@ -37,14 +37,15 @@
 
 /* x86 NOP instruction */
 #define NOP			0x90
+#define ZERO			0
 
 #define DEFAULT_MAJOR_ROOT	0
 #define DEFAULT_MINOR_ROOT	0
 #define DEFAULT_ROOT_DEV	(DEFAULT_MAJOR_ROOT << 8 | DEFAULT_MINOR_ROOT)
 
-/* Normally, confine setup beyond 64 sectors to avoid cross-cylinder */
+/* Confine setup beyond 62 sectors to avoid cross-cylinder */
 #define SETUP_SECT_MIN		5
-#define SETUP_SECT_MAX		64
+#define SETUP_SECT_MAX		62
 
 unsigned char buf[SETUP_SECT_MAX*512];
 
@@ -167,11 +168,12 @@ int main(int argc, char **argv)
 	/*
 	 * Yes, i choose to pad system to 512-bytes align, because
 	 * loader have to load an entire sector even if you just want
-	 * to read one byte. Load more than we need do no harms, but
+	 * to read one byte. Load more then we need do no harm, but
 	 * omit something is really harmful.
 	 *
 	 * Also, i choose to write sys_size which is 16-bytes align
 	 * to setup header. So the loader knows the 'precise' size.
+	 * Of course, this *16-bytes* comform with Linux boot protocol.
 	 */
 
 	/* Make it 512 bytes align */
