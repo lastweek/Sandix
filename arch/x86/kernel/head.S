@@ -1,35 +1,35 @@
-/*
- *	init/head.S - 32-bit Kernel Entry Point
- *
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
- *
- *	This program is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation; either version 2 of the License, or
- *	(at your option) any later version.
- *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
- *
- *	You should have received a copy of the GNU General Public License along
- *	with this program; if not, write to the Free Software Foundation, Inc.,
- *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
+#
+#	arch/x86/kernel/head.S - Kernel Entry Point
+#
+#	You know the difference between head.S and header.S, do ya?
+#
+#	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+#
+#	This program is free software; you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation; either version 2 of the License, or
+#	(at your option) any later version.
+#
+#	This program is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
+#
+#	You should have received a copy of the GNU General Public License along
+#	with this program; if not, write to the Free Software Foundation, Inc.,
+#	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <sandix/linkage.h>
 #include <asm/bootparam.h>
 #include <asm/page.h>
 #include <asm/segment.h>
 
-/*
- * We have already set the virtual address base of kernel to
- * (0x10000+__PAGE_OFFSET) in linker scripts. So here the physical
- * address is equals to sympol's virtual address minus __PAGE_OFFSET.
- */
-#define T__PAGE_OFFSET	0x0
-#define pa(X)	((X) - T__PAGE_OFFSET)
+##
+# Convert virtual address to physical address
+# Note that the loaded physical address(0x1000) offset
+# has been calculated in vmSandix.ld.S already.
+
+#define pa(X)		((X) - __PAGE_OFFSET)
 
 #define CR0_PG		0x80000000
 #define CR0_MP  	0x00000002
@@ -39,60 +39,48 @@
 	.code32
 	.section .text
 
-/*
- * 32-bit kernel entrypoint. Only used by the boot CPU(BP).
- * startup_32 initialize page directory, page table and
- * interrupt descriptor table(idt), which have exact only
- * one copy in memory respectively. Caveat: paging and
- * lgdt and lidt must be done on each CPU.
- */
 ENTRY(startup_32)
 
-/*
- * DEBUG
- * Show '@' in left-upper corner.
- */
-	movl $0xb8000, %ebx
-	movb $0x40, (%ebx)
-/*
- * Reload segment registers.
- * We have done this before, but we do it again here
- * just for safey because we will use movsl below.
- */
- 	xorl %eax, %eax
-	movl $(__BOOT_DS), %eax
-	movl %eax, %ds
-	movl %eax, %ss
-	movl %eax, %es
-	movl %eax, %fs
-	movl %eax, %gs
+##
+# Print '@' in left-upper corner.
+# Show we are here
+	movl	$0xb8000, %ebx
+	movb	$0x40, (%ebx)
 
-/*
- * Clear BSS to avoid abnormal things.
- */
+##
+# Reload segment registers. We have done this before,
+# but we do it again here just for safey.
+	movl	$(__BOOT_DS), %eax
+	movl	%eax, %ds
+	movl	%eax, %ss
+	movl	%eax, %es
+	movl	%eax, %fs
+	movl	%eax, %gs
+
+##
+# Clear BSS to avoid abnormal things.
  	cld
-	xorl %eax, %eax
-	movl $pa(__bss_start__), %edi
-	movl $pa(__bss_end__), %ecx
-	subl %edi, %ecx
-	shrl $2, %ecx
-	rep ; stosl
+	xorl	%eax, %eax
+	movl	$pa(__bss_start), %edi
+	movl	$pa(__bss_end), %ecx
+	subl	%edi, %ecx
+	shrl	$2, %ecx
+	rep
+	stosl
 
-/*
- * Move boot_param to a safe place.
- * Reg %esi still points to the struct boot_param in real mode.
- * The size of struct boot_param is one page size, 4096 bytes.
- */
-	movl $pa(boot_params), %edi
-	movl $(BOOT_PARAMS_SIZE), %ecx
-	shrl $2, %ecx
-	rep ; movsl
+##
+# Copy setup parameters to a safe place.
+# Note that %esi still points to struct boot_param in real mode.
+# The size of struct boot_param is 4096 bytes.
+	movl	$pa(boot_params), %edi
+	movl	$(BOOT_PARAMS_SIZE/4), %ecx
+	rep
+	movsl
 
-/*
- * Initialize early_page_directory and early_page_table.
- * Only one page table is present. And the logical address
- * is equal to the physical address after mapping!
- */
+##
+# Initialize early_page_directory and early_page_table.
+# Only one page table is present. And the logical address
+# is equal to the physical address after mapping!
 	movl $pa(early_page_table), %edi
 	addl $7, %edi			# PRESENT R/W U/S
  	movl $pa(early_page_dir), %eax
@@ -106,28 +94,23 @@ ENTRY(startup_32)
 	addl $0x1000, %eax
 	loop 1b
 
-/*
- * Setup idt entries. We don't load idt here - that
- * need to be done on each cpu. Interrupts are enabled
- * elsewhere, when we sure everything is ok!!
- */
-	movl $pa(idt_table), %edi
-	movl $pa(ignore_int), %eax
-	movl $IDT_ENTRIES, %ecx
+##
+# Setup idt entries. We don't load idt here - that
+# need to be done on each cpu. Interrupts are enabled
+# later, when we sure everything is ok!!
+	movl	$pa(idt_table), %edi
+	movl	$pa(ignore_int), %eax
+	movl	$IDT_ENTRIES, %ecx
 1:
-	movl %eax, (%edi)
-	movl %eax, 4(%edi)
-	movl $(0x8E000000+__KERNEL_CS), 2(%edi) # intr gate, dpl=0
-	addl $8, %edi
-	loop 1b
+	movl	%eax, (%edi)
+	movl	%eax, 4(%edi)
+	movl	$(0x8E000000+__KERNEL_CS), 2(%edi) # intr gate, dpl=0
+	addl	$8, %edi
+	loop	1b
 	
-	jmp default_entry
+	jmp	default_entry
 
 
-/*
- * Non-boot CPU(AP) entry point.
- * Be here in 16-bit mode?
- */
 ENTRY(startup_32_smp)
 	xorl %eax, %eax
 	movl $(__BOOT_DS), %eax
