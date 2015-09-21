@@ -1,0 +1,16 @@
+#
+# Mon Sep 21 15:23:41 CST 2015
+#
+
+# Keyword: 0x100000 0xC0000000
+
+These days i've been modifing bootloader.S
+
+The big news is now loader will load kernel to 0x100000 instead 0x10000.
+Normally, BIOS INT 0x13 load kernel to 0x1000:0000, after that, manually
+copy kernel from 0x10000 to 0x100000. Subsequently, modified pm.c and
+pmjump.S of setup to jump to 0x100000, too.
+
+Another big news is linking kernel from 0xC0000000+0x100000. So everything
+starts from head.S have to fit with this new virtual address. The most urgent
+is changing paging. Without proper paping, nothing can go further.

@@ -127,6 +127,11 @@ Sun Sep 20 CST 2015
 
 
 Mon Sep 21 CST 2015
+- [M] Diary/09-21-2015
+- [M] arch/x86/boot/bootloader.S		[D] Move kernel from 0x10000 to 0x100000
+- [M] arch/x86/boot/pm.c			[D] Pass 0x100000
+- [M] arch/x86/pmjump.S				[D] Jump to 0x100000
 - [M] arch/x86/kernel/vmSandix.ld.S		[D] Set LOAD_OFFSET to 0xC0000000
 - [M] arch/x86/kernel/head.S			[D] Rewrite, fit to LOAD_OFFSET
 -						 >  Change Page Table etc.
+-						 >  Add kernel_sig to check image integrity

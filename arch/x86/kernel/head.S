@@ -42,21 +42,30 @@
 ENTRY(startup_32)
 
 ##
-# Print '@' in left-upper corner.
+# Red '@' left-upper corner.
 # Show we are here
+	
 	movl	$0xb8000, %ebx
-	movb	$0x40, (%ebx)
+	movw	$0x0440, (%ebx)
+
+##
+# Check signature at end of kernel
+# Quick check if entire image is loaded
+
+	cmpl	$0x5a5aaa55, pa(kernel_sig)
+	jne	1f
 
 ##
 # Reload segment registers. We have done this before,
 # but we do it again here just for safey.
+
 	movl	$(__BOOT_DS), %eax
 	movl	%eax, %ds
 	movl	%eax, %ss
 	movl	%eax, %es
 	movl	%eax, %fs
 	movl	%eax, %gs
-
+1:
 ##
 # Clear BSS to avoid abnormal things.
  	cld
@@ -73,7 +82,8 @@ ENTRY(startup_32)
 # Note that %esi still points to struct boot_param in real mode.
 # The size of struct boot_param is 4096 bytes.
 	movl	$pa(boot_params), %edi
-	movl	$(BOOT_PARAMS_SIZE/4), %ecx
+	movl	$(BOOT_PARAMS_SIZE), %ecx
+	shrl	$2, %ecx
 	rep
 	movsl
 

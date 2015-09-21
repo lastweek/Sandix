@@ -16,6 +16,15 @@
 #	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
+# Ugly boot loader for Sandix
+#
+# 1) Load kernel setup to 0x9000:0000
+# 2) Load kernel system to 0x1000:0000 first,
+# 3) Then move kernel system from 0x1000:0000 to 0x100000
+#
+# 4) Jump to 0x9000:0200 setup.
+
+
 BOOTSEG		= 0x07c0	# Bootloader Segment.
 SETUPSEG	= 0x9000	# Real-Mode Kernel Image Segment.
 SYSSEG		= 0x1000	# Protected-Mode Kernel Image Segment.
@@ -111,9 +120,10 @@ start:
 # Note that the sys_size field is in 16-bytes unit, therefore:
 # sectors_of_system = (sys_size * 16 + 511) / 512
 
-	xorw	%ax, %ax
+	xorl	%eax, %eax
 	movw	$0x1f4, %bx			# Defined in header.S
 	movl	%fs:(%bx), %eax			# sys_size, 4 bytes long
+	movl	%eax, sys_size			# Store it
 
 	sall	$4, %eax			# * 16
 	addl	$511, %eax			# + 511
@@ -155,7 +165,7 @@ start:
 
 	movw	sremain, %ax
 	testw	%ax, %ax			# Quick Test
-	jz	bs_go				# No more? Jump to setup
+	jz	bs_copy				# No more? Jump to setup
 
 	movw	sPt, %bx			# Adjust loading base address
 	subw	sread, %bx
@@ -193,7 +203,7 @@ loop:
 	
 	movw	sremain, %ax
 	testw	%ax, %ax			# Quick Test
-	jz	bs_go				# No more? Jump to setup
+	jz	bs_copy				# No more? Jump to setup
 	
 	movw	sPt, %ax			# Adjust loading base address
 	salw    $9, %ax
@@ -201,8 +211,35 @@ loop:
 
 	jmp	loop				# Next head
 
-# Jump to kernel setup
-bs_go:
+##
+# Copy kernel from 0x10000 to 0x100000
+# In real-mode, the destination of movsl is %es:%di,
+# set %es to 0xffff, set %di to 0x0010, so the address of
+# first byte is 0x100000. Using this trick, the upper boundary
+# is 0xffff0+0xffff= 0x10ffef.
+#
+# Hope A20 is enabled?
+#
+# WARNING
+# Be careful if kernel is bigger than 0xffef(65519) bytes,
+# in that case, we need another round!
+
+bs_copy:
+	cld
+	movl	sys_size, %ecx
+	shll	$2, %ecx
+	
+	movw	$SYSSEG, %ax			# %ds:%esi points to
+	movw	%ax, %ds			# 0x10000
+	xorl	%esi, %esi
+	
+	movw	$0xffff, %ax			# %es:%edi points to
+	movw	%ax, %es			# 0x100000
+	movl	$0x10, %edi
+
+	rep
+	movsl
+
 	ljmp	$SETUPSEG, $SETUP_OFFSET
 	
 # Some variables for disk operation
@@ -212,6 +249,7 @@ sread:		.word 0				# Starting sector number to read
 head:		.word 0				# Current head
 cylinder:	.word 0				# Current cylinder(not used)
 sremain:	.word 0				# Sectors remained to read
+sys_size:	.long 0				# sys_size of system image
 
 # Simple message, should be more specific
 bs_fail:
@@ -229,5 +267,5 @@ bs_die:
 	hlt
 	jmp bs_die
 bs_msg:
-	.ascii "Fail to load Sandix...\n\r"
+	.ascii "Fail to load Sandix..."
 	.byte 0

@@ -1,5 +1,5 @@
 #
-#	arch/x86/Makefile - Build x86 Architecture
+#	arch/x86/Makefile
 #
 #	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
 #

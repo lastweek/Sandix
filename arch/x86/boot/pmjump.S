@@ -69,5 +69,5 @@ in_pm32:
 	# Set up LDTR to make Intel VT happy
 	lldt	%cx
 
-	# Jump to the 32-bit entrypoint, 0x10000
+	# Jump to the 32-bit entrypoint, 0x100000
 	jmpl	*%eax

@@ -140,7 +140,7 @@ type_of_loader:		.byte	0			# 0 means ancient bootloader, newer
 loadflags:		.byte	LOADED_HIGH		# The kernel is to be loaded high
 							# Unused bits must be zero bit
 
-setup_move_size:	.word  0x8000			# size to move, when setup is not
+setup_move_size:	.word	0x8000			# size to move, when setup is not
 							# loaded at 0x90000. We will move setup
 							# to 0x90000 then just before jumping
 							# into the kernel. However, only the
@@ -184,7 +184,7 @@ cmd_line_ptr:		.long	0			# (Header version 0x0202 or later)
 							# can be located anywhere in
 							# low memory 0x10000 or higher.
 
-initrd_addr_max:	.long 0x7fffffff		# (Header version 0x0203 or later)
+initrd_addr_max:	.long	0x7fffffff		# (Header version 0x0203 or later)
 							# The highest safe address for
 							# the contents of an initrd
 							# The current kernel allows up to 4 GB,
@@ -192,42 +192,43 @@ initrd_addr_max:	.long 0x7fffffff		# (Header version 0x0203 or later)
 							# possible bootloader bugs.
 
 #define PHYSICAL_ALIGN	0x100000
-kernel_alignment:	.long PHYSICAL_ALIGN		#physical addr alignment
+kernel_alignment:	.long	PHYSICAL_ALIGN		#physical addr alignment
 							#required for protected mode
 							#kernel
 
-relocatable_kernel:	.byte 0				#never want relocated
+relocatable_kernel:	.byte	0			#never want relocated
 
-min_alignment:		.byte MIN_KERNEL_ALIGN_LG2	#minimum alignment
+min_alignment:		.byte	MIN_KERNEL_ALIGN_LG2	#minimum alignment
 
-xloadflags:		.word 0				#Linux use
+xloadflags:		.word	0			#Linux use
 
-cmdline_size:		.long COMMAND_LINE_SIZE-1	#length of the command line,
+cmdline_size:		.long	COMMAND_LINE_SIZE-1	#length of the command line,
                                                 	#added with boot protocol
                                                 	#version 2.06
 
-hardware_subarch:	.long 0				# subarchitecture, added with 2.07
+hardware_subarch:	.long	0			# subarchitecture, added with 2.07
 							# default to 0 for normal x86 PC
 
-hardware_subarch_data:	.quad 0
+hardware_subarch_data:	.quad	0
 
 #define ZO_input_data		0
 #define ZO_z_input_len		0
-payload_offset:		.long ZO_input_data
-payload_length:		.long ZO_z_input_len
+payload_offset:		.long	ZO_input_data
+payload_length:		.long	ZO_z_input_len
 
-setup_data:		.quad 0				# 64-bit physical pointer to
+setup_data:		.quad	0			# 64-bit physical pointer to
 							# single linked list of
 							# struct setup_data
 
-pref_address:		.quad LOAD_PHYSICAL_ADDR	# preferred load addr
+pref_address:		.quad	LOAD_PHYSICAL_ADDR	# preferred load address
+							# bzImage is loaded at 0x100000
 
 #define VO__text 0
 #define VO__end  1
 #define INIT_SIZE (VO__end - VO__text)
-init_size:		.long INIT_SIZE			# kernel initialization size
+init_size:		.long	INIT_SIZE		# kernel initialization size
 
-handover_offset:	.long 0				# Filled in by build.c
+handover_offset:	.long	0			# Filled in by build.c
 
 #
 # End of setup header #####################################################

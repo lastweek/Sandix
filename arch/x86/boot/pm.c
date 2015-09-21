@@ -64,7 +64,7 @@ void go_to_protected_mode(void)
 	setup_idt();
 	
 	/* Go to PM, should not return */
-	protected_mode_jump((u32)0x10000, (u32)&boot_params + 0x90000);
+	protected_mode_jump((u32)0x100000, (u32)&boot_params + 0x90000);
 }
 
 

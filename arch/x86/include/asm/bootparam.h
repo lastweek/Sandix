@@ -50,7 +50,7 @@
 #define XLF_EFI_HANDOVER_64		(1<<3)
 #define XLF_EFI_KEXEC			(1<<4)
 
-/* One page */
+/* struct boot_params */
 #define BOOT_PARAMS_SIZE	4096
 
 #ifndef __ASSEMBLY__
