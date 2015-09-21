@@ -121,5 +121,12 @@ Fri Sep 18 CST 2015
 
 
 Sun Sep 20 CST 2015
-- [M] arch/x86/boot/bootloader.S		[D] F*CK. Get disk geometry to load system
--						 >  properly! Ugly assembly!
+- [M] arch/x86/boot/bootloader.S		[D] Get disk geometry parameters to
+- 						 >  load system properly! Ugly assembly!
+-						 >  Hmm, ugly, but works.
+
+
+Mon Sep 21 CST 2015
+- [M] arch/x86/kernel/vmSandix.ld.S		[D] Set LOAD_OFFSET to 0xC0000000
+- [M] arch/x86/kernel/head.S			[D] Rewrite, fit to LOAD_OFFSET
+-						 >  Change Page Table etc.
