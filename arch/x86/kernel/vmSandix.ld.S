@@ -32,6 +32,7 @@ SECTIONS
 	phys_startup_32 = startup_32 - LOAD_OFFSET;
 	
 	__kstart = .;
+
 	.text : {
 		__stext = .;
 		*(.text*)
@@ -64,7 +65,7 @@ SECTIONS
 		__einit = .;
 	}
 
-	. = ALIGN(8);
+	. = ALIGN(4);
 	.signature : {
 		kernel_sig = .;
 		LONG(0x5a5aaa55)
@@ -77,9 +78,16 @@ SECTIONS
 		__bss_end = .;
 	}
 
+	. = ALIGN(PAGE_SIZE);
+	.brk : {
+		__brk_start = .;
+		. += 64 * 1024;
+		__brk_end = .;
+	}
+
+	__kend = .;
+	
 	/DISCARD/ : { *(.note*) }
 	/DISCARD/ : { *(.eh_frame) }
 	/DISCARD/ : { *(.comment) }
-	
-	__kend = .;
 }

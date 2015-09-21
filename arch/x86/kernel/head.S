@@ -26,39 +26,28 @@
 
 ##
 # Convert virtual address to physical address
-# Note that the loaded physical address(0x1000) offset
+# Note that the loaded physical address(0x100000) offset
 # has been calculated in vmSandix.ld.S already.
 
 #define pa(X)		((X) - __PAGE_OFFSET)
-
-#define CR0_PG		0x80000000
-#define CR0_MP  	0x00000002
-#define CR0_PE		0x00000001
-#define CR0_STATE	(CR0_PG|CR0_MP|CR0_PE)
 
 	.code32
 	.section .text
 
 ENTRY(startup_32)
 
-##
 # Red '@' left-upper corner.
 # Show we are here
-	
 	movl	$0xb8000, %ebx
 	movw	$0x0440, (%ebx)
 
-##
 # Check signature at end of kernel
 # Quick check if entire image is loaded
-
 	cmpl	$0x5a5aaa55, pa(kernel_sig)
 	jne	1f
 
-##
 # Reload segment registers. We have done this before,
 # but we do it again here just for safey.
-
 	movl	$(__BOOT_DS), %eax
 	movl	%eax, %ds
 	movl	%eax, %ss
@@ -66,7 +55,7 @@ ENTRY(startup_32)
 	movl	%eax, %fs
 	movl	%eax, %gs
 1:
-##
+
 # Clear BSS to avoid abnormal things.
  	cld
 	xorl	%eax, %eax
@@ -77,32 +66,45 @@ ENTRY(startup_32)
 	rep
 	stosl
 
-##
 # Copy setup parameters to a safe place.
 # Note that %esi still points to struct boot_param in real mode.
 # The size of struct boot_param is 4096 bytes.
 	movl	$pa(boot_params), %edi
-	movl	$(BOOT_PARAMS_SIZE), %ecx
+	movl	$BOOT_PARAMS_SIZE, %ecx
 	shrl	$2, %ecx
 	rep
 	movsl
 
-##
-# Initialize early_page_directory and early_page_table.
-# Only one page table is present. And the logical address
-# is equal to the physical address after mapping!
-	movl $pa(early_page_table), %edi
-	addl $7, %edi			# PRESENT R/W U/S
- 	movl $pa(early_page_dir), %eax
-	movl %edi, (%eax)
-	
-	movl $pa(early_page_table), %edi
-	movl $7, %eax			# PRESENT R/W U/S
-	movl $1024, %ecx
-1:
+# Initialize page directory and page tables. We do NOT know
+# how many page tables we need during build, so we use space
+# beyond brk to store as many page tables as kernel needs.
+#
+# Mapping are created for virtual address 0(identical mapping)
+# and PAGE_OFFSET(kernel mapping) repectively.
+# PTE_ATTR: PRESENT, READ/WRITE
+# PDE_ATTR: PRESENT, READ/WRITE, DIRTY, ACCESSED
+
+#define PTE_ATTR	0x003
+#define PDE_ATTR	0x063
+#define PDE_OFFSET	(__PAGE_OFFSET >> 20)
+
+	movl	$pa(__brk_start), %edi	
+ 	movl	$pa(early_page_dir), %ebx
+	movl	$PTE_ATTR, %eax
+10:
+	leal	PDE_ATTR(%edi), %ecx		# Create PDE entry
+	movl	%ecx, (%ebx)			# Store identical PDE entry
+	movl	%ecx, PDE_OFFSET(%ebx)		# Store kernel PDE entry
+	addl	$4, %ebx			# Next PDE entry if needed
+	movl	$1024, %ecx
+11:
 	stosl
-	addl $0x1000, %eax
-	loop 1b
+	addl	$0x1000, %eax
+	loop	11b
+
+	movl	$pa(__kend) + PTE_ATTR, %ecx	# Check if another PDE needed
+	cmpl	%ecx, %eax			# Note that, %edi points to next
+	jb	10b				# page table already.
 
 ##
 # Setup idt entries. We don't load idt here - that
@@ -131,6 +133,11 @@ ENTRY(startup_32_smp)
 	movl %eax, %gs
 
 default_entry:
+#define CR0_PG		0x80000000
+#define CR0_MP  	0x00000002
+#define CR0_PE		0x00000001
+#define CR0_STATE	(CR0_PG|CR0_MP|CR0_PE)
+
 	# Enable Paging
 	movl $pa(early_page_dir), %eax
 	movl %eax, %cr3
@@ -189,6 +196,4 @@ ENTRY(gdt_descr)
 	
 	.align 4096
 ENTRY(early_page_dir)
-	.fill 1024,4,0
-ENTRY(early_page_table)
 	.fill 1024,4,0
