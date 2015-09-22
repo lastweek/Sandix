@@ -1,7 +1,4 @@
 /*
-
- *	init/main.c - Kernel Initialization
- *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
@@ -22,6 +19,7 @@
 #include <sandix/compiler.h>
 #include <sandix/const.h>
 #include <sandix/console.h>
+#include <sandix/linkage.h>
 #include <sandix/mm.h>
 #include <sandix/string.h>
 #include <sandix/screen_info.h>
@@ -76,7 +74,7 @@ void hlt(void)
 	);
 }
 
-void __init kernel_init(void)
+asmlinkage void __init start_kernel(void)
 {
 #ifdef CONFIG_X86_32
 	struct tty_struct tty;

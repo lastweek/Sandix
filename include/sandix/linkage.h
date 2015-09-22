@@ -23,7 +23,7 @@
 #define _SANDIX_LINKAGE_H_
 
 /* Pass parameters from stack */
-#define asmlinkage __atrribute__((regparm(0)))
+#define asmlinkage __attribute__((regparm(0)))
 
 /* GNU AS newline separator */
 #define	ASM_NL	;

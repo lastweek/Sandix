@@ -1,6 +1,4 @@
 /*
- *	include/sandix/const.h - Macros for dealing with constants.
- *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
@@ -32,8 +30,8 @@
  */
  
 #ifdef __ASSEMBLY__
-#define _AC(X,Y)    X
-#define _AT(T,X)    X
+#define _AC(X,Y)	X
+#define _AT(T,X)	X
 #else
 #define _AC(X,Y)	(X##Y)
 #define _AT(T,X)	((T)(X))

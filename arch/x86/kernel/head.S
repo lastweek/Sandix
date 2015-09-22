@@ -19,16 +19,18 @@
 #	with this program; if not, write to the Free Software Foundation, Inc.,
 #	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#include <sandix/linkage.h>
-#include <asm/bootparam.h>
 #include <asm/page.h>
 #include <asm/segment.h>
+#include <asm/bootparam.h>
+#include <asm/processor-flags.h>
+#include <sandix/linkage.h>
 
 #define pa(X)	((X) - __PAGE_OFFSET)
 
 	.code32
 	.section .text
 
+# Boot-CPU entry point
 ENTRY(startup_32)
 
 # Red '@' left-upper corner.
@@ -39,26 +41,24 @@ ENTRY(startup_32)
 # Check signature at end of kernel
 # Quick check if entire image is loaded
 	cmpl	$0x5a5aaa55, pa(kernel_sig)
-	jne	1f
+	jne	bad_sig
 
 # Reload segment registers. We have done this before,
 # but we do it again here just for safey.
-	movl	$(__BOOT_DS), %eax
+	movl	$__BOOT_DS, %eax
 	movl	%eax, %ds
 	movl	%eax, %ss
 	movl	%eax, %es
-	movl	%eax, %fs
-	movl	%eax, %gs
-1:
 
 # Clear BSS to avoid abnormal things.
- 	cld
+	cld
 	xorl	%eax, %eax
 	movl	$pa(__bss_start), %edi
 	movl	$pa(__bss_end), %ecx
 	subl	%edi, %ecx
 	shrl	$2, %ecx
-	rep ; stosl
+	rep
+	stosl
 
 # Copy setup parameters to a safe place.
 # Note that %esi still points to struct boot_param in real mode.
@@ -66,7 +66,8 @@ ENTRY(startup_32)
 	movl	$pa(boot_params), %edi
 	movl	$BOOT_PARAMS_SIZE, %ecx
 	shrl	$2, %ecx
-	rep ; movsl
+	rep
+	movsl
 
 # Initialize page directory and page tables. We do NOT know
 # how many page tables we need during build, so we use memory
@@ -83,8 +84,8 @@ ENTRY(startup_32)
 #define PDE_ATTR	0x063
 #define PDE_OFFSET	(__PAGE_OFFSET >> 20)
 
-	movl	$pa(__brk_start), %edi	
- 	movl	$pa(early_page_dir), %ebx
+	movl	$pa(__brk_start), %edi		# .brk section that follow .bss
+ 	movl	$pa(early_page_dir), %ebx	# Top page directory
 	movl	$PTE_ATTR, %eax
 10:
 	leal	PDE_ATTR(%edi), %ecx		# Create PDE entry
@@ -106,100 +107,101 @@ ENTRY(startup_32)
 	shrl	$12, %eax
 	movl	%eax, pa(max_pfn_mapped)	# Store maximum mapped frame
 
+						# Create PDE for fixmap
 	movl	$pa(early_pg_fixmap)+PDE_ATTR, %eax
 	movl	%eax, pa(early_page_dir + 0xffc)
 
-# Setup IDT entries. We do NOT load IDT here - that
-# need to be done on each cpu. Interrupts are enabled
-# later, when we sure everything is ok.
+# Set up a IDT with 256 interrupt gates that does nothing.
+# We do NOT load IDT here - that need to be done on each cpu.
+# Interrupts are enabled later, when we sure everything is ok.
+# GATE_ATTR: INTERRUPT GATE+DPL=0+PRESENT
+
+#define GATE_ATTR	0x8e000000
+
 	movl	$pa(idt_table), %edi
-	movl	$pa(ignore_int), %eax
+	movl	$ignore_int, %eax
 	movl	$IDT_ENTRIES, %ecx
 1:
 	movl	%eax, (%edi)
 	movl	%eax, 4(%edi)
-	movl	$(0x8E000000+__KERNEL_CS), 2(%edi) # intr gate, dpl=0
+	movl	$(GATE_ATTR + __KERNEL_CS), 2(%edi)
 	addl	$8, %edi
 	loop	1b
 	
 	jmp	default_entry
 
-
 # Non-boot CPU entry point.
 # For future SMP and CPU-hotplug support
 ENTRY(startup_32_smp)
-	xorl %eax, %eax
-	movl $(__BOOT_DS), %eax
-	movl %eax, %ss
-	movl %eax, %ds
-	movl %eax, %es
-	movl %eax, %fs
-	movl %eax, %gs
+	movl	$__BOOT_DS, %eax
+	movl	%eax, %ss
+	movl	%eax, %ds
+	movl	%eax, %es
+	movl	%eax, %fs
+	movl	%eax, %gs
 
 default_entry:
-#define CR0_PG		0x80000000
-#define CR0_MP  	0x00000002
-#define CR0_PE		0x00000001
-#define CR0_STATE	(CR0_PG|CR0_MP|CR0_PE)
-
-	# Enable Paging
-	movl $pa(early_page_dir), %eax
-	movl %eax, %cr3
-	movl $CR0_STATE, %eax
-	movl %eax, %cr0
-
-	# Clear prefetch and normalize %eip after enable paging.
-	# ljmp $__BOOT_CS, $1f
-1:
-	add $0, %esp				# Shift sp to a virtual address
-
-	# Reload system registers
-	lgdt pa(gdt_descr)
-	lidt pa(idt_descr)
 	
-	# Normalize %eip after reloading
-	ljmp $(__KERNEL_CS), $1f
-1:
-/*
- * FIXME
- * reload segment registers
- */
-	movl $(__KERNEL_DS), %eax
-	movl %eax, %ss
-	movl %eax, %ds
-	movl %eax, %es
-	movl %eax, %gs
+#define CR0_STATE	(X86_CR0_PE | X86_CR0_MP | X86_CR0_ET | \
+			 X86_CR0_NE | X86_CR0_WP | X86_CR0_AM | \
+			 X86_CR0_PG)
 
-	movl $(__KERNEL_PERCPU), %eax
-	movl %eax, %fs				# Set this cpu's percpu
+	pushl	$0
+	popfl					# Clear EFLAGS
 
-	call kernel_init
+	movl	$pa(early_page_dir), %eax
+	movl	%eax, %cr3			# Store the page table pointer
+	movl	$CR0_STATE, %eax
+	movl	%eax, %cr0			# Enable paging and etc.
+	ljmp	$__BOOT_CS, $1f			# Clear prefetch and normalize %eip
+1:	add	$__PAGE_OFFSET, %esp		# Shift %esp to virtual address
 
-die:
-	hlt
-	jmp die
+	lgdt	pa(gdt_descr)
+	lidt	pa(idt_descr)
+	ljmp	$__KERNEL_CS, $1f		# Clear prefetch and normalize %eip
+1:	movl	$__KERNEL_DS, %eax
+	movl	%eax, %ss			# Reload all segment registers
 
-/* Default interrupt handler does nothing. */
+	movl	$__USER_DS, %eax
+	movl	%eax, %ds
+	movl	%eax, %es			# WHY? FIXME
+	movl	%eax, %gs			# Default USER segment
+
+	movl	$__KERNEL_PERCPU, %eax
+	movl	%eax, %fs			# Set this CPU's PERCPU
+
+	xorl	%eax, %eax
+	lldt	%ax				# Clear LDT
+
+	call	start_kernel
+
+bad_sig:
+# Simple message
+# Show a red 'B' after '@'
+	movl	$0xb8002, %ebx
+	movw	$0x0442, (%ebx)
+1:	hlt
+	jmp 1b
+
+
 ENTRY(ignore_int)
-	incb 0xb8000
+	incb	0xb8000
 	iret
 ENDPROC(ignore_int)
 
 	.section .data
-	
-	ALIGN
+	.align 4
 ENTRY(idt_descr)
-	.word IDT_ENTRIES*8-1
-	.long pa(idt_table)
+	.word	IDT_ENTRIES*8-1
+	.long	pa(idt_table)
 	
 ENTRY(gdt_descr)
-	.word GDT_ENTRIES*8-1
-	.long pa(gdt_table)
-	
+	.word	GDT_ENTRIES*8-1
+	.long	pa(gdt_table)
+
 	.section .bss
-	
 	.align PAGE_SIZE
 ENTRY(early_page_dir)
-	.fill 1024,4,0
+	.fill	1024,4,0
 ENTRY(early_pg_fixmap)
-	.fill 1024,4,0
+	.fill	1024,4,0
