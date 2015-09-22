@@ -114,7 +114,7 @@ ENTRY(startup_32)
 # Set up a IDT with 256 interrupt gates that does nothing.
 # We do NOT load IDT here - that need to be done on each cpu.
 # Interrupts are enabled later, when we sure everything is ok.
-# GATE_ATTR: INTERRUPT GATE+DPL=0+PRESENT
+# GATE_ATTR: Interrupt Gate + DPL=0 + Present
 
 #define GATE_ATTR	0x8e000000
 

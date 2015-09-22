@@ -16,10 +16,13 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ * This file contains code for x86 initialization.
+ */
+
 #include <sandix/compiler.h>
 #include <sandix/types.h>
 #include <sandix/screen_info.h>
-
 
 #include <asm/sections.h>
 #include <asm/bootparam.h>

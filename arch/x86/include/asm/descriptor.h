@@ -1,6 +1,4 @@
 /*
- *	x86 Segment Descriptor
- *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
  *	This program is free software; you can redistribute it and/or modify
@@ -16,6 +14,15 @@
  *	You should have received a copy of the GNU General Public License along
  *	with this program; if not, write to the Free Software Foundation, Inc.,
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+/*
+ * This file describes x86 segment *descriptors* used in Sandix.
+ *
+ * A segment descriptor is a data structure in a GDT or LDT that
+ * provides the processor with the size and location of a segment,
+ * as well as access control and status information. See Intel
+ * Software Developer Manual Volume 3, chapter 3.4.5 for details.
  */
 
 #ifndef _ASM_X86_DESCRIPTOR_H_
@@ -65,21 +72,21 @@ extern struct desc_struct gdt_table[];
  * The only difference between trap and interrupt gates is the
  * way the processor handles the IF flags in EFLAGS register.
  *
- * Through a trap gate, it does not affect the IF flag.
+ *  Through a trap gate, it does not affect the IF flag.
  *
- * Through a interrupt gate, the processor clears the IF flag
- * to prevent other interrupts from interfering with the current
- * interrupt handler. A subsequent IRET instruction restores
- * the IF flag to its value in the saved contents of the EFLAGS
- * register on the stack. (The IF flag does not affect the
- * generation of exceptions or NMI interrupts).
+ *  Through a interrupt gate, the processor clears the IF flag
+ *  to prevent other interrupts from interfering with the current
+ *  interrupt handler. A subsequent IRET instruction restores
+ *  the IF flag to its value in the saved contents of the EFLAGS
+ *  register on the stack. (The IF flag does not affect the
+ *  generation of exceptions or NMI interrupts).
  */
 
-#define __GATE_INTR		0xe
-#define __GATE_TRAP		0xf
+#define __GATE_INTR	0xe
+#define __GATE_TRAP	0xf
 
-#define	__DPL_KERNEL		0
-#define __DPL_USER		3
+#define	__DPL_KERNEL	0
+#define __DPL_USER	3
 
 static inline void __set_gate(int gate, int addr, int type, int dpl, int ss)
 {

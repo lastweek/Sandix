@@ -18,7 +18,7 @@
 
 /*
  * This file work with arch/x86/kernel/setup.c
- * See that file for description.
+ * for architecture-specific initialization.
  */
 
 #ifndef _ASM_X86_SETUP_H_

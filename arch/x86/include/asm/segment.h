@@ -16,6 +16,15 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ * This file describes x86 segment *layout* in Sandix.
+ * See <asm/descriptor.h> for segment descriptor information.
+ *
+ * There is NO mode bit to disable segmentation. We construct
+ * 'Flat Mode' GDT and IDT tables to *bypass* segmentation.
+ * See Intel Software Developer Manual Volume 3 for details.
+ */
+
 #ifndef _ASM_X86_SEGMENT_H_
 #define _ASM_X86_SEGMENT_H_
 
@@ -40,9 +49,9 @@
 #define GDT_ENTRY_BOOT_DS	3
 #define GDT_ENTRY_BOOT_TSS	4
 
-#define __BOOT_CS		(GDT_ENTRY_BOOT_CS*8)
-#define __BOOT_DS		(GDT_ENTRY_BOOT_DS*8)
-#define __BOOT_TSS		(GDT_ENTRY_BOOT_TSS*8)
+#define __BOOT_CS	(GDT_ENTRY_BOOT_CS*8)
+#define __BOOT_DS	(GDT_ENTRY_BOOT_DS*8)
+#define __BOOT_TSS	(GDT_ENTRY_BOOT_TSS*8)
 
 
 /*               GDT IN SANDIX                        
