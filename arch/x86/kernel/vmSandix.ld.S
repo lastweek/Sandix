@@ -34,35 +34,35 @@ SECTIONS
 	__kstart = .;
 
 	.text : {
-		__stext = .;
+		__text_start = .;
 		*(.text*)
-		__etext = .;
+		__text_end = .;
 	}
 	
 	. = ALIGN(PAGE_SIZE);
 	.rodata : {
-		__srodata = .;
+		__rodata_start = .;
 		*(.rodata*)
-		__erodata = .;
+		__rodata_end = .;
 	}
 
 	. = ALIGN(PAGE_SIZE);
 	.data : {
-		__sdata = .;
+		__data_start = .;
 		*(.data)
 		
 		. = ALIGN(L1_CACHE_LINE_SIZE);
 		*(.data..read_mostly)
 		
-		__edata = .;
+		__data_end = .;
 	}
 	
 	. = ALIGN(PAGE_SIZE);
 	.init : {
-		__sinit = .;
+		__init_start = .;
 		*(.init.text)
 		*(.init.data)
-		__einit = .;
+		__init_end = .;
 	}
 
 	. = ALIGN(4);
@@ -82,7 +82,7 @@ SECTIONS
 	.brk : {
 		__brk_start = .;
 		. += 64 * 1024;
-		__brk_end = .;
+		__brk_limit = .;
 	}
 
 	__kend = .;

@@ -143,3 +143,7 @@ Mon Sep 21 CST 2015
 
 Tue Sep 22 CST 2015
 - [+] scripts/vim-syntax/gas.vim
+- [+] include/asm-generic/sections.h		[D] extern symbols from linker script.
+- [+] arch/x86/include/asm/sections.h
+- [+] arch/x86/kernel/setup.c
+- [M] arch/x86/kernel/head.S			[D] New idt handler

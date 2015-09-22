@@ -17,17 +17,17 @@
 #	with this program; if not, write to the Free Software Foundation, Inc.,
 #	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-##
-# $(head-y) Part
 #
+# Using $(extra-y) so Makefile.build and Makefile.clean know
+# what they should do.
+#
+
+# $(head-y) Part
 extra-y := head.o
 
-##
 # Linker Script
-#
 extra-y += vmSandix.ld
 
-##
 # General Built-in
-#
 obj-y := entry.o
+obj-y += setup.o

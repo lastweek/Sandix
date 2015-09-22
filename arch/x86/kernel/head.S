@@ -24,12 +24,7 @@
 #include <asm/page.h>
 #include <asm/segment.h>
 
-##
-# Convert virtual address to physical address
-# Note that the loaded physical address(0x100000) offset
-# has been calculated in vmSandix.ld.S already.
-
-#define pa(X)		((X) - __PAGE_OFFSET)
+#define pa(X)	((X) - __PAGE_OFFSET)
 
 	.code32
 	.section .text
@@ -106,10 +101,17 @@ ENTRY(startup_32)
 	cmpl	%ecx, %eax			# Note that, %edi points to next
 	jb	10b				# page table automatically.
 
-##
-# Setup idt entries. We don't load idt here - that
+	addl	$__PAGE_OFFSET, %edi
+	movl	%edi, pa(brk_end)		# Store page table upper limit
+	shrl	$12, %eax
+	movl	%eax, pa(max_pfn_mapped)	# Store maximum mapped frame
+
+	movl	$pa(early_pg_fixmap)+PDE_ATTR, %eax
+	movl	%eax, pa(early_page_dir + 0xffc)
+
+# Setup IDT entries. We do NOT load IDT here - that
 # need to be done on each cpu. Interrupts are enabled
-# later, when we sure everything is ok!!
+# later, when we sure everything is ok.
 	movl	$pa(idt_table), %edi
 	movl	$pa(ignore_int), %eax
 	movl	$IDT_ENTRIES, %ecx
@@ -123,6 +125,8 @@ ENTRY(startup_32)
 	jmp	default_entry
 
 
+# Non-boot CPU entry point.
+# For future SMP and CPU-hotplug support
 ENTRY(startup_32_smp)
 	xorl %eax, %eax
 	movl $(__BOOT_DS), %eax
@@ -194,6 +198,8 @@ ENTRY(gdt_descr)
 	
 	.section .bss
 	
-	.align 4096
+	.align PAGE_SIZE
 ENTRY(early_page_dir)
+	.fill 1024,4,0
+ENTRY(early_pg_fixmap)
 	.fill 1024,4,0
