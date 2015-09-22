@@ -34,4 +34,4 @@ syn match decNumber	"ENDPROC"
 syn match decNumber	"ALIGN"
 syn match decNumber	"WEAK"
 syn match decNumber	"GLOBAL"
-syn match decNumber	"[a-z_][a-z0-9_]*:"he=e-1
+syn match decNumber	"[a-zA-Z_][a-zA-Z0-9_]*:"he=e-1
