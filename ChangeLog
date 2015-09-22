@@ -139,3 +139,7 @@ Mon Sep 21 CST 2015
 -						 >  Remove early_page_table, use brk_base instead.
 -						 >  Map to both virtual address 0 and 0xC0000000.
 -						 >  Add kernel_sig to check image integrity.
+
+
+Tue Sep 22 CST 2015
+- [+] scripts/vim-syntax/gas.vim

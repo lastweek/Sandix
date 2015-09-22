@@ -63,8 +63,7 @@ ENTRY(startup_32)
 	movl	$pa(__bss_end), %ecx
 	subl	%edi, %ecx
 	shrl	$2, %ecx
-	rep
-	stosl
+	rep ; stosl
 
 # Copy setup parameters to a safe place.
 # Note that %esi still points to struct boot_param in real mode.
@@ -72,17 +71,18 @@ ENTRY(startup_32)
 	movl	$pa(boot_params), %edi
 	movl	$BOOT_PARAMS_SIZE, %ecx
 	shrl	$2, %ecx
-	rep
-	movsl
+	rep ; movsl
 
 # Initialize page directory and page tables. We do NOT know
-# how many page tables we need during build, so we use space
+# how many page tables we need during build, so we use memory
 # beyond brk to store as many page tables as kernel needs.
+# (For now, brk is 64KB -> 16 page tables -> 64M mapping)
 #
 # Mapping are created for virtual address 0(identical mapping)
 # and PAGE_OFFSET(kernel mapping) repectively.
 # PTE_ATTR: PRESENT, READ/WRITE
 # PDE_ATTR: PRESENT, READ/WRITE, DIRTY, ACCESSED
+# PDE_OFFSET: Kernel PDE entry, >> 22, << 2(4 bytes align)
 
 #define PTE_ATTR	0x003
 #define PDE_ATTR	0x063
@@ -102,9 +102,9 @@ ENTRY(startup_32)
 	addl	$0x1000, %eax
 	loop	11b
 
-	movl	$pa(__kend) + PTE_ATTR, %ecx	# Check if another PDE needed
+	movl	$pa(__kend) + PTE_ATTR, %ecx	# Check if need another PDE
 	cmpl	%ecx, %eax			# Note that, %edi points to next
-	jb	10b				# page table already.
+	jb	10b				# page table automatically.
 
 ##
 # Setup idt entries. We don't load idt here - that
