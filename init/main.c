@@ -22,40 +22,10 @@
 #include <sandix/linkage.h>
 #include <sandix/mm.h>
 #include <sandix/string.h>
-#include <sandix/screen_info.h>
 #include <sandix/tty.h>
 #include <sandix/types.h>
 
-#include <asm/bootparam.h>
-#include <asm/segment.h>
-#include <asm/descriptor.h>
-
-struct boot_params boot_params;
-EXPORT_SYMBOL(boot_params);
-
-struct screen_info screen_info;
-EXPORT_SYMBOL(screen_info);
-
-#define __ALIGN8	__attribute__((aligned(8)))
-
-/* NOTE! accessed type useless, We do not use! */
-struct desc_struct gdt_table[GDT_ENTRIES] __ALIGN8 =
-{
-	/* Present, DPL=0, Execute/Read */
-	/* Present, DPL=0, Read/Write */
-	/* Present, DPL=3, Execute/Read */
-	/* Present, DPL=3, Read/Write */
-	[GDT_ENTRY_KERNEL_CS]		= GDT_ENTRY_INIT(0xc09a, 0, 0xfffff),
-	[GDT_ENTRY_KERNEL_DS]		= GDT_ENTRY_INIT(0xc092, 0, 0xfffff),
-	
-	[GDT_ENTRY_USER_CS]		= GDT_ENTRY_INIT(0xc0fa, 0, 0xfffff),
-	[GDT_ENTRY_USER_DS]		= GDT_ENTRY_INIT(0xc0f2, 0, 0xfffff),
-
-	[GDT_ENTRY_KERNEL_TSS]		= GDT_ENTRY_INIT(0xc092, 0, 0),
-	[GDT_ENTRY_KERNEL_PERCPU]	= GDT_ENTRY_INIT(0xc092, 0, 0xfffff),
-};
-
-struct desc_struct idt_table[IDT_ENTRIES] __ALIGN8;
+#include <asm/setup.h>
 
 void handle_int(void)
 {
@@ -76,17 +46,16 @@ void hlt(void)
 
 asmlinkage void __init start_kernel(void)
 {
-#ifdef CONFIG_X86_32
 	struct tty_struct tty;
 	int i;
 	const char *s = "\033[5mHello!34mABCl\033[0mBBB\n\r~~~";
 
-	screen_info = boot_params.screen_info;
+	arch_setup();
+
 	tty_init();
 	
 	tty.console = FG_VC;
 	con_write(&tty, s, strlen(s));
 	
 	hlt();
-#endif
 }

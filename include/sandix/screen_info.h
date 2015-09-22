@@ -46,7 +46,10 @@ struct screen_info {
 	unsigned char	pad[2];
 } __attribute__((packed));
 
-/* Defined in init/main.c */
+/*
+ * System screen information.
+ * Defined in arch/$(ARCH)/kernel/setup.c
+ */
 extern struct screen_info screen_info;
 
 #endif /* _SANDIX_SCREEN_INFO_H_ */

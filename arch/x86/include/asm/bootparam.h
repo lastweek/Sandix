@@ -122,8 +122,5 @@ struct boot_params {
 					- sizeof(struct setup_header)];
 } __attribute__((packed));
 
-/* Defined in init/main.c */
-extern struct boot_params boot_params;
-
 #endif /* __ASSEMBLY__ */
 #endif /* _ASM_X86_BOOTPARAM_H_ */
