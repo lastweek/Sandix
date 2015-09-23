@@ -268,15 +268,10 @@ static void vgacon_deinit(struct vc_struct *vc)
 	return;
 }
 
-/*
- * 00H black
- * 01H blue
- * 02H green
- * 03H cyan
- * 04H red
- * 05H magenta
- * 06H brown
- * 07H white
+/**
+ * vgacon_set_color
+ * 00H  black  01H blue     02H  green  03H  cyan
+ * 04H  red    05H magenta  06H  brown  07H  white
  */
 static void vgacon_set_color(struct vc_struct *vc, int blink, int bg, int fg)
 {

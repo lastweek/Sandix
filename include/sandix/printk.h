@@ -21,6 +21,8 @@
 #include <sandix/compiler.h>
 #include <sandix/linkage.h>
 
+#include <stdarg.h>
+
 asmlinkage __printf(1, 0)
 int vprintk(const char *fmt, va_list args);
 

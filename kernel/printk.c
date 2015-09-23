@@ -1,6 +1,4 @@
 /*
- *	kernel/printk.c - Print Kernel Message
- *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
  *	This program is free software; you can redistribute it and/or modify
@@ -18,24 +16,17 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <stdarg.h>
-
+#include <sandix/kernel.h>
 #include <sandix/compiler.h>
 #include <sandix/linkage.h>
 #include <sandix/tty.h>
-
-/*
- * BIG FAT FIXME
- *
- * Yes, so much things need tough considerations
- * how to manage output buffer?
- * how to ensure printk _safe_ to use?
- * how to lock tty or console?
- */
+#include <sandix/console.h>
 
 static char KMBUF[1024];
+struct tty_struct tty_temp = { .console = FG_VC };
 
-asmlinkage int printk(const char *fmt, ...)
+asmlinkage __printf(1, 2)
+int printk(const char *fmt, ...)
 {
 	va_list args;
 	int len;
@@ -44,10 +35,9 @@ asmlinkage int printk(const char *fmt, ...)
 	len = vsnprintf(KMBUF, 1024, fmt, args);
 	va_end(args);
 	
-	/* TODO */
-	/* Output to TTY */
-	/* tty->write(KMBUF); */
-
+	/* FIXME Later */
+	con_write(&tty_temp, KMBUF, len);
+	
 	return len;
 }
 EXPORT_SYMBOL(printk);

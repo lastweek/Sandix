@@ -1,6 +1,4 @@
 /*
- *	lib/vsprintf.c
- *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
  *	This program is free software; you can redistribute it and/or modify
@@ -20,18 +18,17 @@
 
 #include <stdarg.h>
 #include <asm/byteorder.h>		/* For Endian */
+#include <sandix/page.h>		/* For PAGE_SIZE */
 #include <sandix/ctype.h>
 #include <sandix/compiler.h>
 #include <sandix/export.h>
 #include <sandix/bug.h>
 #include <sandix/kernel.h>
-#include <sandix/page.h>		/* For PAGE_SIZE */
 #include <sandix/string.h>
 #include <sandix/types.h>
 
 /*
- * FLAGS
- * KEEP THIS ORDER!
+ * FLAGS KEEP THIS ORDER!
  */
 #define SIGN		0x01		/* unsigned/signed */
 #define LEFT		0x02		/* left justified */
@@ -42,8 +39,7 @@
 #define SPECIAL		0x40		/* prefix hex with "0x", octal with "0" */
 
 /*
- * FORMAT TYPE
- * KEEP THIS ORDER!
+ * FORMAT TYPE KEEP THIS ORDER!
  */
 enum format_type {
 	FORMAT_TYPE_NONE,		/* Just a string part */
@@ -216,10 +212,10 @@ static char *put_dec(char *buf, unsigned long long n)
 	if (n < 100*1000*1000)
 		return put_dec_trunc8(buf, n);
 
-	d1  = ((unsigned int)n >> 16); /* implicit "& 0xffff" */
+	d1  = ((unsigned int)n >> 16);	/* implicit "& 0xffff" */
 	h   = (n >> 32);
 	d2  = (h      ) & 0xffff;
-	d3  = (h >> 16); /* implicit "& 0xffff" */
+	d3  = (h >> 16);		/* implicit "& 0xffff" */
 
 	/*
 	 * n =               2^48 d3 +

@@ -17,13 +17,10 @@
  */
 
 #include <sandix/compiler.h>
-#include <sandix/const.h>
-#include <sandix/console.h>
 #include <sandix/linkage.h>
-#include <sandix/mm.h>
-#include <sandix/string.h>
-#include <sandix/tty.h>
 #include <sandix/types.h>
+#include <sandix/tty.h>
+#include <sandix/printk.h>
 
 #include <asm/setup.h>
 
@@ -46,15 +43,10 @@ void hlt(void)
 
 asmlinkage void __init start_kernel(void)
 {
-	struct tty_struct tty;
-	const char *s = "\033[5mHello!34mABCl\033[0mBBB\n\r~~~";
-
 	arch_setup();
-
 	tty_init();
 	
-	tty.console = FG_VC;
-	con_write(&tty, s, strlen(s));
+	printk("%d Hello!\n", 100);
 	
 	hlt();
 }

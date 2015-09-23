@@ -1,6 +1,4 @@
 /*
- *	include/sandix/console.h - Console
- *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
@@ -18,6 +16,13 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ * This file describes Virtual Console used in Sandix.
+ *
+ * struct vc_struct:  Describe a standalone virtual console.
+ * struct con_driver: Describe a console driver for low-level output.
+ */
+
 #ifndef _SANDIX_CONSOLE_H_
 #define _SANDIX_CONSOLE_H_
 
@@ -26,13 +31,12 @@
 
 #define NPAR 16
 
-#define MAX_NR_CON_DRIVERS 4
-
-/* Whatever value, 1 is enough */
-#define MIN_NR_CONSOLES	1
-#define MAX_NR_CONSOLES	8
+#define MAX_NR_CON_DRIVERS	4
+#define MIN_NR_CONSOLES		1
+#define MAX_NR_CONSOLES		8
 
 struct con_driver;
+struct tty_struct;
 
 /* Data structure describing a single virtual console. */
 struct vc_struct {
@@ -73,7 +77,7 @@ struct vc_struct {
 	
 };
 
-/* Low-Level Console Driver. */
+/* Low-Level Console Drivers */
 struct con_driver {
 	void	(*con_startup)(void);
 	void	(*con_init)(struct vc_struct * vc);
@@ -90,18 +94,14 @@ struct con_driver {
 	u32	(*con_getxy)(struct vc_struct *, unsigned long, int *, int *);
 };
 
-/* Avaliable Console Drivers */
+/* Avaliable Console Drivers in Sandix */
 extern const struct con_driver vga_con;
 extern const struct con_driver mda_con;
 extern const struct con_driver dummy_con;
 
-/* System Data */
+/* Registed console drivers and virtual console map in Sandix */
 extern const struct con_driver *registed_con_drivers[MAX_NR_CON_DRIVERS];
 extern struct vc_struct vc_struct_map[MAX_NR_CONSOLES];
-
-/* UGLY */
-#define FG_VC	(&vc_struct_map[0])
-#define FG_CON	(FG_VC->driver)
 
 /* Visible WINdow Direction */
 #define VWIN_UP		(1)
@@ -112,12 +112,20 @@ extern struct vc_struct vc_struct_map[MAX_NR_CONSOLES];
 #define CM_ERASE	(2)
 #define CM_MOVE		(3)
 
-/* drivers/console/vt.c */
-void console_init(void);
+void __init console_init(void);
 int register_con_driver(const struct con_driver *con);
 int unregister_con_driver(const struct con_driver *con);
 int bind_con_driver(struct vc_struct *vc, const struct con_driver *con);
 int unbind_con_driver(const struct con_driver *con);
+
+/* FIXME remove */
 int con_write(struct tty_struct *tty, const unsigned char *buf, int count);
+
+/* UGLY FIXME
+ * ForeGround Virtual Console
+ * ForeGround Virtual Console Driver
+ */
+#define FG_VC	(&vc_struct_map[0])
+#define FG_CON	(FG_VC->driver)
 
 #endif /* _SANDIX_CONSOLE_H_ */

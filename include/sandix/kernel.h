@@ -26,6 +26,7 @@
 #include <sandix/export.h>
 #include <sandix/linkage.h>
 #include <sandix/types.h>
+#include <stdarg.h>
 
 #define USHRT_MAX	((u16)(~0U))
 #define SHRT_MAX	((s16)(USHRT_MAX>>1))
@@ -53,7 +54,9 @@
 	(type *)( (char *)__ptr - offsetof(type,member) );	\
 })
 
-/* lib/hexdump.c */
+/*
+ * lib/hexdump.c
+ */
 extern int hex_to_bin(char ch);
 extern int hex2bin(unsigned char *dst, const char *src, size_t count);
 extern char *bin2hex(char *dst, const void *src, size_t count);
@@ -78,5 +81,26 @@ static inline char *hex_byte_pack_upper(char *buf, unsigned char byte)
 	*buf++ = hex_asc_upper_lo(byte);
 	return buf;
 }
+
+/*
+ * lib/vsprintf.c
+ */
+__printf(2, 3)
+int sprintf(char *buf, const char * fmt, ...);
+
+__printf(2, 0)
+int vsprintf(char *buf, const char *, va_list args);
+
+__printf(3, 4)
+int snprintf(char *buf, size_t size, const char *fmt, ...);
+
+__printf(3, 0)
+int vsnprintf(char *buf, size_t size, const char *fmt, va_list args);
+
+__printf(3, 4)
+int scnprintf(char *buf, size_t size, const char *fmt, ...);
+
+__printf(3, 0)
+int vscnprintf(char *buf, size_t size, const char *fmt, va_list args);
 
 #endif /* _SANDIX_KERNEL_H_ */

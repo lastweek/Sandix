@@ -1,6 +1,4 @@
 /*
- *	include/sandix/tty.h - TTY Layer
- *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
@@ -17,24 +15,59 @@
  *	with this program; if not, write to the Free Software Foundation, Inc.,
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
+/*
+ * This file describes TTY Layer in Sandix.
+ */
+
 #ifndef _SANDIX_TTY_H_
 #define _SANDIX_TTY_H_
 
+#include <sandix/compiler.h>
 #include <sandix/console.h>
 #include <sandix/types.h>
+#include <sandix/termios.h>
 
 struct tty_struct;
 
+/*
+ * This structure defines the interface between the low-level tty driver and
+ * the tty routines. The following routines can be defined; unless noted
+ * otherwise, they are optional, and can be filled in with a null pointer.
+ */
 struct tty_operations {
-	ssize_t		(*tty_write)(struct tty_struct *tty);
-	ssize_t		(*tty_read)(struct tty_struct *tty);
+	int	(*write)(struct tty_struct *tty, const unsigned char *buf, int count);
+	int	(*put_char)(struct tty_struct *tty, unsigned char ch);
+	void	(*set_termios)(struct tty_struct *tty, struct termios *old);
+	int	(*ioctl)(struct tty_struct *tty, unsigned int cmd, unsigned long arg);
+};
+
+struct tty_driver {
+	const char	*name;
+	const char	*driver_name;
+	unsigned int	major;			/* Major Number */
+	unsigned int	minor_start;		/* Start of minor device number */
+	unsigned int	num;			/* Number of devices allocated */
+	int		type;			/* Type of TTY driver */
+	struct termios	init_termios;
+	
+	const struct tty_operations *ops;
+	struct list_head tty_drivers;
 };
 
 struct tty_struct {
+	struct tty_driver	*driver;
 	struct vc_struct	*console;
-	struct tty_operations	*ops;
 };
 
+/* TTY Driver Types */
+#define TTY_DRIVER_TYPE_SYSTEM		0x0001
+#define TTY_DRIVER_TYPE_CONSOLE		0x0002
+#define TTY_DRIVER_TYPE_SERIAL		0x0003
+#define TTY_DRIVER_TYPE_PTY		0x0004
+#define TTY_DRIVER_TYPE_SCC		0x0005
+#define TTY_DRIVER_TYPE_SYSCONS		0x0006
 
-void tty_init(void);
+void __init tty_init(void);
+
 #endif /* _SANDIX_TTY_H_ */

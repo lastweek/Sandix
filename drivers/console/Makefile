@@ -3,6 +3,6 @@
 #
 
 obj-y := dummycon.o
-obj-y += vt/
 obj-y += vgacon.o
-#obj-y += mdacon.o
+obj-y += console.o
+obj-y += keyboard.o
