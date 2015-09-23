@@ -149,3 +149,7 @@ Tue Sep 22 CST 2015
 - [+] arch/x86/kernel/setup.c			[D] Architecture-specific setup
 - [M] arch/x86/kernel/head.S			[D] Clean up, jump to start_kernel
 - [M] init/main.c				[D] Move arch-specific code to arch_setup()
+
+
+Wed Sep 23 CST 2015
+- [+] Diary/09-23-2015

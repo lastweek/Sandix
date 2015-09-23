@@ -46,18 +46,27 @@ size_t strlen(const char *s);
 #define __HAVE_ARCH_STRNLEN
 size_t strnlen(const char *s, size_t count);
 
+/*
+ * It is not too hard to RTFC to understand code below.
+ * We have made so much effort, it turns out GCC built-in wins.
+ */
+#define __HAVE_ARCH_MEMCPY
+#define __HAVE_ARCH_MEMSET
+
 ALWAYS_INLINE void *__memcpy(void *to, const void *from, size_t n)
 {
 	int d0, d1, d2;
-	asm volatile ("rep ; movsl\n\t"
-		     "movl %4,%%ecx\n\t"
-		     "andl $3,%%ecx\n\t"
-		     "jz 1f\n\t"
-		     "rep ; movsb\n\t"
-		     "1:"
-		     : "=&c" (d0), "=&D" (d1), "=&S" (d2)
-		     : "0" (n / 4), "g" (n), "1" ((long)to), "2" ((long)from)
-		     : "memory");
+	asm volatile (
+		"rep ; movsl\n\t"
+		"movl %4,%%ecx\n\t"
+		"andl $3,%%ecx\n\t"
+		"jz 1f\n\t"
+		"rep ; movsb\n\t"
+		"1:"
+		: "=&c" (d0), "=&D" (d1), "=&S" (d2)
+		: "0" (n / 4), "g" (n), "1" ((long)to), "2" ((long)from)
+		: "memory"
+	);
 	return to;
 }
 
@@ -106,10 +115,11 @@ ALWAYS_INLINE void *__constant_memcpy(void *to, const void *from, size_t n)
 	if (n >= 5 * 4) {
 		/* Large block: use rep prefix */
 		int ecx;
-		asm volatile("rep ; movsl"
-			     : "=&c" (ecx), "=&D" (edi), "=&S" (esi)
-			     : "0" (n / 4), "1" (edi), "2" (esi)
-			     : "memory"
+		asm volatile (
+			"rep ; movsl"
+			: "=&c" (ecx), "=&D" (edi), "=&S" (esi)
+			: "0" (n / 4), "1" (edi), "2" (esi)
+			: "memory"
 		);
 	} else {
 		/* Small block: do not clobber ecx + smaller code */
@@ -160,27 +170,25 @@ ALWAYS_INLINE void *__constant_memcpy(void *to, const void *from, size_t n)
 	}
 }
 
-/* Normally, GCC builtin works well. */
-#define __HAVE_ARCH_MEMCPY
 #if (__GNUC__ >= 4)
-# define memcpy(t, f, n)	__builtin_memcpy(t, f, n)
+# define memcpy(t, f, n)			\
+	__builtin_memcpy(t, f, n)
 #else
-# define memcpy(t, f, n)						\
-	(__builtin_constant_p((n))					\
-	? __constant_memcpy((t), (f), (n))				\
+# define memcpy(t, f, n)			\
+	(__builtin_constant_p((n))		\
+	? __constant_memcpy((t), (f), (n))	\
 	: __memcpy((t), (f), (n)))		
 #endif
 
-ALWAYS_INLINE void *__memset(void *s,
-			     char c,
-			     size_t count)
+ALWAYS_INLINE void *__memset(void *s, char c, size_t count)
 {
 	int d0, d1;
-	asm volatile("rep\n\t"
-		     "stosb"
-		     : "=&c" (d0), "=&D" (d1)
-		     : "a" (c), "1" (s), "0" (count)
-		     : "memory");
+	asm volatile (
+		"rep ; stosb"
+		: "=&c" (d0), "=&D" (d1)
+		: "a" (c), "1" (s), "0" (count)
+		: "memory"
+	);
 	return s;
 }
 
@@ -189,22 +197,22 @@ ALWAYS_INLINE void *__memset(void *s,
  * things 32 bits at a time even when we don't know the size of the
  * area at compile-time..
  */
-ALWAYS_INLINE void *__constant_c_memset(void *s,
-					unsigned long c,
-					size_t count)
+ALWAYS_INLINE void *__constant_c_memset(void *s, unsigned long c, size_t count)
 {
 	int d0, d1;
-	asm volatile("rep ; stosl\n\t"
-		     "testb $2,%b3\n\t"
-		     "je 1f\n\t"
-		     "stosw\n"
-		     "1:\ttestb $1,%b3\n\t"
-		     "je 2f\n\t"
-		     "stosb\n"
-		     "2:"
-		     : "=&c" (d0), "=&D" (d1)
-		     : "a" (c), "q" (count), "0" (count/4), "1" ((long)s)
-		     : "memory");
+	asm volatile (
+		"rep ; stosl\n\t"
+		"testb $2,%b3\n\t"
+		"je 1f\n\t"
+		"stosw\n"
+		"1:\ttestb $1,%b3\n\t"
+		"je 2f\n\t"
+		"stosb\n"
+		"2:"
+		: "=&c" (d0), "=&D" (d1)
+		: "a" (c), "q" (count), "0" (count/4), "1" ((long)s)
+		: "memory"
+	);
 	return s;
 }
 
@@ -271,13 +279,13 @@ ALWAYS_INLINE void *__constant_c_and_count_memset(void *s,
 
 #define __constant_c_x_memset(s, c, count)			\
 	(__builtin_constant_p(count)				\
-	 ? __constant_c_and_count_memset((s), (c), (count))	\
-	 : __constant_c_memset((s), (c), (count)))
+	? __constant_c_and_count_memset((s), (c), (count))	\
+	: __constant_c_memset((s), (c), (count)))
 
-/* Normally, GCC builtin works well. */
-#define __HAVE_ARCH_MEMSET
+
 #if (__GNUC__ >= 4)
-# define memset(s, c, count)	__builtin_memset(s, c, count)
+# define memset(s, c, count)						\
+	__builtin_memset(s, c, count)
 #else
 # define memset(s, c, count)						\
 	(__builtin_constant_p((c))					\

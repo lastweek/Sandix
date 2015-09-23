@@ -1,0 +1,16 @@
+#
+# Wed Sep 23 08:32:56 CST 2015
+#
+
+# Keyword: Header File, Thread
+
+As Sandix is growing big, the number code files and header files are becoming
+large. It is worth to note about: Where to extern your global variable? We have
+many global variables defined in C files, externed in header files. Normally,
+the C file and header file have the same prefix, e.g. setup.c and setup.h
+BUT, is that really reasonable to have corresponding header file forand every C ??
+The answer is, NO! Why? Because we do not have so many header files!
+
+If so, where to extern? You should rethink before you extern, why not other header
+files? Choose a good place to extern, then when you are writing C code, you can
+include proper header files, and do not need to search where you have externed.

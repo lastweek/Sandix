@@ -1,8 +1,4 @@
 /*
- *	lib/string.c - x86 String Functions
- *
- *	Really vague code. Bless you a happy trip.
- *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
  *	This program is free software; you can redistribute it and/or modify
@@ -20,12 +16,14 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ * This file describes x86-platform string functions.
+ */
+
 #include <sandix/export.h>
 #include <sandix/types.h>
-#include <sandix/string.h>
 
 /*
- * TO_BE_MOVED
  * I have read the LKML about why using "memory"
  * clobber in all string functions including strlen().
  * As Linus said, even if you do NOT modify memory
@@ -172,35 +170,3 @@ size_t strnlen(const char *s, size_t count)
 	return res;
 }
 EXPORT_SYMBOL(strnlen);
-
-
-void *memset(void *s, char c, size_t n)
-{
-	int d0, d1, d2;
-	asm volatile (
-		"rep ; stosb"
-		: "=&D"(d0), "=a"(d1), "=&c"(d2)
-		: "0"(s), "1"(c), "2"(n)
-		: "memory"
-	);
-	return s;
-}
-//EXPORT_SYMBOL(memset);
-
-void *memcpy(void *to, const void *from, size_t n)
-{
-	int d0, d1, d2;
-	asm volatile (
-		"rep ; movsl\n\t"
-		"movl %3, %%ecx\n\t"
-		"andl $3, %%ecx\n\t"
-		"jz 1f\n\t"
-		"rep ; movsb\n\t"
-		"1:"
-		: "=&D"(d0), "=&S"(d1), "=&c"(d2)
-		: "g"(n), "0"(to), "1"(from), "2"(n/4)
-		: "memory"
-	);
-	return to;
-}
-//EXPORT_SYMBOL(memcpy);

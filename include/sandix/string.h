@@ -1,8 +1,4 @@
 /*
- *	include/sandix/string.h - API for String Manipulation
- *
- *	__TODO__: Implement Generic String Library
- *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
@@ -20,13 +16,22 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ * This file describes APIs for String Manipulation
+ */
+
 #ifndef _SANDIX_STRING_H_
 #define _SANDIX_STRING_H_
 
 #include <sandix/compiler.h>
 #include <sandix/types.h>
 
-/* Arch Specific String Functions */
+/*
+ * We hope architecture to implement specific string functions.
+ *	See arch/$(ARCH)/lib/string.c for details.
+ * If architecture has nothing, default to generic C string library.
+ *	See lib/string.c for details.
+ */
 #include <asm/string.h>	
 
 #ifndef __HAVE_ARCH_STRCPY

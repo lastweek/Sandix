@@ -27,9 +27,9 @@
  * Non-existant functions to indicate usage errors at link time,
  * or compile time if compiler has __compiletime_error.
  */
-extern void __xchg_wrong_size(void);
+extern void __xchg_wrong_size(void)
 	__compiletime_error("Bad argument size for xchg");
-extern void __cmpxchg_wrong_size(void);
+extern void __cmpxchg_wrong_size(void)
 	__compiletime_error("Bad argument size for cmpxchg");
 
 #define __X86_CASE_B	1
@@ -141,7 +141,6 @@ extern void __cmpxchg_wrong_size(void);
 	}								\
 	case __X86_CASE_Q:						\
 	{								\
-		__cmpxchg_wrong_size();					\
 		volatile u64 *__ptr = (volatile u64 *)(ptr);		\
 		asm volatile (						\
 			lock "cmpxchgq %2,%1"				\

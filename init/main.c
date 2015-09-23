@@ -47,7 +47,6 @@ void hlt(void)
 asmlinkage void __init start_kernel(void)
 {
 	struct tty_struct tty;
-	int i;
 	const char *s = "\033[5mHello!34mABCl\033[0mBBB\n\r~~~";
 
 	arch_setup();
