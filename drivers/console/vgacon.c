@@ -1,20 +1,7 @@
 /*
- *	Low-Level VGA-Based Console Driver.
+ *	VGA Console Driver
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
- *
- *	This is a simple driver for VGA video card. In a really system,
- *	every virtual console must have a in-memory buffer. Because many
- *	consoles may coexist in the meantime, so _no_ one is allowed to talk
- *	to memory-mapped area(0xb8000) directly. Also, VGA card only have
- *	one set of hardware registers. Therefore, every time USERs switch to
- *	another console, system must save current VGA status, such as visible
- *	base address, cursor position, first, and then restore the status of
- *	the newly switched console(like VGA_save(), VGA_restore()).
- *
- *	BUT, Sandix has not implement that for now, cause i do not need it.
- *	Only one VGA console is alive, just talk to hardware directly.
- *
  *	
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -31,16 +18,35 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ *	This is a simple driver for VGA video card. In a really system,
+ *	every virtual console *must* have a in-memory buffer. Because many
+ *	consoles may coexist in the meantime, so *no* one is allowed to talk
+ *	to memory-mapped area(0xb8000) directly. Also, VGA card only have
+ *	one set of hardware registers. Therefore, every time user switch to
+ *	another console(ALT+CTL), system must save current VGA status, such
+ *	as visible base address, cursor position, and then restore the status
+ *	of the newly switched console(e.g. VGA_save(), VGA_restore()).
+ *
+ *	The bad news is: Sandix has not implement that.
+ *	For simplicity, the vitual console layer and low-level console driver
+ *	layer simply live under One-Console mode! No in-memory buffer, no
+ *	VGA_save or VGA_restore. The VGA console driver talks to screen buffer
+ *	directly!
+ */
+
+#include <sandix/screen_info.h>
 #include <sandix/compiler.h>
 #include <sandix/console.h>
 #include <sandix/errno.h>
+#include <sandix/types.h>
 #include <sandix/irq.h>
 #include <sandix/io.h>
-#include <sandix/screen_info.h>
-#include <sandix/types.h>
+
 #include <asm/bootparam.h>
-#include <video/vga.h>
+
 #include <video/video.h>
+#include <video/vga.h>
 
 /****************************************************************************/
 /*			VGA Driver Private Variables			    */
