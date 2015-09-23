@@ -16,35 +16,19 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/*
- * This file describes simple TTY layer in Sandix.
- */
+ /*
+  * This file describes major device numbers.
+  */
 
-#include <sandix/compiler.h>
-#include <sandix/console.h>
-#include <sandix/tty.h>
-#include <sandix/types.h>
-#include <sandix/major.h>
+#ifndef _SANDIX_MAJOR_H_
+#define _SANDIX_MAJOR_H_
 
-void tty_set_operations(struct tty_driver *driver,
-			const struct tty_operations *ops)
-{
-	driver->ops = ops;
-}
-EXPORT_SYMBOL(tty_set_operations);
+#define UNNAMED_MAJOR		0
+#define MEM_MAJOR		1
+#define RAMDISK_MAJOR		1
+#define FLOPPY_MAJOR		2
+#define IDE0_MAJOR		3
+#define HD_MAJOR		3
+#define TTY_MAJOR		4
 
-int tty_unregister_driver(struct tty_driver *driver)
-{
-}
-EXPORT_SYMBOL(tty_unregister_driver);
-
-int tty_register_driver(struct tty_driver *driver)
-{
-
-}
-EXPORT_SYMBOL(tty_register_driver);
-
-void __init tty_init(void)
-{
-	console_init();
-}
+#endif /* _SANDIX_MAJOR_H_ */

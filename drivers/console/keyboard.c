@@ -1,4 +1,6 @@
 /*
+ *	driver/console/keyboard.c - Keyboard Driver for VT102
+ *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
@@ -16,35 +18,7 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/*
- * This file describes simple TTY layer in Sandix.
- */
-
 #include <sandix/compiler.h>
 #include <sandix/console.h>
 #include <sandix/tty.h>
 #include <sandix/types.h>
-#include <sandix/major.h>
-
-void tty_set_operations(struct tty_driver *driver,
-			const struct tty_operations *ops)
-{
-	driver->ops = ops;
-}
-EXPORT_SYMBOL(tty_set_operations);
-
-int tty_unregister_driver(struct tty_driver *driver)
-{
-}
-EXPORT_SYMBOL(tty_unregister_driver);
-
-int tty_register_driver(struct tty_driver *driver)
-{
-
-}
-EXPORT_SYMBOL(tty_register_driver);
-
-void __init tty_init(void)
-{
-	console_init();
-}

@@ -17,7 +17,7 @@
  */
 
 /*
- * This file describes TTY Layer in Sandix.
+ * This file describes TTY Layer Structures in Sandix.
  */
 
 #ifndef _SANDIX_TTY_H_
@@ -39,16 +39,14 @@ struct tty_operations {
 	int	(*write)(struct tty_struct *tty, const unsigned char *buf, int count);
 	int	(*put_char)(struct tty_struct *tty, unsigned char ch);
 	void	(*set_termios)(struct tty_struct *tty, struct termios *old);
-	int	(*ioctl)(struct tty_struct *tty, unsigned int cmd, unsigned long arg);
 };
 
 struct tty_driver {
-	const char	*name;
-	const char	*driver_name;
+	const char	*name;			/* Driver Name */
+	int		type;			/* Type of TTY driver */
 	unsigned int	major;			/* Major Number */
 	unsigned int	minor_start;		/* Start of minor device number */
 	unsigned int	num;			/* Number of devices allocated */
-	int		type;			/* Type of TTY driver */
 	struct termios	init_termios;
 	
 	const struct tty_operations *ops;
@@ -67,6 +65,11 @@ struct tty_struct {
 #define TTY_DRIVER_TYPE_PTY		0x0004
 #define TTY_DRIVER_TYPE_SCC		0x0005
 #define TTY_DRIVER_TYPE_SYSCONS		0x0006
+
+
+void tty_set_operations(struct tty_driver *driver, const struct tty_operations *ops);
+int tty_unregister_driver(struct tty_driver *driver);
+int tty_register_driver(struct tty_driver *driver);
 
 void __init tty_init(void);
 
