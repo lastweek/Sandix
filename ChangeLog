@@ -163,4 +163,15 @@ Wed Sep 23 CST 2015
 
 
 Thu Sep 24 CST 2015
+- [+] Diary/09-24-2015
 - [+] include/sandix/signal.h			[D] Yes! POSIX Signals!
+- [+] include/sandix/magic.h			[D] Magic number for structures
+- [+] drivers/tty/serial.c
+- [+] drivers/tty/dummy.c
+- [M] include/sandix/console.h			[D] Add magic number to struct vc_struct
+- [M] include/sandix/tty.h			[D] Modify tty_struct.
+-						 >  Rename struct console to void *driver_data.
+-						 >  Since tty_driver is NOT dedicated for
+-						 >  console! We have serial tty driver, too!
+-						 >  SO! Use driver_data instead to let struct
+-						 >  tty_drvier to work on themself.

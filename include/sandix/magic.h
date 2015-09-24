@@ -16,33 +16,10 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _SANDIX_TERMIOS_H_
-#define _SANDIX_TERMIOS_H_
+#ifndef _SANDIX_MAGIC_H_
+#define _SANDIX_MAGIC_H_
 
-typedef unsigned char	cc_t;
-typedef unsigned int	speed_t;
-typedef unsigned int	tcflag_t;
+#define TTY_STRUCT_MAGIC		0x3131
+#define TTY_CONSOLE_DATA		0x3101
 
-struct winsize {
-	unsigned short ws_row;
-	unsigned short ws_col;
-	unsigned short ws_xpixel;
-	unsigned short ws_ypixel;
-};
-
-#define NCC 8
-struct termio {
-	unsigned short c_iflag;		/* input mode flags */
-	unsigned short c_oflag;		/* output mode flags */
-	unsigned short c_cflag;		/* control mode flags */
-	unsigned short c_lflag;		/* local mode flags */
-	unsigned char  c_line;		/* line discipline */
-	unsigned char  c_cc[NCC];	/* control characters */
-};
-
-#define NCCS 17
-struct termios {
-	
-};
-
-#endif /* _SANDIX_TERMIOS_H_ */
+#endif /* _SANDIX_MAGIC_H_ */

@@ -23,18 +23,17 @@
  *	(struct con_driver) which contains function pointers to console
  *	operations (see <sandix/console.h> for more information). The abstract
  *	console driver provides a generic interface for a text console. It
- *	supports VGA text mode, MDA text mode, dummy console.
+ *	supports VGA text mode, MDA text mode, dummy console. (For simplicity,
+ *	the virtual console layer is NOT well ported to low-level drivers.)
  *
- *	The interface to the TTY is specified using some special structures
- *	(struct vc_struct, struct tty_driver, struct tty_operations ) which
- *	contains data and operations for single virtual console.
- *	(see <sandix/tty.h> for more information).
+ *	The interface to the TTY layer is specified using a special structure
+ *	(struct tty_driver) which contains function pointers to virtual console
+ *	manipulations that described in this file.
  *
  *	The abstraction of these layers:
  *
  *	-->TTY Layer
- *		-->Line Discipline
- *			-->Virtual Terminal (VT)
+ *		-->Line Discipline(Cook)
  *			-->Virtual Console  (VC)
  *				-->Console Driver (VGA, MDA, DUMMY)
  */
@@ -46,6 +45,7 @@
 #include <sandix/tty.h>
 #include <sandix/types.h>
 #include <sandix/major.h>
+#include <sandix/magic.h>
 
 #include <video/video.h>
 
@@ -359,11 +359,16 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 	struct vc_struct *vc;
 	const struct con_driver *con;
 
-	vc = tty->console;
-	con = tty->console->driver;
+	vc = (struct vc_struct)tty->driver_data;
+	con = vc->driver;
 	state = VT_NORMAL;
 	npar = 0;
 	
+	if (vc->magic != TTY_CONSOLE_DATA) {
+		WARN("Struct vc_struct: Magic Number Dismatch");
+		return 0;
+	}
+
 	hide_cursor(vc);
 
 	while (count) {
@@ -550,6 +555,14 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 	
 	set_cursor(vc);
 	return 0;
+#undef BS
+#undef HT
+#undef NL
+#undef VT
+#undef NP
+#undef CR
+#undef ESC
+#undef DEL
 }
 
 /****************************************************************************/
@@ -681,6 +694,8 @@ void __init console_init(void)
 	console_driver.type = TTY_DRIVER_TYPE_CONSOLE;
 	console_driver.major = TTY_MAJOR;
 	console_driver.minor_start = 1;
+	console_driver.num = 1;
+	//console_driver.init_termios = ;
 	tty_set_operations(&console_driver, &console_ops);
 	tty_register_driver(&console_driver);
 }

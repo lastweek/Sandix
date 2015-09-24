@@ -31,15 +31,20 @@
 
 #define NPAR 16
 
-#define MAX_NR_CON_DRIVERS	4
 #define MIN_NR_CONSOLES		1
 #define MAX_NR_CONSOLES		8
+#define MAX_NR_CON_DRIVERS	4
 
 struct con_driver;
 struct tty_struct;
 
-/* Data structure describing a single virtual console. */
+/*
+ * Data structure describing a single Virtual Console and
+ * its corresponding low-level console driver operations.
+ * It is referenced by tty_driver->dirver_data
+ */
 struct vc_struct {
+	int		magic;			/* Magic Number */
 	const struct con_driver *driver;	/* Low-Level driver */
 	unsigned int	vc_num;			/* Console number */
 	unsigned int	vc_cols;
@@ -74,10 +79,9 @@ struct vc_struct {
 	unsigned int	vc_state;		/* Escape sequence parser state */
 	unsigned int	vc_npar;
 	unsigned int	vc_par[NPAR];		/* Parameter of current escape sequence */
-	
 };
 
-/* Low-Level Console Drivers */
+/* Low-Level Console Driver Operations */
 struct con_driver {
 	void	(*con_startup)(void);
 	void	(*con_init)(struct vc_struct * vc);
@@ -94,7 +98,7 @@ struct con_driver {
 	u32	(*con_getxy)(struct vc_struct *, unsigned long, int *, int *);
 };
 
-/* Avaliable Console Drivers in Sandix */
+/* Avaliable Low-Level Console Drivers in Sandix */
 extern const struct con_driver vga_con;
 extern const struct con_driver mda_con;
 extern const struct con_driver dummy_con;

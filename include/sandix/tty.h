@@ -55,6 +55,7 @@ struct tty_driver {
 
 struct tty_struct {
 	struct tty_driver	*driver;
+	void 			*driver_data;
 	struct vc_struct	*console;
 };
 
@@ -63,9 +64,7 @@ struct tty_struct {
 #define TTY_DRIVER_TYPE_CONSOLE		0x0002
 #define TTY_DRIVER_TYPE_SERIAL		0x0003
 #define TTY_DRIVER_TYPE_PTY		0x0004
-#define TTY_DRIVER_TYPE_SCC		0x0005
-#define TTY_DRIVER_TYPE_SYSCONS		0x0006
-
+#define TTY_DRIVER_TYPE_DUMMY		0x0005
 
 void tty_set_operations(struct tty_driver *driver, const struct tty_operations *ops);
 int tty_unregister_driver(struct tty_driver *driver);

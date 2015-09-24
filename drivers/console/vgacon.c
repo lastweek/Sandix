@@ -1,5 +1,5 @@
 /*
- *	VGA Console Driver
+ *	Low-Level VGA Console Driver
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
