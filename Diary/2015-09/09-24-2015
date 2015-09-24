@@ -1,0 +1,39 @@
+#
+# Fri Sep 25 00:01:01 CST 2015
+#
+
+# Keyword: TTY Driver
+
+Continuing to modify tty layer in Sandix.
+The tty part in linux-0.0.1 is really simple and straight forward, however
+it is so complicated when comes to linux-4.1. Things are getting worse, or,
+things are getting better.
+
+First of all, let me say something what i have coded for now:
+
+At the top of the tty layer is [struct tty_struct] which is the interface
+between user process and drivers below. Normally, tty is a /dev/tty* device
+file in UNIX. So tty_struct has some function pointers(struct file_operation)
+to let user read/write to.
+
+Going down comes the [struct tty_driver] which is one-to-one to tty_struct.
+As its name [driver], the tty_driver is responsible to communicate with the
+underlying hardware. Normally, there are some different kind of tty_drivers.
+The most familiar one is: tty_driver for Terminal(Console). This one acts
+like normal keyboard input and screen output. The other tty_driver could be
+tty_driver for Serial UART. This one receive/send characters via serial ports.
+Is that clear about why we will tty_driver?
+
+OK, next, let us talk about virtual terminal(console) drivers. This one sits
+between tty_driver for Terminal(console) and low-level screen output. We have
+this additonal layer because we may have VGA or MDA or whatever graphic cards.
+Having this abstraction, we can bind different low-level console drivers to
+virtual terminal(console) drivers. That is why we call it virtual terminal!
+
+Is that clear? Maybe not due to may bad english. Sorry, my fault.
+
+The related code are:
+drivers/tty/* and drivers/console/*
+include/sandix/tty.h and include/sandix/console.h
+
+Too late. Good Night.
