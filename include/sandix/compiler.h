@@ -19,8 +19,8 @@
  */
 
 /*
- *	For VIM hackers, i strongly recommend you add more reserved words to
- *	your C syntax file. About how to make life easier, consult script/c.vim
+ * For VIM hackers, i strongly recommend you add more reserved words to
+ * your syntax file. Please consult scripts/vim-syntax
  */
 
 #ifndef _SANDIX_COMPILER_H_

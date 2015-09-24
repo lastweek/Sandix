@@ -42,10 +42,11 @@
 #include <sandix/console.h>
 #include <sandix/errno.h>
 #include <sandix/export.h>
-#include <sandix/tty.h>
 #include <sandix/types.h>
 #include <sandix/major.h>
 #include <sandix/magic.h>
+#include <sandix/tty.h>
+#include <sandix/bug.h>
 
 #include <video/video.h>
 
@@ -359,7 +360,7 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 	struct vc_struct *vc;
 	const struct con_driver *con;
 
-	vc = (struct vc_struct)tty->driver_data;
+	vc = (struct vc_struct *)tty->driver_data;
 	con = vc->driver;
 	state = VT_NORMAL;
 	npar = 0;
@@ -625,7 +626,9 @@ int register_con_driver(const struct con_driver *con)
 		}
 	}
 	
-	con->con_startup();
+	/* Succeed, invoke driver startup function */
+	if (!err)
+		con->con_startup();
 
 	return err;
 }

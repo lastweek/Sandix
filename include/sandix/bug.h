@@ -1,6 +1,4 @@
 /*
- *	include/sandix/bug.h - What a BUG!
- *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
@@ -28,8 +26,8 @@
  * can somehow continue operating, perhaps with reduced functionality,
  * it's probably not BUG-worthy.
  *
- * If you're tempted to BUG(), think again:  is completely giving up
- * really the *only* solution?  There are usually better options, where
+ * If you're tempted to BUG(), think again: is completely giving up
+ * really the *only* solution? There are usually better options, where
  * users don't need to reboot ASAP and can mostly shut down cleanly.
  */
 
