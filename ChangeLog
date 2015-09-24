@@ -160,3 +160,7 @@ Wed Sep 23 CST 2015
 - [M] drivers/console/console.c			[D] Add struct tty_driver console_driver.
 -						 >  console_driver is the interface between
 -						 >  tty layer and vitual console layer.
+
+
+Thu Sep 24 CST 2015
+- [+] include/sandix/signal.h			[D] Yes! POSIX Signals!
