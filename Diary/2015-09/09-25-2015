@@ -1,0 +1,26 @@
+#
+# Fri Sep 25 22:54:17 CST 2015
+#
+
+# Keyword: tty
+
+More about tty. Some of them from [Linux device drivers].
+
+The tty core is responsible for controlling both the flow of data across a
+tty device and the format of the data. This allows tty drivers to focus on
+handling the data to and from the hardware, instead of worrying about how
+to control the interaction with user space in a consistent way. To control
+the flow of data, there are a number of different line disciplines that can
+be virtually "plugged" into any tty device. This is donw by different tty
+line discipline drivers.
+
+There are three different types of tty drivers: console, serial port and pty.
+Console drivers communicate with the screen and input keyboard. Serial port
+drivers communicate with the serial port such as RS232. PTY drivers consists
+of master and slave part.
+
+In Sandix, there is only one tty driver available: console drivers. This tty
+driver control the screen output and receive characters from keyboard. Just
+a note, the underlying screen output also has a additional abstraction. Since
+we may have VGA screen or MDA screen or others. That is why we have *driver_data
+field in tty_struct: Make tty drivers more general, to have another abstraction.
