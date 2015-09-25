@@ -29,15 +29,16 @@
 #include <sandix/major.h>
 #include <sandix/list.h>
 #include <sandix/mutex.h>
+#include <sandix/magic.h>
 
-/*
- * Linked list of registed tty drivers
- * Mutex to protect linked list
- * System hardcoded tty struct table
- */
 LIST_HEAD(tty_drivers);
+
 DEFINE_MUTEX(tty_mutex);
-struct tty_struct tty_table[3];
+
+/* FIXME No Table! Allocate dynamically */
+/* tty_table[0] used for console_driver */
+/* tty_table[1] used for dummy_tty */
+struct tty_struct tty_table[2];
 
 void tty_set_operations(struct tty_driver *driver,
 			const struct tty_operations *ops)
@@ -69,6 +70,23 @@ int tty_register_driver(struct tty_driver *driver)
 	return 0;
 }
 EXPORT_SYMBOL(tty_register_driver);
+
+struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx)
+{
+	struct tty_struct *tty;
+
+	/* Should use kmalloc() to allocate tty_struct
+	   dynamically rather than hardcoded table. */
+	tty = &tty_table[idx];
+
+	/* Initialize tty_struct */
+	tty->magic = TTY_STRUCT_MAGIC;
+	tty->driver = driver;
+	tty->ops = driver->ops;
+
+	return tty;
+}
+EXPORT_SYMBOL(alloc_tty_struct);
 
 void __init tty_init(void)
 {

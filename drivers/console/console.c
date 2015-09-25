@@ -365,8 +365,6 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 	state = VT_NORMAL;
 	npar = 0;
 
-	WARN_ON(vc->magic != TTY_CONSOLE_DATA);
-	
 	hide_cursor(vc);
 
 	while (count) {
@@ -677,6 +675,7 @@ struct tty_driver console_driver __read_mostly;
 void __init console_init(void)
 {
 	int i;
+	struct tty_struct *tty;
 	
 	/* Register Dummy Console */
 	register_con_driver(&dummy_con);
@@ -689,7 +688,7 @@ void __init console_init(void)
 	bind_con_driver(&vc_struct_map[0], &vga_con);
 	vc_struct_map[0].driver->con_init(&vc_struct_map[0]);
 
-	/* Initialize TTY driver, then register it */
+	/* Initialize TTY driver */
 	console_driver.name = "TTY Driver for Console";
 	console_driver.type = TTY_DRIVER_TYPE_CONSOLE;
 	console_driver.major = TTY_MAJOR;
@@ -697,5 +696,11 @@ void __init console_init(void)
 	console_driver.num = 1;
 	//console_driver.init_termios = ;
 	tty_set_operations(&console_driver, &console_ops);
+
+	/* Register TTY driver */
 	tty_register_driver(&console_driver);
+	
+	/* Allocate tty_table[0] to console_driver */
+	tty = alloc_tty_struct(&console_driver, 0);
+	tty->driver_data = &vc_struct_map[0];
 }

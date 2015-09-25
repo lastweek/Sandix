@@ -98,7 +98,7 @@ INLINE void list_del(struct list_head *entry)
  */
 INLINE void list_del_init(struct list_head *entry)
 {
-	__list_del(entry_prev, entry->next);
+	__list_del(entry->prev, entry->next);
 	INIT_LIST_HEAD(entry);
 }
 
@@ -159,15 +159,6 @@ INLINE int list_is_last(const struct list_head *list, const struct list_head *he
 }
 
 /**
- * list_is_singular - tests whether a list has just one entry.
- * @head: the list to test.
- */
-INLINE int list_is_singular(const struct list_head *head)
-{
-	return !list_empty(head) && (head->next == head->prev);
-}
-
-/**
  * list_empty - test whether a list is empty
  * @head: the list to test
  */
@@ -176,6 +167,14 @@ INLINE int list_empty(const struct list_head *head)
 	return head->next == head;
 }
 
+/**
+ * list_is_singular - tests whether a list has just one entry.
+ * @head: the list to test.
+ */
+INLINE int list_is_singular(const struct list_head *head)
+{
+	return !list_empty(head) && (head->next == head->prev);
+}
 
 /* list_entry means the entry points of the structure
    who contains the list */

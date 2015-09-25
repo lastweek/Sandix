@@ -43,12 +43,7 @@ struct tty_operations {
 
 /**
  * struct tty_driver
- *Driver Name
- Type of TTY driver
- Major Number
- Start of minor device number
- Number of devices allocated
-*/
+ */
 struct tty_driver {
 	const char	*name;		
 	unsigned int	type;		
@@ -60,11 +55,17 @@ struct tty_driver {
 	struct list_head tty_drivers;
 };
 
+/**
+ * struct tty_struct
+ */
 struct tty_struct {
+	unsigned int		magic;
 	struct tty_driver	*driver;
 	void 			*driver_data;
-	struct vc_struct	*console;
+	const struct tty_operations *ops;
 };
+
+extern struct tty_struct tty_table[2];
 
 /* TTY Driver Types */
 #define TTY_DRIVER_TYPE_SYSTEM		0x0001
@@ -76,6 +77,7 @@ struct tty_struct {
 void tty_set_operations(struct tty_driver *driver, const struct tty_operations *ops);
 int tty_unregister_driver(struct tty_driver *driver);
 int tty_register_driver(struct tty_driver *driver);
+struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx);
 
 void __init tty_init(void);
 

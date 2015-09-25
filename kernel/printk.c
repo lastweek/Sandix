@@ -23,7 +23,6 @@
 #include <sandix/console.h>
 
 static char KMBUF[1024];
-struct tty_struct tty_temp = { .console = FG_VC };
 
 asmlinkage __printf(1, 2)
 int printk(const char *fmt, ...)
@@ -35,8 +34,11 @@ int printk(const char *fmt, ...)
 	len = vsnprintf(KMBUF, 1024, fmt, args);
 	va_end(args);
 	
-	/* FIXME Later */
-	con_write(&tty_temp, KMBUF, len);
+	/* FIXME
+	 * For simplicity, tty_table[0] is dedicated for
+	 * console_driver. This is __MUST__TODO__
+	 */
+	tty_table[0].ops->write(&tty_table[0], KMBUF, len);
 	
 	return len;
 }

@@ -19,6 +19,18 @@
 #ifndef _SANDIX_MUTEX_H_
 #define _SANDIX_MUTEX_H_
 
-#define DEFINE_MUTEX(NAME)	int NAME
+#include <sandix/compiler.h>
+
+struct mutex {
+	int x;
+};
+
+#define DEFINE_MUTEX(NAME)	struct mutex NAME
+
+INLINE void mutex_lock(struct mutex *m)
+{}
+
+INLINE void mutex_unlock(struct mutex *m)
+{}
 
 #endif /* _SANDIX_MUTEX_H_ */

@@ -46,7 +46,8 @@ asmlinkage void __init start_kernel(void)
 	arch_setup();
 	tty_init();
 	
-	printk("%d Hello!\n", 100);
+	printk("%d Hello!\r\n", 100);
+	printk("This is Sandix 0.0.1\n\r");
 	
 	hlt();
 }
