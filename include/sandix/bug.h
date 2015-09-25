@@ -19,6 +19,9 @@
 #ifndef _SANDIX_BUG_H_
 #define _SANDIX_BUG_H_
 
+#include <sandix/types.h>
+#include <sandix/printk.h>
+
 /*
  * Don't use BUG() or BUG_ON() unless there's really no way out; one
  * example might be detecting data structure corruption in the middle
@@ -44,18 +47,34 @@ do {						\
 	}					\
 } while (0)
 
+
 /*
  * WARN(), WARN_ON(), WARN_ON_ONCE, and so on can be used to report
  * significant issues that need prompt attention if they should ever
  * appear at runtime.
  */
 
-#define _WARN()
+#define __WARN()						\
+do {								\
+	printk("WARNING: at %s:%d/%s()!\n",			\
+		__FILE__, __LINE__, __func__);			\
+} while(0)
 
-#define WARN()
+#define WARN_ON(condition) ({					\
+	int __ret_warn_on = !!(condition);			\
+	if (unlikely(__ret_warn_on))				\
+		__WARN();					\
+	unlikely(__ret_warn_on);				\
+})
 
-#define WARN_ON_ONCE(condition)	condition
-
-#define WARN_ON(condition)	condition
+#define WARN_ON_ONCE(condition)	({				\
+	static bool __section(.data..unlikely) __warned;	\
+	int __ret_warn_once = !!(condition);			\
+								\
+	if (unlikely(__ret_warn_once))				\
+		if (WARN_ON(!__warned)) 			\
+			__warned = true;			\
+	unlikely(__ret_warn_once);				\
+})
 
 #endif /* _SANDIX_BUG_H_ */

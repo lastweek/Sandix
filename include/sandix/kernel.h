@@ -1,6 +1,4 @@
 /*
- *	include/sandix/kernel.h - Common Helper Definitions
- *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
@@ -43,13 +41,23 @@
 #define SIZE_MAX	(~(size_t)0)
 
 /**
+ * offsetof - find MEMBER offset within strcut TYPE
+ * @TYPE:	the type of the container struct this is embedded in
+ * @MEMBER:	the name of the member within the struct
+ */
+#ifdef __compiler_offsetof
+# define offsetof(TYPE, MEMBER)	__compiler_offsetof(TYPE, MEMBER)
+#else
+# define offsetof(TYPE, MEMBER)	((unsigned int)&((TYPE *)0)->MEMBER)
+#endif
+
+/**
  * container_of - find which structure this @ptr located
  * @ptr:	the pointer to the member.
  * @type:	the type of the container struct this is embedded in.
  * @member:	the name of the member within the struct.
  */
-#define container_of(ptr, type, member)				\
-({								\
+#define container_of(ptr, type, member) ({			\
 	typeof( ((type *)0)->member ) *__ptr = (ptr);		\
 	(type *)( (char *)__ptr - offsetof(type,member) );	\
 })
@@ -63,6 +71,7 @@ extern char *bin2hex(char *dst, const void *src, size_t count);
 
 extern const char hex_asc[];
 extern const char hex_asc_upper[];
+
 #define hex_asc_lo(x)		hex_asc[((x) & 0x0f)]
 #define hex_asc_hi(x)		hex_asc[((x) & 0xf0) >> 4]
 #define hex_asc_upper_lo(x)	hex_asc_upper[((x) & 0x0f)]

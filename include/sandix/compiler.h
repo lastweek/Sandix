@@ -137,9 +137,9 @@ extern void __chk_io_ptr(const volatile void __iomem *);
  * Hence, the .init.text and .init.data can be freed later to make room.
  */
 #define __section(S)		__attribute__((__section__(#S)))
-#define __read_mostly		__section(.data..read_mostly)
 #define __init			__section(.init.text)
 #define __initdata		__section(.init.data)
+#define __read_mostly		__section(.data..read_mostly)
 
 /*
  * Generic GCC Function and Variable attribute.

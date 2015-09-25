@@ -364,12 +364,9 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 	con = vc->driver;
 	state = VT_NORMAL;
 	npar = 0;
-	
-	if (vc->magic != TTY_CONSOLE_DATA) {
-		WARN("Struct vc_struct: Magic Number Dismatch");
-		return 0;
-	}
 
+	WARN_ON(vc->magic != TTY_CONSOLE_DATA);
+	
 	hide_cursor(vc);
 
 	while (count) {

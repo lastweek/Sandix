@@ -1,6 +1,4 @@
 /*
- *	include/sandix/stddef.h
- *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
@@ -21,8 +19,6 @@
 #ifndef _SANDIX_STDDEF_H_
 #define _SANDIX_STDDEF_H_
 
-#include <sandix/compiler.h>	/* For builtin-offset */
-
 #undef  NULL
 #define NULL ((void *)0)
 
@@ -30,21 +26,5 @@ enum {
 	false	= 0,
 	true	= 1
 };
-
-#undef  offsetof
-#ifdef __compiler_offsetof
-#define offsetof(TYPE, MEMBER)	__compiler_offsetof(TYPE, MEMBER)
-#else
-#define offsetof(TYPE, MEMBER)	((unsigned int)&((TYPE *)0)->MEMBER)
-#endif
-
-/**
- * offsetofend(TYPE, MEMBER)
- *
- * @TYPE: The type of the structure
- * @MEMBER: The member within the structure to get the end offset of
- */
-#define offsetofend(TYPE, MEMBER) \
-	(offsetof(TYPE, MEMBER)	+ sizeof(((TYPE *)0)->MEMBER))
 
 #endif /* _SANDIX_STDDEF_H_ */

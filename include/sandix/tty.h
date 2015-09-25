@@ -41,14 +41,21 @@ struct tty_operations {
 	void	(*set_termios)(struct tty_struct *tty, struct termios *old);
 };
 
+/**
+ * struct tty_driver
+ *Driver Name
+ Type of TTY driver
+ Major Number
+ Start of minor device number
+ Number of devices allocated
+*/
 struct tty_driver {
-	const char	*name;			/* Driver Name */
-	int		type;			/* Type of TTY driver */
-	unsigned int	major;			/* Major Number */
-	unsigned int	minor_start;		/* Start of minor device number */
-	unsigned int	num;			/* Number of devices allocated */
+	const char	*name;		
+	unsigned int	type;		
+	unsigned int	major;		
+	unsigned int	minor_start;	
+	unsigned int	num;		
 	struct termios	init_termios;
-	
 	const struct tty_operations *ops;
 	struct list_head tty_drivers;
 };

@@ -51,8 +51,13 @@ SECTIONS
 		__data_start = .;
 		*(.data)
 		
+		/* __read_mostly */
 		. = ALIGN(L1_CACHE_LINE_SIZE);
 		*(.data..read_mostly)
+		
+		/* WARN_ONCE etc.*/
+		. = ALIGN(L1_CACHE_LINE_SIZE);
+		*(.data..unlikely)
 		
 		__data_end = .;
 	}
@@ -101,6 +106,7 @@ SECTIONS
 	
 	/* If exp is zero, then exit the linker and print message. */
 	. = ASSERT((__kend - __kstart <= 64*1024*1024),
-		"Kernel image bigger than 64M. Please changing .brk size");
+		"Kernel image bigger than 64M. Please changing .brk size,
+		also check arch/x86/kernel/head.S");
 
 }

@@ -20,11 +20,24 @@
  * This file describes simple TTY layer in Sandix.
  */
 
+#include <sandix/errno.h>
 #include <sandix/compiler.h>
 #include <sandix/console.h>
+#include <sandix/export.h>
 #include <sandix/tty.h>
 #include <sandix/types.h>
 #include <sandix/major.h>
+#include <sandix/list.h>
+#include <sandix/mutex.h>
+
+/*
+ * Linked list of registed tty drivers
+ * Mutex to protect linked list
+ * System hardcoded tty struct table
+ */
+LIST_HEAD(tty_drivers);
+DEFINE_MUTEX(tty_mutex);
+struct tty_struct tty_table[3];
 
 void tty_set_operations(struct tty_driver *driver,
 			const struct tty_operations *ops)
@@ -35,12 +48,25 @@ EXPORT_SYMBOL(tty_set_operations);
 
 int tty_unregister_driver(struct tty_driver *driver)
 {
+	if (!driver)
+		return -EINVAL;
+
+	mutex_lock(&tty_mutex);
+	list_del(&driver->tty_drivers);
+	mutex_unlock(&tty_mutex);
+	return 0;
 }
 EXPORT_SYMBOL(tty_unregister_driver);
 
 int tty_register_driver(struct tty_driver *driver)
 {
+	if (!driver)
+		return -EINVAL;
 
+	mutex_lock(&tty_mutex);
+	list_add(&driver->tty_drivers, &tty_drivers);
+	mutex_unlock(&tty_mutex);
+	return 0;
 }
 EXPORT_SYMBOL(tty_register_driver);
 
