@@ -175,3 +175,9 @@ Thu Sep 24 CST 2015
 -						 >  console! We have serial tty driver, too!
 -						 >  SO! Use driver_data instead to let struct
 -						 >  tty_drvier to work on themself.
+
+
+Fri Sep 25 CST 2015
+- [+] drivers/tty/n_tty.c			[D] Line discipline for tty
+- [M] drivers/tty/tty_io.c			[D] driver struct support
+- [M] include/sandix/tty.h			[D] Line discipline sperated

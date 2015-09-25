@@ -90,5 +90,6 @@ EXPORT_SYMBOL(alloc_tty_struct);
 
 void __init tty_init(void)
 {
+	/* Register tty driver for console */
 	console_init();
 }

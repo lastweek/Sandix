@@ -30,7 +30,10 @@
 
 struct tty_struct;
 
-/*
+/* struct tty_operations
+ * @write:		Write to tty device
+ * @put_char:		Write one character to tty device
+ *
  * This structure defines the interface between the low-level tty driver and
  * the tty routines. The following routines can be defined; unless noted
  * otherwise, they are optional, and can be filled in with a null pointer.
@@ -38,11 +41,17 @@ struct tty_struct;
 struct tty_operations {
 	int	(*write)(struct tty_struct *tty, const unsigned char *buf, int count);
 	int	(*put_char)(struct tty_struct *tty, unsigned char ch);
-	void	(*set_termios)(struct tty_struct *tty, struct termios *old);
 };
 
 /**
  * struct tty_driver
+ * @name:		Nick name
+ * @type:		Type of this tty driver
+ * @major:		Major number of this tty driver
+ * @minor_start:	Starting minor number of this tty driver
+ * @num:		Number of devices allocated
+ * @ops:		Operations of this tty driver
+ * @tty_drivers:	Linked list of all registed tty driver
  */
 struct tty_driver {
 	const char	*name;		
@@ -50,21 +59,46 @@ struct tty_driver {
 	unsigned int	major;		
 	unsigned int	minor_start;	
 	unsigned int	num;		
-	struct termios	init_termios;
 	const struct tty_operations *ops;
 	struct list_head tty_drivers;
 };
 
 /**
- * struct tty_struct
+ * struct tty_ldisc
+ * @read:		Read method
+ * @write:		Write method
+ * @set_termios:	Replace termios
+ * @tty:		tty_struct who own this line discipline
  */
-struct tty_struct {
-	unsigned int		magic;
-	struct tty_driver	*driver;
-	void 			*driver_data;
-	const struct tty_operations *ops;
+struct tty_ldisc {
+	int	(*read)(struct tty_struct *tty, unsigned char __user *buf, size_t len);
+	int	(*write)(struct tty_struct *tty, const unsigned char *buf, size_t len);
+	void	(*set_termios)(struct tty_struct *tty, struct termios *old);
+	struct tty_struct *tty;
 };
 
+/**
+ * struct tty_struct
+ * @magic:		Magic number for this structure
+ * @termios:		Termios for this tty device
+ * @ldisc:		Line discipline for this tty device
+ * @driver:		Low-Level tty driver for this tty device
+ * @ops:		Operations of low-level tty driver
+ * @disc_data:		Additional data used by line discipline
+ * @driver_data:	Additional data used by low-level tty driver
+ */
+struct tty_struct {
+	unsigned int	magic;
+	struct termios	termios;
+	struct tty_ldisc  *ldisc;
+	struct tty_driver *driver;
+	const struct tty_operations *ops;
+	void *disc_data;
+	void *driver_data;
+};
+
+/* System present tty_structs */
+/* tty_table[0] is registed as console tty */
 extern struct tty_struct tty_table[2];
 
 /* TTY Driver Types */

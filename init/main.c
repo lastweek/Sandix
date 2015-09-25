@@ -46,8 +46,8 @@ asmlinkage void __init start_kernel(void)
 	arch_setup();
 	tty_init();
 	
-	printk("%d Hello!\r\n", 100);
-	printk("This is Sandix 0.0.1\n\r");
+	printk("Hello! This is Sandix 0.0.1\n\r");
+	printk("%s\n\r", tty_table[0].driver->name);
 	
 	hlt();
 }

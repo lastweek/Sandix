@@ -697,7 +697,7 @@ void __init console_init(void)
 	//console_driver.init_termios = ;
 	tty_set_operations(&console_driver, &console_ops);
 
-	/* Register TTY driver */
+	/* Register tty_driver */
 	tty_register_driver(&console_driver);
 	
 	/* Allocate tty_table[0] to console_driver */
