@@ -129,9 +129,9 @@ struct tty_ldisc {
  * @driver_data:	Additional data used by low-level tty driver
  */
 struct tty_struct {
-	unsigned int	magic;
-	struct termios	termios;
-	struct tty_ldisc  *ldisc;
+	unsigned int magic;
+	struct termios termios;
+	struct tty_ldisc *ldisc;
 	struct tty_driver *driver;
 	const struct tty_operations *ops;
 	void *disc_data;
