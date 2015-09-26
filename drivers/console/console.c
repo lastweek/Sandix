@@ -660,8 +660,7 @@ EXPORT_SYMBOL(unregister_con_driver);
 
 static const struct tty_operations console_ops = {
 	.write		= con_write,
-	.put_char	= NULL,
-	.set_termios	= NULL
+	.put_char	= NULL
 };
 
 struct tty_driver console_driver __read_mostly;
@@ -694,7 +693,7 @@ void __init console_init(void)
 	console_driver.major = TTY_MAJOR;
 	console_driver.minor_start = 1;
 	console_driver.num = 1;
-	//console_driver.init_termios = ;
+	console_driver.init_termios = ;
 	tty_set_operations(&console_driver, &console_ops);
 
 	/* Register tty_driver */
@@ -702,5 +701,7 @@ void __init console_init(void)
 	
 	/* Allocate tty_table[0] to console_driver */
 	tty = alloc_tty_struct(&console_driver, 0);
-	tty->driver_data = &vc_struct_map[0];
+
+	/* Private, specific console driver data */
+	tty->driver_data = (void *)&vc_struct_map[0];
 }

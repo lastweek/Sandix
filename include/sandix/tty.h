@@ -20,22 +20,23 @@
  *
  * The tty core is responsible for controlling both the flow of data across a
  * tty device and the format of the data. This allows tty drivers to focus on
- * handling the data to and from the hardware, instead of worrying about how
+ * handling the data to and from the *hardware*, instead of worrying about how
  * to control the interaction with user space in a consistent way. To control
  * the flow of data, there are a number of different line disciplines that can
- * be virtually "plugged" into any tty device. This is donw by different tty
+ * be virtually "plugged" into any tty device. This is done by different tty
  * line discipline drivers.
  *
- * There are three different types of tty drivers: console, serial port and pty.
+ * There are three different types of tty drivers: Console, Serial port and PTY.
  * Console drivers communicate with the screen and input keyboard. Serial port
  * drivers communicate with the serial port such as RS232. PTY drivers consists
  * of master and slave part.
  *
- * In Sandix, there is only one tty driver available: console drivers. This tty
- * driver control the screen output and receive characters from keyboard. Just
- * a note, the underlying screen output also has a additional abstraction. Since
- * we may have VGA screen or MDA screen or others. That is why we have *driver_data
- * field in tty_struct: Make tty drivers more general, to have another abstraction.
+ * In Sandix, there is only one tty driver available: Console drivers. This tty
+ * driver controls the screen output and receives characters from keyboard. Just
+ * a note, the underlying screen output also has an additional abstraction. Since
+ * we may have VGA screen or MDA screen or others. That is why we have driver_data
+ * field in tty_struct: Make tty drivers more general, to have another abstraction
+ * if they want to.
  */
 
 #ifndef _SANDIX_TTY_H_
@@ -87,10 +88,25 @@ struct tty_driver {
 };
 
 /**
- * struct tty_ldisc
+ * struct tty_ldisc_ops
  * @read:		Read method
  * @write:		Write method
  * @set_termios:	Replace termios
+ *
+ * This structure defines the interface between the tty line discipline
+ * implementation and the tty routines. The following routines can be
+ * defined; unless noted otherwise, they are optional, and can be filled
+ * in with a null pointer.
+ */
+struct tty_ldisc_ops {
+	int	(*read)(struct tty_struct *tty, unsigned char __user *buf, size_t len);
+	int	(*write)(struct tty_struct *tty, const unsigned char *buf, size_t len);
+	void	(*set_termios)(struct tty_struct *tty, struct termios *old);
+};
+
+/**
+ * struct tty_ldisc
+ * @ops:		Line discipline methods
  * @tty:		tty_struct who own this line discipline
  *
  * The tty line discipline's job is to format the data received from a user,
@@ -98,9 +114,7 @@ struct tty_driver {
  * form of a protocol conversion, such as PPP or Bluetooth.(?)
  */
 struct tty_ldisc {
-	int	(*read)(struct tty_struct *tty, unsigned char __user *buf, size_t len);
-	int	(*write)(struct tty_struct *tty, const unsigned char *buf, size_t len);
-	void	(*set_termios)(struct tty_struct *tty, struct termios *old);
+	struct tty_ldisc_ops *ops;
 	struct tty_struct *tty;
 };
 
