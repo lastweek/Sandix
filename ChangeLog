@@ -178,6 +178,12 @@ Thu Sep 24 CST 2015
 
 
 Fri Sep 25 CST 2015
-- [+] drivers/tty/n_tty.c			[D] Line discipline for tty
 - [M] drivers/tty/tty_io.c			[D] driver struct support
 - [M] include/sandix/tty.h			[D] Line discipline sperated
+
+
+Mon Sep 28 CST 2015
+- [+] drivers/tty/n_tty.c			[D] Line discipline for tty
+- [M] drivers/tty/tty_io.c			[D] Add tty_std_termios support
+- [M] include/sandix/termios.h			[D] Fully support termios
+- [M] include/sandix/tty.h			[D] Minor fix

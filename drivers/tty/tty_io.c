@@ -17,7 +17,7 @@
  */
 
 /*
- * This file describes simple TTY layer in Sandix.
+ * This file describes the simple TTY layer in Sandix.
  */
 
 #include <sandix/errno.h>
@@ -31,13 +31,28 @@
 #include <sandix/mutex.h>
 #include <sandix/magic.h>
 
+struct termios tty_std_termios = {	/* for the benefit of tty drivers  */
+	.c_iflag = ICRNL | IXON,
+	.c_oflag = OPOST | ONLCR,
+	.c_cflag = B38400 | CS8 | CREAD | HUPCL,
+	.c_lflag = ISIG | ICANON | ECHO | ECHOE | ECHOK |
+		   ECHOCTL | ECHOKE | IEXTEN,
+	.c_cc = INIT_C_CC,
+	.c_ispeed = 38400,
+	.c_ospeed = 38400
+};
+EXPORT_SYMBOL(tty_std_termios);
+
 LIST_HEAD(tty_drivers);
+EXPORT_SYMBOL(tty_drivers);
 
 DEFINE_MUTEX(tty_mutex);
+EXPORT_SYMBOL(tty_mutex);
 
-/* FIXME No Table! Allocate dynamically */
-/* tty_table[0] used for console_driver */
-/* tty_table[1] used for dummy_tty */
+/* FIXME
+ * tty_table[0] used for console_driver
+ * tty_table[1] used for dummy_tty
+ */
 struct tty_struct tty_table[2];
 
 void tty_set_operations(struct tty_driver *driver,
@@ -83,6 +98,7 @@ struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx)
 	tty->magic = TTY_STRUCT_MAGIC;
 	tty->driver = driver;
 	tty->ops = driver->ops;
+	tty->termios = driver->tty_std_termios;
 
 	return tty;
 }

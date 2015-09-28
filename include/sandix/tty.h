@@ -43,9 +43,8 @@
 #define _SANDIX_TTY_H_
 
 #include <sandix/compiler.h>
-#include <sandix/console.h>
-#include <sandix/types.h>
 #include <sandix/termios.h>
+#include <sandix/types.h>
 
 struct tty_struct;
 
@@ -70,7 +69,7 @@ struct tty_operations {
  * @minor_start:	Starting minor number of this tty driver
  * @num:		Number of devices allocated
  * @inint_termios:	Termios of this driver
- * @ops:		Operations of this tty driver
+ * @ops:		Hardware-operations of this tty driver
  * @tty_drivers:	Linked list of all registed tty driver
  *
  * The driver's job is to format data that is sent to it in a manner that the
@@ -124,9 +123,9 @@ struct tty_ldisc {
  * @termios:		Termios for this tty
  * @ldisc:		Line discipline driver for this tty
  * @driver:		Low-Level tty driver for this tty
- * @ops:		Operations of low-level tty driver
+ * @ops:		Hardware-operations of tty driver
  * @disc_data:		Additional data used by line discipline driver
- * @driver_data:	Additional data used by low-level tty driver
+ * @driver_data:	Additional data used by tty driver
  */
 struct tty_struct {
 	unsigned int magic;
@@ -138,17 +137,18 @@ struct tty_struct {
 	void *driver_data;
 };
 
-/* HARDCODED! DO NOT CHANGE! */
-/* System present tty_structs */
-/* tty_table[0] is registed as console tty */
-extern struct tty_struct tty_table[2];
-
-/* TTY Driver Types */
+/* tty driver types */
 #define TTY_DRIVER_TYPE_SYSTEM		0x0001
 #define TTY_DRIVER_TYPE_CONSOLE		0x0002
 #define TTY_DRIVER_TYPE_SERIAL		0x0003
 #define TTY_DRIVER_TYPE_PTY		0x0004
 #define TTY_DRIVER_TYPE_DUMMY		0x0005
+
+/* HARDCODED! DO NOT CHANGE! */
+/* tty_table[0] is registed as console tty */
+extern struct tty_struct tty_table[2];
+
+extern struct termios tty_std_termios;
 
 void tty_set_operations(struct tty_driver *driver, const struct tty_operations *ops);
 int tty_unregister_driver(struct tty_driver *driver);
