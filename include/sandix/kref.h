@@ -16,35 +16,20 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _SANDIX_SIGNAL_H_
-#define _SANDIX_SIGNAL_H_
+#ifndef _SANDIX_KREF_H_
+#define _SANDIX_KREF_H_
 
-#define SIGHUP		1
-#define SIGINT		2
-#define SIGQUIT		3
-#define SIGILL		4
-#define SIGTRAP		5
-#define SIGABRT		6
-#define SIGBUS		7
-#define SIGFPE		8
-#define SIGKILL		9
-#define SIGUSR1		10
-#define SIGSEGV		11
-#define SIGUSR2		12
-#define SIGPIPE		13
-#define SIGALRM		14
-#define SIGTERM		15
-#define SIGSTKFLT	16
-#define SIGCHLD		17
-#define SIGCONT		18
-#define SIGSTOP		19
-#define SIGTSTP		20
-#define SIGTTIN		21
-#define SIGTTOU		22
-#define SIGURG		23
-#define SIGXCPU		24
-#define SIGXFSZ		25
-#define SIGVTALRM	26
-#define SIGPROF		27
+#include <sandix/atomic.h>
+#include <sandix/compiler.h>
+#include <sandix/types.h>
 
-#endif /* _SANDIX_SIGNAL_H_ */
+struct kref {
+	atomic_t refcount;
+};
+
+ALWAYS_INLINE void kref_init(struct kref *ref)
+{
+	atomic_set(&ref->refcount, 1);
+}
+
+#endif /* _SANDIX_KREF_H_ */

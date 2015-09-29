@@ -187,3 +187,14 @@ Mon Sep 28 CST 2015
 - [M] drivers/tty/tty_io.c			[D] Add tty_std_termios support
 - [M] include/sandix/termios.h			[D] Fully support termios
 - [M] include/sandix/tty.h			[D] Minor fix
+
+
+Tue Sep 29 CST 2015
+- [+] include/sandix/kref.h			[D] Reference Management
+- [M] arch/x86/include/asm/atomic.h		[D] ALWAYS_INLINE and more functions.
+- [M] include/sandix/tty.h			[D] Add various macros!
+- [M] drivers/tty/tty_io.c			[D] Should add some buffer management
+-						 >  Linux use tty_port and buffer to manage
+-						 >  all queues. This implementation let tty
+-						 >  drivers free from buffer management, and
+-						 >  the system has a unified mechanism to manage.

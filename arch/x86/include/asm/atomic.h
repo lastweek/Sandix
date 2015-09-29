@@ -1,10 +1,29 @@
-#ifndef _SAM_ATOMIC_H_
-#define _SAM_ATOMIC_H_
+/*
+ *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *
+ *	This program is free software; you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation; either version 2 of the License, or
+ *	(at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
+ *
+ *	You should have received a copy of the GNU General Public License along
+ *	with this program; if not, write to the Free Software Foundation, Inc.,
+ *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+#ifndef _ASM_X86_ATOMIC_H_
+#define _ASM_X86_ATOMIC_H_
 
 #ifndef _SANDIX_ATOMIC_H_
-# error "Please do not include this file directly, include <sandix/atomic.h>"
+# error "Please include <sandix/atomic.h>"
 #endif
 
+#include <sandix/compiler.h>
 #include <sandix/types.h>
 #include <asm/asm.h>
 #include <asm/cmpxchg.h>
@@ -17,7 +36,7 @@
  *
  * Atomically reads the value of @v.
  */
-static inline int atomic_read(const atomic_t *v)
+ALWAYS_INLINE int atomic_read(const atomic_t *v)
 {
 	return v->counter;
 }
@@ -29,7 +48,7 @@ static inline int atomic_read(const atomic_t *v)
  *
  * Atomically sets the value of @v to @i.
  */
-static inline void atomic_set(atomic_t *v, int i)
+ALWAYS_INLINE void atomic_set(atomic_t *v, int i)
 {
 	v->counter = i;
 }
@@ -41,7 +60,7 @@ static inline void atomic_set(atomic_t *v, int i)
  *
  * Atomically adds @i to @v.
  */
-static inline void atomic_add(int i, atomic_t *v)
+ALWAYS_INLINE void atomic_add(int i, atomic_t *v)
 {
 	asm volatile (
 		LOCK_PREFIX "addl %1, %0"
@@ -57,7 +76,7 @@ static inline void atomic_add(int i, atomic_t *v)
  *
  * Atomically subtracts @i from @v.
  */
-static inline void atomic_sub(int i, atomic_t *v)
+ALWAYS_INLINE void atomic_sub(int i, atomic_t *v)
 {
 	asm volatile (
 		LOCK_PREFIX "subl %1, %0"
@@ -72,7 +91,7 @@ static inline void atomic_sub(int i, atomic_t *v)
  *
  * Atomically increments @v by 1.
  */
-static inline void atomic_inc(atomic_t *v)
+ALWAYS_INLINE void atomic_inc(atomic_t *v)
 {
 	asm volatile (
 		LOCK_PREFIX "incl %0"
@@ -86,7 +105,7 @@ static inline void atomic_inc(atomic_t *v)
  *
  * Atomically decrements @v by 1.
  */
-static inline void atomic_dec(atomic_t *v)
+ALWAYS_INLINE void atomic_dec(atomic_t *v)
 {
 	asm volatile (
 		LOCK_PREFIX "decl %0"
@@ -102,7 +121,7 @@ static inline void atomic_dec(atomic_t *v)
  *
  * Atomically compare and exchange.
  */
-static inline int atomic_cmpxchg(atomic_t *v, int old, int new)
+ALWAYS_INLINE int atomic_cmpxchg(atomic_t *v, int old, int new)
 {
 	return cmpxchg(&v->counter, old, new);
 }
@@ -114,9 +133,9 @@ static inline int atomic_cmpxchg(atomic_t *v, int old, int new)
  *
  * Atomically exchange.
  */
-static inline int atomic_xchg(atomic_t *v, int new)
+ALWAYS_INLINE int atomic_xchg(atomic_t *v, int new)
 {
 	return xchg(&v->counter, new);
 }
 
-#endif /* _SAM_ATOMIC_H_ */
+#endif /* _ASM_X86_ATOMIC_H_ */

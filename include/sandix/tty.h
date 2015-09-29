@@ -45,6 +45,7 @@
 #include <sandix/compiler.h>
 #include <sandix/termios.h>
 #include <sandix/types.h>
+#include <sandix/kref.h>
 
 struct tty_struct;
 
@@ -71,6 +72,7 @@ struct tty_operations {
  * @inint_termios:	Termios of this driver
  * @ops:		Hardware-operations of this tty driver
  * @tty_drivers:	Linked list of all registed tty driver
+ * @ref:		Reference count
  *
  * The driver's job is to format data that is sent to it in a manner that the
  * hardware can understand, and receive data from the hardware.
@@ -84,6 +86,7 @@ struct tty_driver {
 	struct termios	init_termios;
 	const struct tty_operations *ops;
 	struct list_head tty_drivers;
+	struct kref	ref;
 };
 
 /**
@@ -126,6 +129,7 @@ struct tty_ldisc {
  * @ops:		Hardware-operations of tty driver
  * @disc_data:		Additional data used by line discipline driver
  * @driver_data:	Additional data used by tty driver
+ * @ref:		Reference count
  */
 struct tty_struct {
 	unsigned int magic;
@@ -135,6 +139,7 @@ struct tty_struct {
 	const struct tty_operations *ops;
 	void *disc_data;
 	void *driver_data;
+	struct kref ref;
 };
 
 /* TTY Driver Types */
@@ -144,7 +149,7 @@ struct tty_struct {
 #define TTY_DRIVER_TYPE_PTY	0x0004
 #define TTY_DRIVER_TYPE_DUMMY	0x0005
 
-/* Line Disciplines */
+/* Line Disciplines. So many? */
 #define N_TTY			0
 #define N_SLIP			1
 #define N_MOUSE			2
