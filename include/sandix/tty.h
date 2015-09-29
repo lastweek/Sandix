@@ -16,8 +16,8 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* README PLEASE
- *
+/*
+ * README:
  * The tty core is responsible for controlling both the flow of data across a
  * tty device and the format of the data. This allows tty drivers to focus on
  * handling the data to and from the *hardware*, instead of worrying about how
@@ -137,14 +137,126 @@ struct tty_struct {
 	void *driver_data;
 };
 
-/* tty driver types */
-#define TTY_DRIVER_TYPE_SYSTEM		0x0001
-#define TTY_DRIVER_TYPE_CONSOLE		0x0002
-#define TTY_DRIVER_TYPE_SERIAL		0x0003
-#define TTY_DRIVER_TYPE_PTY		0x0004
-#define TTY_DRIVER_TYPE_DUMMY		0x0005
+/* TTY Driver Types */
+#define TTY_DRIVER_TYPE_SYSTEM	0x0001
+#define TTY_DRIVER_TYPE_CONSOLE	0x0002
+#define TTY_DRIVER_TYPE_SERIAL	0x0003
+#define TTY_DRIVER_TYPE_PTY	0x0004
+#define TTY_DRIVER_TYPE_DUMMY	0x0005
 
-/* HARDCODED! DO NOT CHANGE! */
+/* Line Disciplines */
+#define N_TTY			0
+#define N_SLIP			1
+#define N_MOUSE			2
+#define N_PPP			3
+#define N_STRIP			4
+#define N_AX25			5
+#define N_X25			6	/* X.25 async */
+#define N_6PACK			7
+#define N_MASC			8	/* Reserved for Mobitex module <kaz@cafe.net> */
+#define N_R3964			9	/* Reserved for Simatic R3964 module */
+#define N_PROFIBUS_FDL		10	/* Reserved for Profibus */
+#define N_IRDA			11	/* Linux IrDa - http://irda.sourceforge.net/ */
+#define N_SMSBLOCK		12	/* SMS block mode - for talking to GSM data */
+#define N_HDLC			13	/* synchronous HDLC */
+#define N_SYNC_PPP		14	/* synchronous PPP */
+#define N_HCI			15	/* Bluetooth HCI UART */
+#define N_GIGASET_M101		16	/* Siemens Gigaset M101 serial DECT adapter */
+#define N_SLCAN			17	/* Serial / USB serial CAN Adaptors */
+#define N_PPS			18	/* Pulse per Second */
+#define N_V253			19	/* Codec control over voice modem */
+#define N_CAIF			20      /* CAIF protocol for talking to modems */
+#define N_GSM0710		21	/* GSM 0710 Mux */
+#define N_TI_WL			22	/* for TI's WL BT, FM, GPS combo chips */
+#define N_TRACESINK		23	/* Trace data routing for MIPI P1149.7 */
+#define N_TRACEROUTER		24	/* Trace data routing for MIPI P1149.7 */
+#define N_NCI			25	/* NFC NCI UART */
+#define NR_LDISCS		30
+
+#define INTR_CHAR(tty)		((tty)->termios.c_cc[VINTR])
+#define QUIT_CHAR(tty)		((tty)->termios.c_cc[VQUIT])
+#define ERASE_CHAR(tty)		((tty)->termios.c_cc[VERASE])
+#define KILL_CHAR(tty)		((tty)->termios.c_cc[VKILL])
+#define EOF_CHAR(tty)		((tty)->termios.c_cc[VEOF])
+#define TIME_CHAR(tty)		((tty)->termios.c_cc[VTIME])
+#define MIN_CHAR(tty)		((tty)->termios.c_cc[VMIN])
+#define SWTC_CHAR(tty)		((tty)->termios.c_cc[VSWTC])
+#define START_CHAR(tty)		((tty)->termios.c_cc[VSTART])
+#define STOP_CHAR(tty)		((tty)->termios.c_cc[VSTOP])
+#define SUSP_CHAR(tty)		((tty)->termios.c_cc[VSUSP])
+#define EOL_CHAR(tty)		((tty)->termios.c_cc[VEOL])
+#define REPRINT_CHAR(tty)	((tty)->termios.c_cc[VREPRINT])
+#define DISCARD_CHAR(tty)	((tty)->termios.c_cc[VDISCARD])
+#define WERASE_CHAR(tty)	((tty)->termios.c_cc[VWERASE])
+#define LNEXT_CHAR(tty)		((tty)->termios.c_cc[VLNEXT])
+#define EOL2_CHAR(tty)		((tty)->termios.c_cc[VEOL2])
+
+#define _I_FLAG(tty, f)		((tty)->termios.c_iflag & (f))
+#define _O_FLAG(tty, f)		((tty)->termios.c_oflag & (f))
+#define _C_FLAG(tty, f)		((tty)->termios.c_cflag & (f))
+#define _L_FLAG(tty, f)		((tty)->termios.c_lflag & (f))
+
+#define I_IGNBRK(tty)		_I_FLAG((tty), IGNBRK)
+#define I_BRKINT(tty)		_I_FLAG((tty), BRKINT)
+#define I_IGNPAR(tty)		_I_FLAG((tty), IGNPAR)
+#define I_PARMRK(tty)		_I_FLAG((tty), PARMRK)
+#define I_INPCK(tty)		_I_FLAG((tty), INPCK)
+#define I_ISTRIP(tty)		_I_FLAG((tty), ISTRIP)
+#define I_INLCR(tty)		_I_FLAG((tty), INLCR)
+#define I_IGNCR(tty)		_I_FLAG((tty), IGNCR)
+#define I_ICRNL(tty)		_I_FLAG((tty), ICRNL)
+#define I_IUCLC(tty)		_I_FLAG((tty), IUCLC)
+#define I_IXON(tty)		_I_FLAG((tty), IXON)
+#define I_IXANY(tty)		_I_FLAG((tty), IXANY)
+#define I_IXOFF(tty)		_I_FLAG((tty), IXOFF)
+#define I_IMAXBEL(tty)		_I_FLAG((tty), IMAXBEL)
+#define I_IUTF8(tty)		_I_FLAG((tty), IUTF8)
+
+#define O_OPOST(tty)		_O_FLAG((tty), OPOST)
+#define O_OLCUC(tty)		_O_FLAG((tty), OLCUC)
+#define O_ONLCR(tty)		_O_FLAG((tty), ONLCR)
+#define O_OCRNL(tty)		_O_FLAG((tty), OCRNL)
+#define O_ONOCR(tty)		_O_FLAG((tty), ONOCR)
+#define O_ONLRET(tty)		_O_FLAG((tty), ONLRET)
+#define O_OFILL(tty)		_O_FLAG((tty), OFILL)
+#define O_OFDEL(tty)		_O_FLAG((tty), OFDEL)
+#define O_NLDLY(tty)		_O_FLAG((tty), NLDLY)
+#define O_CRDLY(tty)		_O_FLAG((tty), CRDLY)
+#define O_TABDLY(tty)		_O_FLAG((tty), TABDLY)
+#define O_BSDLY(tty)		_O_FLAG((tty), BSDLY)
+#define O_VTDLY(tty)		_O_FLAG((tty), VTDLY)
+#define O_FFDLY(tty)		_O_FLAG((tty), FFDLY)
+
+#define C_BAUD(tty)		_C_FLAG((tty), CBAUD)
+#define C_CSIZE(tty)		_C_FLAG((tty), CSIZE)
+#define C_CSTOPB(tty)		_C_FLAG((tty), CSTOPB)
+#define C_CREAD(tty)		_C_FLAG((tty), CREAD)
+#define C_PARENB(tty)		_C_FLAG((tty), PARENB)
+#define C_PARODD(tty)		_C_FLAG((tty), PARODD)
+#define C_HUPCL(tty)		_C_FLAG((tty), HUPCL)
+#define C_CLOCAL(tty)		_C_FLAG((tty), CLOCAL)
+#define C_CIBAUD(tty)		_C_FLAG((tty), CIBAUD)
+#define C_CRTSCTS(tty)		_C_FLAG((tty), CRTSCTS)
+#define C_CMSPAR(tty)		_C_FLAG((tty), CMSPAR)
+
+#define L_ISIG(tty)		_L_FLAG((tty), ISIG)
+#define L_ICANON(tty)		_L_FLAG((tty), ICANON)
+#define L_XCASE(tty)		_L_FLAG((tty), XCASE)
+#define L_ECHO(tty)		_L_FLAG((tty), ECHO)
+#define L_ECHOE(tty)		_L_FLAG((tty), ECHOE)
+#define L_ECHOK(tty)		_L_FLAG((tty), ECHOK)
+#define L_ECHONL(tty)		_L_FLAG((tty), ECHONL)
+#define L_NOFLSH(tty)		_L_FLAG((tty), NOFLSH)
+#define L_TOSTOP(tty)		_L_FLAG((tty), TOSTOP)
+#define L_ECHOCTL(tty)		_L_FLAG((tty), ECHOCTL)
+#define L_ECHOPRT(tty)		_L_FLAG((tty), ECHOPRT)
+#define L_ECHOKE(tty)		_L_FLAG((tty), ECHOKE)
+#define L_FLUSHO(tty)		_L_FLAG((tty), FLUSHO)
+#define L_PENDIN(tty)		_L_FLAG((tty), PENDIN)
+#define L_IEXTEN(tty)		_L_FLAG((tty), IEXTEN)
+#define L_EXTPROC(tty)		_L_FLAG((tty), EXTPROC)
+
+/* FIXME */
 /* tty_table[0] is registed as console tty */
 extern struct tty_struct tty_table[2];
 
