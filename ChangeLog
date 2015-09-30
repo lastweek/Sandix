@@ -1,13 +1,22 @@
+#
 #	ChangeLog of Sandix
+#
 #	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
-
+#
 #	[-] = Remove
 #	[+] = New
 #	[M] = Modify		(Only Significant Modification)
 #	[D] = Description	(Nothing but some memos)
 #	 >  = More to say
 
+#
+#	BIG FAT NOTE
+#	All files created before 09/07/2015 are NOT recorded here.
+#	Because they born too early.
+#
+
 Mon Sep  7 CST 2015
+- [+] Changelog
 - [+] Diary/09-07-2015
 - [+] lib/ctype.c
 - [+] include/sandix/ctype.h			[D] Character Type API.
@@ -16,7 +25,6 @@ Mon Sep  7 CST 2015
 
 Tue Sep  8 CST 2015
 - [+] Diary/09-08-2015
-- [+] Changelog
 - [+] lib/hexdump.c				[D] Add hexdump API.
 - [+] include/asm/swab.h			[D] Add byte swap API.
 - [+] include/sandix/swab.h
@@ -198,3 +206,9 @@ Tue Sep 29 CST 2015
 -						 >  all queues. This implementation let tty
 -						 >  drivers free from buffer management, and
 -						 >  the system has a unified mechanism to manage.
+
+
+Wed Sep 30 CST 2015
+- [+] include/sandix/uaccess.h			[D] User/Kernel Space data movement
+- [+] include/asm-generic/uaccess.h
+- [+] arch/x86/include/asm/uaccess.h
