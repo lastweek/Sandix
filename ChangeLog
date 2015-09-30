@@ -212,3 +212,8 @@ Wed Sep 30 CST 2015
 - [+] include/sandix/uaccess.h			[D] User/Kernel Space data movement
 - [+] include/asm-generic/uaccess.h
 - [+] arch/x86/include/asm/uaccess.h
+- [+] fs/ext2/					[D] Darling, filesystems lies in the core
+- [+] fs/ext3/					 >  part of operating system. Having a
+- [+] fs/proc/					 >  totally understanding of fs makes
+- [+] fs/Makefile				 >  a more deep insight into OS.
+- [+] fs/Kconfig
