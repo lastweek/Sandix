@@ -70,16 +70,15 @@ struct tty_struct tty_table[2];
 ssize_t tty_write(struct file *file, const char __user *buf, size_t count)
 {
 	struct tty_struct *tty;
+	ssize_t ret;
 
 	/*FIXME*/
 	tty = &tty_table[0];
 
-	if (!tty || !tty->ld
-		 || !tty->ld->write
-		 || !tty->ops->write)
+	if (!tty || !tty->ops->write
+		 || !tty->ldisc->ops->write)
 		return -EIO;
 	
-	return tty->ld->write(tty, buf, count);
 }
 
 void tty_set_operations(struct tty_driver *driver,
