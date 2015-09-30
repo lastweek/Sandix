@@ -217,3 +217,7 @@ Wed Sep 30 CST 2015
 - [+] fs/proc/					 >  totally understanding of fs makes
 - [+] fs/Makefile				 >  a more deep insight into OS.
 - [+] fs/Kconfig
+- [+] include/sandix/fs.h			[D] struct file
+- [+] drivers/tty/tty_ldisc.h			[D] Manage line discipline
+- [M] drivers/tty/tty_io.c			[D] tty_write method. For device file
+- [M] drivers/tty/n_tty.c

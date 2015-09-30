@@ -668,8 +668,8 @@ struct tty_driver console_driver __read_mostly;
 /**
  * console_init
  *
- * Register Low-Level Dummy and VGA Console Drivers.
- * Register TTY Driver for Console.
+ * Register Low-Level dummy and VGA console drivers.
+ * Register the tty driver of console.
  */
 void __init console_init(void)
 {
@@ -693,7 +693,7 @@ void __init console_init(void)
 	console_driver.major = TTY_MAJOR;
 	console_driver.minor_start = 1;
 	console_driver.num = 1;
-	console_driver.init_termios = ;
+	console_driver.init_termios = tty_std_termios;
 	tty_set_operations(&console_driver, &console_ops);
 
 	/* Register tty_driver */

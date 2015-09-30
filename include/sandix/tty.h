@@ -72,7 +72,7 @@ struct tty_operations {
  * @inint_termios:	Termios of this driver
  * @ops:		Hardware-operations of this tty driver
  * @tty_drivers:	Linked list of all registed tty driver
- * @ref:		Reference count
+ * @kref:		Reference count
  *
  * The driver's job is to format data that is sent to it in a manner that the
  * hardware can understand, and receive data from the hardware.
@@ -86,11 +86,12 @@ struct tty_driver {
 	struct termios	init_termios;
 	const struct tty_operations *ops;
 	struct list_head tty_drivers;
-	struct kref	ref;
+	struct kref	kref;
 };
 
 /**
  * struct tty_ldisc_ops
+ * @name:		Name of discipline
  * @read:		Read method
  * @write:		Write method
  * @set_termios:	Replace termios
@@ -101,8 +102,9 @@ struct tty_driver {
  * in with a null pointer.
  */
 struct tty_ldisc_ops {
-	int	(*read)(struct tty_struct *tty, unsigned char __user *buf, size_t len);
-	int	(*write)(struct tty_struct *tty, const unsigned char *buf, size_t len);
+	const char *name;
+	int	(*read)(struct tty_struct *tty, char __user *buf, size_t count);
+	ssize_t	(*write)(struct tty_struct *tty, const char __user *buf, size_t count);
 	void	(*set_termios)(struct tty_struct *tty, struct termios *old);
 };
 
@@ -129,7 +131,7 @@ struct tty_ldisc {
  * @ops:		Hardware-operations of tty driver
  * @disc_data:		Additional data used by line discipline driver
  * @driver_data:	Additional data used by tty driver
- * @ref:		Reference count
+ * @kref:		Reference count
  */
 struct tty_struct {
 	unsigned int magic;
@@ -139,7 +141,7 @@ struct tty_struct {
 	const struct tty_operations *ops;
 	void *disc_data;
 	void *driver_data;
-	struct kref ref;
+	struct kref kref;
 };
 
 /* TTY Driver Types */
@@ -265,6 +267,7 @@ struct tty_struct {
 /* tty_table[0] is registed as console tty */
 extern struct tty_struct tty_table[2];
 
+/* tty_io.c */
 extern struct termios tty_std_termios;
 
 void tty_set_operations(struct tty_driver *driver, const struct tty_operations *ops);

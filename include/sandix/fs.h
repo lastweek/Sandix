@@ -1,6 +1,4 @@
 /*
- *	drivers/chip/i8042.c - Chip 8042 Driver
- *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
@@ -18,7 +16,11 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <sandix/compiler.h>
-#include <sandix/types.h>
+#ifndef _SANDIX_FS_H_
+#define _SANDIX_FS_H_
 
+struct file {
+	void *private_data;
+};
 
+#endif /* _SANDIX_FS_H_ */

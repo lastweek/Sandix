@@ -17,10 +17,8 @@
  */
 
 #include <sandix/kernel.h>
-#include <sandix/compiler.h>
 #include <sandix/linkage.h>
 #include <sandix/tty.h>
-#include <sandix/console.h>
 
 static char KMBUF[1024];
 

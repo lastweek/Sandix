@@ -30,6 +30,8 @@
 #include <sandix/list.h>
 #include <sandix/mutex.h>
 #include <sandix/magic.h>
+#include <sandix/kref.h>
+#include <sandix/fs.h>
 
 struct termios tty_std_termios = {	/* for the benefit of tty drivers  */
 	.c_iflag = ICRNL | IXON,
@@ -55,6 +57,31 @@ EXPORT_SYMBOL(tty_mutex);
  */
 struct tty_struct tty_table[2];
 
+/**
+ * tty_write - Write method for tty device
+ * @file:	tty file pointer
+ * @buf:	user data to write
+ * @count:	bytes to write
+ * Return:	negative on error
+ *
+ * Write data from user space to tty device. Line discipline will be
+ * invoked first before the real tty driver write method.
+ */
+ssize_t tty_write(struct file *file, const char __user *buf, size_t count)
+{
+	struct tty_struct *tty;
+
+	/*FIXME*/
+	tty = &tty_table[0];
+
+	if (!tty || !tty->ld
+		 || !tty->ld->write
+		 || !tty->ops->write)
+		return -EIO;
+	
+	return tty->ld->write(tty, buf, count);
+}
+
 void tty_set_operations(struct tty_driver *driver,
 			const struct tty_operations *ops)
 {
@@ -70,6 +97,7 @@ int tty_unregister_driver(struct tty_driver *driver)
 	mutex_lock(&tty_mutex);
 	list_del(&driver->tty_drivers);
 	mutex_unlock(&tty_mutex);
+
 	return 0;
 }
 EXPORT_SYMBOL(tty_unregister_driver);
@@ -82,6 +110,7 @@ int tty_register_driver(struct tty_driver *driver)
 	mutex_lock(&tty_mutex);
 	list_add(&driver->tty_drivers, &tty_drivers);
 	mutex_unlock(&tty_mutex);
+
 	return 0;
 }
 EXPORT_SYMBOL(tty_register_driver);
@@ -96,9 +125,10 @@ struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx)
 
 	/* Initialize tty_struct */
 	tty->magic = TTY_STRUCT_MAGIC;
+	tty->termios = driver->init_termios;
 	tty->driver = driver;
 	tty->ops = driver->ops;
-	tty->termios = driver->tty_std_termios;
+	kref_init(&tty->kref);
 
 	return tty;
 }
