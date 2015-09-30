@@ -1,20 +1,20 @@
+			SANDIX KERNEL PROJECT
 
-|			SANDIX KERNEL PROJECT				|
-|									|
-|		Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>	|	
+		Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
 
-CAVEAT:  THE KERNEL IS STILL UNDER DEVELOPMENT
+CAVEAT:  THE KERNEL IS STILL UNDER DEVELOPMENT. NOT USABLE.
 LICENSE: GNU GENERAL PUBLIC LICENSE Version 2
 
 WHAT IS SANDIX?
 
 	- Sandix is a clone of the operating system Unix, written based
-	  on Linux kernel. Sandix is the abbreviation for Sandy Unix.
+	  on Linux kernel(Mimic everything in a simple implementation).
+	  Sandix is the abbreviation for Sandy Unix (www.sandix.cn).
 
 WHO IS DEVELOPING SANDIX?
 
 	- Yizhou Shan <shanyizhou@ict.ac.cn>
-	- Architecture Contributors are welcomed.
+	- Architecture Contributors are very welcomed.
 	- For more information, Email me. ;)
 
 BUILD INSTRUCTIONS:
@@ -27,14 +27,9 @@ BUILD INSTRUCTIONS:
 		i386-elf-objcopy
 		i386-elf-objdump
 
-	- 0) Invoke make using mixed targets, e.g.:
-		make config all
-		make defconfig all
-
 	- 1) Config Kernel
 		make config
 	    or  make menuconfig
-	    or  make defconfig
 	
 	- 2) Build Kernel
 		make
@@ -44,16 +39,6 @@ BUILD INSTRUCTIONS:
 		make mrproper
 		make clean
 
-	- 4) Help
-		make help
-	
-	- 5) Version
-		make kernelversion
-		make kernelrelease
-
-	- 6) Editor Tags
-		make tags
-
-	- 7) Kernel Docs
-		make docs
-
+	- 4) Invoke make using mixed targets, e.g.:
+		make config all
+		make defconfig all
