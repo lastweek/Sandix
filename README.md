@@ -1,6 +1,6 @@
 #			SANDIX KERNEL PROJECT
 ## You do not really understand something unless you can explain it to your grandmother.
-		Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
 
 WHAT IS SANDIX?
 
