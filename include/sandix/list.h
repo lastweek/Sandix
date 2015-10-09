@@ -16,10 +16,6 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/*
- * This file describes APIs for doubly linked list used in Sandix.
- */
-
 #ifndef _SANDIX_LIST_H_
 #define _SANDIX_LIST_H_
 
@@ -227,7 +223,7 @@ INLINE int list_is_singular(const struct list_head *head)
 	list_entry((pos)->member.prev, typeof(*(pos)), member)
 
 /**
- * list_for_each_entry	-	iterate over list of given type
+ * list_for_each_entry - iterate over list of given type
  * @pos:	the type * to use as a loop cursor.
  * @head:	the head for your list.
  * @member:	the name of the list_head within the struct.
@@ -264,4 +260,5 @@ INLINE int list_is_singular(const struct list_head *head)
 #define list_for_each_prev(pos, head) \
 	for (pos = (head)->prev; pos != (head); pos = pos->prev)
 
-#endif /* _SANDIX_LIST_H */
+
+#endif /* _SANDIX_LIST_H_ */

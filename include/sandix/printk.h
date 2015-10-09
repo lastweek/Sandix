@@ -1,6 +1,4 @@
 /*
- *	include/sandix/printk.h - Print Kernel Message
- *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
@@ -20,6 +18,7 @@
 
 #include <sandix/compiler.h>
 #include <sandix/linkage.h>
+#include <sandix/kern_levels.h>
 
 #include <stdarg.h>
 
@@ -28,3 +27,51 @@ int vprintk(const char *fmt, va_list args);
 
 asmlinkage __printf(1, 2)
 int printk(const char *fmt, ...);
+
+#ifndef
+# define pr_fmt(fmt) fmt
+#endif
+
+#define pr_emerg(fmt, ...)					\
+	printk(KERN_EMERG pr_fmt(fmt), ##__VA_ARGS__)
+#define pr_alert(fmt, ...)					\
+	printk(KERN_ALERT pr_fmt(fmt), ##__VA_ARGS__)
+#define pr_crit(fmt, ...)					\
+	printk(KERN_CRIT pr_fmt(fmt), ##__VA_ARGS__)
+#define pr_err(fmt, ...)					\
+	printk(KERN_ERR pr_fmt(fmt), ##__VA_ARGS__)
+#define pr_warn(fmt, ...)					\
+	printk(KERN_WARN pr_fmt(fmt), ##__VA_ARGS__)
+#define pr_notice(fmt, ...)					\
+	printk(KERN_NOTICE pr_fmt(fmt), ##__VA_ARGS__)
+#define pr_info(fmt, ...)					\
+	printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
+
+/*
+ * printk_once pr_xxx_once: print message only once
+ */
+
+#define printk_once(fmt, ...)					\
+({								\
+	static bool __print_once __read_mostly;			\
+								\
+	if (!__print_once) {					\
+		__print_once = true;				\
+		printk(fmt, ##__VA_ARGS__);			\
+	}							\
+})
+
+#define pr_emerg_once(fmt, ...)					\
+	printk_once(KERN_EMERG pr_fmt(fmt), ##__VA_ARGS__)
+#define pr_alert_once(fmt, ...)					\
+	printk_once(KERN_ALERT pr_fmt(fmt), ##__VA_ARGS__)
+#define pr_crit_once(fmt, ...)					\
+	printk_once(KERN_CRIT pr_fmt(fmt), ##__VA_ARGS__)
+#define pr_err_once(fmt, ...)					\
+	printk_once(KERN_ERR pr_fmt(fmt), ##__VA_ARGS__)
+#define pr_warn_once(fmt, ...)					\
+	printk_once(KERN_WARN pr_fmt(fmt), ##__VA_ARGS__)
+#define pr_notice_once(fmt, ...)				\
+	printk_once(KERN_NOTICE pr_fmt(fmt), ##__VA_ARGS__)
+#define pr_info_once(fmt, ...)					\
+	printk_once(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
