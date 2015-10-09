@@ -4,13 +4,14 @@
 
 # Keyword:  Coding Style
 
-Advices from <The Art of Readable Code>:
+Advices from book <The Art of Readable Code>:
 
 
 	Part I: Surface-Level Improvements
-Simple ways to improve the readability of your code.
 
 1) Packing information into names
+	
+	Simple ways to improve the readability of your code.
 	
 	... Use longer names for larger scopes
 	... Avoid generic names (e.g. tmp, retval)
@@ -62,8 +63,6 @@ Simple ways to improve the readability of your code.
 
 1) Making Control Flow Easy to Read
 
-	Yes, i trying to write better code, better control flow!!!
-
 	... Make all your conditionals, loops, and other changes to control
 	    flow as "natual" as possible - written in a way that doesn't make
 	    the reader stop and reread you code.
@@ -111,3 +110,26 @@ Simple ways to improve the readability of your code.
 	But even if you don’t do this, you can still organize the code inside
 	that large function so it feels like there are separate logical sections.
 
+3) YES YES YES
+
+	When explaining a complex idea to someone, it's easy to confuse them
+	with all the little details. It's a valuable skill to be able to
+	explain an idea "in plain English", so that someone less knowledgeable
+	than you can understand. It requires distilling an idea down to the
+	most important concepts. Doing this not only helps the other person
+	understand but also helps you think about your own ideas more clearly.
+
+4) Writing Less Code
+
+	Knowing when not to code is possibly the most important skill a
+	programmer can learn. Every line of code you write is a line that has to
+	be tested and maintained. By reusing libraries or eliminating features,
+	you can save time and keep your codebase lean and mean.
+
+	Every once in a while, spend 15 minutes reading the names of all the
+	functions/modules/types in your standard library. The goal isn’t to
+	memorize the whole library. It’s just to get a sense of what’s available,
+	so that next time you’re working on new code you’ll think, "Wait, this
+	sounds similar to something I saw in the API...." We believe doing this
+	work upfront pays off quickly, as you’ll be more inclined to use those
+	libraries in the first place.
