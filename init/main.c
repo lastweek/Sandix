@@ -48,6 +48,7 @@ asmlinkage void __init start_kernel(void)
 	
 	printk("Hello! This is Sandix 0.0.1\n\r");
 	printk("%s\n\r", tty_table[0].driver->name);
+	printk("%s", sandix_banner);
 	
 	hlt();
 }

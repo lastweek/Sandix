@@ -225,5 +225,6 @@ Wed Sep 30 CST 2015
 
 Fri Oct  9 CST 2015
 - [+] Diary/10-09-2015
+- [+] init/version.c				[D] sandix_version string
 - [+] include/sandix/kern_levels.h		[D] Kernel information levels
 - [M] include/sandix/printk.h			[D] pr_xxx(), printk_once(), pr_xxx_once()

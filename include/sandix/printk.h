@@ -19,8 +19,9 @@
 #include <sandix/compiler.h>
 #include <sandix/linkage.h>
 #include <sandix/kern_levels.h>
-
 #include <stdarg.h>
+
+extern const char sandix_banner[];
 
 asmlinkage __printf(1, 0)
 int vprintk(const char *fmt, va_list args);
@@ -28,7 +29,7 @@ int vprintk(const char *fmt, va_list args);
 asmlinkage __printf(1, 2)
 int printk(const char *fmt, ...);
 
-#ifndef
+#ifndef pr_fmt
 # define pr_fmt(fmt) fmt
 #endif
 
