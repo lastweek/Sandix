@@ -1,6 +1,5 @@
 #			SANDIX KERNEL PROJECT
 ##	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
-### You do not really understand something unless you can explain it to your grandmother.
 
 WHAT IS SANDIX?
 
@@ -48,3 +47,4 @@ LICENSE:
 
 	- GNU GENERAL PUBLIC LICENSE Version 2
 
+### You do not really understand something unless you can explain it to your grandmother.
