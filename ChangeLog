@@ -221,3 +221,7 @@ Wed Sep 30 CST 2015
 - [+] drivers/tty/tty_ldisc.h			[D] Manage line discipline
 - [M] drivers/tty/tty_io.c			[D] tty_write method. For device file
 - [M] drivers/tty/n_tty.c
+
+
+Fri Oct  9 CST 2015
+- [+] Diary/10-09-2015

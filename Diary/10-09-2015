@@ -1,0 +1,113 @@
+#
+# Fri Oct  9 14:10:21 CST 2015
+#
+
+# Keyword:  Coding Style
+
+Advices from <The Art of Readable Code>:
+
+
+	Part I: Surface-Level Improvements
+Simple ways to improve the readability of your code.
+
+1) Packing information into names
+	
+	... Use longer names for larger scopes
+	... Avoid generic names (e.g. tmp, retval)
+	... Attach important details (e.g. ms, ns...)
+	... Use capitalization, underscore and so on in a meaningful way!
+
+2) Making names more understandable
+	
+	The person reading your code will understand it the way you meant it.
+	Before you decide on a name, imagine how your name might be
+	misunderstood, the best names are resistant to misinterpretation.
+
+	... Use is_ has_ to make boolean clear
+	... Max and Min
+	... First and Last
+	... Begin and End
+
+3) Aesthetics
+
+	Good source code should be just as "easy on the eyes".
+
+	... Consistent style is more important than the "right" style
+	... Make similar code look similar
+	... Group related lines of code into blocks
+	... Spacing!
+	... Alignment!
+	... Ordering!
+	... Consistent!
+
+4) Comment
+
+	What to comment
+	What NOT to comment
+	Put yourself in the reader's shoes
+
+	... Do NOT comment on facts that can be derived quickly from the code
+	... Using TODO FIXME HACK XXX
+	... Comment on your constants! (That is pretty important)
+	... A few well-chosen sentences are better than nothing at all.
+	... Describe a function's behaviour with as much precise as is pratical
+	... State the high level intent of your code
+	... Keep your comments brief by using words that pack a lot of meaning.
+	... Precise!
+	... Brevity!
+	... DO IT!
+
+
+	Part II: Simplifying Loops and Logic
+
+1) Making Control Flow Easy to Read
+
+	Yes, i trying to write better code, better control flow!!!
+
+	... Make all your conditionals, loops, and other changes to control
+	    flow as "natual" as possible - written in a way that doesn't make
+	    the reader stop and reread you code.
+	... Instead of minimizing the number of lines, a better metric is to
+	    minimize the time needed for someone to understand it.
+
+	... Returning early from a function
+	... Using GOTO properly
+
+2) Breaking down giant expressions
+
+	... Break down your giant expressions into more digestible pieces
+	... Using "explaining variable" e.g. [head]=&foo->list; 
+	... Using "summary variable"
+
+3) Variables
+
+	... Eliminate variables that just get in the way. Eliminate
+	    "intermediate result" variables by handling the result immediately.
+	... Reduce the scope of each variable to be as small as possible. Move
+	    each variable to a place where the fewest lines of code can see it.
+	    Out of sight is out of mind.
+	... Prefer write-once variables. Variables that are set only once
+	    (or const) make code easier to understand.
+
+
+	Part III: Reorganizing your code
+
+1) Extracting Unrelated Problems
+	
+	A simple way to think about this chapter is to separate the generic
+	code from the project-specific code. As it turns out, most code is
+	generic. By building a large set of libraries and helper functions to
+	solve the general problems, what’s left will be a small core of what
+	makes your program unique.
+	
+	The main reason this technique helps is that it lets the programmer
+	focus on smaller, well-defined problems that are detached from the rest
+	of your project. As a result, the solutions to those subproblems tend
+	to be more thorough and correct. You might be able to reuse them later.
+
+2) One Task At a Time
+
+	Breaking a large function into multiple smaller functions can be good.
+	But even if you don’t do this, you can still organize the code inside
+	that large function so it feels like there are separate logical sections.
+
