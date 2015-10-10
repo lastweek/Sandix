@@ -687,7 +687,7 @@ void __init console_init(void)
 	bind_con_driver(&vc_struct_map[0], &vga_con);
 	vc_struct_map[0].driver->con_init(&vc_struct_map[0]);
 
-	/* Initialize TTY driver */
+	/* Initialize tty_driver */
 	console_driver.name = "TTY Driver for Console";
 	console_driver.type = TTY_DRIVER_TYPE_CONSOLE;
 	console_driver.major = TTY_MAJOR;

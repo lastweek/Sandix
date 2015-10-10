@@ -228,3 +228,7 @@ Fri Oct  9 CST 2015
 - [+] init/version.c				[D] sandix_version string
 - [+] include/sandix/kern_levels.h		[D] Kernel information levels
 - [M] include/sandix/printk.h			[D] pr_xxx(), printk_once(), pr_xxx_once()
+
+
+Sat Oct 10 CST 2015
+- [+] drivers/tty/n_dummy.c

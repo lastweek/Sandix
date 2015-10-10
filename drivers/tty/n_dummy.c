@@ -1,6 +1,6 @@
 /*
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
- *	
+ *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
@@ -16,28 +16,34 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ * This file describes a dummy line discipline.
+ */
+
 #include <sandix/kernel.h>
-#include <sandix/kern_levels.h>
-#include <sandix/linkage.h>
+#include <sandix/types.h>
 #include <sandix/tty.h>
 
-static char KMBUF[1024];
-
-int printk(const char *fmt, ...)
+static int n_dummy_read(struct tty_struct *tty, char __user *buf, size_t count)
 {
-	va_list args;
-	int len;
-	
-	va_start(args, fmt);
-	len = vsnprintf(KMBUF, 1024, fmt, args);
-	va_end(args);
-	
-	/* FIXME
-	 * For simplicity, tty_table[0] is dedicated for
-	 * console_driver. This is __MUST__TODO__
-	 */
-	tty_table[0].ops->write(&tty_table[0], KMBUF, len);
-	
-	return len;
+
 }
-EXPORT_SYMBOL(printk);
+
+static ssize_t n_dummy_write(struct tty_struct *tty, const char __user *buf,
+			   size_t count)
+{
+
+}
+
+static void n_dummy_set_termios(struct tty_struct *tty, struct termios *old)
+{
+
+}
+
+const struct tty_ldisc_ops tty_ldisc_N_DUMMY = {
+	.name		= "n_dummy",
+	.read		= n_dummy_read,
+	.write		= n_dummy_write,
+	.set_termios	= n_dummy_set_termios
+};
+EXPORT_SYMBOL(tty_ldisc_N_DUMMY);
