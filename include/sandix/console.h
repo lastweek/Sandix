@@ -17,10 +17,10 @@
  */
 
 /*
- * This file describes Virtual Console used in Sandix.
+ * This file describes Virtual Console Layer in Sandix.
  *
- * struct vc_struct:  Describe a standalone virtual console.
- * struct con_driver: Describe a console driver for low-level output.
+ * vc_struct:  A standalone virtual console.
+ * con_driver: A console driver for low-level output of vc_struct.
  */
 
 #ifndef _SANDIX_CONSOLE_H_
@@ -84,7 +84,7 @@ struct vc_struct {
 /* Low-Level Console Driver Operations */
 struct con_driver {
 	void	(*con_startup)(void);
-	void	(*con_init)(struct vc_struct * vc);
+	int	(*con_init)(struct vc_struct * vc);
 	void	(*con_deinit)(struct vc_struct *);
 	void	(*con_clear)(struct vc_struct *, int, int, int, int);
 	void	(*con_putc)(struct vc_struct *, int, int, int);
@@ -116,20 +116,11 @@ extern struct vc_struct vc_struct_map[MAX_NR_CONSOLES];
 #define CM_ERASE	(2)
 #define CM_MOVE		(3)
 
-void __init console_init(void);
 int register_con_driver(const struct con_driver *con);
 int unregister_con_driver(const struct con_driver *con);
 int bind_con_driver(struct vc_struct *vc, const struct con_driver *con);
 int unbind_con_driver(const struct con_driver *con);
 
-/* FIXME remove */
-int con_write(struct tty_struct *tty, const unsigned char *buf, int count);
-
-/* UGLY FIXME
- * ForeGround Virtual Console
- * ForeGround Virtual Console Driver
- */
-#define FG_VC	(&vc_struct_map[0])
-#define FG_CON	(FG_VC->driver)
+void __init console_init(void);
 
 #endif /* _SANDIX_CONSOLE_H_ */

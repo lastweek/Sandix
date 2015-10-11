@@ -17,7 +17,6 @@
  */
 
 /*
- * README:
  * The tty core is responsible for controlling both the flow of data across a
  * tty device and the format of the data. This allows tty drivers to focus on
  * handling the data to and from the *hardware*, instead of worrying about how
@@ -65,14 +64,14 @@ struct tty_operations {
 /**
  * struct tty_driver
  * @name:		Nick name
- * @type:		Type of this tty driver
+ * @type:		Type of this tty driver(See below)
  * @major:		Major number of this tty driver
  * @minor_start:	Starting minor number of this tty driver
  * @num:		Number of devices allocated
  * @inint_termios:	Termios of this driver
- * @ops:		Hardware-operations of this tty driver
- * @tty_drivers:	Linked list of all registed tty driver
  * @kref:		Reference count
+ * @tty_drivers:	Linked list of all registed tty driver
+ * @ops:		Hardware-operations of this tty driver
  *
  * The driver's job is to format data that is sent to it in a manner that the
  * hardware can understand, and receive data from the hardware.
@@ -84,9 +83,9 @@ struct tty_driver {
 	unsigned int	minor_start;	
 	unsigned int	num;		
 	struct termios	init_termios;
-	const struct tty_operations *ops;
-	struct list_head tty_drivers;
 	struct kref	kref;
+	struct list_head tty_drivers;
+	const struct tty_operations *ops;
 };
 
 /**
@@ -112,6 +111,7 @@ struct tty_ldisc_ops {
  * struct tty_ldisc
  * @ops:		Line discipline methods
  * @tty:		tty_struct who own this line discipline
+ * @kref:		Reference count
  *
  * The tty line discipline's job is to format the data received from a user,
  * or the hardware, in a specific manner. This formatting usually takes the
@@ -120,6 +120,7 @@ struct tty_ldisc_ops {
 struct tty_ldisc {
 	struct tty_ldisc_ops *ops;
 	struct tty_struct *tty;
+	struct kref kref;
 };
 
 /**
@@ -134,7 +135,7 @@ struct tty_ldisc {
  * @kref:		Reference count
  */
 struct tty_struct {
-	unsigned int magic;
+	int magic;
 	struct termios termios;
 	struct tty_ldisc *ldisc;
 	struct tty_driver *driver;

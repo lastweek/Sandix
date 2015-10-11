@@ -48,7 +48,7 @@
 #define LOGLEVEL_ALERT		1	/* Action must be taken immediately */
 #define LOGLEVEL_CRIT		2	/* Critical conditions */
 #define LOGLEVEL_ERR		3	/* Error conditions */
-#define LOGLEVEL_WARN	4	/* Warning conditions */
+#define LOGLEVEL_WARN		4	/* Warning conditions */
 #define LOGLEVEL_NOTICE		5	/* Normal but significant condition */
 #define LOGLEVEL_INFO		6	/* Informational */
 #define LOGLEVEL_DEBUG		7	/* Debug-level messages */

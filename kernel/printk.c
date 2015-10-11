@@ -23,6 +23,7 @@
 
 static char KMBUF[1024];
 
+asmlinkage __printf(1, 2)
 int printk(const char *fmt, ...)
 {
 	va_list args;

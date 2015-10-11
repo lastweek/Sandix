@@ -26,15 +26,17 @@ static void dummycon_startup(void)
 	return;
 }
 
-static void dummycon_init(struct vc_struct *vc)
+static int dummycon_init(struct vc_struct *vc)
 {
 	vc->vc_cols = DUMMY_COLUMNS;
 	vc->vc_rows = DUMMY_ROWS;
+
+	return 0;
 }
 
 static int dummycon_dummy(void)
 {
-    return 0;
+	return 0;
 }
 
 #define DUMMY	(void *)dummycon_dummy

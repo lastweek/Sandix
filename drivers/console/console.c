@@ -673,7 +673,7 @@ struct tty_driver console_driver __read_mostly;
  */
 void __init console_init(void)
 {
-	int i;
+	int i, err;
 	struct tty_struct *tty;
 	
 	/* Register Dummy Console */
@@ -685,7 +685,10 @@ void __init console_init(void)
 	/* Register VGA Console, then activate it */
 	register_con_driver(&vga_con);
 	bind_con_driver(&vc_struct_map[0], &vga_con);
-	vc_struct_map[0].driver->con_init(&vc_struct_map[0]);
+	
+	err = vc_struct_map[0].driver->con_init(&vc_struct_map[0]);
+	if (err)
+		return;
 
 	/* Initialize tty_driver */
 	console_driver.name = "TTY Driver for Console";

@@ -104,6 +104,7 @@ INLINE void vga_set_cursor(struct vc_struct *vc)
 
 static void vgacon_cursor(struct vc_struct *vc, int mode)
 {
+	/* Fall-through, draw method only. */
 	switch (mode) {
 	case CM_ERASE:
 	case CM_MOVE:
@@ -139,7 +140,7 @@ static void vgacon_putcs(struct vc_struct *vc, const unsigned char *s,
 	}
 }
 
-/* Clear VERTICAL area */
+/* Clear Vertical Area */
 static void vgacon_clear(struct vc_struct *vc, int y, int x,
 			 int height, int width)
 {
@@ -198,6 +199,8 @@ static void vgacon_scroll(struct vc_struct *vc, int dir, int lines)
 	vga_set_mem_top(vc);
 }
 
+static bool has_called_startup = false;
+
 /*
  * Much of the dirty work seems should be done in boot process. For simplicity,
  * we assume that in mode 3, an EGA or a VGA+ is present. So the vram_size is
@@ -206,6 +209,11 @@ static void vgacon_scroll(struct vc_struct *vc, int dir, int lines)
  */
 static void vgacon_startup(void)
 {
+	if(has_called_startup)
+		return;
+	
+	has_called_startup = true;
+
 	/* boot_params.screen_info initialized? */
 	if ((screen_info.orig_video_mode  == 0) &&
 	    (screen_info.orig_video_lines == 0) &&
@@ -252,8 +260,11 @@ static void vgacon_startup(void)
  * vgacon_init, vgacon_startup must be called first. And also, in real system,
  * a big memory area should be allocated for this new virtual console.
  */
-static void vgacon_init(struct vc_struct *vc)
+static int vgacon_init(struct vc_struct *vc)
 {
+	if (!has_called_startup)
+		return -EPERM;
+
 	vc->vc_x	= vga_x;
 	vc->vc_y	= vga_y;
 	vc->vc_pos	= vga_pos;
@@ -267,6 +278,8 @@ static void vgacon_init(struct vc_struct *vc)
 	vc->vc_bottom	= vga_video_num_rows;
 	vc->vc_visible_origin = vga_visible_origin;
 	vc->vc_erased_char = vga_erased_char;
+	
+	return 0;
 }
 
 static void vgacon_deinit(struct vc_struct *vc)
