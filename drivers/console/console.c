@@ -336,17 +336,22 @@ enum {
 
 /**
  * con_write - write to VT screen
+ * @tty:	tty_struct
+ * @buf:	write buffer
+ * @count:	bytes to write
+ * Return:	bytes have been written out
  *
  * The data has aleady been cooked by Line Discipline Layer(or not). Here the
  * data string is passed down to console driver layer, who communicate with
- * dedicated hardware diretly.
+ * low-level hardware diretly.
  *
  * We emulate VT102 by cooking escape and control sequences. Escape and control
  * sequences provide additional control functions not provided by the single
  * character controls of the character set. These multiple-character sequences
  * are not displayed; instead, they control terminal operation.
  */
-int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
+static int con_write(struct tty_struct *tty, const unsigned char *buf,
+		     int count)
 {
 #define BS	8		/* Back Space */
 #define HT	9		/* Horizontal Table */
@@ -356,21 +361,28 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 #define CR	13		/* Carriage Return */
 #define ESC	27		/* Escape */
 #define DEL	127		/* Delete */
-	int npar, c, state;
 	struct vc_struct *vc;
 	const struct con_driver *con;
-
+	int npar, c, ret, state;
+	
 	vc = (struct vc_struct *)tty->driver_data;
+	if (!vc)
+		return -EINVAL;
+
 	con = vc->driver;
-	state = VT_NORMAL;
-	npar = 0;
+	if (!con)
+		return -EFAULT;
 
 	hide_cursor(vc);
 
+	ret = 0;
+	npar = 0;
+	state = VT_NORMAL;
 	while (count) {
 		c = *buf;
 		count--;
 		buf++;
+		ret++;
 		
 		switch (state) {
 		case (VT_NORMAL):
@@ -550,7 +562,7 @@ int con_write(struct tty_struct *tty, const unsigned char *buf, int count)
 	} /* End of while(count) */
 	
 	set_cursor(vc);
-	return 0;
+	return ret;
 #undef BS
 #undef HT
 #undef NL

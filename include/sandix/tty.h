@@ -102,8 +102,8 @@ struct tty_driver {
  */
 struct tty_ldisc_ops {
 	const char *name;
-	int	(*read)(struct tty_struct *tty, char __user *buf, size_t count);
-	ssize_t	(*write)(struct tty_struct *tty, const char __user *buf, size_t count);
+	ssize_t	(*read)(struct tty_struct *tty, char __user *buf, size_t count);
+	ssize_t	(*write)(struct tty_struct *tty, const unsigned char __user *buf, size_t count);
 	void	(*set_termios)(struct tty_struct *tty, struct termios *old);
 };
 
@@ -121,6 +121,10 @@ struct tty_ldisc {
 	struct tty_ldisc_ops *ops;
 	struct tty_struct *tty;
 	struct kref kref;
+};
+
+struct tty_buffer {
+
 };
 
 /**
@@ -268,8 +272,8 @@ struct tty_struct {
 /* tty_table[0] is registed as console tty */
 extern struct tty_struct tty_table[2];
 
-/* tty_io.c */
 extern struct termios tty_std_termios;
+extern struct list_head tty_drivers;
 
 void tty_set_operations(struct tty_driver *driver, const struct tty_operations *ops);
 int tty_unregister_driver(struct tty_driver *driver);

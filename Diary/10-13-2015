@@ -1,0 +1,32 @@
+#
+# Tue Oct 13 21:57:13 CST 2015
+#
+
+# Keyword: reference count, HTTP, PCI
+
+Reference count:
+Today when i debugging my uncore PMU module, the system will die in random!
+No kernel panic, and the VGA output is still on, but the system can not respond
+to keyboard or mouse, it just died. It really confused me since i have get/put
+pci device corretly, malloc/free box properly! After couple hours debugging(painful),
+something hit me: check the reference count of pci_dev. Then i found that every
+time i do insmod/rmmod, the reference count of pci_dev will descrease 1! It
+should stay unchanged. So who is doing bad? Yes, it is pci_get_device(). This
+function will put the third parameter. After all, forget about pci, i want to
+talk about reference count. The ref count is very important in kernel since it
+synchronize work between different tasks or modules. When the ref count descrease
+to 0, a release function registed by task or module will be called to cleanup
+the object since no one need it anymore. I will implement kref system in Sandix.
+
+HTTP:
+Jump to book << HTTP: The Definitive Guide >>. I have been reading this book
+for two days at night. It is pretty interesting. Also i am using httpie to
+see each method and header and content. I have coded a simple sniffer last
+year, it can capture TCP packets and print its content, so today it is a
+revisit to HTTP!
+
+PCI:
+The PCI subsystem and device model in linux seems pretty good. struct dev
+describes a general device, and specific PCI device has its own pci_dev,
+which contains a struct dev to link to general device model. Of course,
+Sandix may not need such a big system, but we can learn the basic ideas.

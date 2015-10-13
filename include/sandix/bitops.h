@@ -1,6 +1,4 @@
 /*
- *	include/sandix/bitops.h
- *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
@@ -20,5 +18,8 @@
 
 #ifndef _SANDIX_BITOPS_H_
 #define _SANDIX_BITOPS_H_
+
+#include <asm/bitops.h>
+
 
 #endif /* _SANDIX_BITOPS_H_ */

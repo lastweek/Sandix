@@ -27,6 +27,9 @@
 #include <sandix/stddef.h>
 #include <asm/types.h>
 
+#define BITS_PER_LONG		__BITS_PER_LONG
+#define BITS_PER_LONG_LONG	__BITS_PER_LONG_LONG
+
 typedef _Bool			bool;
 
 typedef unsigned short		umode_t;

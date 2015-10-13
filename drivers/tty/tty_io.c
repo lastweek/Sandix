@@ -33,7 +33,13 @@
 #include <sandix/kref.h>
 #include <sandix/fs.h>
 
-struct termios tty_std_termios = {	/* for the benefit of tty drivers  */
+/**
+ * tty_std_termios
+ *
+ * Standard tty termios
+ * For the benefit of tty drivers
+ */
+struct termios tty_std_termios = {
 	.c_iflag = ICRNL | IXON,
 	.c_oflag = OPOST | ONLCR,
 	.c_cflag = B38400 | CS8 | CREAD | HUPCL,
@@ -45,6 +51,11 @@ struct termios tty_std_termios = {	/* for the benefit of tty drivers  */
 };
 EXPORT_SYMBOL(tty_std_termios);
 
+/**
+ * tty_drivers
+ *
+ * Linked list of registed tty drivers
+ */
 LIST_HEAD(tty_drivers);
 EXPORT_SYMBOL(tty_drivers);
 
@@ -70,15 +81,17 @@ struct tty_struct tty_table[2];
 ssize_t tty_write(struct file *file, const char __user *buf, size_t count)
 {
 	struct tty_struct *tty;
-	ssize_t ret;
 
-	/*FIXME*/
+	/* FIXME
+	 * Should use *file to get tty_struct
+	 * Fix this when vfs is done
+	 */
 	tty = &tty_table[0];
 
-	if (!tty || !tty->ops->write
-		 || !tty->ldisc->ops->write)
-		return -EIO;
+	if (!tty->ops->write || !tty->ldisc->ops->write)
+		return -EINVAL;
 	
+	return tty->ldisc->ops->write(tty, buf, count);
 }
 
 void tty_set_operations(struct tty_driver *driver,
