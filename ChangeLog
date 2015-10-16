@@ -241,3 +241,8 @@ Tue Oct 13 CST 2015
 
 Thu Oct 15 CST 2015
 - [+] Diary/10-15-2015
+
+
+Fri Oct 16 CST 2015
+- [+] Diary/10-16-2015
+- [+] include/asm-generic/spinlock.h		[D] Error message, need arch-specific file

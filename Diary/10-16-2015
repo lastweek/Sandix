@@ -1,0 +1,12 @@
+#
+# Fri Oct 16 15:39:51 CST 2015
+#
+
+# Keyword: Locks
+
+SOSP'13   Everything you always wanted to konw about synchronization but were
+          afraid to ask. [T.David]
+
+This paper evaluate 9 different lock implementations and 4 different architectures.
+The test results and observations concluded are meaningful.
+
