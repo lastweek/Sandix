@@ -16,8 +16,7 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <sandix/compiler.h>
-#include <sandix/linkage.h>
+#include <sandix/kernel.h>
 #include <sandix/types.h>
 #include <sandix/tty.h>
 #include <sandix/printk.h>
@@ -43,12 +42,13 @@ void hlt(void)
 
 asmlinkage void __init start_kernel(void)
 {
+	int i=5;
 	arch_setup();
 	tty_init();
 	
-	printk("Hello! This is Sandix 0.0.1\n\r");
-	printk("%s\n\r", tty_table[0].driver->name);
-	printk("%s", sandix_banner);
+	printk("\033[035m%s\033[0m\n\r", sandix_banner);
 	
+	panic("yes %d", 2008);
+	panic("yes %d", 2008);
 	hlt();
 }

@@ -19,6 +19,7 @@
 #include <sandix/compiler.h>
 #include <sandix/linkage.h>
 #include <sandix/kern_levels.h>
+
 #include <stdarg.h>
 
 extern const char sandix_banner[];

@@ -21,4 +21,4 @@
 
 const char sandix_banner[] =
 	"Sandix version " UTS_RELEASE " (" SANDIX_COMPILE_BY "@"
-	SANDIX_COMPILE_HOST ") (" SANDIX_COMPILER ") " UTS_VERSION "\n";
+	SANDIX_COMPILE_HOST ") (" SANDIX_COMPILER ") " UTS_VERSION;

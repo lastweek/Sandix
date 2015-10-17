@@ -24,6 +24,8 @@
 #include <sandix/export.h>
 #include <sandix/linkage.h>
 #include <sandix/types.h>
+#include <sandix/printk.h>
+
 #include <stdarg.h>
 
 #define USHRT_MAX	((u16)(~0U))
@@ -111,5 +113,11 @@ int scnprintf(char *buf, size_t size, const char *fmt, ...);
 
 __printf(3, 0)
 int vscnprintf(char *buf, size_t size, const char *fmt, va_list args);
+
+/*
+ * kernel/panic.c
+ */
+__printf(1, 2) __cold __noreturn
+void panic(const char *fmt, ...);
 
 #endif /* _SANDIX_KERNEL_H_ */
