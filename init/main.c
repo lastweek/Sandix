@@ -42,7 +42,6 @@ void hlt(void)
 
 asmlinkage void __init start_kernel(void)
 {
-	int i=5;
 	arch_setup();
 	tty_init();
 	
