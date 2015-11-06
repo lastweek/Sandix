@@ -32,22 +32,14 @@ void handle_int(void)
 	);
 }
 
-void hlt(void)
-{
-	asm volatile (
-		"1: hlt\n\t"
-		"jmp 1b"
-	);
-}
-
 asmlinkage void __init start_kernel(void)
 {
 	arch_setup();
+
 	tty_init();
-	
+
+	/* pink banner ~ */
 	printk("\033[035m%s\033[0m\n\r", sandix_banner);
-	
-	panic("yes %d", 2008);
-	panic("yes %d", 2008);
-	hlt();
+
+	panic("kernel panic %d", 31);
 }
