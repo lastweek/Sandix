@@ -34,9 +34,8 @@
 #include <sandix/fs.h>
 
 /**
- * tty_std_termios
+ * tty_std_termios - Standard tty termios
  *
- * Standard tty termios
  * For the benefit of tty drivers
  */
 struct termios tty_std_termios = {
@@ -83,7 +82,8 @@ ssize_t tty_write(struct file *file, const char __user *buf, size_t count)
 	struct tty_struct *tty;
 
 	/* FIXME
-	 * Should use *file to get tty_struct
+	 * Should use *file to get tty_struct, like: file_to_tty(struct file *f)
+	 * Now we just use tty_table[0] to write everything to the screen.
 	 * Fix this when vfs is done
 	 */
 	tty = &tty_table[0];

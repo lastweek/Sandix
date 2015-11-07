@@ -1,0 +1,13 @@
+#
+# Sat Nov  7 19:25:34 CST 2015
+#
+
+# Keyword: Comments of code
+
+Why this topic?
+Okay, i have not coding sandix for about 15 days, and when i looking into the
+TTY driver code, i find that some code is a little confused for me. Thanks to
+the comments i writtern before, they help me understand what i tried to do
+before.
+
+Writing good comments always help! Now or future, myself or others!
