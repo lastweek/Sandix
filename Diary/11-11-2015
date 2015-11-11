@@ -1,0 +1,28 @@
+#
+# Wed Nov 11 13:14:39 CST 2015
+#
+
+# Keyword: SoC, Processor
+
+Hmm, i finished book: "Computer System Design: System-on-Chip". Of course, I
+did not read all chapters, since some chapters and aspects are still too hard
+for me. OK, let me talk about what I have learnd from this book:
+
+	1) Currently, SoC designers will not need to design CPU, they can just
+	   use ARM, MicroBlaze, NIOS2 or else. That means, CPU is avaliable all
+	   the time, what designers need to do is customizing the general CPU
+	   and the peripheral IPs for their products.
+
+	2) Designing a Sysem-on-Chip is very challenging. Designers have to
+	   consider: chip area, layout, performance, finance and so on. Of
+	   course, such a designer has to have all relevant knowledge and
+	   skills!
+
+
+Ohh, BTW, yesterday i downloaded the OpenSPARC T1 source code! It is written by
+Verilog! T1 is a 8-core, 64-bit processor, based on UltraSPARC which is RISC.
+Thanks to Sun Corp. to open source this great project, we students can have a
+chance to read the real Processor Verilog Code! How I wish I can meet this one
+two years ago.
+
+Now i have learned and used: Intel x86, ARM(ARMv8), SPARC!
