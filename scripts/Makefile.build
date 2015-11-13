@@ -26,7 +26,6 @@ endif
 PHONY += __build
 __build:
 
-##
 # Init all relevant variables used in kbuild files so
 # 1) they have correct type
 # 2) they do not inherit any value from the environment
@@ -40,7 +39,7 @@ __build:
 #			Compile each one.
 #			Archive into lib.a automatically.
 #
-#	setup-y	 - Kernel Setup Part Object(Real-Mode code in x86)
+#	setup-y	 - Kernel Setup Part Object (e.g. Real-Mode code of x86)
 #			Compile each one
 #			Architecture Makefile links them together.
 #
@@ -62,38 +61,34 @@ __build:
 #		(Examples using $(targets), please see arch/x86/boot/Makefile)
 #
 #	subdir-y - Sub-Directory to descend into
-#
-obj-y :=
-lib-y :=
-setup-y :=
-extra-y :=
-always :=
-targets :=
-subdir-y :=
-asflags-y  :=
-ccflags-y  :=
-cppflags-y :=
-ldflags-y  :=
+
+obj-y		:=
+lib-y		:=
+setup-y		:=
+extra-y		:=
+always		:=
+targets		:=
+subdir-y	:=
+asflags-y	:=
+ccflags-y	:=
+cppflags-y	:=
+ldflags-y	:=
+
+loader-y	:=
+objdump-y	:=
 
 subdir-asflags-y :=
 subdir-ccflags-y :=
 
-loader-y :=
-objdump-y :=
-
-##
 # Black Magic?
 # Included order matters. Makefile.lib is responsible
 # for processing variables defined in $(src)/Makefile.
-#
 include $(srctree)/scripts/Kbuild.include
 include $(srctree)/$(src)/Makefile
 include $(srctree)/scripts/Makefile.lib
 
-##
 # Do NOT include Makefile.host only if $(src)/Makefile
 # need building host programs.
-#
 ifneq ($(hostprogs-y),)
 include $(srctree)/scripts/Makefile.host
 endif
