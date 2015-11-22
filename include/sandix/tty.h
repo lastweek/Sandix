@@ -68,7 +68,7 @@ struct tty_operations {
  * @major:		Major number of this tty driver
  * @minor_start:	Starting minor number of this tty driver
  * @num:		Number of devices allocated
- * @inint_termios:	Termios of this driver
+ * @init_termios:	Termios of this driver
  * @kref:		Reference count
  * @tty_drivers:	Linked list of all registed tty driver
  * @ops:		Hardware-operations of this tty driver
@@ -90,7 +90,7 @@ struct tty_driver {
 
 /**
  * struct tty_ldisc_ops
- * @name:		Name of discipline
+ * @name:		Name of discipline ops
  * @read:		Read method
  * @write:		Write method
  * @set_termios:	Replace termios
@@ -118,7 +118,7 @@ struct tty_ldisc_ops {
  * form of a protocol conversion, such as PPP or Bluetooth.(?)
  */
 struct tty_ldisc {
-	struct tty_ldisc_ops *ops;
+	const struct tty_ldisc_ops *ops;
 	struct tty_struct *tty;
 	struct kref kref;
 };
@@ -156,7 +156,7 @@ struct tty_struct {
 #define TTY_DRIVER_TYPE_PTY	0x0004
 #define TTY_DRIVER_TYPE_DUMMY	0x0005
 
-/* Line Disciplines. So many? */
+/* Line Disciplines. One is enough :) */
 #define N_TTY			0
 #define N_SLIP			1
 #define N_MOUSE			2
@@ -278,6 +278,7 @@ extern struct list_head tty_drivers;
 void tty_set_operations(struct tty_driver *driver, const struct tty_operations *ops);
 int tty_unregister_driver(struct tty_driver *driver);
 int tty_register_driver(struct tty_driver *driver);
+void tty_print_drivers(void);
 struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx);
 
 void __init tty_init(void);

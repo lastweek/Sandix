@@ -61,7 +61,7 @@ EXPORT_SYMBOL(tty_drivers);
 DEFINE_MUTEX(tty_mutex);
 EXPORT_SYMBOL(tty_mutex);
 
-/* FIXME
+/* XXX
  * tty_table[0] used for console_driver
  * tty_table[1] used for dummy_tty
  */
@@ -127,12 +127,47 @@ int tty_register_driver(struct tty_driver *driver)
 }
 EXPORT_SYMBOL(tty_register_driver);
 
+void tty_print_drivers(void)
+{
+	struct tty_driver *driver;
+
+	printk("Registed tty drivers:\n\r");
+
+	list_for_each_entry(driver, &tty_drivers, tty_drivers) {
+		printk("\tDriver name: %s\n\r", driver->name);
+		printk("\tDriver type: ");
+		switch (driver->type) {
+		case TTY_DRIVER_TYPE_CONSOLE:
+			printk("CONSOLE\n\t"); break;
+		case TTY_DRIVER_TYPE_SERIAL:
+			printk("SERIAL\n\t"); break;
+		case TTY_DRIVER_TYPE_PTY:
+			printk("PTY\n\t"); break;
+		case TTY_DRIVER_TYPE_DUMMY:
+			printk("DUMMY\n\t"); break;
+		default:
+			printk("UNKNOWN\n\t");
+		}
+	}
+}
+EXPORT_SYMBOL(tty_print_drivers);
+
+/**
+ * alloc_tty_struct - Alloc a new tty_struct
+ * @driver:		The driver to hook
+ * @idx:		The idx of the tty_struct table
+ *
+ * This function will initialize the basic elements of the struct.
+ * Note that this function should be replaced.
+ */
 struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx)
 {
 	struct tty_struct *tty;
 
-	/* Should use kmalloc() to allocate tty_struct
-	   dynamically rather than hardcoded table. */
+	/* FIXME
+	 * Should use kmalloc() to allocate tty_struct
+	 * dynamically rather than hardcoded table.
+	 */
 	tty = &tty_table[idx];
 
 	/* Initialize tty_struct */

@@ -1,5 +1,5 @@
 /*
- *	Basic VT102 Terminal Simulation.
+ *	Basic VT102 Terminal Simulation
  *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *

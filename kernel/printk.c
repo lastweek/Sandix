@@ -41,4 +41,3 @@ int printk(const char *fmt, ...)
 	
 	return len;
 }
-EXPORT_SYMBOL(printk);
