@@ -25,7 +25,7 @@ set -e
 info()
 {
 	if [ "${quiet}" != "silent_" ]; then
-		printf "  %-7s %s\n" ${1} ${2}
+		printf "${COLOR_BEGIN}  %-7s %s${COLOR_END}\n" ${1} ${2}
 	fi
 }
 

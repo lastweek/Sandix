@@ -84,7 +84,7 @@ $(obj)/bzImage: $(obj)/bootloader.bin $(obj)/setup.bin $(obj)/voffset.h \
                 $(obj)/vmSandix.bin $(obj)/tools/build FORCE
 	$(call if_changed,build_image)
 	@chmod +x $(obj)/bzImage
-	@echo 'Sandix Kernel: $@ is ready.'
+	@echo "$(COLOR_BEGIN)Sandix Kernel: $@ is ready$(COLOR_END)"
 
 sed-voffset := -e 's/^\([0-9a-fA-F]*\) [ABCDGRSTVW] \(kstart\|kend\)/\#define VO_\2 0x\1/p'
 quiet_cmd_voffset = VOFFSET $@

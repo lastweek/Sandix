@@ -1,5 +1,5 @@
 #
-#	arch/x86/boot/header.S - The real head of Sandix kernel.
+#	arch/x86/boot/header.S - The head of Sandix kernel image
 #
 #	Fit with the Linux x86 boot protocol, I hope it can work with Bootloaders
 #

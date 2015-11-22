@@ -172,15 +172,15 @@ kecho := $($(quiet)kecho)
 # - stdin is piped in from the first prerequisite ($<) so one has
 #   to specify a valid file as first prerequisite (often the kbuild file)
 define filechk
-	$(Q)set -e;				\
-	$(kecho) '  CHK     $@';		\
-	mkdir -p $(dir $@);			\
-	$(filechk_$(1)) < $< > $@.tmp;		\
-	if [ -r $@ ] && cmp -s $@ $@.tmp; then	\
-		rm -f $@.tmp;			\
-	else					\
-		$(kecho) '  UPD     $@';	\
-		mv -f $@.tmp $@;		\
+	$(Q)set -e;							\
+	$(kecho) '$(COLOR_BEGIN)  CHK     $@$(COLOR_END)';		\
+	mkdir -p $(dir $@);						\
+	$(filechk_$(1)) < $< > $@.tmp;					\
+	if [ -r $@ ] && cmp -s $@ $@.tmp; then				\
+		rm -f $@.tmp;						\
+	else								\
+		$(kecho) '$(COLOR_BEGIN)  UPD     $@$(COLOR_END)';	\
+		mv -f $@.tmp $@;					\
 	fi
 endef
 
@@ -189,7 +189,7 @@ endef
 # echo command.
 # Short version is used, if $(quiet) equals `quiet_', otherwise full one.
 echo-cmd = $(if $($(quiet)cmd_$(1)),\
-	echo '  $(call escsq,$($(quiet)cmd_$(1)))$(echo-why)';)
+	echo '$(COLOR_BEGIN)  $(call escsq,$($(quiet)cmd_$(1)))$(echo-why)$(COLOR_END)';)
 
 # printing commands
 cmd = @$(echo-cmd) $(cmd_$(1))

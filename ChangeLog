@@ -275,3 +275,5 @@ Sun Nov 22 09:37:33 CST 2015
 - [+] drivers/tty/tty_dummy.c			[D] A dummy tty driver
 - [M] drivers/tty/tty_ldisc.c			[D] Line discipline layer
 - [M] drivers/console/console.c			[D] Bind to standard termios
+- [M] scripts/Kbuild.include			[D] Add colorful output support
+- [M] Makefile					 >  new "make M=..."

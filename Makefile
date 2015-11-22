@@ -41,14 +41,14 @@ export LC_COLLATE LC_NUMERIC
 # Avoid interference with shell env settings
 unexport GREP_OPTIONS
 
-# Beautify output
+# Beautiful output
 # ===========================================================================
 # Normally, we echo the whole command before executing it. By making
 # that echo $($(quiet)$(cmd)), we now have the possibility to set
 # $(quiet) to choose other forms of output instead, e.g.
 #
 #         quiet_cmd_cc_o_c = Compiling $(RELDIR)/$@
-#         cmd_cc_o_c       = $(CC) $(c_flags) -c -o $@ $<
+#               cmd_cc_o_c = $(CC) $(c_flags) -c -o $@ $<
 #
 # If $(quiet) is empty, the whole command will be printed.
 # If it is set to "quiet_", only the short version will be printed.
@@ -65,6 +65,7 @@ unexport GREP_OPTIONS
 #
 # To put more focus on warnings, be less verbose as default
 # Use 'make V=1' to see the full commands
+
 ifeq ("$(origin V)", "command line")
   KBUILD_VERBOSE=$(V)
 endif
@@ -91,8 +92,39 @@ ifneq ($(filter s% -s%,$(MAKEFLAGS)),)
   quiet=silent_
 endif
 endif
+
 export quiet Q KBUILD_VERBOSE
 
+# Colorful output
+# ===========================================================================
+# Normally, we echo everything in white color. By using the "make M=", we can
+# now control the color of the output message.
+# For example,
+#		make M=1	red
+#		make M=2	green
+#
+# Note that M ranges from 0~7. We do NOT check for this.
+
+ifeq ("$(origin M)", "command line")
+  KBUILD_COLOR=$(M)
+endif
+
+ifndef KBUILD_COLOR
+  KBUILD_COLOR=0
+endif
+
+ifeq ($(KBUILD_COLOR),0)
+  COLOR_BEGIN=
+  COLOR_END=
+else
+  COLOR_BEGIN=\033[3$(KBUILD_COLOR)m
+  COLOR_END=\033[0m
+endif
+
+export KBUILD_COLOR COLOR_BEGIN COLOR_END
+
+# Code checker
+# ===========================================================================
 # Call a source code checker (by default, "sparse") as part of the
 # C compilation.
 #
@@ -571,7 +603,7 @@ include/generated/utsrelease.h: include/config/kernel.release FORCE
 	$(call filechk,utsrelease.h)
 
        chk_compile.h = :
- quiet_chk_compile.h = echo '  CHK     $@'
+ quiet_chk_compile.h = echo "$(COLOR_BEGIN)  CHK     $@$(COLOR_END)"
 silent_chk_compile.h = :
 include/generated/compile.h: Makefile FORCE
 	@$($(quiet)chk_compile.h)

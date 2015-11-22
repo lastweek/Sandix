@@ -1,5 +1,5 @@
 #
-#	arch/x86/kernel/head.S - Kernel Entry Point
+#	arch/x86/kernel/head.S - Kernel System Part Entry Point
 #
 #	You know the difference between head.S and header.S, do ya?
 #

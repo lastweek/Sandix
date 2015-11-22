@@ -17,7 +17,7 @@ vecho() {
 # do "compiled by root"
 
 if [ -r $TARGET -a ! -O include/generated/autoconf.h ]; then
-  vecho "  SKIPPED $TARGET"
+  vecho "${COLOR_BEGIN}  SKIPPED $TARGET${COLOR_END}"
   exit 0
 fi
 
@@ -96,7 +96,7 @@ if [ -r $TARGET ] && \
       cmp -s .tmpver.1 .tmpver.2; then
    rm -f .tmpcompile
 else
-   vecho "  UPD     $TARGET"
+   vecho "${COLOR_BEGIN}  UPD     $TARGET${COLOR_END}"
    mv -f .tmpcompile $TARGET
 fi
 rm -f .tmpver.1 .tmpver.2
