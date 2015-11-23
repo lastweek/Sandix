@@ -287,3 +287,4 @@ Mon Nov 23 10:47:52 CST 2015
 - [+] drivers/char/Makefile
 - [+] drivers/char/Kconfig
 - [M] Makefile					[D] Colorful "make help"
+- [M] arch/x86/boot/tools/build.c		[D] Colorful message

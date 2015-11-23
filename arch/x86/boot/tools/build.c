@@ -35,7 +35,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* x86 NOP instruction */
+/* x86 nop instruction */
 #define NOP			0x90
 #define ZERO			0
 
@@ -49,9 +49,10 @@
 
 unsigned char buf[SETUP_SECT_MAX*512];
 
-static void die(const char * str, ...)
+static void die(const char *str, ...)
 {
 	va_list args;
+
 	va_start(args, str);
 	vfprintf(stderr, str, args);
 	exit(1);
@@ -77,6 +78,19 @@ static inline void put_unaligned_le32(unsigned int val, unsigned char *p)
 {
 	__put_unaligned_le16(val, p);
 	__put_unaligned_le16(val >> 16, p + 2);
+}
+
+static int get_color(void)
+{
+	char *color;
+
+	/* Exported in Makefile */
+	color = getenv("KBUILD_COLOR");
+	if (color)
+		return (*color - '0') % 7;
+
+	/* Default RED! */
+	return 1;
 }
 
 int main(int argc, char **argv)
@@ -187,10 +201,12 @@ int main(int argc, char **argv)
 	sectors_sys	= (len_sys + 511) / 512; 
 	sectors_image	= 1 + sectors_setup + sectors_sys;
 	
+	printf("\033[3%dm", get_color());
 	printf("[loader]  : %-8d Bytes (pad to %-4d sector)\n",  len_loader, 1);
 	printf("[setup]   : %-8d Bytes (pad to %-4d sectors)\n", len_setup, sectors_setup);
 	printf("[system]  : %-8d Bytes (pad to %-4d sectors)\n", len_sys, sectors_sys);
 	printf("[bzImage] : %-8d Bytes (Total: %-4d sectors)\n", sectors_image*512, sectors_image);
+	printf("\033[0m");
 
 	fclose(fp_loader);
 	fclose(fp_setup);

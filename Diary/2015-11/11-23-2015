@@ -1,0 +1,12 @@
+#
+# Mon Nov 23 13:26:31 CST 2015
+#
+
+# Keyword: block driver, partition
+
+Hmm. Today I explored some code about block drivers and hard-disk partitions.
+I have converted my mind long ago that hard disk, filesystem is very important
+for OS! Working on this later.
+
+Also, today I have to explore some page migration code, do some test and write
+some fucking slides.
