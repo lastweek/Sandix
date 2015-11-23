@@ -1,9 +1,6 @@
 #
 #	Build Sandix Kernel
 #
-#	For more information, please read samples/Makefile.tutorial and
-#	Documentation/kbuild/makefiles.txt
-#
 #	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
 #
 #	This program is free software; you can redistribute it and/or modify
@@ -20,6 +17,8 @@
 #	with this program; if not, write to the Free Software Foundation, Inc.,
 #	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
+
+#	For more information, please read Documentation/kbuild/makefiles.txt
 
 VERSION		=	1
 PATCHLEVEL	=	0
@@ -97,11 +96,11 @@ export quiet Q KBUILD_VERBOSE
 
 # Colorful output
 # ===========================================================================
-# Normally, we echo everything in white color. By using the "make M=", we can
-# now control the color of the output message.
+# Normally, we echo everything in default color. By using the "make M=",
+# we can now control the color of the output message.
 # For example,
-#		make M=1	red
-#		make M=2	green
+#		make M=1	--> red
+#		make M=2 clean	--> green
 #
 # Note that M ranges from 0~7. We do NOT check for this.
 
@@ -110,10 +109,6 @@ ifeq ("$(origin M)", "command line")
 endif
 
 ifndef KBUILD_COLOR
-  KBUILD_COLOR=0
-endif
-
-ifeq ($(KBUILD_COLOR),0)
   COLOR_BEGIN=
   COLOR_END=
 else
@@ -134,6 +129,7 @@ export KBUILD_COLOR COLOR_BEGIN COLOR_END
 #
 # See the file "Documentation/sparse.txt" for more details, including
 # where to get the "sparse" utility.
+
 ifeq ("$(origin C)", "command line")
   KBUILD_CHECKSRC = $(C)
 endif
@@ -660,6 +656,7 @@ vmSandix-clean:
 # ===========================================================================
 PHONY += help
 help:
+	@echo  "$(COLOR_BEGIN)"
 	@echo  'Cleaning targets:'
 	@echo  '  clean		  - Remove most generated files but keep the config'
 	@echo  '  mrproper	  - Remove all generated files + config + various backup files'
@@ -687,10 +684,19 @@ help:
 	@echo  '		2: warnings which occur quite often but may still be relevant'
 	@echo  '		3: more obscure warnings, can most likely be ignored'
 	@echo  '		Multiple levels can be combined with W=12 or W=123'
+	@echo  '  make M=n   [targets] Enable colorful output, n=0,1,2,3,4,5,6,7'
+	@echo  '                0: black'
+	@echo  '                1: red'
+	@echo  '                2: green'
+	@echo  '                3: yellow'
+	@echo  '                4: blue'
+	@echo  '                5: magenta'
+	@echo  '                6: cyan'
+	@echo  '                7: white'
 	@echo  ''
 	@echo  'For more information, please read samples/Makefile.tutorial'
 	@echo  'For instructions on how to write Makefiles, please read Documentation/kbuild/*'
-	@echo  ''
+	@echo  "$(COLOR_END)"
 
 # ===========================================================================
 # Some generic targets
