@@ -277,3 +277,13 @@ Sun Nov 22 09:37:33 CST 2015
 - [M] drivers/console/console.c			[D] Bind to standard termios
 - [M] scripts/Kbuild.include			[D] Add colorful output support
 - [M] Makefile					 >  new "make M=..."
+
+
+Mon Nov 23 10:47:52 CST 2015
+- [+] block/Makefile				[D] It's time
+- [+] block/Kconfig
+- [+] drivers/block/Makefile
+- [+] drivers/block/Kconfig
+- [+] drivers/char/Makefile
+- [+] drivers/char/Kconfig
+- [M] Makefile					[D] Colorful "make help"
