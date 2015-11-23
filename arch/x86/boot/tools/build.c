@@ -202,10 +202,10 @@ int main(int argc, char **argv)
 	sectors_image	= 1 + sectors_setup + sectors_sys;
 	
 	printf("\033[3%dm", get_color());
-	printf("[loader]  : %-8d Bytes (pad to %-4d sector)\n",  len_loader, 1);
-	printf("[setup]   : %-8d Bytes (pad to %-4d sectors)\n", len_setup, sectors_setup);
-	printf("[system]  : %-8d Bytes (pad to %-4d sectors)\n", len_sys, sectors_sys);
-	printf("[bzImage] : %-8d Bytes (Total: %-4d sectors)\n", sectors_image*512, sectors_image);
+	printf("[loader]  : %8d Bytes (pad to %4d sector)\n",  len_loader, 1);
+	printf("[setup]   : %8d Bytes (pad to %4d sectors)\n", len_setup, sectors_setup);
+	printf("[system]  : %8d Bytes (pad to %4d sectors)\n", len_sys, sectors_sys);
+	printf("[bzImage] : %8d Bytes (Total: %4d sectors)\n", sectors_image*512, sectors_image);
 	printf("\033[0m");
 
 	fclose(fp_loader);
