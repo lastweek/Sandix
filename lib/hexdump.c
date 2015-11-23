@@ -1,7 +1,4 @@
 /*
- *	lib/hexdump.c. This file do not have corresponding header file.
- *	All symbols are declared in <sandix/kernel.h> as common helpers.
- *
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
  *	This program is free software; you can redistribute it and/or modify

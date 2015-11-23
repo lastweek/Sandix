@@ -17,7 +17,7 @@
  */
 
 #include <stdarg.h>
-#include <asm/byteorder.h>		/* For Endian */
+#include <asm/byteorder.h>		/* For endian */
 #include <sandix/page.h>		/* For PAGE_SIZE */
 #include <sandix/ctype.h>
 #include <sandix/compiler.h>

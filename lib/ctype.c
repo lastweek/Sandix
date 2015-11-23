@@ -1,7 +1,4 @@
 /*
- *	lib/ctype.c - Character Types
- *
- *	Copyright (C) 1991, 1992  Linus Torvalds
  *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
  *	This program is free software; you can redistribute it and/or modify
