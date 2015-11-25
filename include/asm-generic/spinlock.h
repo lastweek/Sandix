@@ -20,7 +20,7 @@
 #define _ASM_GENERIC_SPINLOCK_H_
 
 #ifdef CONFIG_SMP
-#error Need an architecture specific <asm/spinlock.h>
+# error Need an architecture specific <asm/spinlock.h>
 #endif
 
 #endif /* _ASM_GENERIC_SPINLOCK_H_ */
