@@ -1,0 +1,24 @@
+#
+# Sun Nov 29 10:18:15 CST 2015
+#
+
+# Keyword: Datacenter, NIC
+
+Still, I am reading papers about datacenter architecture. Those papers were
+published early, about 2008~2013. It is interesting. Building datacenter is not
+an easy job, but still compelling :-)
+
+Another topic: NIC
+Today, I dig into the NIC and its corresponding drivers. Huh.. It is amazing!
+It is hard to image how complex the NIC is! The Intel Ethernet Datasheet
+describes the details inside NIC! It is about block-level, low-level function
+capacity, and everything about NIC! Besides, I read the NIC driver code inside
+Linux, it is under drivers/net/ directory. Each vendor has his subdirectory.
+
+Anyway, this material helps me building the hardware understanding about low
+level NIC, it also gives me a better understanding about the linux net layer
+abstraction and PCI device abstraction.
+
+
+Aha, I can not wait to build the TCP/IP stack, net subsystem and related things
+of Sandix!
