@@ -292,3 +292,10 @@ Mon Nov 23 10:47:52 CST 2015
 
 Sat Nov 28 18:14:12 CST 2015
 - [+] Diary/11-28-2015
+
+
+Mon Dec 14 15:20:42 CST 2015
+- [M] Makefile					[D] Add a new warning flag, -Wsizeof-array-argument
+-						 >  Why? I read the LKML mailing list, there is a
+-						 >  mail came from Linus, which mentioned this might be a
+-						 >  a big problem! https://lkml.org/lkml/2015/9/3/428

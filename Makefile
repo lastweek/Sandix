@@ -311,6 +311,7 @@ KBUILD_CFLAGS   	:=							\
 			   -fno-strict-aliasing -fno-common			\
 			   -Werror-implicit-function-declaration		\
 			   -Wno-format-security					\
+			   -Wsizeof-array-argument				\
 			   -std=gnu11
 
 KERNELRELEASE		= $(shell cat include/config/kernel.release 2> /dev/null)
