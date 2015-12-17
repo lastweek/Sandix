@@ -1,0 +1,35 @@
+#
+# Thu Dec 17 10:54:06 CST 2015
+#
+
+# Keyword: Coming back soon!!!!!
+
+Yes, everythins was done!!!!!!!!
+Now I am waiting if someone could offer me an offer - -- - - - - -- - -
+
+Also I am not actively writing code these days, but I have read numerous papers.
+I think I should read all ASPLOS, ISCA, OSDI, SOSP MICRO papers published after 1990.
+Some classic architecture papers were published before 1990, I could find them
+out at the references of newly published ones.
+
+Besides, some transactions and journals of ACM and IEEE are pretty good. I would
+read them at spare time.
+
+Hmm. Computer Science is really charming, right? :)
+
+Hmm. I have not touched Sandix for a loooooong time. But I have never forgot it!
+I have a plan about the next steps:
+
+	0) Some header files, some libraries				(Urge)
+	1) First of all, using E820 table to build the memory map	(Urge)
+	2) Maybe build the memory management layer			(Optional)
+	3) Build the task_struct, some process facilities.		(Urge)
+	4) Interrupt Subsystem						(Urge)
+	5) Some syscall							(Optional)
+	6) IO Management						(Urge)
+	6) VFS + FS(Ext2) + Block Layer + Driver			(Urge)
+	7) PCIe subsystem						(Urge)
+
+	0) REMEMBER! KEEP THAT IN MIND!
+	   "Everything should be decoulped from underlying architecture!"
+
