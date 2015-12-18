@@ -1,0 +1,34 @@
+#
+# Fri Dec 18 10:17:28 CST 2015
+#
+
+# Keyword: 3D, NUCA
+
+These days, I have read numerous papers about 3D-stacking. This technology
+starts from near 2004, especially a published paper by Intel, describing a
+3D-stacked IA32 processor. Then after 2004, there are so much effors paied
+from academic and industry. Particularily, in 2005 and 2006, there were some
+papers published in asplos and isca.
+
+There are three eminent 3D-stacking researchers: Gariel H. Loh, Yuan Xie, and
+Bryan Black. They published a survey essay in IEEE Micro May-June 2007, which
+is a very good paper.
+
+So, does 3D really impacts our mainstream processors? For now, I am not sure.
+It seems there are some 3D-FPGAs from Xilinx and Altera. U of Rochester and
+some groups have created some prototypes. AMD says they have some. BTW, Black
+now is in AMD.
+
+I think I have read enough about 3D-stacking. I am not gonna investigate into
+the circuit level, I just focus on the microarchitecture, cache, dram modifications.
+Things are pretty normal.
+
+
+---
+Fine, after this, I gonna do some research about Non-Uniform Cache Architecture,
+and Alpha processor microarchitecture. About NUCA, there some pretty nice papers.
+The one I have read before is a paper published in ISCA09. About Alpha, I always
+planning to read about it. So many researchers say it was very incrediable in
+microarchitecture design. It failed because of market policy. Anyway, focus on
+the technology first!
+2D-NUCA  -->  3D-NUCA
