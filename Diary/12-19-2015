@@ -1,0 +1,22 @@
+#
+# Sat Dec 19 19:27:48 CST 2015
+#
+
+# Keyword: Heterogeneous
+
+Hmm, today I have read IEEE Micro 2015-Issue-5, about heterogeneous computing.
+I have touched this topic ago, about heterogeneous ISA, heterogeneous CMP...
+Especially, some papers from Deam Tusllen (UCSD), who has did numerous work
+about heterogeneous things...
+
+"Heterogeneous Processors" has two types:
+	1) A processor that includes two or more computing cores that rely on
+	   the same instruction-set architecture (ISA) but are microarchitecturelly
+	   different. For example, a processor that includes two MIPS ISA cores,
+	   one OOO 4-wat superscaler core, and one more simplistic in-order core.
+	
+	2) The second type of heterogeneous processor comprises multicore chips
+	   based on two or more different ISAs - For example, a processor that
+	   includes one MIPS computing core and one ARM-based computing core.
+	   The IBM Cell processor is an actual case of such a heterogeneous
+	   processor, as is ARM’s big.LITTLE.

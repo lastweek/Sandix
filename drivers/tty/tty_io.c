@@ -183,6 +183,9 @@ EXPORT_SYMBOL(alloc_tty_struct);
 
 void __init tty_init(void)
 {
-	/* Register tty driver for console */
+	/*
+	 * This function will register tty_driver of console
+	 * We are safe to output to screen after this call.
+	 */
 	console_init();
 }
