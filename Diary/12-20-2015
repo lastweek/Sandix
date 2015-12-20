@@ -1,0 +1,48 @@
+#
+# Sun Dec 20 09:58:56 CST 2015
+#
+
+# Keyword: Accelerator
+
+Hmm. Accelerators have drawed hugh attention these years. Those accelerators
+would be integrated into the SoC with CPU core. Mainly, they intend to boost
+specific applications's performance, like ML, Video encode/decode, Security.
+
+This is a very hot topic in top conferences. Similar to yesterday's topic --- 
+heterogeneous computing, accelerators is just a specific application of
+heterogeneous computing, right? So, sometimes, ideas are all the same. All we
+need is apply those ideas to each different areas.
+
+-----
+
+# Keyword: Multicore
+
+Multicore Multicore, a simple concept that everybody knows. But, how many
+people really understand how Multicore works? How to design a Multicore?
+-.- I am reading Micro 2015-Issue-5 Alternative Computing Technoligies, most of
+its articles are talking about future computing architecture. They are all
+talking about Multicore and CMP, and how it would be inefficient in the future.
+They all proposed new solutions or techonoligies to address these problems.
+BUT, are they all feasible? Sign. In my opinion, most of them are just academic
+toys. Sometimes, as a researcher, you have to distinguish if a paper really
+worth reading, or if the idea expressed from the paper really would have impacts.
+
+Anyway, I should read more articles to expand my horizon, dig into some papers to
+improve my really abilities. :-) Good luck, lastweek.
+
+-----
+
+# Keyword: Address Space
+
+Hmm, revisit this concept. Read various Intel CPU datasheets, see how it describes
+the "Physical Address Space" and "DRAM Address Space".
+CPU Datasheet:		Xeon, Core, Atom
+Chipset Datasheet:	....
+You will find that Atom is a SoC, it has integrated many features found in normal
+chipset. Just like various ARM-based SoC, Atom processor is an Intel-based SoC.
+
+Check Atom C2xx0 serious highly-integrated SoC! Especially, I would recommend:
+	"atom-c2000-microserver-datasheet", it looks like an integrated version
+	of a "CPU Datasheet" and a "Chipset Datasheet".
+
+Good luck
