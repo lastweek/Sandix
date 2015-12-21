@@ -1,0 +1,16 @@
+#
+# Mon Dec 21 16:23:39 CST 2015
+#
+
+# Keyword: wtf
+
+Today, I revisited the NVM emulator. During this process, I gained a deeper
+understanding about memory hiearachy. Caching agent, ring inconnect, home agent,
+and IMC, all of these together formed an integrated view of the processor's
+memory system. Especially, I learned how important Cbox and HA are! Also, what
+roles they are playing in the processor! HA and Cbox are just beautiful abstractions
+among core, cache, memory. They keep the consistency and coherence between
+on-chip cores and remote sockets. Interestingly, in the morning, I read a paper
+talking about "coherence NoC inteconnect", and I really did not understand it well,
+especially the interconnect. Bon! This afternoon, I digged into the Intel's ring.
+And Bon again! I learned something and know what the paper is talking about. haha.
