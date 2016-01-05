@@ -16,6 +16,10 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ * This file describes the general entry point of arch-independent kernel.
+ */
+
 #include <sandix/kernel.h>
 #include <sandix/types.h>
 #include <sandix/tty.h>
@@ -38,8 +42,7 @@ asmlinkage void __init start_kernel(void)
 
 	tty_init();
 
-	/* pink banner ~ */
-	printk("\033[035m%s\033[0m\n\r", sandix_banner);
+	printk("\033[30m%s\033[0m\n\r", sandix_banner);
 
 	tty_print_drivers();
 

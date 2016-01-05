@@ -1,5 +1,5 @@
 ##			SANDIX KERNEL PROJECT
-###	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+###	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
 
 WHAT IS SANDIX?
 
