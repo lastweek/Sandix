@@ -1,0 +1,11 @@
+#
+# Thu Dec 24 10:07:37 CST 2015
+#
+
+# Keyword: DRAM
+
+Reading "Memory Systems: Cache, DRAM, Disk" Part II DRAM today!
+Learned some basic knowledge about DRAM device(chip) and DIMM!
+Finally, I knew how physical address is mapped to <Channel, Rank, Bank, Row, Column>.
+
+I am going read more about MC, DRAM and DIMM these days. Go ahead!
