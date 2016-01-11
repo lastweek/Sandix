@@ -64,6 +64,7 @@ struct tty_operations {
 /**
  * struct tty_driver
  * @name:		Nick name
+ * @flags:		flags of tty driver
  * @type:		Type of this tty driver(See below)
  * @major:		Major number of this tty driver
  * @minor_start:	Starting minor number of this tty driver
@@ -78,6 +79,7 @@ struct tty_operations {
  */
 struct tty_driver {
 	const char	*name;		
+	unsigned int	flags;
 	unsigned int	type;		
 	unsigned int	major;		
 	unsigned int	minor_start;	
@@ -149,6 +151,12 @@ struct tty_struct {
 	void *driver_data;
 	struct kref kref;
 };
+
+/*
+ * TTY driver flags
+ */
+#define TTY_DRIVER_INSTALLED		0x0001
+#define TTY_DRIVER_RESET_TERMIOS	0x0002
 
 /*
  * TTY driver types

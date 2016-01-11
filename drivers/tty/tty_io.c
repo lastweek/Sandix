@@ -34,7 +34,6 @@
 #include <sandix/fs.h>
 
 /*
- * Standard tty termios
  * For the benefit of tty drivers
  */
 struct termios tty_std_termios = {
@@ -50,7 +49,7 @@ struct termios tty_std_termios = {
 EXPORT_SYMBOL(tty_std_termios);
 
 /*
- * List of all registed tty drivers
+ * List of all registed tty drivers in system
  */
 LIST_HEAD(tty_drivers);
 EXPORT_SYMBOL(tty_drivers);
@@ -64,33 +63,6 @@ EXPORT_SYMBOL(tty_mutex);
  */
 struct tty_struct tty_table[2];
 
-/**
- * tty_write - Write method for tty device
- * @file:	tty file pointer
- * @buf:	user data to write
- * @count:	bytes to write
- * Return:	negative on error
- *
- * Write data from user space to tty device. Line discipline will be
- * invoked first before the real tty driver write method.
- */
-ssize_t tty_write(struct file *file, const char __user *buf, size_t count)
-{
-	struct tty_struct *tty;
-
-	/* FIXME
-	 * Should use *file to get tty_struct, like: file_to_tty(struct file *f)
-	 * Now we just use tty_table[0] to write everything to the screen.
-	 * Fix this when vfs is done
-	 */
-	tty = &tty_table[0];
-
-	if (!tty->ops->write || !tty->ldisc->ops->write)
-		return -EINVAL;
-	
-	return tty->ldisc->ops->write(tty, buf, count);
-}
-
 void tty_set_operations(struct tty_driver *driver,
 			const struct tty_operations *ops)
 {
@@ -98,6 +70,9 @@ void tty_set_operations(struct tty_driver *driver,
 }
 EXPORT_SYMBOL(tty_set_operations);
 
+/*
+ * Called by a tty driver to unregister itself
+ */
 int tty_unregister_driver(struct tty_driver *driver)
 {
 	if (!driver)
@@ -111,6 +86,9 @@ int tty_unregister_driver(struct tty_driver *driver)
 }
 EXPORT_SYMBOL(tty_unregister_driver);
 
+/*
+ * Called by a tty driver to register itself
+ */
 int tty_register_driver(struct tty_driver *driver)
 {
 	if (!driver)
@@ -119,6 +97,8 @@ int tty_register_driver(struct tty_driver *driver)
 	mutex_lock(&tty_mutex);
 	list_add(&driver->tty_drivers, &tty_drivers);
 	mutex_unlock(&tty_mutex);
+
+	driver->flags |= TTY_DRIVER_INSTALLED;
 
 	return 0;
 }
@@ -150,20 +130,22 @@ void tty_print_drivers(void)
 EXPORT_SYMBOL(tty_print_drivers);
 
 /**
- * alloc_tty_struct - Alloc a new tty_struct
- * @driver:		The driver to hook
- * @idx:		The idx of the tty_struct table
+ * alloc_tty_struct
+ * @driver:	driver to hook
+ * @idx:	idx of the tty_struct table
+ * @Return:	!%NULL on success
  *
- * This function will initialize the basic elements of the struct.
- * Note that this function should be replaced.
+ * This function allocates and initializes a tty struct.
  */
 struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx)
 {
 	struct tty_struct *tty;
 
 	/* XXX
-	 * Should use kmalloc() to allocate tty_struct
-	 * dynamically rather than hardcoded table.
+	 *
+	 *	tty = kzalloc(sizeof(*tty), GFP_KERNEL);
+	 *	if (!tty)
+	 *		return NULL;
 	 */
 	tty = &tty_table[idx];
 
@@ -177,6 +159,65 @@ struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx)
 	return tty;
 }
 EXPORT_SYMBOL(alloc_tty_struct);
+
+/*
+ * Write one byte to the tty using the provided put_char method if present.
+ * Return number of characters successfully output
+ */
+int tty_put_char(struct tty_struct *tty, unsigned char ch)
+{
+	if (tty->ops->put_char)
+		return tty->ops->put_char(tty, ch);
+	return tty->ops->write(tty, &ch, 1);
+}
+EXPORT_SYMBOL(tty_put_char);
+
+/*
+ * Split writes up in sane blocksizes to avoid Denial-Of-Sevice type attacks
+ */
+static ssize_t do_tty_write(
+	ssize_t (*write)(struct tty_struct *, struct file *, const unsigned char *, size_t),
+	struct tty_struct *tty,
+	struct file *file,
+	const char __user *buf,
+	size_t count)
+{
+	ssize_t ret;
+}
+
+/**
+ * tty_write		-	Write method for tty device file
+ * @file:	tty file pointer
+ * @buf:	user data to write
+ * @count:	bytes to write
+ * @ppos:	unused
+ *
+ * Write data to a tty device through line discipline
+ */
+ssize_t tty_write(struct file *file, const char __user *buf,
+		size_t count, lofft_t **ppos)
+{
+	struct tty_struct *tty;
+	struct tty_ldisc *ld;
+	ssize_t ret;
+
+#if 0
+	tty = file_tty(file);
+#endif
+
+	tty = &tty_table[0];
+	if (!tty || !tty->ops->write)
+		return -EIO;
+
+	ld = tty_ldisc_ref_wait(tty);
+	if (!ld->ops->write)
+		return -EIO;
+	else
+		ret = do_tty_write(ld->ops->write, tty, file, buf, count);
+	tty_ldisc_deref(ld);
+
+	return ret;
+}
 
 void __init tty_init(void)
 {

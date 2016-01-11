@@ -34,8 +34,10 @@ int printk(const char *fmt, ...)
 	va_end(args);
 	
 	/* FIXME
-	 * For simplicity, tty_table[0] is dedicated for
-	 * console_driver. This is __MUST__TODO__
+	 * Use line discipline
+	 *
+	 *	tty_write(NULL, KMBUF, len, NULL);
+	 *
 	 */
 	tty_table[0].ops->write(&tty_table[0], KMBUF, len);
 	

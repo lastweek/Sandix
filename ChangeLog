@@ -299,3 +299,7 @@ Mon Dec 14 15:20:42 CST 2015
 -						 >  Why? I read the LKML mailing list, there is a
 -						 >  mail came from Linus, which mentioned this might be a
 -						 >  a big problem! https://lkml.org/lkml/2015/9/3/428
+
+Mon Jan 11 19:57:25 CST 2016
+- [M] drivers/tty/tty_io.c
+- [M] drivers/tty/tty_ldisc.c
