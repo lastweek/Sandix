@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -17,10 +17,8 @@
  */
 
 /*
- * This file describes Virtual Console Layer in Sandix.
- *
- * vc_struct:  A standalone virtual console.
- * con_driver: A console driver for low-level output of vc_struct.
+ * This file describes the virtual console layer
+ * See code in [drivers/console/]
  */
 
 #ifndef _SANDIX_CONSOLE_H_
@@ -39,13 +37,12 @@ struct con_driver;
 struct tty_struct;
 
 /*
- * Data structure describing a single Virtual Console and
- * its corresponding low-level console driver operations.
- * It is referenced by tty_driver->dirver_data
+ * This structure describes a single virtual conosle, including its state,
+ * its low-level hardware console driver operations, its position, etc.
  */
 struct vc_struct {
-	int		magic;			/* Magic Number */
-	const struct con_driver *driver;	/* Low-Level driver */
+	int		magic;			/* Magic number */
+	const struct con_driver *driver;	/* Low-level hardware operations */
 	unsigned int	vc_num;			/* Console number */
 	unsigned int	vc_cols;
 	unsigned int	vc_rows;
@@ -61,7 +58,7 @@ struct vc_struct {
 	
 	/* Attributes for characters */
 	unsigned int	vc_attr;		/* Current attributes */
-	unsigned int	vc_blink;		/* Blink Character */
+	unsigned int	vc_blink;		/* Blink character */
 	unsigned int	vc_f_color;		/* Foreground color */
 	unsigned int	vc_b_color;		/* Background color */
 	unsigned int	vc_italic;		/* Italic characters */
@@ -81,7 +78,9 @@ struct vc_struct {
 	unsigned int	vc_par[NPAR];		/* Parameter of current escape sequence */
 };
 
-/* Low-Level Console Driver Operations */
+/*
+ * Low-level hardware console driver operations
+ */
 struct con_driver {
 	void	(*con_startup)(void);
 	int	(*con_init)(struct vc_struct * vc);
@@ -98,29 +97,44 @@ struct con_driver {
 	u32	(*con_getxy)(struct vc_struct *, unsigned long, int *, int *);
 };
 
-/* Avaliable Low-Level Console Drivers in Sandix */
+/*
+ * Possible low-level hardware console drivers
+ * mda_con is un-available currently
+ */
 extern const struct con_driver vga_con;
 extern const struct con_driver mda_con;
 extern const struct con_driver dummy_con;
 
-/* Registed console drivers and virtual console map in Sandix */
+/*
+ * Registed low-level hardware console drivers in system
+ */
 extern const struct con_driver *registed_con_drivers[MAX_NR_CON_DRIVERS];
+
+/*
+ * System virtual console structure array
+ */
 extern struct vc_struct vc_struct_map[MAX_NR_CONSOLES];
 
-/* Visible WINdow Direction */
+/*
+ * Visible WINdow move direction
+ */
 #define VWIN_UP		(1)
 #define VWIN_DOWN	(2)
 
-/* Cursor Manner */
+/*
+ * Cursor manner
+ */
 #define CM_DRAW		(1)
 #define CM_ERASE	(2)
 #define CM_MOVE		(3)
 
+/*
+ * Virual console layer management functions
+ */
 int register_con_driver(const struct con_driver *con);
 int unregister_con_driver(const struct con_driver *con);
 int bind_con_driver(struct vc_struct *vc, const struct con_driver *con);
 int unbind_con_driver(const struct con_driver *con);
-
 void __init console_init(void);
 
 #endif /* _SANDIX_CONSOLE_H_ */

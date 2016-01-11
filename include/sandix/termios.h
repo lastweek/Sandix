@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -61,7 +61,9 @@ struct termios {
  */
 #define INIT_C_CC "\003\034\177\025\004\0\1\0\021\023\032\0\022\017\027\026\0"
 
-/* c_cc characters */
+/*
+ * c_cc characters
+ */
 #define VINTR		0
 #define VQUIT		1
 #define VERASE		2
@@ -80,7 +82,9 @@ struct termios {
 #define VLNEXT		15
 #define VEOL2		16
 
-/* c_iflag bits */
+/*
+ * c_iflag bits
+ */
 #define IGNBRK	0000001
 #define BRKINT	0000002
 #define IGNPAR	0000004
@@ -97,7 +101,9 @@ struct termios {
 #define IMAXBEL	0020000
 #define IUTF8	0040000
 
-/* c_oflag bits */
+/*
+ * c_oflag bits
+ */
 #define OPOST	0000001
 #define OLCUC	0000002
 #define ONLCR	0000004
@@ -130,7 +136,9 @@ struct termios {
 #define   FF0	0000000
 #define   FF1	0100000
 
-/* c_cflag bit meaning */
+/*
+ * c_cflag bit meaning
+ */
 #define CBAUD	0010017
 #define  B0	0000000		/* hang up */
 #define  B50	0000001
@@ -148,8 +156,8 @@ struct termios {
 #define  B9600	0000015
 #define  B19200	0000016
 #define  B38400	0000017
-#define EXTA B19200
-#define EXTB B38400
+#define  EXTA	B19200
+#define  EXTB	B38400
 #define CSIZE	0000060
 #define   CS5	0000000
 #define   CS6	0000020
@@ -184,7 +192,9 @@ struct termios {
 
 #define IBSHIFT	  16		/* Shift from CBAUD to CIBAUD */
 
-/* c_lflag bits */
+/*
+ * c_lflag bits
+ */
 #define ISIG		0000001
 #define ICANON		0000002
 #define XCASE		0000004
@@ -202,7 +212,9 @@ struct termios {
 #define IEXTEN		0100000
 #define EXTPROC		0200000
 
-/* modem lines */
+/*
+ * modem lines
+ */
 #define TIOCM_LE	0x001
 #define TIOCM_DTR	0x002
 #define TIOCM_RTS	0x004
@@ -218,18 +230,24 @@ struct termios {
 #define TIOCM_OUT2	0x4000
 #define TIOCM_LOOP	0x8000
 
-/* tcflow() and TCXONC use these */
+/*
+ * tcflow() and TCXONC use these
+ */
 #define	TCOOFF		0
 #define	TCOON		1
 #define	TCIOFF		2
 #define	TCION		3
 
-/* tcflush() and TCFLSH use these */
+/*
+ * tcflush() and TCFLSH use these
+ */
 #define	TCIFLUSH	0
 #define	TCOFLUSH	1
 #define	TCIOFLUSH	2
 
-/* tcsetattr uses these */
+/*
+ * tcsetattr uses these
+ */
 #define	TCSANOW		0
 #define	TCSADRAIN	1
 #define	TCSAFLUSH	2

@@ -1,7 +1,7 @@
 /*
  *	Basic VT102 Terminal Simulation
  *
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -573,9 +573,11 @@ static int con_write(struct tty_struct *tty, const unsigned char *buf,
 #undef DEL
 }
 
-/****************************************************************************/
-/*			VT Layer Management				    */
-/****************************************************************************/
+/*****************************************************************************/
+/*                                                                           */
+/*			VT Layer Management				     */
+/*                                                                           */
+/*****************************************************************************/
 
 int bind_con_driver(struct vc_struct *vc, const struct con_driver *con)
 {
@@ -675,13 +677,25 @@ static const struct tty_operations console_ops = {
 	.put_char	= NULL
 };
 
+/*
+ * This is the tty driver of console.
+ */
 struct tty_driver console_driver __read_mostly;
 
-/**
- * console_init
+/*
+ * This function registers low-level hardware console drivers.
+ * Dummy console driver is used to illustrate basic concepts, the
+ * VGA console driver is the only working console currently.
  *
- * Register Low-Level dummy and VGA console drivers.
- * Register the tty driver of console.
+ * The last step is registering tty driver of console. This could
+ * be a little confused. This tty driver is the interface between
+ * tty layer and virtual console layer.
+ *
+ * tty->driver_data is a very important field. Each different tty
+ * drivers has their specific driver_data field. Normally, it is
+ * a pointer points to a structure. Here, vc_struct_map[0] is the
+ * structure. Then when con_write is invoked, we could get this
+ * structure again.
  */
 void __init console_init(void)
 {

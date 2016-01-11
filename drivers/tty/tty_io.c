@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -33,9 +33,8 @@
 #include <sandix/kref.h>
 #include <sandix/fs.h>
 
-/**
- * tty_std_termios - Standard tty termios
- *
+/*
+ * Standard tty termios
  * For the benefit of tty drivers
  */
 struct termios tty_std_termios = {
@@ -50,10 +49,8 @@ struct termios tty_std_termios = {
 };
 EXPORT_SYMBOL(tty_std_termios);
 
-/**
- * tty_drivers
- *
- * Linked list of registed tty drivers
+/*
+ * List of all registed tty drivers
  */
 LIST_HEAD(tty_drivers);
 EXPORT_SYMBOL(tty_drivers);
@@ -164,7 +161,7 @@ struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx)
 {
 	struct tty_struct *tty;
 
-	/* FIXME
+	/* XXX
 	 * Should use kmalloc() to allocate tty_struct
 	 * dynamically rather than hardcoded table.
 	 */

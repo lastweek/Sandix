@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -129,11 +129,12 @@ struct tty_buffer {
 
 /**
  * struct tty_struct
- * @magic:		Magic number for all tty structs
- * @termios:		Termios for this tty
- * @ldisc:		Line discipline driver for this tty
- * @driver:		Low-Level tty driver for this tty
- * @ops:		Hardware-operations of tty driver
+ *
+ * @magic:		Magic number for of tty structs
+ * @termios:		Termios of this tty struct
+ * @ldisc:		Line discipline driver of this tty
+ * @driver:		Low-Level tty driver of this tty
+ * @ops:		Hardware-operations of this tty driver
  * @disc_data:		Additional data used by line discipline driver
  * @driver_data:	Additional data used by tty driver
  * @kref:		Reference count
@@ -149,14 +150,18 @@ struct tty_struct {
 	struct kref kref;
 };
 
-/* TTY Driver Types */
+/*
+ * TTY driver types
+ */
 #define TTY_DRIVER_TYPE_SYSTEM	0x0001
 #define TTY_DRIVER_TYPE_CONSOLE	0x0002
 #define TTY_DRIVER_TYPE_SERIAL	0x0003
 #define TTY_DRIVER_TYPE_PTY	0x0004
 #define TTY_DRIVER_TYPE_DUMMY	0x0005
 
-/* Line Disciplines. One is enough :) */
+/*
+ * Line disciplines types
+ */
 #define N_TTY			0
 #define N_SLIP			1
 #define N_MOUSE			2
@@ -272,15 +277,24 @@ struct tty_struct {
 /* tty_table[0] is registed as console tty */
 extern struct tty_struct tty_table[2];
 
+/*
+ * Standard tty termios
+ */
 extern struct termios tty_std_termios;
+
+/*
+ * Registed tty drivers in system
+ */
 extern struct list_head tty_drivers;
 
+/*
+ * TTY layer management functions
+ */
 void tty_set_operations(struct tty_driver *driver, const struct tty_operations *ops);
 int tty_unregister_driver(struct tty_driver *driver);
 int tty_register_driver(struct tty_driver *driver);
 void tty_print_drivers(void);
 struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx);
-
 void __init tty_init(void);
 
 #endif /* _SANDIX_TTY_H_ */
