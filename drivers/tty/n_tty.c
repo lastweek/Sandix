@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  */
 
 /*
- * This file describes N_TTY line discipline of tty.
+ * This file describes N_TTY line discipline
  */
 
 #include <sandix/kernel.h>

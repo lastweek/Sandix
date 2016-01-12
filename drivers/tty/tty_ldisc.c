@@ -26,19 +26,26 @@
 #include <sandix/mutex.h>
 
 int tty_register_ldisc()
+{
+
+}
 
 int tty_unregister_ldisc()
+{
+
+}
 
 int tty_set_ldisc()
+{
 
-/*TODO*/
+}
+
 struct tty_ldisc *tty_ldisc_ref_wait(struct tty_struct *tty)
 {
 	return tty->ldisc;
 }
 EXPORT_SYMBOL(tty_ldisc_ref_wait);
 
-/*TODO*/
 void tty_ldisc_deref(struct tty_ldisc *ld)
 {
 

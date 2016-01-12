@@ -16,7 +16,7 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <sandix/compiler.h>
-#include <sandix/console.h>
-#include <sandix/tty.h>
-#include <sandix/types.h>
+/*
+ * This file describes unix pty (master and slave)
+ * (It is in the todo list)
+ */

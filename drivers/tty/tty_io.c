@@ -195,7 +195,7 @@ static ssize_t do_tty_write(
  * Write data to a tty device through line discipline
  */
 ssize_t tty_write(struct file *file, const char __user *buf,
-		size_t count, lofft_t **ppos)
+		size_t count, loff_t **ppos)
 {
 	struct tty_struct *tty;
 	struct tty_ldisc *ld;

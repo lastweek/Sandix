@@ -1,8 +1,6 @@
 #
-# Makefile For Console Drivers.
+# Makefile for low-level hardware console drivers
 #
 
 obj-y := dummycon.o
 obj-y += vgacon.o
-obj-y += console.o
-obj-y += keyboard.o
