@@ -20,25 +20,50 @@
  * This file describes the line discipline layer
  */
 
+#include <sandix/errno.h>
 #include <sandix/kernel.h>
 #include <sandix/list.h>
 #include <sandix/tty.h>
 #include <sandix/mutex.h>
+#include <sandix/spinlock.h>
 
-int tty_register_ldisc()
+static DEFINE_RAW_SPINLOCK(tty_ldiscs_lock);
+static struct tty_ldisc_ops *tty_ldiscs[NR_LDISCS];
+
+int tty_register_ldisc(int disc, struct tty_ldisc_ops *new_ldisc)
 {
+	unsigned long flags;
 
+	if (disc < N_TTY || disc >= NR_LDISCS)
+		return -EINVAL;
+	
+	raw_spin_lock_irqsave(&tty_ldiscs_lock, flags);
+	tty_ldiscs[disc] = new_ldisc;
+	new_ldisc->num = disc;
+	new_ldisc->refcount = 0;
+	raw_spin_unlock_irqrestore(&tty_ldiscs_lock, flags);
+
+	return 0;
 }
+EXPORT_SYMBOL(tty_register_ldisc);
 
-int tty_unregister_ldisc()
+int tty_unregister_ldisc(int disc)
 {
+	unsigned long flags;
 
+	if (disc < N_TTY || disc >= NR_LDISCS)
+		return -EINVAL;
+
+	raw_spin_lock_irqsave(&tty_ldiscs_lock, flags);
+	if (tty_ldisc[disc]->refcount)
+		rertun -EBUSY;
+	else
+		tty_ldisc[disc] = NULL;
+	raw_spin_unlock_irqrestore(&tty_ldisc_lock, flags);
+
+	return 0;
 }
-
-int tty_set_ldisc()
-{
-
-}
+EXPORT_SYMBOL(tty_unregister_ldisc);
 
 struct tty_ldisc *tty_ldisc_ref_wait(struct tty_struct *tty)
 {

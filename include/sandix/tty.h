@@ -90,39 +90,21 @@ struct tty_driver {
 	const struct tty_operations *ops;
 };
 
-/**
- * struct tty_ldisc_ops
- * @name:		Name of discipline ops
- * @read:		Read method
- * @write:		Write method
- * @set_termios:	Replace termios
- *
- * This structure defines the interface between the tty line discipline
- * implementation and the tty routines. The following routines can be
- * defined; unless noted otherwise, they are optional, and can be filled
- * in with a null pointer.
- */
 struct tty_ldisc_ops {
-	const char *name;
+	int		magic;
+	const char	*name;
+	int		num;
+	int		flags;
+	int		refcount;
+
 	ssize_t	(*read)(struct tty_struct *tty, char __user *buf, size_t count);
 	ssize_t	(*write)(struct tty_struct *tty, const unsigned char __user *buf, size_t count);
 	void	(*set_termios)(struct tty_struct *tty, struct termios *old);
 };
 
-/**
- * struct tty_ldisc
- * @ops:		Line discipline methods
- * @tty:		tty_struct who own this line discipline
- * @kref:		Reference count
- *
- * The tty line discipline's job is to format the data received from a user,
- * or the hardware, in a specific manner. This formatting usually takes the
- * form of a protocol conversion, such as PPP or Bluetooth.(?)
- */
 struct tty_ldisc {
 	const struct tty_ldisc_ops *ops;
 	struct tty_struct *tty;
-	struct kref kref;
 };
 
 struct tty_buffer {
@@ -168,7 +150,7 @@ struct tty_struct {
 #define TTY_DRIVER_TYPE_DUMMY	0x0005
 
 /*
- * Line disciplines types
+ * Line disciplines
  */
 #define N_TTY			0
 #define N_SLIP			1
@@ -285,18 +267,11 @@ struct tty_struct {
 /* tty_table[0] is registed as console tty */
 extern struct tty_struct tty_table[2];
 
-/*
- * Standard tty termios
- */
 extern struct termios tty_std_termios;
-
-/*
- * Registed tty drivers in system
- */
 extern struct list_head tty_drivers;
 
 /*
- * TTY layer management functions
+ * tty layer management functions
  */
 void tty_set_operations(struct tty_driver *driver, const struct tty_operations *ops);
 int tty_unregister_driver(struct tty_driver *driver);
@@ -304,5 +279,13 @@ int tty_register_driver(struct tty_driver *driver);
 void tty_print_drivers(void);
 struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx);
 void __init tty_init(void);
+
+/*
+ * Line discipline management functions
+ */
+int tty_register_ldisc(int disc, struct tty_ldisc_ops *new_ldisc);
+int tty_unregister_ldisc(int disc);
+struct tty_ldisc *tty_ldisc_ref_wait(struct tty_struct *tty);
+void tty_ldisc_deref(struct tty_ldisc *ld);
 
 #endif /* _SANDIX_TTY_H_ */

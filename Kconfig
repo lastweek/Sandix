@@ -34,3 +34,9 @@ config	AHAH
 	---help---
 	Say yes to what?
 endmenu
+
+config	SMP
+	bool
+	default n
+	---help---
+	Say Yes if you want Sandix run on SMP machines

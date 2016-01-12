@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -16,28 +16,41 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ * asm/spinlock.h
+ * include/spinlock_smp.h
+ * include/spinlock.h
+ * 
+ * include/spinlock_up.h
+ * include/spinlock.h
+ */
+
 #ifndef _SANDIX_SPINLOCK_H_
 #define _SANDIX_SPINLOCK_H_
 
-#include <asm/spinlock.h>
+#include <sandix/compiler.h>
 
-typedef struct spinlock {
-	struct arch_spinlock alock;
-} spinlock_t;
+#ifdef CONFIG_SMP
+# include <asm/spinlock.h>
+# include <sandix/spinlock_smp.h>
+#else
+# include <sandix/spinlock_up.h>
+#endif
 
-static inline void spin_lock(spinlock_t *lock)
+
+static __always_inline void spin_lock(spinlock_t *lock)
 {
-	arch_spin_lock(&lock->alock);
+	__spin_lock(lock);
 }
 
-static inline int spin_trylock(spinlock_t *lock)
+static __always_inline int spin_trylock(spinlock_t *lock)
 {
-	return arch_spin_trylock(&lock->alock);
+	return __spin_trylock(lock);
 }
 
-static inline void spin_unlock(spinlock_t *lock)
+static __always_inline void spin_unlock(spinlock_t *lock)
 {
-	arch_spin_unlock(&lock->alock);
+	__spin_unlock(lock);
 }
 
 #endif /* _SANDIX_SPINLOCK_H_ */

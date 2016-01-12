@@ -303,3 +303,10 @@ Mon Dec 14 15:20:42 CST 2015
 Mon Jan 11 19:57:25 CST 2016
 - [M] drivers/tty/tty_io.c
 - [M] drivers/tty/tty_ldisc.c
+
+
+Tue Jan 12 22:57:59 CST 2016
+- [M] include/sandix/spinlock.h
+- [+] include/sandix/spinlock_up.h
+- [+] include/sandix/spinlock_smp.h
+- [+] include/sandix/typecheck.h

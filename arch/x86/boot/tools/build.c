@@ -84,13 +84,12 @@ static int get_color(void)
 {
 	char *color;
 
-	/* Exported in Makefile */
+	/* exported in Makefile */
 	color = getenv("KBUILD_COLOR");
-	if (color)
-		return (*color - '0') % 7;
-
-	/* Default RED! */
-	return 1;
+	if (*color > '0' || *color <= '7')
+		return *color - '0';
+	else
+		return 0;
 }
 
 int main(int argc, char **argv)

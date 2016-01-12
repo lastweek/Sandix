@@ -18,7 +18,7 @@
 
 /*
  * This file describes the virtual console layer
- * See code in [drivers/console/]
+ * See code at drivers/console/ and drivers/tty/vt/
  */
 
 #ifndef _SANDIX_CONSOLE_H_
@@ -83,7 +83,7 @@ struct vc_struct {
  */
 struct con_driver {
 	void	(*con_startup)(void);
-	int	(*con_init)(struct vc_struct * vc);
+	int	(*con_init)(struct vc_struct *);
 	void	(*con_deinit)(struct vc_struct *);
 	void	(*con_clear)(struct vc_struct *, int, int, int, int);
 	void	(*con_putc)(struct vc_struct *, int, int, int);
