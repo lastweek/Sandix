@@ -16,10 +16,6 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/*
- * This file descibes UniProcessor version spinlock
- */
-
 #ifndef _SANDIX_SPINLOCK_UP_H_
 #define _SANDIX_SPINLOCK_UP_H_
 
@@ -27,16 +23,16 @@
 # error "Please do not include this file directly"
 #endif
 
+/*
+ * UP spinlock definitions
+ */
+
 typedef struct {
 	/* nothing */
 } arch_spinlock_t;
 
-#define arch_spin_lock(lock)
-#define arch_spin_trylock(lock)
-#define arch_spin_unlock(lock)
-
-#define __spin_lock(lock)
-#define __spin_trylock(lock)
-#define __spin_unlock(lock)
+/*
+ * SMP spinlock operations
+ */
 
 #endif /* _SANDIX_SPINLOCK_UP_H_ */

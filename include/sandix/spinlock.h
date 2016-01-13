@@ -22,11 +22,14 @@
 #include <sandix/compiler.h>
 
 #ifdef CONFIG_SMP
-# include <asm/spinlock.h>
 # include <sandix/spinlock_smp.h>
 #else
 # include <sandix/spinlock_up.h>
 #endif
+
+/*
+ * Generic spinlock operations
+ */
 
 /*
  * Use __always_inline because: [https://lkml.org/lkml/2015/7/21/206]
