@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #define _ASM_X86_ATOMIC_H_
 
 #ifndef _SANDIX_ATOMIC_H_
-# error "Please include <sandix/atomic.h>"
+# error "Please do not include this file directly"
 #endif
 
 #include <sandix/compiler.h>
@@ -36,7 +36,7 @@
  *
  * Atomically reads the value of @v.
  */
-ALWAYS_INLINE int atomic_read(const atomic_t *v)
+static __always_inline int atomic_read(const atomic_t *v)
 {
 	return v->counter;
 }
@@ -48,7 +48,7 @@ ALWAYS_INLINE int atomic_read(const atomic_t *v)
  *
  * Atomically sets the value of @v to @i.
  */
-ALWAYS_INLINE void atomic_set(atomic_t *v, int i)
+static __always_inline void atomic_set(atomic_t *v, int i)
 {
 	v->counter = i;
 }
@@ -60,7 +60,7 @@ ALWAYS_INLINE void atomic_set(atomic_t *v, int i)
  *
  * Atomically adds @i to @v.
  */
-ALWAYS_INLINE void atomic_add(int i, atomic_t *v)
+static __always_inline void atomic_add(int i, atomic_t *v)
 {
 	asm volatile (
 		LOCK_PREFIX "addl %1, %0"
@@ -76,7 +76,7 @@ ALWAYS_INLINE void atomic_add(int i, atomic_t *v)
  *
  * Atomically subtracts @i from @v.
  */
-ALWAYS_INLINE void atomic_sub(int i, atomic_t *v)
+static __always_inline void atomic_sub(int i, atomic_t *v)
 {
 	asm volatile (
 		LOCK_PREFIX "subl %1, %0"
@@ -91,7 +91,7 @@ ALWAYS_INLINE void atomic_sub(int i, atomic_t *v)
  *
  * Atomically increments @v by 1.
  */
-ALWAYS_INLINE void atomic_inc(atomic_t *v)
+static __always_inline void atomic_inc(atomic_t *v)
 {
 	asm volatile (
 		LOCK_PREFIX "incl %0"
@@ -105,7 +105,7 @@ ALWAYS_INLINE void atomic_inc(atomic_t *v)
  *
  * Atomically decrements @v by 1.
  */
-ALWAYS_INLINE void atomic_dec(atomic_t *v)
+static __always_inline void atomic_dec(atomic_t *v)
 {
 	asm volatile (
 		LOCK_PREFIX "decl %0"
@@ -121,7 +121,7 @@ ALWAYS_INLINE void atomic_dec(atomic_t *v)
  *
  * Atomically compare and exchange.
  */
-ALWAYS_INLINE int atomic_cmpxchg(atomic_t *v, int old, int new)
+static __always_inline int atomic_cmpxchg(atomic_t *v, int old, int new)
 {
 	return cmpxchg(&v->counter, old, new);
 }
@@ -133,7 +133,7 @@ ALWAYS_INLINE int atomic_cmpxchg(atomic_t *v, int old, int new)
  *
  * Atomically exchange.
  */
-ALWAYS_INLINE int atomic_xchg(atomic_t *v, int new)
+static __always_inline int atomic_xchg(atomic_t *v, int new)
 {
 	return xchg(&v->counter, new);
 }

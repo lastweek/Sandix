@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,26 +20,50 @@
 #define _ASM_X86_SPINLOCK_H_
 
 #ifndef _SANDIX_SPINLOCK_H_
-#error Please include <sandix/spinlock.h>
+# error "Please do not include this file directly"
 #endif
 
-typedef struct arch_spinlock {
+#include <sandix/compiler.h>
+#include <sandix/types.h>
 
+#ifndef CONFIG_X86_SPINLOCK_TICKET
+/*
+ * Basic SMP spinlocks, this makes no fairness assumptions
+ */
+
+typedef struct arch_spinlock {
+	unsigned int slock;
 } arch_spinlock_t;
 
-static inline void arch_spin_lock(arch_spinlock_t *lock)
-{
+#define __ARCH_SPIN_LOCK_UNLOCKED { 0 }
 
+static __always_inline void arch_spin_lock(arch_spinlock_t *lock)
+{
+	asm volatile (
+		
+	);
 }
 
-static inline int arch_spin_trylock(arch_spinlock_t *lock)
+static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
 {
+	asm volatile  (
 	
+	);
 }
 
-static inline void arch_spin_unlock(arch_spinlock_t *lock)
+static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
 {
-
+	asm volatile (
+	
+	);
 }
+
+#elif
+/*
+ * Ticket SMP spinlocks, this ensures fairness with little cost
+ */
+#error "It is not implemented yet"
+
+#endif /* CONFIG_X86_SPINLOCK_TICKET */
 
 #endif /* _ASM_X86_SPINLOCK_H_ */

@@ -16,15 +16,6 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/*
- * asm/spinlock.h
- * include/spinlock_smp.h
- * include/spinlock.h
- * 
- * include/spinlock_up.h
- * include/spinlock.h
- */
-
 #ifndef _SANDIX_SPINLOCK_H_
 #define _SANDIX_SPINLOCK_H_
 
@@ -37,7 +28,9 @@
 # include <sandix/spinlock_up.h>
 #endif
 
-
+/*
+ * Use __always_inline because: [https://lkml.org/lkml/2015/7/21/206]
+ */
 static __always_inline void spin_lock(spinlock_t *lock)
 {
 	__spin_lock(lock);

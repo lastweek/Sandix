@@ -1,0 +1,2 @@
+config	X86_SPINLOCK_TICKET
+	bool

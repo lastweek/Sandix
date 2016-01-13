@@ -310,3 +310,8 @@ Tue Jan 12 22:57:59 CST 2016
 - [+] include/sandix/spinlock_up.h
 - [+] include/sandix/spinlock_smp.h
 - [+] include/sandix/typecheck.h
+
+
+Wed Jan 13 10:59:20 CST 2016
+- [M] arch/x86/config/i386_defconfig		[D] add CONFIG_X86_SPINLOCK_TICKET
+- [M] arch/x86/include/asm/spinlock.h
