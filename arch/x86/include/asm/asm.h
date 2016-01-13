@@ -19,7 +19,7 @@
 #ifndef _ASM_X86_ASM_H_
 #define _ASM_X86_ASM_H_
 
-#include <sandix/compiler>
+#include <sandix/compiler.h>
 
 #define LOCK_PREFIX "lock; "
 

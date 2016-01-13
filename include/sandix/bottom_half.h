@@ -16,17 +16,10 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _ASM_X86_IRQ_H_
-#define _ASM_X86_IRQ_H_
+#ifndef _SANDIX_BOTTOM_HALF_H_
+#define _SANDIX_BOTTOM_HALF_H_
 
-static inline void arch_irq_disable(void)
-{
+#define local_bh_disable()
+#define local_bh_enable()
 
-}
-
-static inline void arch_irq_enable(void)
-{
-
-}
-
-#endif /* _ASM_X86_IRQ_H_ */
+#endif /* _SANDIX_BOTTOM_HALF_H_ */

@@ -140,6 +140,7 @@ extern void __chk_io_ptr(const volatile void __iomem *);
 #define __init			__section(.init.text)
 #define __initdata		__section(.init.data)
 #define __read_mostly		__section(.data..read_mostly)
+#define __lockfunc		__section(.spinlock.text)
 
 /*
  * Generic GCC Function and Variable attribute.

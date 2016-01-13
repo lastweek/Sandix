@@ -17,7 +17,7 @@
 #	with this program; if not, write to the Free Software Foundation, Inc.,
 #	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-ifneq ($(ARCH),x86)
+ifneq ($(SRCARCH),x86)
   $(error arch/x86/Makefile is included improperly)
 endif
 

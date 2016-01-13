@@ -20,6 +20,10 @@
 #define _SANDIX_SPINLOCK_H_
 
 #include <sandix/compiler.h>
+#include <sandix/typecheck.h>
+#include <sandix/irqflags.h>
+#include <sandix/preempt.h>
+#include <sandix/bottom_half.h>
 
 #ifdef CONFIG_SMP
 # include <sandix/spinlock_smp.h>
@@ -28,15 +32,59 @@
 #endif
 
 /*
- * Generic spinlock operations
+ * Generic spinlock operations and definitions. These operations
+ * are defined despite CONFIG_SMP and CONFIG_PREEMPT. They behave
+ * as nops if not configured.
  */
 
-/*
- * Use __always_inline because: [https://lkml.org/lkml/2015/7/21/206]
- */
+#define DEFINE_SPINLOCK(lock)				\
+	spinlock_t lock = __SPIN_LOCK_UNLOCKED(lock)
+
+#define spin_lock_init(lock)				\
+	do {						\
+		*(lock) = __SPIN_LOCK_UNLOCKED((lock));	\
+	} while (0)
+	
 static __always_inline void spin_lock(spinlock_t *lock)
 {
 	__spin_lock(lock);
+}
+
+static __always_inline void spin_lock_bh(spinlock_t *lock)
+{
+	__spin_lock_bh(lock);
+}
+
+static __always_inline void spin_lock_irq(spinlock_t *lock)
+{
+	__spin_lock_irq(lock);
+}
+
+#define spin_lock_irqsave(lock, flags)			\
+	do {						\
+		typecheck(unsigned long, flags);	\
+		__spin_lock_irqsave((lock), flags);	\
+	} while (0)
+
+static __always_inline void spin_unlock(spinlock_t *lock)
+{
+	__spin_unlock(lock);
+}
+
+static __always_inline void spin_unlock_bh(spinlock_t *lock)
+{
+	__spin_unlock_bh(lock);
+}
+
+static __always_inline void spin_unlock_irq(spinlock_t *lock)
+{
+	__spin_unlock_irq(lock);
+}
+
+static __always_inline void spin_unlock_irqrestore(spinlock_t *lock,
+						unsigned long flags)
+{
+	__spin_unlock_irqrestore(lock, flags);
 }
 
 static __always_inline int spin_trylock(spinlock_t *lock)
@@ -44,9 +92,30 @@ static __always_inline int spin_trylock(spinlock_t *lock)
 	return __spin_trylock(lock);
 }
 
-static __always_inline void spin_unlock(spinlock_t *lock)
+static __always_inline int spin_trylock_bh(spinlock_t *lock)
 {
-	__spin_unlock(lock);
+	return __spin_trylock_bh(lock);
+}
+
+static __always_inline int spin_trylock_irq(spinlock_t *lock)
+{
+	return __spin_trylock_irq(lock);
+}
+
+#define spin_trylock_irqsave(lock, flags)		\
+({							\
+	typecheck(unsigned long, flags);		\
+	__spin_trylock_irqsave((lock), flags);		\
+})	
+
+static __always_inline int spin_is_locked(spinlock_t *lock)
+{
+	return __spin_is_locked(lock);
+}
+
+static __always_inline int spin_is_contented(spinlock_t *lock)
+{
+	return __spin_is_contented(lock);
 }
 
 #endif /* _SANDIX_SPINLOCK_H_ */

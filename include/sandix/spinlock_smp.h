@@ -48,16 +48,14 @@ typedef struct spinlock {
 # define SPIN_DEBUG_INIT(lockname)
 #endif
 
-#define SPIN_LOCK_INIT(lockname)		\
+#define __SPIN_LOCK_INIT(lockname)		\
 {						\
 	.arch_lock = ARCH_SPIN_LOCK_UNLOCKED,	\
 	SPIN_DEBUG_INIT(lockname)		\
 }
 
-#define SPIN_LOCK_UNLOCKED(lockname)		\
-	(spinlock_t) SPIN_LOCK_INIT(lockname)
-
-#define DEFINE_SPINLOCK(x)	spinlock_t x = SPIN_LOCK_UNLOCKED(x)
+#define __SPIN_LOCK_UNLOCKED(lockname)		\
+	(spinlock_t) __SPIN_LOCK_INIT(lockname)
 
 /*
  * SMP spinlock operations
@@ -65,52 +63,105 @@ typedef struct spinlock {
 
 static __always_inline void __spin_lock(spinlock_t *lock)
 {
-
+	preempt_disable();
+	arch_spin_lock(&lock->arch_lock);
 }
 
 static __always_inline void __spin_lock_bh(spinlock_t *lock)
 {
-
+	local_bh_disable();
+	arch_spin_lock(&lock->arch_lock);
 }
 
 static __always_inline void __spin_lock_irq(spinlock_t *lock)
 {
-
+	local_irq_disable();
+	preempt_disable();
+	arch_spin_lock(&lock->arch_lock);
 }
 
-static __always_inline unsigned long __spin_lock_irqsave(spinlock_t *lock)
-{
-
-}
-
-static __always_inline int __spin_trylock(spinlock_t *lock)
-{
-
-}
-
-static __always_inline int __spin_trylock_bh(spinlock_t *lock)
-{
-
-}
+#define __spin_lock_irqsave(lock, flags)		\
+	do {						\
+		local_irq_save(flags);			\
+		preempt_disable();			\
+		arch_spin_lock(&(lock)->arch_lock);	\
+	} while (0)
 
 static __always_inline void __spin_unlock(spinlock_t *lock)
 {
-
+	arch_spin_unlock(&lock->arch_lock);
+	preempt_enable();
 }
 
 static __always_inline void __spin_unlock_bh(spinlock_t *lock)
 {
-
+	arch_spin_unlock(&lock->arch_lock);
+	local_bh_enable();
 }
 
 static __always_inline void __spin_unlock_irq(spinlock_t *lock)
 {
-
+	arch_spin_unlock(&lock->arch_lock);
+	local_irq_enable();
+	preempt_enable();
 }
 
-static __always_inline void __spin_unlock_irqrestore(spinlock_t *lock)
+static __always_inline void __spin_unlock_irqrestore(spinlock_t *lock,  unsigned long flags)
 {
+	arch_spin_unlock(&lock->arch_lock);
+	local_irq_restore(flags);
+	preempt_enable();
+}
 
+static __always_inline int __spin_trylock(spinlock_t *lock)
+{
+	preempt_disable();
+	if (arch_spin_trylock(&lock->arch_lock))
+		return 1;
+	preempt_enable();
+	return 0;
+}
+
+static __always_inline int __spin_trylock_bh(spinlock_t *lock)
+{
+	local_bh_disable();
+	if (arch_spin_trylock(&lock->arch_lock))
+		return 1;
+	local_bh_enable();
+	return 0;
+}
+
+static __always_inline int __spin_trylock_irq(spinlock_t *lock)
+{
+	local_irq_disable();
+	preempt_disable();
+	if (arch_spin_trylock(&lock->arch_lock))
+		return 1;
+	local_irq_enable();
+	preempt_enable();
+	return 0;
+}
+
+#define __spin_trylock_irqsave(lock, flags)		\
+({							\
+	local_irq_save(flags);				\
+	preempt_disable();				\
+	arch_spin_trylock(&(lock)->arch_flags) ? 1 :	\
+	({						\
+		local_irq_restore(flags);		\
+		preempt_enable();			\
+		0;					\
+	});						\
+})
+
+static __always_inline int __spin_is_locked(spinlock_t *lock)
+{
+	return arch_spin_is_locked(&lock->arch_lock);
+}
+
+static __always_inline int __spin_is_contented(spinlock_t *lock)
+{
+	return arch_spin_is_contented(&lock->arch_lock);
 }
 
 #endif /* _SANDIX_SPINLOCK_SMP_H_ */

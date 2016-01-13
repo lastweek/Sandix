@@ -8,12 +8,10 @@
 #	[M] = Modify		(Only Significant Modification)
 #	[D] = Description	(Nothing but some memos)
 #	 >  = More to say
-
 #
-#	BIG FAT NOTE
 #	All files created before 09/07/2015 are NOT recorded here.
 #	Because they born too early.
-#
+
 
 Mon Sep  7 CST 2015
 - [+] Changelog
@@ -306,12 +304,18 @@ Mon Jan 11 19:57:25 CST 2016
 
 
 Tue Jan 12 22:57:59 CST 2016
-- [M] include/sandix/spinlock.h
 - [+] include/sandix/spinlock_up.h
 - [+] include/sandix/spinlock_smp.h
-- [+] include/sandix/typecheck.h
+- [+] include/sandix/typecheck.h		[D] typecheck() is just a compile time warning
+- [M] include/sandix/spinlock.h
 
 
 Wed Jan 13 10:59:20 CST 2016
+- [+] include/sandix/irqflags.h			[D] local_irq_disable/enable
+- [+] arch/x86/include/asm/irqflags.h		 >  local_irq_save/restore
+- [+] Documentation/locking/
 - [M] arch/x86/config/i386_defconfig		[D] add CONFIG_X86_SPINLOCK_TICKET
 - [M] arch/x86/include/asm/spinlock.h
+- [M] include/sandix/spinlock_up.h		[D] Finished
+- [M] include/sandix/spinlock_smp.h
+- [M] include/sandix/spinlock.h			[D] Generic spinlock APIs

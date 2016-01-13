@@ -192,7 +192,6 @@ $(filter-out _all sub-make $(CURDIR)/Makefile, $(MAKECMDGOALS)) _all: sub-make
 	@:
 
 sub-make: FORCE
-	@echo "sub-make"
 	$(Q)$(MAKE) -C $(KBUILD_OUTPUT) KBUILD_SRC=$(CURDIR) \
 	-f $(CURDIR)/Makefile $(filter-out _all sub-make,$(MAKECMDGOALS))
 
@@ -246,7 +245,7 @@ else
   CROSS_COMPILE	:=
 endif
 
-ARCH	:= x86
+ARCH	:= i386
 SRCARCH	:= x86
 export SRCARCH ARCH HOST_ARCH CROSS_COMPILE
 

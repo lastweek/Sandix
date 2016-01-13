@@ -27,7 +27,11 @@
 #include <sandix/mutex.h>
 #include <sandix/spinlock.h>
 
-static DEFINE_RAW_SPINLOCK(tty_ldiscs_lock);
+/*
+ * Using a static array to store registed discipline
+ * a simple spinlock is used to protect this array
+ */
+static DEFINE_SPINLOCK(tty_ldiscs_lock);
 static struct tty_ldisc_ops *tty_ldiscs[NR_LDISCS];
 
 int tty_register_ldisc(int disc, struct tty_ldisc_ops *new_ldisc)
@@ -37,11 +41,11 @@ int tty_register_ldisc(int disc, struct tty_ldisc_ops *new_ldisc)
 	if (disc < N_TTY || disc >= NR_LDISCS)
 		return -EINVAL;
 	
-	raw_spin_lock_irqsave(&tty_ldiscs_lock, flags);
+	spin_lock_irqsave(&tty_ldiscs_lock, flags);
 	tty_ldiscs[disc] = new_ldisc;
 	new_ldisc->num = disc;
 	new_ldisc->refcount = 0;
-	raw_spin_unlock_irqrestore(&tty_ldiscs_lock, flags);
+	spin_unlock_irqrestore(&tty_ldiscs_lock, flags);
 
 	return 0;
 }
@@ -54,12 +58,12 @@ int tty_unregister_ldisc(int disc)
 	if (disc < N_TTY || disc >= NR_LDISCS)
 		return -EINVAL;
 
-	raw_spin_lock_irqsave(&tty_ldiscs_lock, flags);
-	if (tty_ldisc[disc]->refcount)
-		rertun -EBUSY;
+	spin_lock_irqsave(&tty_ldiscs_lock, flags);
+	if (tty_ldiscs[disc]->refcount)
+		return -EBUSY;
 	else
-		tty_ldisc[disc] = NULL;
-	raw_spin_unlock_irqrestore(&tty_ldisc_lock, flags);
+		tty_ldiscs[disc] = NULL;
+	spin_unlock_irqrestore(&tty_ldiscs_lock, flags);
 
 	return 0;
 }

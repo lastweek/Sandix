@@ -16,17 +16,10 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _ASM_X86_IRQ_H_
-#define _ASM_X86_IRQ_H_
+#ifndef _ASM_X86_IRQFLAGS_H_
+#define _ASM_X86_IRQFLAGS_H_
 
-static inline void arch_irq_disable(void)
-{
+#define arch_local_irq_disable()
+#define arch_local_irq_enable()
 
-}
-
-static inline void arch_irq_enable(void)
-{
-
-}
-
-#endif /* _ASM_X86_IRQ_H_ */
+#endif /* _ASM_X86_IRQFLAGS_H_ */

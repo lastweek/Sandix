@@ -40,14 +40,14 @@ typedef struct arch_spinlock {
 static __always_inline void arch_spin_lock(arch_spinlock_t *lock)
 {
 	asm volatile (
-		
+		"nop"
 	);
 }
 
 static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
 {
 	asm volatile  (
-	
+		"nop"
 	);
 	return 0;
 }
@@ -55,7 +55,7 @@ static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
 static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
 {
 	asm volatile (
-	
+		"nop"
 	);
 }
 
@@ -109,14 +109,14 @@ typedef struct arch_spinlock {
 static __always_inline void arch_spin_lock(arch_spinlock_t *lock)
 {
 	asm volatile (
-		
+		"nop"
 	);
 }
 
 static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
 {
 	asm volatile  (
-	
+		"nop"
 	);
 	return 0;
 }
@@ -124,7 +124,7 @@ static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
 static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
 {
 	asm volatile (
-	
+		"nop"
 	);
 }
 
