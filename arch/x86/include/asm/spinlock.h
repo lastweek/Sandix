@@ -24,7 +24,6 @@
 #endif
 
 #include <sandix/compiler.h>
-#include <sandix/types.h>
 
 #ifndef CONFIG_X86_SPINLOCK_TICKET
 /*
@@ -73,6 +72,8 @@ static __always_inline int arch_spin_is_contented(arch_spinlock_t *lock)
 /*
  * Ticket SMP spinlocks, this ensures fairness with little cost
  */
+
+#include <sandix/types.h>
 
 #if 1
 typedef u8  __ticket_t;
