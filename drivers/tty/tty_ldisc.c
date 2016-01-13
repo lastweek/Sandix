@@ -28,8 +28,8 @@
 #include <sandix/spinlock.h>
 
 /*
- * Using a static array to store registed discipline
- * a simple spinlock is used to protect this array
+ * Using a static array to store registed discipline, a simple spinlock is used
+ * to protect this array
  */
 static DEFINE_SPINLOCK(tty_ldiscs_lock);
 static struct tty_ldisc_ops *tty_ldiscs[NR_LDISCS];
@@ -80,3 +80,10 @@ void tty_ldisc_deref(struct tty_ldisc *ld)
 
 }
 EXPORT_SYMBOL(tty_ldisc_deref);
+
+extern struct tty_ldisc_ops *tty_ldisc_N_TTY;
+
+void tty_ldisc_begin(void)
+{
+	tty_register_ldisc(N_TTY, tty_ldisc_N_TTY);
+}

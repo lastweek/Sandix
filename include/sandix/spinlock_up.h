@@ -49,10 +49,6 @@ typedef struct spinlock {
 	(spinlock_t) __SPIN_LOCK_INIT(lockname)
 
 /*
- * UP spinlock operations
- */
-
-/*
  * In the UP-nondebug case there's no real locking going on, so the
  * only thing we have to do is to keep the preempt counts and irq
  * flags straight, to suppress compiler warnings of unused lock
@@ -101,7 +97,7 @@ typedef struct spinlock {
 #define __spin_trylock(lock)			({ __LOCK(lock); 1; })
 #define __spin_trylock_bh(lock)			({ __LOCK_BH(lock); 1; })
 #define __spin_trylock_irq(lock)		({ __LOCK_IRQ(lock); 1; })
-#define __spin_trylock_irqsave(lock, flags)	({ __LOCK_IRQSAVE(lock); 1; })
+#define __spin_trylock_irqsave(lock, flags)	({ __LOCK_IRQSAVE(lock, flags); 1; })
 
 #define __spin_is_locked(lock)			arch_spin_is_locked(lock)
 #define __spin_is_contented(lock)		arch_spin_is_contented(lock)
