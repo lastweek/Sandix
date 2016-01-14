@@ -289,6 +289,7 @@ int tty_register_ldisc(int disc, struct tty_ldisc_ops *new_ldisc);
 int tty_unregister_ldisc(int disc);
 struct tty_ldisc *tty_ldisc_ref_wait(struct tty_struct *tty);
 void tty_ldisc_deref(struct tty_ldisc *ld);
+void tty_ldisc_begin(void);
 
 /*
  * N_TTY line discipline

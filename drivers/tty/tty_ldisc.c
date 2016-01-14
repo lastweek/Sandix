@@ -103,13 +103,16 @@ struct tty_ldisc *tty_ldisc_ref_wait(struct tty_struct *tty)
 }
 EXPORT_SYMBOL(tty_ldisc_ref_wait);
 
+/*TODO*/
 void tty_ldisc_deref(struct tty_ldisc *ld)
 {
 
 }
 EXPORT_SYMBOL(tty_ldisc_deref);
 
+
 void tty_ldisc_begin(void)
 {
+	/* N_TTY is the default line discipline, */
 	tty_register_ldisc(N_TTY, &tty_ldisc_N_TTY);
 }

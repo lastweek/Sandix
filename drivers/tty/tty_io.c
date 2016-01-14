@@ -221,6 +221,8 @@ ssize_t tty_write(struct file *file, const char __user *buf,
 
 void __init tty_init(void)
 {
+	tty_ldisc_begin();
+
 	/*
 	 * This function will register tty_driver of console
 	 * We are safe to output to screen after this call.
