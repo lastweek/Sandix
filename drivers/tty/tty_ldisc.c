@@ -52,7 +52,7 @@ int tty_register_ldisc(int disc, struct tty_ldisc_ops *new_ldisc)
 
 	if (disc < N_TTY || disc >= NR_LDISCS)
 		return -EINVAL;
-	
+
 	spin_lock_irqsave(&tty_ldiscs_lock, flags);
 	tty_ldiscs[disc] = new_ldisc;
 	new_ldisc->num = disc;
@@ -187,8 +187,7 @@ int tty_ldisc_open(struct tty_struct *tty, struct tty_ldisc *ld)
 	/*XXX tty->flags */
 	if (ld->ops->open) {
 		ret = ld->ops->open(tty);
-		if (ret)
-			;
+		if (ret) ;
 	}
 	return ret;
 }
@@ -275,7 +274,7 @@ int tty_ldisc_change(struct tty_struct *tty, int ldisc)
 	/* Set up the new one */
 	tty->ldisc = new_ldisc;
 	tty_set_termios_ldisc(tty, ldisc);
-	
+
 	ret = tty_ldisc_open(tty, new_ldisc);
 	if (ret) {
 		/* Back to the old one or N_TTY */
@@ -331,8 +330,7 @@ struct tty_ldisc *tty_ldisc_ref_wait(struct tty_struct *tty)
 	return tty->ldisc;
 }
 
-/*TODO*/
-void tty_ldisc_deref(struct tty_ldisc *ld)
+ /*TODO*/ void tty_ldisc_deref(struct tty_ldisc *ld)
 {
 
 }
