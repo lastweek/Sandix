@@ -29,7 +29,11 @@
 
 void handle_int(void)
 {
-	asm volatile ("incb 0xb8000\n\t" "incb 0xb8001\n\t" "iret");
+	asm volatile (
+		"incb 0xb8000\n\t"
+		"incb 0xb8001\n\t"
+		"iret"
+	);
 }
 
 asmlinkage void __init start_kernel(void)

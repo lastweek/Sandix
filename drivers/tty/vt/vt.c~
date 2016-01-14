@@ -126,7 +126,7 @@ static void gotoxy(struct vc_struct *vc, int new_x, int new_y)
 	vc->vc_x = new_x;
 	vc->vc_y = new_y;
 	vc->vc_pos = vc->vc_visible_origin +
-		(((vc->vc_cols * vc->vc_y) + vc->vc_x) << 1);
+	    (((vc->vc_cols * vc->vc_y) + vc->vc_x) << 1);
 }
 
 __MUST_TODO__ __unused static void respond(struct tty_struct *tty)
@@ -257,7 +257,7 @@ static void csi_X(struct vc_struct *vc)
 static void update_attribute(struct vc_struct *vc)
 {
 	vc->vc_attr = (vc->vc_f_color & 0x7) |
-		((vc->vc_b_color & 0x7) << 4) | ((vc->vc_blink & 0x1) << 7);
+		     ((vc->vc_b_color & 0x7) << 4) | ((vc->vc_blink & 0x1) << 7);
 
 	vc->vc_erased_char &= 0xff;
 	vc->vc_erased_char |= vc->vc_attr;
@@ -567,8 +567,8 @@ static int con_write(struct tty_struct *tty, const unsigned char *buf,
 				break;
 			};
 			break;
-		};
-	}
+		};/* End of switch(state) */
+	}/* End of while(count) */
 
 	set_cursor(vc);
 	return ret;
