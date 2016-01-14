@@ -1,2 +1,6 @@
+#
+#	x86 ISA Configuration
+#
+
 config	X86_SPINLOCK_TICKET
 	bool
