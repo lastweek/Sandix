@@ -16,6 +16,12 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ *	Note that x86 has two versions of spinlock: 1) basic, 2) ticket
+ *	The default version is 1) basic, if you want 2) ticket, please
+ *	set CONFIG_X86_SPINLOCK_TICKET to enable ticket version.
+ */
+
 #ifndef _ASM_X86_SPINLOCK_H_
 #define _ASM_X86_SPINLOCK_H_
 
@@ -23,10 +29,13 @@
 # error "Please do not include this file directly"
 #endif
 
+#include <asm/processor.h>
+#include <sandix/types.h>
 #include <sandix/compiler.h>
 
 #ifndef CONFIG_X86_SPINLOCK_TICKET
 /*
+ * Version I:
  * Basic SMP spinlocks, this makes no fairness assumptions
  */
 
@@ -70,10 +79,9 @@ static __always_inline int arch_spin_is_contented(arch_spinlock_t *lock)
 
 #else
 /*
+ * Version II:
  * Ticket SMP spinlocks, this ensures fairness with little cost
  */
-
-#include <sandix/types.h>
 
 #if 1
 typedef u8  __ticket_t;

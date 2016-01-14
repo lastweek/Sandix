@@ -103,10 +103,10 @@ static __always_inline int spin_trylock_irq(spinlock_t *lock)
 }
 
 #define spin_trylock_irqsave(lock, flags)		\
-({							\
-	typecheck(unsigned long, flags);		\
-	__spin_trylock_irqsave((lock), flags);		\
-})	
+	({						\
+		typecheck(unsigned long, flags);	\
+		__spin_trylock_irqsave((lock), flags);	\
+	})	
 
 static __always_inline int spin_is_locked(spinlock_t *lock)
 {

@@ -27,6 +27,9 @@
 
 /*
  * SMP spinlock definitions
+ *
+ * TODO:
+ *	spinlock debug code, should be kernel/locking/spinlock_debug.c
  */
 
 typedef struct spinlock {
