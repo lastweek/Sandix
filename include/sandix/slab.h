@@ -16,51 +16,20 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/*
- * This file describes N_TTY line discipline
- */
+#ifndef _SANDIX_SLAB_H_
+#define _SANDIX_SLAB_H_
 
-#include <sandix/kernel.h>
 #include <sandix/types.h>
-#include <sandix/tty.h>
+#include <sandix/compiler.h>
 
-struct n_tty_data {
+static __always_inline void *kmalloc(size_t size, int flags)
+{
+	return NULL;
+}
 
-};
-
-static ssize_t n_tty_read(struct tty_struct *tty, char __user *buf,
-			  size_t count)
+static __always_inline void kfree(void *ptr)
 {
 
 }
 
-static ssize_t n_tty_write(struct tty_struct *tty,
-			   const unsigned char __user *buf, size_t count)
-{
-	
-}
-
-static void n_tty_set_termios(struct tty_struct *tty, struct termios *old)
-{
-
-}
-
-static void n_tty_close(struct tty_struct *tty)
-{
-
-}
-
-static int n_tty_open(struct tty_struct *tty)
-{
-
-}
-
-struct tty_ldisc_ops tty_ldisc_N_TTY = {
-	.name		= "n_tty",
-	.open		= n_tty_open,
-	.close		= n_tty_close,
-	.read		= n_tty_read,
-	.write		= n_tty_write,
-	.set_termios	= n_tty_set_termios
-};
-EXPORT_SYMBOL(tty_ldisc_N_TTY);
+#endif /* _SANDIX_SLAB_H_ */

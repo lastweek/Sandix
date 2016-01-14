@@ -24,7 +24,7 @@
 /*TODO*/
 #define local_irq_disable()
 #define local_irq_enable()
-#define local_irq_save(flags)
+#define local_irq_save(flags)		do { flags = 0; } while (0)
 #define local_irq_restore(flags)
 
 #endif /* _SANDIX_IRQFLAGS_H_ */

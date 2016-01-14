@@ -97,20 +97,27 @@ struct tty_ldisc_ops {
 	int		flags;
 	int		refcount;
 
-	void	(*open)(struct tty_struct *tty);
+	int	(*open)(struct tty_struct *tty);
 	void	(*close)(struct tty_struct *tty);
 	ssize_t	(*read)(struct tty_struct *tty, char __user *buf, size_t count);
 	ssize_t	(*write)(struct tty_struct *tty, const unsigned char __user *buf, size_t count);
 	void	(*set_termios)(struct tty_struct *tty, struct termios *old);
 };
 
+/**
+ * struct tty_ldisc
+ *
+ * @ops:		The line discipline operations
+ * @tty:		The tty belongs to
+ *
+ * This structure is allocated dynamically when tty calls tty_set_ldisc(), etc.
+ * In system's view, only the tty_ldisc_op is static. When tty changes its
+ * line discipline, the old tty_ldisc would be freed, a new one malloced.
+ * All in all, this structure is a bridge between up tty and down ops.
+ */
 struct tty_ldisc {
-	const struct tty_ldisc_ops *ops;
+	struct tty_ldisc_ops *ops;
 	struct tty_struct *tty;
-};
-
-struct tty_buffer {
-
 };
 
 /**
@@ -289,11 +296,12 @@ int tty_register_ldisc(int disc, struct tty_ldisc_ops *new_ldisc);
 int tty_unregister_ldisc(int disc);
 struct tty_ldisc *tty_ldisc_ref_wait(struct tty_struct *tty);
 void tty_ldisc_deref(struct tty_ldisc *ld);
+int tty_set_ldisc(struct tty_struct *tty, int ldisc);
 void tty_ldisc_begin(void);
 
 /*
  * N_TTY line discipline
  */
-extern const struct tty_ldisc_ops tty_ldisc_N_TTY;
+extern struct tty_ldisc_ops tty_ldisc_N_TTY;
 
 #endif /* _SANDIX_TTY_H_ */
