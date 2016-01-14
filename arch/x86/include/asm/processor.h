@@ -21,6 +21,7 @@
 
 #include <sandix/types.h>
 #include <asm/processor-flags.h>
+#include <asm/segment.h>
 
 /*TODO*/
 #define cpu_relax()
@@ -110,7 +111,7 @@ struct x86_tss {
  */
 struct thread_struct {
 	/* Cached TLS descriptors: */
-	struct desc_struct	tls_array[GDT_ENTRY_TLS_ENTRIES];
+	//struct desc_struct	tls_array[GDT_ENTRY_TLS_ENTRIES];
 	
 	__u32		sp0;
 	__u32		sp;
@@ -130,7 +131,7 @@ struct thread_struct {
 	__u32		error_code;
 	
 	/* floating point and extended processor state */
-	struct fpu		fpu;
+	//struct fpu		fpu;
 	
 	/* IO permissions: */
 	__u32		*io_bitmap_ptr;

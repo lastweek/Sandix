@@ -43,33 +43,49 @@ typedef struct arch_spinlock {
 	unsigned int slock;
 } arch_spinlock_t;
 
-#define ARCH_SPIN_LOCK_UNLOCKED { 0 }
+#define ARCH_SPIN_LOCK_UNLOCKED { 1 }
 
 static __always_inline void arch_spin_lock(arch_spinlock_t *lock)
 {
 	asm volatile (
-		"nop"
+		"1:			\n\t"
+		"	lock; decb %0	\n\t"
+		"	jns 3f		\n\t"
+		"2:			\n\t"
+		"	rep; nop	\n\t"
+		"	cmpb $0, %0	\n\t"
+		"	jle 2b		\n\t"
+		"	jmp 1b		\n\t"
+		"3:			\n\t"
+		: "+m" (lock->slock)
+		: : "memory"
 	);
-}
-
-static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
-{
-	asm volatile  (
-		"nop"
-	);
-	return 0;
 }
 
 static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
 {
 	asm volatile (
-		"nop"
+		"movl $1, %0"
+		: "+m" (lock->slock)
+		: : "memory"
 	);
+}
+
+static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
+{
+	char oldval;
+	asm volatile(
+		"xchgb %b0, %1"
+		: "=q" (oldval), "+m" (lock->slock)
+		: "0" (0)
+		: "memory"
+	);
+	return oldval > 0;
 }
 
 static __always_inline int arch_spin_is_locked(arch_spinlock_t *lock)
 {
-	return 0;
+	return *(volatile signed char *)(&(lock)->slock) <= 0;
 }
 
 static __always_inline int arch_spin_is_contented(arch_spinlock_t *lock)

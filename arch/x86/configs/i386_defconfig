@@ -1,2 +1,15 @@
+#
+#	i386_defconfig
+#
+
+# CONFIG_DEBUG_SPINLOCK is not set
 CONFIG_X86_32=y
-#CONFIG_X86_SPINLOCK_TICKET is not set
+# CONFIG_X86 is not set
+CONFIG_OUTPUT_FORMAT="elf32-i386"
+CONFIG_ARCH_DEFCONFIG="arch/x86/configs/i386_defconfig"
+
+#
+# Processor type and features
+#
+CONFIG_SMP=y
+# CONFIG_SPINLOCK_TICKET is not set

@@ -20,6 +20,7 @@
  * This file describes the line discipline layer
  */
 
+#include <sandix/err.h>
 #include <sandix/errno.h>
 #include <sandix/kernel.h>
 #include <sandix/list.h>
@@ -29,7 +30,8 @@
 
 /*
  * Using a static array to store registed discipline, a simple spinlock is used
- * to protect this array
+ * to protect this array. All manipulations of this array *must* be carried
+ * out with this spinlock held.
  */
 static DEFINE_SPINLOCK(tty_ldiscs_lock);
 static struct tty_ldisc_ops *tty_ldiscs[NR_LDISCS];
@@ -69,6 +71,32 @@ int tty_unregister_ldisc(int disc)
 }
 EXPORT_SYMBOL(tty_unregister_ldisc);
 
+static struct tty_ldisc_ops *get_ldops(int disc)
+{
+	unsigned long flags;
+	struct tty_ldisc_ops *ldops, *ret;
+
+	spin_lock_irqsave(&tty_ldiscs_lock, flags);
+	ret = ERR_PTR(-EINVAL);
+	ldops = tty_ldiscs[disc];
+	if (ldops) {
+		ldops->refcount++;
+		ret = ldops;
+	}
+	spin_unlock_irqrestore(&tty_ldiscs_lock, flags);
+
+	return ret;
+}
+
+static void put_ldops(struct tty_ldisc_ops *ldops)
+{
+	unsigned long flags;
+
+	spin_lock_irqsave(&tty_ldiscs_lock, flags);
+	ldops->refcount--;
+	spin_unlock_irqrestore(&tty_ldiscs_lock, flags);
+}
+
 struct tty_ldisc *tty_ldisc_ref_wait(struct tty_struct *tty)
 {
 	return tty->ldisc;
@@ -81,9 +109,7 @@ void tty_ldisc_deref(struct tty_ldisc *ld)
 }
 EXPORT_SYMBOL(tty_ldisc_deref);
 
-extern struct tty_ldisc_ops *tty_ldisc_N_TTY;
-
 void tty_ldisc_begin(void)
 {
-	tty_register_ldisc(N_TTY, tty_ldisc_N_TTY);
+	tty_register_ldisc(N_TTY, &tty_ldisc_N_TTY);
 }

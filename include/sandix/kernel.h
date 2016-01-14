@@ -23,7 +23,6 @@
 #include <sandix/compiler.h>
 #include <sandix/export.h>
 #include <sandix/linkage.h>
-#include <sandix/typecheck.h>
 #include <sandix/types.h>
 #include <sandix/printk.h>
 

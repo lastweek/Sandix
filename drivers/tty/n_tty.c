@@ -24,6 +24,10 @@
 #include <sandix/types.h>
 #include <sandix/tty.h>
 
+struct n_tty_data {
+
+};
+
 static ssize_t n_tty_read(struct tty_struct *tty, char __user *buf,
 			  size_t count)
 {
@@ -41,8 +45,20 @@ static void n_tty_set_termios(struct tty_struct *tty, struct termios *old)
 
 }
 
+static void n_tty_close(struct tty_struct *tty)
+{
+
+}
+
+static void n_tty_open(struct tty_struct *tty)
+{
+
+}
+
 const struct tty_ldisc_ops tty_ldisc_N_TTY = {
 	.name		= "n_tty",
+	.open		= n_tty_open,
+	.close		= n_tty_close,
 	.read		= n_tty_read,
 	.write		= n_tty_write,
 	.set_termios	= n_tty_set_termios
