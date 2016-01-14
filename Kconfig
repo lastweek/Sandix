@@ -1,5 +1,9 @@
 mainmenu "Sandix/$ARCH $KERNELVERSION Kernel Configuration"
 
+config	TEST
+	tristate "asdasd"
+	---help---
+	asd
 
 config	DEBUG_SPINLOCK
 	bool "Spinlock debug feature support"
