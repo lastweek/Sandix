@@ -89,58 +89,78 @@ struct termios {
 #define BRKINT	0000002
 #define IGNPAR	0000004
 #define PARMRK	0000010
-#define INPCK	0000020
-#define ISTRIP	0000040
-#define INLCR	0000100
-#define IGNCR	0000200
-#define ICRNL	0000400
-#define IUCLC	0001000
-#define IXON	0002000
-#define IXANY	0004000
-#define IXOFF	0010000
-#define IMAXBEL	0020000
-#define IUTF8	0040000
+#define INPCK	0000020	/* Enable input parity checking						*/
+#define ISTRIP	0000040	/* Strip off eighth bit							*/
+#define INLCR	0000100	/* Translate NL to CR on input						*/
+#define IGNCR	0000200	/* Ignore carriage return on input					*/
+#define ICRNL	0000400	/* Translate carriage return to newline on input (unless IGNCR is set)	*/
+#define IUCLC	0001000	/* Map uppercase characters to lowercase on input			*/
+#define IXON	0002000	/* Enable XON/XOFF flow control on output				*/
+#define IXANY	0004000	/* Typing any character will restart stopped output. (Default is START)	*/
+#define IXOFF	0010000	/* Enable XON/XOFF flow control on input				*/
+#define IMAXBEL	0020000	/* Ring bell when input queue is full					*/
+#define IUTF8	0040000	/* Input is UTF8							*/
 
 /*
  * c_oflag bits
  */
-#define OPOST	0000001
-#define OLCUC	0000002
-#define ONLCR	0000004
-#define OCRNL	0000010
-#define ONOCR	0000020
-#define ONLRET	0000040
-#define OFILL	0000100
-#define OFDEL	0000200
-#define NLDLY	0000400
+#define OPOST	0000001	/* Enable implementation-defined output processing			*/
+#define OLCUC	0000002	/* Map lowercase characters to uppercase on output			*/
+#define ONLCR	0000004	/* Map NL to CR-NL on output						*/
+#define OCRNL	0000010	/* Map CR to NL on output						*/
+#define ONOCR	0000020	/* Do not output CR at columm 0						*/
+#define ONLRET	0000040	/* Do not output CR							*/
+#define OFILL	0000100	/* Send fill characters for a delay, rather than using a timed delay	*/
+#define OFDEL	0000200	/* Fill character is ASCII DEL (0177). If unset, it is ('\0')		*/
+#define NLDLY	0000400	/* Newline delay mask							*/
 #define   NL0	0000000
 #define   NL1	0000400
-#define CRDLY	0003000
+#define CRDLY	0003000	/* Carriage return delay mask						*/
 #define   CR0	0000000
 #define   CR1	0001000
 #define   CR2	0002000
 #define   CR3	0003000
-#define TABDLY	0014000
+#define TABDLY	0014000	/* Horizontal tab delay mask						*/
 #define   TAB0	0000000
 #define   TAB1	0004000
 #define   TAB2	0010000
 #define   TAB3	0014000
 #define   XTABS	0014000
-#define BSDLY	0020000
+#define BSDLY	0020000	/* Backspace delay mask							*/
 #define   BS0	0000000
 #define   BS1	0020000
-#define VTDLY	0040000
+#define VTDLY	0040000	/* Vertical tab delay mask						*/
 #define   VT0	0000000
 #define   VT1	0040000
-#define FFDLY	0100000
+#define FFDLY	0100000	/* Form feed delay mask							*/
 #define   FF0	0000000
 #define   FF1	0100000
+
+/*
+ * c_lflag bits
+ */
+#define ISIG	0000001	/* When any of INTR, QUIT, SUSP, DSUSP are received, genrate signals	*/
+#define ICANON	0000002	/* Enable canonical mode						*/
+#define XCASE	0000004	/* If ICANON is set, terminal is uppercase only				*/
+#define ECHO	0000010 /* Echo input characters						*/
+#define ECHOE	0000020	/* If ICANON is set, the ERASE char erases the preceding input char	*/
+#define ECHOK	0000040 /* If ICANON is set, the KILL char erases the current line		*/
+#define ECHONL	0000100	/* If ICANON is set, echo the NL char even if ECHO is not set		*/
+#define NOFLSH	0000200	/* Disable flushing the input and output queues when generating signals	*/
+#define TOSTOP	0000400	/* Send SIGTTOU to who tries to write to its controlling terminal	*/
+#define ECHOCTL	0001000	/* If ECHO is set, special characters are echoed as ^X			*/
+#define ECHOPRT	0002000	/* If ICANON and ECHO are set, chars are printed as being erased	*/
+#define ECHOKE	0004000	/* If ICANON is set, KILL is echoed by erasing each char on the line	*/
+#define FLUSHO	0010000	/* Output is being flushed						*/
+#define PENDIN	0040000	/* All chars in input queue are reprinted when the next char is read	*/
+#define IEXTEN	0100000	/* Enable implementation-defined input processing			*/
+#define EXTPROC	0200000
 
 /*
  * c_cflag bit meaning
  */
 #define CBAUD	0010017
-#define  B0	0000000		/* hang up */
+#define  B0	0000000	/* hang up */
 #define  B50	0000001
 #define  B75	0000002
 #define  B110	0000003
@@ -191,26 +211,6 @@ struct termios {
 #define CRTSCTS	  020000000000	/* flow control */
 
 #define IBSHIFT	  16		/* Shift from CBAUD to CIBAUD */
-
-/*
- * c_lflag bits
- */
-#define ISIG		0000001
-#define ICANON		0000002
-#define XCASE		0000004
-#define ECHO		0000010
-#define ECHOE		0000020
-#define ECHOK		0000040
-#define ECHONL		0000100
-#define NOFLSH		0000200
-#define TOSTOP		0000400
-#define ECHOCTL		0001000
-#define ECHOPRT		0002000
-#define ECHOKE		0004000
-#define FLUSHO		0010000
-#define PENDIN		0040000
-#define IEXTEN		0100000
-#define EXTPROC		0200000
 
 /*
  * modem lines

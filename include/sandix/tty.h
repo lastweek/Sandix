@@ -101,7 +101,7 @@ struct tty_ldisc_ops {
 	int	(*open)(struct tty_struct *tty);
 	void	(*close)(struct tty_struct *tty);
 	ssize_t	(*read)(struct tty_struct *tty, char __user *buf, size_t count);
-	ssize_t	(*write)(struct tty_struct *tty, struct file *file, const unsigned char __user *buf, size_t count);
+	ssize_t	(*write)(struct tty_struct *tty, struct file *file, const unsigned char *buf, size_t count);
 	void	(*set_termios)(struct tty_struct *tty, struct termios *old);
 };
 

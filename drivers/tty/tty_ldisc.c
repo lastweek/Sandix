@@ -158,7 +158,7 @@ static struct tty_ldisc *tty_ldisc_get(struct tty_struct *tty, int disc)
 
 static void tty_ldisc_put(struct tty_ldisc *ld)
 {
-	if (WARN_ON_ONCE(!ld))
+	if (WARN_ON(!ld))
 		return;
 
 	put_ldops(ld->ops);

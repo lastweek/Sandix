@@ -20,7 +20,7 @@
 #define _SANDIX_BUG_H_
 
 #include <sandix/types.h>
-#include <sandix/printk.h>
+#include <sandix/kernel.h>
 
 /*
  * Don't use BUG() or BUG_ON() unless there's really no way out; one
@@ -38,18 +38,18 @@
 do {						\
 	printk("BUG: failure at %s:%d/%s()!\n",	\
 		__FILE__, __LINE__, __func__);	\
+	panic("BUG!");				\
 } while(0)
 
 #define BUG_ON(condition)			\
 do {						\
-	if (unlikely(condition)) {		\
+	if (unlikely(condition))		\
 		BUG();				\
-	}					\
 } while (0)
 
 
 /*
- * WARN(), WARN_ON(), WARN_ON_ONCE, and so on can be used to report
+ * WARN(), WARN_ONCE(), WARN_ON(), WARN_ON_ONCE, are used to report
  * significant issues that need prompt attention if they should ever
  * appear at runtime.
  */
@@ -60,12 +60,27 @@ do {								\
 		__FILE__, __LINE__, __func__);			\
 } while(0)
 
-#define WARN(condition, format...) ({				\
+#define __WARN_printk(format...)				\
+do {								\
+	__WARN();						\
+	printk(format);						\
+} while (0)
 
+#define WARN(condition, format...) ({				\
+	int __ret_warn_on = !!(condition);			\
+	if (unlikely(__ret_warn_on))				\
+		__WARN_printk(format);				\
+	unlikely(__ret_warn_on);				\
 })
 
 #define WARN_ONCE(condition, format...) ({			\
-
+	static bool __section(.data..unlikely) __warned;	\
+	int __ret_warn_once = !!(condition);			\
+								\
+	if (unlikely(__ret_warn_once))				\
+		if (WARN(!__warned, format))			\
+			__warned = true;			\
+	unlikely(__ret_warn_once);				\
 })
 
 #define WARN_ON(condition) ({					\

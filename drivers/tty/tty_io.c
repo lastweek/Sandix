@@ -112,21 +112,23 @@ EXPORT_SYMBOL(tty_unregister_driver);
 void tty_print_drivers(void)
 {
 	struct tty_driver *driver;
+	const unsigned char *type_name[] = {
+		"UNKNOWN", "SYSREM", "CONSOLE", "SERIAL", "PTY", "DUMMY"
+	};
 
-	printk("Registed tty drivers:\n\r");
+	printk("Registed tty drivers:\n");
 
 	list_for_each_entry(driver, &tty_drivers, tty_drivers) {
 		printk("\tDriver name: %s\n", driver->name);
 		printk("\tDriver type: ");
 		switch (driver->type) {
+		case TTY_DRIVER_TYPE_SYSTEM:
 		case TTY_DRIVER_TYPE_CONSOLE:
-			printk("CONSOLE\n"); break;
 		case TTY_DRIVER_TYPE_SERIAL:
-			printk("SERIAL\n"); break;
 		case TTY_DRIVER_TYPE_PTY:
-			printk("PTY\n"); break;
 		case TTY_DRIVER_TYPE_DUMMY:
-			printk("DUMMY\n"); break;
+			printk("%s\n", type_name[driver->type]);
+			break;
 		default:
 			printk("UNKNOWN\n");
 		}
@@ -199,7 +201,7 @@ static ssize_t do_tty_write(
 	 */
 	size = count;
 	if (count > tty->write_cnt) {
-		WARN("tty_write: bytes pruned");
+		WARN(1, "tty_write: bytes pruned");
 		size = tty->write_cnt;
 	}
 

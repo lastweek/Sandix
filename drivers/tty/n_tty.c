@@ -34,8 +34,8 @@ static ssize_t n_tty_read(struct tty_struct *tty, char __user *buf,
 
 }
 
-static ssize_t n_tty_write(struct tty_struct *tty, struct file *file
-			   const unsigned char __user *buf, size_t count)
+static ssize_t n_tty_write(struct tty_struct *tty, struct file *file,
+			   const unsigned char *buf, size_t count)
 {
 	
 }

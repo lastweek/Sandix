@@ -45,6 +45,4 @@ asmlinkage void __init start_kernel(void)
 	printk("\033[32m%s\033[0m\n\r", sandix_banner);
 
 	tty_print_drivers();
-
-	panic("kernel panic %d", 31);
 }
