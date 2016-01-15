@@ -234,17 +234,13 @@ handover_offset:	.long	0			# Filled in by build.c
 # End of setup header #####################################################
 ##
 
-##
 # Now comes the real entry point of kernel setup part.
 # Normally, with boot loader, the first instruction executed
-# of kernel starts from here.
-#
+# of kernel starts from here (jumped from 0x9000:0200).
 
-##
 # I do not how other boot loaders work, but i know mine.
 # Our bootloader always load setup kernel to: 0x9000:0000,
-# and protected-mode kernel to: 0x1000:0000.
-#
+# and protected-mode kernel to: 0x100000
 
 	.section ".entrytext", "ax"
 start_of_setup:
@@ -283,9 +279,6 @@ start_of_setup:
 	shrw    $2, %cx 
 	rep; stosl
 	
-##
-# Jump to kernel setup C code
-#
 	calll	main
 
 setup_bad_signature:
