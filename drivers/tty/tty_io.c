@@ -136,6 +136,8 @@ void tty_print_drivers(void)
 }
 EXPORT_SYMBOL(tty_print_drivers);
 
+static struct tty_ldisc tmp_ldisc;
+
 /**
  *	alloc_tty_struct	-	allocated a new tty struct
  *	@driver: driver to hook
@@ -151,16 +153,20 @@ struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx)
 	tty = kzalloc(sizeof(struct tty_struct), GFP_KERNEL);
 	if (!tty)
 		return ERR_PTR(-ENOMEM);
-#endif
-	tty = &tty_table[idx];
 
-	/* Initialize tty_struct */
+	tty_ldisc_init(tty);
+#endif
+
+	tty = &tty_table[idx];
+	tmp_ldisc.ops = &tty_ldisc_N_TTY;
+	tmp_ldisc.tty = tty;
+	tty->ldisc = &tmp_ldisc;
+
+	kref_init(&tty->kref);
 	tty->magic = TTY_STRUCT_MAGIC;
 	tty->termios = driver->init_termios;
 	tty->driver = driver;
 	tty->ops = driver->ops;
-	kref_init(&tty->kref);
-
 	tty->write_cnt = TTY_WRITE_BUF_SIZE;
 
 	return tty;
@@ -190,7 +196,6 @@ static ssize_t do_tty_write(
 	size_t count)
 {
 	ssize_t ret;
-	size_t size;
 
 	/*
 	 * We chunk up writes into a temporary buffer. This
@@ -199,16 +204,15 @@ static ssize_t do_tty_write(
 	 *
 	 * The default buffer-size is TTY_WRITE_BUF_SIZE = 2KB
 	 */
-	size = count;
 	if (count > tty->write_cnt) {
 		WARN(1, "tty_write: bytes pruned");
-		size = tty->write_cnt;
+		count = tty->write_cnt;
 	}
 
-	if (copy_from_user(tty->write_buf, buf, size))
+	if (copy_from_user(tty->write_buf, buf, count))
 		return -EFAULT;
 	
-	ret = write(tty, file, tty->write_buf, size);
+	ret = write(tty, file, tty->write_buf, count);
 	return ret;
 }
 

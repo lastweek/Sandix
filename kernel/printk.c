@@ -21,7 +21,7 @@
 #include <sandix/linkage.h>
 #include <sandix/tty.h>
 
-static char KMBUF[1024];
+static unsigned char KMBUF[1024];
 
 asmlinkage __printf(1, 2)
 int printk(const char *fmt, ...)
@@ -39,7 +39,9 @@ int printk(const char *fmt, ...)
 	 *	tty_write(NULL, KMBUF, len, NULL);
 	 *
 	 */
-	tty_table[0].ops->write(&tty_table[0], KMBUF, len);
-	
+	//tty_table[0].ops->write(&tty_table[0], KMBUF, len);
+
+	tty_write(NULL, KMBUF, len, NULL);
+
 	return len;
 }

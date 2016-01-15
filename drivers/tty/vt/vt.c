@@ -741,6 +741,7 @@ void __init console_init(void)
 	/* Register tty_driver */
 	tty_register_driver(&console_driver);
 
+	/* XXX */
 	/* Allocate tty_table[0] to console_driver */
 	tty = alloc_tty_struct(&console_driver, 0);
 

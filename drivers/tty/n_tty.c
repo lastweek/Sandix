@@ -34,10 +34,28 @@ static ssize_t n_tty_read(struct tty_struct *tty, char __user *buf,
 
 }
 
+//tty->ops->write(tty, buf, count);
 static ssize_t n_tty_write(struct tty_struct *tty, struct file *file,
 			   const unsigned char *buf, size_t count)
 {
-	
+	const unsigned char *b = buf;
+	ssize_t ret = count;
+
+	while (1) {
+		if (!count)
+			break;
+
+		if (*b == '\n') {
+			tty->ops->write(tty, "\r", 1);
+			tty->ops->write(tty, "\n", 1);
+		} else
+			tty->ops->write(tty, b, 1);
+
+		b++;
+		count--;
+	}
+
+	return ret;
 }
 
 static void n_tty_set_termios(struct tty_struct *tty, struct termios *old)
@@ -63,4 +81,3 @@ struct tty_ldisc_ops tty_ldisc_N_TTY = {
 	.write		= n_tty_write,
 	.set_termios	= n_tty_set_termios
 };
-EXPORT_SYMBOL(tty_ldisc_N_TTY);
