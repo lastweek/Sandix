@@ -20,7 +20,7 @@
  * This file describes N_TTY line discipline
  */
 
-#include <sandix/kernel.h>
+#include <sandix/compiler.h>
 #include <sandix/types.h>
 #include <sandix/tty.h>
 
@@ -34,7 +34,7 @@ static ssize_t n_tty_read(struct tty_struct *tty, char __user *buf,
 
 }
 
-static ssize_t n_tty_write(struct tty_struct *tty,
+static ssize_t n_tty_write(struct tty_struct *tty, struct file *file
 			   const unsigned char __user *buf, size_t count)
 {
 	

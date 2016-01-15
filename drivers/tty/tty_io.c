@@ -17,7 +17,7 @@
  */
 
 /*
- * This file describes the simple TTY layer in Sandix.
+ * This file describes the tty layer
  */
 
 #include <sandix/errno.h>
@@ -32,10 +32,9 @@
 #include <sandix/magic.h>
 #include <sandix/kref.h>
 #include <sandix/fs.h>
+#include <sandix/uaccess.h>
 
-/*
- * For the benefit of tty drivers
- */
+/* For the benefit of tty drivers */
 struct termios tty_std_termios = {
 	.c_iflag = ICRNL | IXON,
 	.c_oflag = OPOST | ONLCR,
@@ -48,13 +47,11 @@ struct termios tty_std_termios = {
 };
 EXPORT_SYMBOL(tty_std_termios);
 
-/*
- * List of all registed tty drivers in system
- */
+/* list of all registed drivers */
 LIST_HEAD(tty_drivers);
-EXPORT_SYMBOL(tty_drivers);
-
 DEFINE_MUTEX(tty_mutex);
+
+EXPORT_SYMBOL(tty_drivers);
 EXPORT_SYMBOL(tty_mutex);
 
 /* XXX
@@ -70,24 +67,12 @@ void tty_set_operations(struct tty_driver *driver,
 }
 EXPORT_SYMBOL(tty_set_operations);
 
-/*
- * Called by a tty driver to unregister itself
- */
-int tty_unregister_driver(struct tty_driver *driver)
-{
-	if (!driver)
-		return -EINVAL;
-
-	mutex_lock(&tty_mutex);
-	list_del(&driver->tty_drivers);
-	mutex_unlock(&tty_mutex);
-
-	return 0;
-}
-EXPORT_SYMBOL(tty_unregister_driver);
-
-/*
- * Called by a tty driver to register itself
+/**
+ *	tty_register_driver	-	install a tty driver
+ *	@driver: who wants to install
+ *
+ *	Called by a tty driver to register itself, it would be
+ *	inserted into registed tty driver list
  */
 int tty_register_driver(struct tty_driver *driver)
 {
@@ -104,6 +89,26 @@ int tty_register_driver(struct tty_driver *driver)
 }
 EXPORT_SYMBOL(tty_register_driver);
 
+/**
+ *	tty_unregister_driver	-	unload a tty driver
+ *	@driver: who wants to unload
+ *
+ *	Called by a tty driver to unregister itself, it would be
+ *	removed from registed tty driver list
+ */
+int tty_unregister_driver(struct tty_driver *driver)
+{
+	if (!driver)
+		return -EINVAL;
+
+	mutex_lock(&tty_mutex);
+	list_del(&driver->tty_drivers);
+	mutex_unlock(&tty_mutex);
+
+	return 0;
+}
+EXPORT_SYMBOL(tty_unregister_driver);
+
 void tty_print_drivers(void)
 {
 	struct tty_driver *driver;
@@ -111,42 +116,40 @@ void tty_print_drivers(void)
 	printk("Registed tty drivers:\n\r");
 
 	list_for_each_entry(driver, &tty_drivers, tty_drivers) {
-		printk("\tDriver name: %s\n\r", driver->name);
+		printk("\tDriver name: %s\n", driver->name);
 		printk("\tDriver type: ");
 		switch (driver->type) {
 		case TTY_DRIVER_TYPE_CONSOLE:
-			printk("CONSOLE\n\t"); break;
+			printk("CONSOLE\n"); break;
 		case TTY_DRIVER_TYPE_SERIAL:
-			printk("SERIAL\n\t"); break;
+			printk("SERIAL\n"); break;
 		case TTY_DRIVER_TYPE_PTY:
-			printk("PTY\n\t"); break;
+			printk("PTY\n"); break;
 		case TTY_DRIVER_TYPE_DUMMY:
-			printk("DUMMY\n\t"); break;
+			printk("DUMMY\n"); break;
 		default:
-			printk("UNKNOWN\n\t");
+			printk("UNKNOWN\n");
 		}
 	}
 }
 EXPORT_SYMBOL(tty_print_drivers);
 
 /**
- * alloc_tty_struct
- * @driver:	driver to hook
- * @idx:	idx of the tty_struct table
- * @Return:	!%NULL on success
+ *	alloc_tty_struct	-	allocated a new tty struct
+ *	@driver: driver to hook
+ *	@idx: idx of the tty_struct table
  *
- * This function allocates and initializes a tty struct.
+ *	This function allocates and initializes a tty struct.
  */
 struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx)
 {
 	struct tty_struct *tty;
 
-	/* XXX
-	 *
-	 *	tty = kzalloc(sizeof(*tty), GFP_KERNEL);
-	 *	if (!tty)
-	 *		return NULL;
-	 */
+#if 0
+	tty = kzalloc(sizeof(struct tty_struct), GFP_KERNEL);
+	if (!tty)
+		return ERR_PTR(-ENOMEM);
+#endif
 	tty = &tty_table[idx];
 
 	/* Initialize tty_struct */
@@ -155,6 +158,8 @@ struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx)
 	tty->driver = driver;
 	tty->ops = driver->ops;
 	kref_init(&tty->kref);
+
+	tty->write_cnt = TTY_WRITE_BUF_SIZE;
 
 	return tty;
 }
@@ -183,16 +188,36 @@ static ssize_t do_tty_write(
 	size_t count)
 {
 	ssize_t ret;
+	size_t size;
+
+	/*
+	 * We chunk up writes into a temporary buffer. This
+	 * simplifies low-level drivers immensely, since they
+	 * don't have locking issues and user mode accesses.
+	 *
+	 * The default buffer-size is TTY_WRITE_BUF_SIZE = 2KB
+	 */
+	size = count;
+	if (count > tty->write_cnt) {
+		WARN("tty_write: bytes pruned");
+		size = tty->write_cnt;
+	}
+
+	if (copy_from_user(tty->write_buf, buf, size))
+		return -EFAULT;
+	
+	ret = write(tty, file, tty->write_buf, size);
+	return ret;
 }
 
 /**
- * tty_write		-	Write method for tty device file
- * @file:	tty file pointer
- * @buf:	user data to write
- * @count:	bytes to write
- * @ppos:	unused
+ *	tty_write	-	write method for tty device file
+ *	@file: tty file pointer
+ *	@buf: user data to write
+ *	@count: bytes to write
+ *	@ppos: unused
  *
- * Write data to a tty device through line discipline
+ *	Write data to a tty device through line discipline
  */
 ssize_t tty_write(struct file *file, const char __user *buf,
 		size_t count, loff_t **ppos)
@@ -204,8 +229,8 @@ ssize_t tty_write(struct file *file, const char __user *buf,
 #if 0
 	tty = file_tty(file);
 #endif
-
 	tty = &tty_table[0];
+
 	if (!tty || !tty->ops->write)
 		return -EIO;
 
@@ -221,6 +246,10 @@ ssize_t tty_write(struct file *file, const char __user *buf,
 
 void __init tty_init(void)
 {
+	/*
+	 * This function calls line discipline layer to register n_tty
+	 * ops. n_tty is the default ldisc, which *must* be available.
+	 */
 	tty_ldisc_begin();
 
 	/*

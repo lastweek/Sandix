@@ -3,11 +3,11 @@
 # Sandix/  Kernel Configuration
 #
 # CONFIG_DEBUG_SPINLOCK is not set
-# CONFIG_64BIT is not set
-CONFIG_X86_32=y
+CONFIG_64BIT=y
+CONFIG_X86_64=y
 CONFIG_X86=y
-CONFIG_OUTPUT_FORMAT="elf32-i386"
-CONFIG_ARCH_DEFCONFIG="arch/x86/configs/i386_defconfig"
+CONFIG_OUTPUT_FORMAT="elf64-x86-64"
+CONFIG_ARCH_DEFCONFIG="arch/x86/configs/x86_64_defconfig"
 
 #
 # Processor type and features

@@ -158,7 +158,7 @@ static struct tty_ldisc *tty_ldisc_get(struct tty_struct *tty, int disc)
 
 static void tty_ldisc_put(struct tty_ldisc *ld)
 {
-	if (WARN_ON(!ld))
+	if (WARN_ON_ONCE(!ld))
 		return;
 
 	put_ldops(ld->ops);
@@ -220,8 +220,8 @@ EXPORT_SYMBOL(tty_ldisc_close);
  */
 static void tty_ldisc_restore(struct tty_struct *tty, struct tty_ldisc *old)
 {
+	int ret;
 	struct tty_ldisc *new_ldisc;
-	int r;
 
 	/* There is an outstanding reference here so this is safe */
 	old = tty_ldisc_get(tty, old->ops->num);
@@ -230,14 +230,17 @@ static void tty_ldisc_restore(struct tty_struct *tty, struct tty_ldisc *old)
 	tty_set_termios_ldisc(tty, old->ops->num);
 	if (tty_ldisc_open(tty, old) < 0) {
 		tty_ldisc_put(old);
+
 		/* This driver is always present */
 		new_ldisc = tty_ldisc_get(tty, N_TTY);
 		if (IS_ERR(new_ldisc))
 			panic("n_tty: get");
+
 		tty->ldisc = new_ldisc;
 		tty_set_termios_ldisc(tty, N_TTY);
-		r = tty_ldisc_open(tty, new_ldisc);
-		if (r < 0)
+		
+		ret = tty_ldisc_open(tty, new_ldisc);
+		if (ret < 0)
 			panic("n_tty: open");
 	}
 }
@@ -245,24 +248,24 @@ static void tty_ldisc_restore(struct tty_struct *tty, struct tty_ldisc *old)
 /**
  *	tty_ldisc_change	-	change line discipline
  *	@tty: tty to change
- *	@ldisc: new line discipine
+ *	@disc: new line discipine number
  *
  *	Change the line discipline of the tty. The tty must have an old
  *	ldisc attached to, we must handle it properly. Sandix implement
  *	it quite simple, but please look at linux, see how complex it is!
  *	XXX tty shoud be locked
  */
-int tty_ldisc_change(struct tty_struct *tty, int ldisc)
+int tty_ldisc_change(struct tty_struct *tty, int disc)
 {
 	int ret;
 	struct tty_ldisc *old_ldisc, *new_ldisc;
 
 	BUG_ON(!tty->ldisc);
 
-	if (tty->ldisc->ops->num == ldisc)
+	if (tty->ldisc->ops->num == disc)
 		return 0;
 
-	new_ldisc = tty_ldisc_get(tty, ldisc);
+	new_ldisc = tty_ldisc_get(tty, disc);
 	if (IS_ERR(new_ldisc))
 		return PTR_ERR(new_ldisc);
 
@@ -273,7 +276,7 @@ int tty_ldisc_change(struct tty_struct *tty, int ldisc)
 
 	/* Set up the new one */
 	tty->ldisc = new_ldisc;
-	tty_set_termios_ldisc(tty, ldisc);
+	tty_set_termios_ldisc(tty, disc);
 
 	ret = tty_ldisc_open(tty, new_ldisc);
 	if (ret) {
@@ -282,20 +285,35 @@ int tty_ldisc_change(struct tty_struct *tty, int ldisc)
 		tty_ldisc_restore(tty, old_ldisc);
 	}
 
-	/* At this point we hold a reference to the new ldisc and a
-	   reference to the old ldisc, or we hold two references to
-	   the old ldisc (if it was restored as part of error cleanup
-	   above). In either case, releasing a single reference from
-	   the old ldisc is correct. */
-
+	/*
+	 * At this point we hold a reference to the new ldisc and a
+	 * reference to the old ldisc, or we hold two references to
+	 * the old ldisc (if it was restored as part of error cleanup
+	 * above). In either case, releasing a single reference from
+	 * the old ldisc is correct.
+	 */
 	tty_ldisc_put(old_ldisc);
 
 	return ret;
 }
 EXPORT_SYMBOL(tty_ldisc_change);
 
+/*TODO*/
+struct tty_ldisc *tty_ldisc_ref_wait(struct tty_struct *tty)
+{
+	return tty->ldisc;
+}
+EXPORT_SYMBOL(tty_ldisc_ref_wait);
+
+/*TODO*/
+void tty_ldisc_deref(struct tty_ldisc *ld)
+{
+
+}
+EXPORT_SYMBOL(tty_ldisc_deref);
+
 /**
- *	tty_ldisc_init	-	Init ldisc for a new tty
+ *	tty_ldisc_init	-	set n_tty as new tty's ldisc
  *	@tty: the new tty
  *
  *	Set up the line discipline object for a newly allocated tty.
@@ -319,18 +337,8 @@ void tty_ldisc_deinit(struct tty_struct *tty)
 }
 EXPORT_SYMBOL(tty_ldisc_deinit);
 
-void tty_ldisc_begin(void)
+void __init tty_ldisc_begin(void)
 {
 	/* N_TTY is the default line discipline, */
 	tty_register_ldisc(N_TTY, &tty_ldisc_N_TTY);
-}
-
-struct tty_ldisc *tty_ldisc_ref_wait(struct tty_struct *tty)
-{
-	return tty->ldisc;
-}
-
- /*TODO*/ void tty_ldisc_deref(struct tty_ldisc *ld)
-{
-
 }

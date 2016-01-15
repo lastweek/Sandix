@@ -45,6 +45,7 @@
 #include <sandix/termios.h>
 #include <sandix/types.h>
 #include <sandix/kref.h>
+#include <sandix/fs.h>
 
 struct tty_struct;
 
@@ -100,7 +101,7 @@ struct tty_ldisc_ops {
 	int	(*open)(struct tty_struct *tty);
 	void	(*close)(struct tty_struct *tty);
 	ssize_t	(*read)(struct tty_struct *tty, char __user *buf, size_t count);
-	ssize_t	(*write)(struct tty_struct *tty, const unsigned char __user *buf, size_t count);
+	ssize_t	(*write)(struct tty_struct *tty, struct file *file, const unsigned char __user *buf, size_t count);
 	void	(*set_termios)(struct tty_struct *tty, struct termios *old);
 };
 
@@ -141,6 +142,10 @@ struct tty_struct {
 	void *disc_data;
 	void *driver_data;
 	struct kref kref;
+
+#define TTY_WRITE_BUF_SIZE 2048
+	int write_cnt;
+	unsigned char write_buf[TTY_WRITE_BUF_SIZE];
 };
 
 /*
@@ -276,12 +281,11 @@ struct tty_struct {
 /* tty_table[0] is registed as console tty */
 extern struct tty_struct tty_table[2];
 
+
+/* tty layer */
 extern struct termios tty_std_termios;
 extern struct list_head tty_drivers;
 
-/*
- * tty layer management functions
- */
 void tty_set_operations(struct tty_driver *driver, const struct tty_operations *ops);
 int tty_unregister_driver(struct tty_driver *driver);
 int tty_register_driver(struct tty_driver *driver);
@@ -289,19 +293,18 @@ void tty_print_drivers(void);
 struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx);
 void __init tty_init(void);
 
-/*
- * Line discipline management functions
- */
+/* line discipline layer */
 int tty_register_ldisc(int disc, struct tty_ldisc_ops *new_ldisc);
 int tty_unregister_ldisc(int disc);
-struct tty_ldisc *tty_ldisc_ref_wait(struct tty_struct *tty);
-void tty_ldisc_deref(struct tty_ldisc *ld);
-int tty_set_ldisc(struct tty_struct *tty, int ldisc);
+int tty_ldisc_open(struct tty_struct *tty, struct tty_ldisc *ld);
+void tty_ldisc_close(struct tty_struct *tty, struct tty_ldisc *ld);
+int tty_ldisc_change(struct tty_struct *tty, int disc);
+void tty_ldisc_init(struct tty_struct *tty);
+void tty_ldisc_deinit(struct tty_struct *tty);
 void tty_ldisc_begin(void);
+struct tty_ldisc *tty_ldisc_ref_wait(struct tty_struct *tty);
+void __init tty_ldisc_deref(struct tty_ldisc *ld);
 
-/*
- * N_TTY line discipline
- */
 extern struct tty_ldisc_ops tty_ldisc_N_TTY;
 
 #endif /* _SANDIX_TTY_H_ */

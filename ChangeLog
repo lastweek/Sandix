@@ -329,3 +329,12 @@ Thu Jan 14 14:14:17 CST 2016
 - [M] drivers/tty/tty_ldisc.c
 - [M] drivers/tty/n_tty.c			[D] new functions
 - [M] include/sandix/tty.h			[D] new ldisc_ops: open, close
+
+
+Fri Jan 15 11:14:19 CST 2016
+- [+] include/asm-generic/uaccess.h		[D] copy_from_user() etc. functions
+- [M] include/sandix/uaccess.h			 >  still empty. But they are needed by tty_io
+- [M] arch/x86/include/asm/uaccess.h
+- [M] drivers/tty_io.c
+- [M] drivers/n_tty.c
+- [M] arch/x86/Kconfig				[D] CONFIG_64BIT, default no

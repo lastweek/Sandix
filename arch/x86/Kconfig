@@ -2,19 +2,24 @@
 #	x86 ISA Configuration
 #
 
-config	X86_32
-	bool "32-bit x86 kernel"
+# select 32 or 64 bit
+config	64BIT
+	bool "64-bit kernel"
 	---help---
-	  Say yes to build a 32-bit kernel - formerly known as i386
+	Say yes to build a 64-bit kernel - formerly known as x86_64
+	Say no to build a 32-bit kernel - formely known as i386
+
+config	X86_32
+	def_bool y
+	depends on !64BIT
 
 config	X86_64
-	bool "64-bit x86 kernel"
-	depends on !X86_32
-	---help---
-	  Say yes to build a 64-bit kernel - formerly known as x86_64
+	def_bool y
+	depends on 64BIT
 
+# arch settings
 config	X86
-	def_bool yes
+	def_bool y
 	select HAVE_ARCH_JUMP_LABEL
 	select HAVE_KERNEL_BZIP2
 	select HAVE_KERNEL_GZIP

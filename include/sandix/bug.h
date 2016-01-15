@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -59,6 +59,14 @@ do {								\
 	printk("WARNING: at %s:%d/%s()!\n",			\
 		__FILE__, __LINE__, __func__);			\
 } while(0)
+
+#define WARN(condition, format...) ({				\
+
+})
+
+#define WARN_ONCE(condition, format...) ({			\
+
+})
 
 #define WARN_ON(condition) ({					\
 	int __ret_warn_on = !!(condition);			\

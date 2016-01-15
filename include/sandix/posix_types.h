@@ -1,7 +1,5 @@
 /*
- *	include/sandix/posix_types.h - Architecture Independent Posix Types
- *
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -22,7 +20,7 @@
 #define _SANDIX_POSIX_TYPES_H_
 
 #ifndef _SANDIX_TYPES_H_
-# error INCLUDE ERROR: Do Not Include This File Directly.
+# error "Please do not include this file directly"
 #endif
 
 #include <asm/posix_types.h>	/* Architecture-Dependent Posix Types */
