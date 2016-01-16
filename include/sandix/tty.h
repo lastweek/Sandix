@@ -61,9 +61,12 @@ struct tty_struct {
 	int				index;
 	unsigned long			flags;
 
+	spinlock_t			flow_lock;
+	int				stopped;
+
 	/* protect whole tty struct */
-	struct kref			kref;
 	struct mutex			tty_mutex;
+	struct kref			kref;
 
 	struct rw_semaphore		termios_rwsem;
 	struct termios			termios;

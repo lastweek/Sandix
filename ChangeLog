@@ -9,8 +9,8 @@
 #	[D] = Description	(Nothing but some memos)
 #	 >  = More to say
 #
-#	All files created before 09/07/2015 are NOT recorded here.
-#	Because they born too early.
+#	All files created before Sep 7 2015 are *NOT* recorded here.
+#	They born too early, pray for them.
 
 
 Mon Sep  7 CST 2015
@@ -298,6 +298,10 @@ Mon Dec 14 15:20:42 CST 2015
 -						 >  mail came from Linus, which mentioned this might be a
 -						 >  a big problem! https://lkml.org/lkml/2015/9/3/428
 
+#
+#	HAPPY 2016! Keep hacking Sandix!
+#
+
 Mon Jan 11 19:57:25 CST 2016
 - [M] drivers/tty/tty_io.c
 - [M] drivers/tty/tty_ldisc.c
@@ -344,7 +348,10 @@ Fri Jan 15 11:14:19 CST 2016
 
 
 Sat Jan 16 10:29:09 CST 2016
-- [+] include/sandix/rwsem.h			[D] RW semaphore, used by tty now. Empty
-- [M] drivers/tty/tty_ldisc.h			[D] Some locking added
-- [M] drivers/tty/tty_io.c			[D] tty_lock/unlock
-- [M] include/sandix/tty.h			[D] re-organize tty_struct. new protecting lock
+- [+] include/sandix/rwsem.h			[D] Used by tty now. Empty
+- [M] include/sandix/tty.h			[D] re-organize tty_struct. new protecting lock and new fields
+- [M] drivers/tty/tty_io.c			 >  tty_lock/unlock. alloc_tty_struct() some modifications
+- [M] drivers/tty/tty_ldisc.h			 >  Some locking added
+- [M] include/sandix/tty_driver.h		[D] new methods added into tty_operations
+- [M] drivers/tty/vt/vt.c			 >  write_room, chars_in_buffer, etc. I start to understand why they are here
+- [M] drivers/tty/n_tty.c			[D] OPOST processing

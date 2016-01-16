@@ -16,28 +16,33 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _SANDIX_MUTEX_H_
-#define _SANDIX_MUTEX_H_
+#ifndef _SANDIX_RWSEM_H_
+#define _SANDIX_RWSEM_H_
 
+#include <sandix/types.h>
 #include <sandix/compiler.h>
+#include <sandix/spinlock.h>
 
 /* TODO now used by tty part */
 
-struct mutex {
-	int x;
+struct rw_semaphore {
+	long			count;
+	struct list_head	wait_list;
+	spinlock_t		wait_lock;
 };
 
-#define DEFINE_MUTEX(name) \
-	struct mutex name
+#define DEFINE_RWSEM(name) \
+	struct rw_semaphore name
 
-#define mutex_init(name)
+#define rwsem_init(name)
 
-static __always_inline void mutex_lock(struct mutex *m)
-{
-}
+static inline void down_read(struct rw_semaphore *sem)
+{}
+static inline void up_read(struct rw_semaphore *sem)
+{}
+static inline void down_write(struct rw_semaphore *sem)
+{}
+static inline void up_write(struct rw_semaphore *sem)
+{}
 
-static __always_inline void mutex_unlock(struct mutex *m)
-{
-}
-
-#endif /* _SANDIX_MUTEX_H_ */
+#endif /* _SANDIX_RWSEM_H_ */

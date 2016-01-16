@@ -163,11 +163,24 @@ struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx)
 	tmp_ldisc.tty = tty;
 	tty->ldisc = &tmp_ldisc;
 
-	kref_init(&tty->kref);
 	tty->magic = TTY_STRUCT_MAGIC;
+	tty->index = 0;
+	tty->flags = 0;
+
+	spin_lock_init(&tty->flow_lock);
+	tty->stopped = 0;
+
+	mutex_init(&tty->tty_mutex);
+	kref_init(&tty->kref);
+
+	rwsem_init(&tty->termios_rwsem);
 	tty->termios = driver->init_termios;
+
 	tty->driver = driver;
 	tty->ops = driver->ops;
+
+	rwsem_init(&tty->ldisc_rwsem);
+
 	tty->write_cnt = TTY_WRITE_BUF_SIZE;
 
 	return tty;

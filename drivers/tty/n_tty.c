@@ -20,9 +20,10 @@
  * This file describes N_TTY line discipline
  */
 
-#include <sandix/compiler.h>
-#include <sandix/types.h>
 #include <sandix/tty.h>
+#include <sandix/types.h>
+#include <sandix/rwsem.h>
+#include <sandix/compiler.h>
 
 struct n_tty_data {
 
@@ -40,20 +41,11 @@ static ssize_t n_tty_write(struct tty_struct *tty, struct file *file,
 	const unsigned char *b = buf;
 	ssize_t ret = count;
 
-	while (1) {
-		if (!count)
-			break;
+	down_read(&tty->termios_rwsem);
 
-		if (*b == '\n') {
-			tty->ops->write(tty, "\r", 1);
-			tty->ops->write(tty, "\n", 1);
-		} else
-			tty->ops->write(tty, b, 1);
+	
 
-		b++;
-		count--;
-	}
-
+	up_read(&tty->termios_rwsem);
 	return ret;
 }
 

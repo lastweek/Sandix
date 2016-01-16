@@ -582,6 +582,32 @@ static int con_write(struct tty_struct *tty, const unsigned char *buf,
 #undef DEL
 }
 
+static int con_put_char(struct tty_struct *tty, unsigned char ch)
+{
+	return con_write(tty, &ch, 1);
+}
+
+/* No limit, we are not buffering */
+static int con_write_room(struct tty_struct *tty)
+{
+	if (tty->stopped)
+		return 0;
+	return 32768;
+}
+
+/* We are not buffering */
+static int con_chars_in_buffer(struct tty_struct *tty)
+{
+	return 0;
+}
+
+static const struct tty_operations console_ops = {
+	.write = con_write,
+	.put_char = con_put_char,
+	.write_room = con_write_room,
+	.chars_in_buffer = con_chars_in_buffer
+};
+
 /*****************************************************************************/
 /*                                                                           */
 /*			VT Layer Management				     */
@@ -684,11 +710,6 @@ int unregister_con_driver(const struct con_driver *con)
 }
 
 EXPORT_SYMBOL(unregister_con_driver);
-
-static const struct tty_operations console_ops = {
-	.write = con_write,
-	.put_char = NULL
-};
 
 /*
  * This is the tty driver of console.

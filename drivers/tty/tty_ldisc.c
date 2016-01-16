@@ -342,7 +342,7 @@ void tty_ldisc_deinit(struct tty_struct *tty)
 }
 EXPORT_SYMBOL(tty_ldisc_deinit);
 
-void __init tty_ldisc_begin(void)
+void tty_ldisc_begin(void)
 {
 	/* N_TTY is the default line discipline, */
 	tty_register_ldisc(N_TTY, &tty_ldisc_N_TTY);
