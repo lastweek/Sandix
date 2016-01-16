@@ -171,7 +171,12 @@ struct tty_struct {
 /* tty_table[0] is registed as console tty */
 extern struct tty_struct tty_table[2];
 
-/* tty layer */
+/* XXX This should not be exported. Delete this after 
+       char device layer and filesystem operation stuff are built */
+ssize_t tty_write(struct file *file, const char __user *buf, size_t count, loff_t **ppos);
+
+
+extern struct tty_ldisc_ops tty_ldisc_N_TTY;
 extern struct termios tty_std_termios;
 extern struct list_head tty_drivers;
 
@@ -179,27 +184,13 @@ void tty_set_operations(struct tty_driver *driver, const struct tty_operations *
 int tty_unregister_driver(struct tty_driver *driver);
 int tty_register_driver(struct tty_driver *driver);
 void tty_print_drivers(void);
-struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx);
 void tty_lock(struct tty_struct *tty);
 void tty_unlock(struct tty_struct *tty);
+struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx);
+int tty_chars_in_buffer(struct tty_struct *tty);
+int tty_write_room(struct tty_struct *tty);
+void tty_driver_flush_buffer(struct tty_struct *tty);
+int tty_put_char(struct tty_struct *tty, unsigned char ch);
 void __init tty_init(void);
-
-/* XXX This should not be exported. Delete this after 
-       char device layer and filesystem operation stuff are built */
-ssize_t tty_write(struct file *file, const char __user *buf, size_t count, loff_t **ppos);
-
-/* line discipline layer */
-int tty_register_ldisc(int disc, struct tty_ldisc_ops *new_ldisc);
-int tty_unregister_ldisc(int disc);
-int tty_ldisc_open(struct tty_struct *tty, struct tty_ldisc *ld);
-void tty_ldisc_close(struct tty_struct *tty, struct tty_ldisc *ld);
-int tty_ldisc_change(struct tty_struct *tty, int disc);
-void tty_ldisc_init(struct tty_struct *tty);
-void tty_ldisc_deinit(struct tty_struct *tty);
-void tty_ldisc_begin(void);
-struct tty_ldisc *tty_ldisc_ref_wait(struct tty_struct *tty);
-void __init tty_ldisc_deref(struct tty_ldisc *ld);
-
-extern struct tty_ldisc_ops tty_ldisc_N_TTY;
 
 #endif /* _SANDIX_TTY_H_ */

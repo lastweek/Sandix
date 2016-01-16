@@ -104,12 +104,12 @@ struct termios {
 /*
  * c_oflag bits
  */
-#define OPOST	0000001	/* Enable implementation-defined output processing			*/
+#define OPOST	0000001	/* Enable following output processing					*/
 #define OLCUC	0000002	/* Map lowercase characters to uppercase on output			*/
 #define ONLCR	0000004	/* Map NL to CR-NL on output						*/
 #define OCRNL	0000010	/* Map CR to NL on output						*/
 #define ONOCR	0000020	/* Do not output CR at columm 0						*/
-#define ONLRET	0000040	/* Do not output CR							*/
+#define ONLRET	0000040	/* NL performs CR function						*/
 #define OFILL	0000100	/* Send fill characters for a delay, rather than using a timed delay	*/
 #define OFDEL	0000200	/* Fill character is ASCII DEL (0177). If unset, it is ('\0')		*/
 #define NLDLY	0000400	/* Newline delay mask							*/

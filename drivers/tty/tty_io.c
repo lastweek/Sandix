@@ -134,6 +134,37 @@ void tty_print_drivers(void)
 	}
 }
 
+/**
+ *	tty_lock	-	lock whole tty struct
+ *	@tty: to lock
+ *
+ *	This function locks the whole tty struct, and gets the kref.
+ *	It is big mutex lock.
+ */
+void tty_lock(struct tty_struct *tty)
+{
+	if (tty->magic != TTY_STRUCT_MAGIC) {
+		pr_err("L Bad Magic");
+		WARN_ON(1);
+		return;
+	}
+	kref_get(&tty->kref);
+	mutex_lock(&tty->tty_mutex);
+}
+EXPORT_SYMBOL(tty_lock);
+
+void tty_unlock(struct tty_struct *tty)
+{
+	if (tty->magic != TTY_STRUCT_MAGIC) {
+		pr_err("U Bad Magic");
+		WARN_ON(1);
+		return;
+	}
+	mutex_unlock(&tty->tty_mutex);
+	kref_put(&tty->kref);
+}
+EXPORT_SYMBOL(tty_unlock);
+
 /*XXX delete this after kmalloc done */
 static struct tty_ldisc tmp_ldisc;
 
@@ -163,6 +194,9 @@ struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx)
 	tmp_ldisc.tty = tty;
 	tty->ldisc = &tmp_ldisc;
 
+	/* XXX open ldisc here. Should be removed */
+	tty_ldisc_open(tty, tty->ldisc);
+
 	tty->magic = TTY_STRUCT_MAGIC;
 	tty->index = 0;
 	tty->flags = 0;
@@ -186,6 +220,56 @@ struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx)
 	return tty;
 }
 EXPORT_SYMBOL(alloc_tty_struct);
+
+/**
+ *	tty_chars_in_buffer	-	characters pending
+ *	@tty: terminal
+ *
+ *	Return the number of bytes of data in the device private
+ *	output queue. If no private method is supplied there is assumed
+ *	to be no queue on the device.
+ */
+int tty_chars_in_buffer(struct tty_struct *tty)
+{
+	if (tty->ops->chars_in_buffer)
+		return tty->ops->chars_in_buffer(tty);
+	else
+		return 0;
+}
+EXPORT_SYMBOL(tty_chars_in_buffer);
+
+/**
+ *	tty_write_room		-	write queue space
+ *	@tty: terminal
+ *
+ *	Return the number of bytes that can be queued to this device
+ *	at the present time. The result should be treated as a guarantee
+ *	and the driver cannot offer a value it later shrinks by more than
+ *	the number of bytes written. If no method is provided 2K is always
+ *	returned and data may be lost as there will be no flow control.
+ */
+int tty_write_room(struct tty_struct *tty)
+{
+	if (tty->ops->write_room)
+		return tty->ops->write_room(tty);
+	return 2048;
+}
+EXPORT_SYMBOL(tty_write_room);
+
+/**
+ *	tty_driver_flush_buffer	-	discard internal buffer
+ *	@tty: terminal
+ *
+ *	Discard the internal output buffer for this device. If no method
+ *	is provided then either the buffer cannot be hardware flushed or
+ *	there is no buffer driver side.
+ */
+void tty_driver_flush_buffer(struct tty_struct *tty)
+{
+	if (tty->ops->flush_buffer)
+		tty->ops->flush_buffer(tty);
+}
+EXPORT_SYMBOL(tty_driver_flush_buffer);
 
 /**
  *	tty_put_char	-	write one char to tty device
@@ -268,36 +352,6 @@ ssize_t tty_write(struct file *file, const char __user *buf,
 	return ret;
 }
 
-/**
- *	tty_lock	-	lock whole tty struct
- *	@tty: to lock
- *
- *	This function locks the whole tty struct, and gets the kref.
- *	It is big mutex lock.
- */
-void tty_lock(struct tty_struct *tty)
-{
-	if (tty->magic != TTY_STRUCT_MAGIC) {
-		pr_err("L Bad Magic");
-		WARN_ON(1);
-		return;
-	}
-	kref_get(&tty->kref);
-	mutex_lock(&tty->tty_mutex);
-}
-EXPORT_SYMBOL(tty_lock);
-
-void tty_unlock(struct tty_struct *tty)
-{
-	if (tty->magic != TTY_STRUCT_MAGIC) {
-		pr_err("U Bad Magic");
-		WARN_ON(1);
-		return;
-	}
-	mutex_unlock(&tty->tty_mutex);
-	kref_put(&tty->kref);
-}
-EXPORT_SYMBOL(tty_unlock);
 
 void __init tty_init(void)
 {
