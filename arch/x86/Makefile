@@ -84,7 +84,7 @@ KBUILD_CFLAGS	+= -mno-sse -mno-mmx -mno-sse2 -mno-3dnow
 # $(head-y), $(init-y), $(core-y) and so on. Normally,
 # the $(head-y) is head.o only, used to jump to $(init-y)
 #
-head-y		:= arch/x86/kernel/head.o
+head-y		:= arch/x86/kernel/head_32.o
 core-y		+= arch/x86/kernel/
 libs-y		+= arch/x86/lib/
 #core-y		+= arch/x86/mm/

@@ -7,6 +7,6 @@ extra-y := head_32.o
 # Linker Script
 extra-y += vmSandix.ld
 
-# General Built-in
+# built-in
 obj-y := entry.o
 obj-y += setup.o
