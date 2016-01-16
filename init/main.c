@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -14,10 +14,6 @@
  *	You should have received a copy of the GNU General Public License along
  *	with this program; if not, write to the Free Software Foundation, Inc.,
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
-
-/*
- * This file describes the general entry point of arch-independent kernel.
  */
 
 #include <sandix/kernel.h>
@@ -40,11 +36,16 @@ asmlinkage void __init start_kernel(void)
 {
 	arch_setup();
 
+	/*
+	 * We need printk to print some info. So, before arch_setup or boot_mem
+	 * are built, let us just init tty first. Anyway, we need to rewrite some
+	 * code within tty after malloc/free done.
+	 *
+	 * So maybe we could call this early_prink?
+	 */
 	tty_init();
-
-	printk("\033[32m%s\033[0m\n\r", sandix_banner);
-
 	tty_print_drivers();
+	printk("\033[32m%s\033[0m\n\r", sandix_banner);
 
 	panic("end");
 }
