@@ -21,14 +21,15 @@
  */
 
 #include <sandix/err.h>
-#include <sandix/errno.h>
-#include <sandix/kernel.h>
-#include <sandix/list.h>
 #include <sandix/tty.h>
+#include <sandix/list.h>
+#include <sandix/slab.h>
 #include <sandix/mutex.h>
 #include <sandix/rwsem.h>
+#include <sandix/errno.h>
+#include <sandix/kernel.h>
+#include <sandix/bitops.h>
 #include <sandix/spinlock.h>
-#include <sandix/slab.h>
 
 /*
  * Using a static array to store registed discipline, a simple spinlock is used
@@ -186,10 +187,11 @@ int tty_ldisc_open(struct tty_struct *tty, struct tty_ldisc *ld)
 {
 	int ret = 0;
 
-	/*XXX tty->flags */
+	WARN_ON(test_and_set_bit(TTY_LDISC_OPEN, &tty->flags));
 	if (ld->ops->open) {
 		ret = ld->ops->open(tty);
-		if (ret) ;
+		if (ret)
+			clear_bit(TTY_LDISC_OPEN, &tty->flags);
 	}
 	return ret;
 }
@@ -206,7 +208,8 @@ EXPORT_SYMBOL(tty_ldisc_open);
  */
 void tty_ldisc_close(struct tty_struct *tty, struct tty_ldisc *ld)
 {
-	/*XXX tty->flags */
+	WARN_ON(!test_bit(TTY_LDISC_OPEN, &tty->flags));
+	clear_bit(TTY_LDISC_OPEN, &tty->flags);
 	if (ld->ops->close)
 		ld->ops->close(tty);
 }

@@ -41,8 +41,8 @@ struct n_tty_data {
 	struct mutex		output_lock;
 };
 
-static ssize_t n_tty_read(struct tty_struct *tty, char __user *buf,
-			  size_t count)
+static ssize_t n_tty_read(struct tty_struct *tty, struct file *file,
+			  unsigned char __user *buf, size_t count)
 {
 	return 0;
 }
@@ -219,8 +219,10 @@ static ssize_t process_output_block(struct tty_struct *tty,
 				ldata->column--;
 			break;
 		default:
-			if (!iscntrl(ch) && O_OLCUC(tty))
-				goto break_out;
+			if (!iscntrl(ch))
+				/* When enabled, VT102 emulation dies... */
+				if (O_OLCUC(tty))
+					goto break_out;
 			break;
 		}
 	}

@@ -736,7 +736,7 @@ void __init console_init(void)
 	int i, err;
 	struct tty_struct *tty;
 
-	/* Register Dummy Console */
+	/* Register Dummy console */
 	register_con_driver(&dummy_con);
 	for (i = 1; i < MAX_NR_CONSOLES; i++) {
 		bind_con_driver(&vc_struct_map[i], &dummy_con);
@@ -751,21 +751,20 @@ void __init console_init(void)
 		return;
 
 	/* Initialize tty_driver */
-	console_driver.name = "TTY Driver for Console";
+	console_driver.name = "tty";
 	console_driver.type = TTY_DRIVER_TYPE_CONSOLE;
 	console_driver.major = TTY_MAJOR;
 	console_driver.minor_start = 1;
 	console_driver.num = 1;
+	console_driver.flags = TTY_DRIVER_RESET_TERMIOS | TTY_DRIVER_REAL_RAW;
 	console_driver.init_termios = tty_std_termios;
 	tty_set_operations(&console_driver, &console_ops);
 
-	/* Register tty_driver */
 	tty_register_driver(&console_driver);
 
-	/* XXX */
-	/* Allocate tty_table[0] to console_driver */
+	/* XXX Allocate tty_table[0] to console_driver now */
 	tty = alloc_tty_struct(&console_driver, 0);
 
-	/* Private, specific console driver data */
+	/* XXX assign the first vc_struct now */
 	tty->driver_data = (void *)&vc_struct_map[0];
 }

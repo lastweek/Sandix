@@ -180,7 +180,10 @@ bad_sig:
 # Show a red 'B' after '@'
 	movl	$0xb8002, %ebx
 	movw	$0x0442, (%ebx)
+	movw	$0x0461, 2(%ebx)
+	movw	$0x0464, 4(%ebx)
 1:	hlt
+	hlt
 	jmp 1b
 
 

@@ -65,7 +65,7 @@ struct tty_struct {
 	int				stopped;
 
 	/* protect whole tty struct */
-	struct mutex			tty_mutex;
+	struct mutex			tty_lock;
 	struct kref			kref;
 
 	struct rw_semaphore		termios_rwsem;
@@ -83,6 +83,27 @@ struct tty_struct {
 	int				write_cnt;
 	unsigned char 			write_buf[TTY_WRITE_BUF_SIZE];
 };
+
+/*
+ * These bits are used in the flags field of the tty structure.
+ *
+ * So that interrupts won't be able to mess up the queues,
+ * copy_to_cooked must be atomic with respect to itself, as must
+ * tty->write.  Thus, you must use the inline functions set_bit() and
+ * clear_bit() to make things atomic.
+ */
+#define TTY_THROTTLED 		0	/* Call unthrottle() at threshold min */
+#define TTY_IO_ERROR 		1	/* Cause an I/O error (may be no ldisc too) */
+#define TTY_OTHER_CLOSED 	2	/* Other side (if any) has closed */
+#define TTY_EXCLUSIVE 		3	/* Exclusive open mode */
+#define TTY_DEBUG 		4	/* Debugging */
+#define TTY_DO_WRITE_WAKEUP 	5	/* Call write_wakeup after queuing new */
+#define TTY_OTHER_DONE		6	/* Closed pty has completed input processing */
+#define TTY_LDISC_OPEN	 	11	/* Line discipline is open */
+#define TTY_PTY_LOCK 		16	/* pty private */
+#define TTY_NO_WRITE_SPLIT 	17	/* Preserve write boundaries to driver */
+#define TTY_HUPPED 		18	/* Post driver->hangup() */
+#define TTY_LDISC_HALTED	22	/* Line discipline is halted */
 
 #define INTR_CHAR(tty)		((tty)->termios.c_cc[VINTR])
 #define QUIT_CHAR(tty)		((tty)->termios.c_cc[VQUIT])

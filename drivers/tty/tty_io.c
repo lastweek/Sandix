@@ -149,7 +149,7 @@ void tty_lock(struct tty_struct *tty)
 		return;
 	}
 	kref_get(&tty->kref);
-	mutex_lock(&tty->tty_mutex);
+	mutex_lock(&tty->tty_lock);
 }
 EXPORT_SYMBOL(tty_lock);
 
@@ -160,7 +160,7 @@ void tty_unlock(struct tty_struct *tty)
 		WARN_ON(1);
 		return;
 	}
-	mutex_unlock(&tty->tty_mutex);
+	mutex_unlock(&tty->tty_lock);
 	kref_put(&tty->kref);
 }
 EXPORT_SYMBOL(tty_unlock);
@@ -194,7 +194,7 @@ struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx)
 	tmp_ldisc.tty = tty;
 	tty->ldisc = &tmp_ldisc;
 
-	/* XXX open ldisc here. Should be removed */
+	/* XXX Should be removed */
 	tty_ldisc_open(tty, tty->ldisc);
 
 	tty->magic = TTY_STRUCT_MAGIC;
@@ -204,7 +204,7 @@ struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx)
 	spin_lock_init(&tty->flow_lock);
 	tty->stopped = 0;
 
-	mutex_init(&tty->tty_mutex);
+	mutex_init(&tty->tty_lock);
 	kref_init(&tty->kref);
 
 	rwsem_init(&tty->termios_rwsem);
