@@ -266,6 +266,7 @@ struct tty_operations {
 	int	(*put_char)(struct tty_struct *tty, unsigned char ch);
 	int	(*write_room)(struct tty_struct *tty);
 	int	(*chars_in_buffer)(struct tty_struct *tty);
+	void	(*flush_chars)(struct tty_struct *tty);
 };
 
 /**
