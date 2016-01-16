@@ -26,6 +26,7 @@
 #include <sandix/list.h>
 #include <sandix/tty.h>
 #include <sandix/mutex.h>
+#include <sandix/rwsem.h>
 #include <sandix/spinlock.h>
 #include <sandix/slab.h>
 
@@ -165,10 +166,11 @@ static void tty_ldisc_put(struct tty_ldisc *ld)
 	kfree(ld);
 }
 
-static void tty_set_termios_ldisc(struct tty_struct *tty, int ldisc)
+static void tty_set_termios_ldisc(struct tty_struct *tty, int disc)
 {
-	/*XXX lock */
-	tty->termios.c_line = ldisc;
+	down_write(&tty->termios_rwsem);
+	tty->termios.c_line = disc;
+	up_write(&tty->termios_rwsem);
 }
 
 /**
@@ -261,13 +263,15 @@ int tty_ldisc_change(struct tty_struct *tty, int disc)
 	struct tty_ldisc *old_ldisc, *new_ldisc;
 
 	BUG_ON(!tty->ldisc);
-
 	if (tty->ldisc->ops->num == disc)
 		return 0;
 
+	tty_lock(tty);
 	new_ldisc = tty_ldisc_get(tty, disc);
-	if (IS_ERR(new_ldisc))
+	if (IS_ERR(new_ldisc)) {
+		tty_unlock(tty);
 		return PTR_ERR(new_ldisc);
+	}
 
 	old_ldisc = tty->ldisc;
 
@@ -294,6 +298,7 @@ int tty_ldisc_change(struct tty_struct *tty, int disc)
 	 */
 	tty_ldisc_put(old_ldisc);
 
+	tty_unlock(tty);
 	return ret;
 }
 EXPORT_SYMBOL(tty_ldisc_change);

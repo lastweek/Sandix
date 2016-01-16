@@ -34,7 +34,6 @@
 #include <sandix/fs.h>
 #include <sandix/uaccess.h>
 
-/* For the benefit of tty drivers */
 struct termios tty_std_termios = {
 	.c_iflag = ICRNL | IXON,
 	.c_oflag = OPOST | ONLCR,
@@ -134,16 +133,18 @@ void tty_print_drivers(void)
 		}
 	}
 }
-EXPORT_SYMBOL(tty_print_drivers);
 
+/*XXX delete this after kmalloc done */
 static struct tty_ldisc tmp_ldisc;
 
 /**
- *	alloc_tty_struct	-	allocated a new tty struct
+ *	alloc_tty_struct	-	allocate a new tty struct
  *	@driver: driver to hook
  *	@idx: idx of the tty_struct table
  *
- *	This function allocates and initializes a tty struct.
+ *	This function allocates and initializes a tty struct. All fields
+ *	inside tty_struct are initialized properly. Also note that the line
+ *	discipline is set to N_TTY, which is the default terminal ldisc.
  */
 struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx)
 {
@@ -173,9 +174,13 @@ struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx)
 }
 EXPORT_SYMBOL(alloc_tty_struct);
 
-/*
- * Write one byte to the tty using the provided put_char method if present.
- * Return number of characters successfully output
+/**
+ *	tty_put_char	-	write one char to tty device
+ *	@tty: tty to write
+ *	@ch: character to output
+ *
+ *	Write one byte to the tty using the provided put_char method
+ *	if present. Return number of characters successfully output.
  */
 int tty_put_char(struct tty_struct *tty, unsigned char ch)
 {
@@ -250,11 +255,42 @@ ssize_t tty_write(struct file *file, const char __user *buf,
 	return ret;
 }
 
+/**
+ *	tty_lock	-	lock whole tty struct
+ *	@tty: to lock
+ *
+ *	This function locks the whole tty struct, and gets the kref.
+ *	It is big mutex lock.
+ */
+void tty_lock(struct tty_struct *tty)
+{
+	if (tty->magic != TTY_STRUCT_MAGIC) {
+		pr_err("L Bad Magic");
+		WARN_ON(1);
+		return;
+	}
+	kref_get(&tty->kref);
+	mutex_lock(&tty->tty_mutex);
+}
+EXPORT_SYMBOL(tty_lock);
+
+void tty_unlock(struct tty_struct *tty)
+{
+	if (tty->magic != TTY_STRUCT_MAGIC) {
+		pr_err("U Bad Magic");
+		WARN_ON(1);
+		return;
+	}
+	mutex_unlock(&tty->tty_mutex);
+	kref_put(&tty->kref);
+}
+EXPORT_SYMBOL(tty_unlock);
+
 void __init tty_init(void)
 {
 	/*
-	 * This function calls line discipline layer to register n_tty
-	 * ops. n_tty is the default ldisc, which *must* be available.
+	 * This function calls line discipline layer to register N_TTY
+	 * ops. N_TTY is the default ldisc, which *must* be available.
 	 */
 	tty_ldisc_begin();
 

@@ -338,3 +338,13 @@ Fri Jan 15 11:14:19 CST 2016
 - [M] drivers/tty_io.c
 - [M] drivers/n_tty.c
 - [M] arch/x86/Kconfig				[D] CONFIG_64BIT, default no
+- [M] include/sandix/tty.h			[D] Split tty_driver/ldisc definitions into
+- [+] include/sandix/tty_ldsic.h		 >  newly created files. It is cleaner speration
+- [+] include/sandix/tty_driver.h		 >  between tty_struct/ldisc/driver.
+
+
+Sat Jan 16 10:29:09 CST 2016
+- [+] include/sandix/rwsem.h			[D] RW semaphore, used by tty now. Empty
+- [M] drivers/tty/tty_ldisc.h			[D] Some locking added
+- [M] drivers/tty/tty_io.c			[D] tty_lock/unlock
+- [M] include/sandix/tty.h			[D] re-organize tty_struct. new protecting lock

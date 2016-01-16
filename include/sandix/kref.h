@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -23,13 +23,25 @@
 #include <sandix/compiler.h>
 #include <sandix/types.h>
 
+/* TODO used by tty part now */
+
 struct kref {
 	atomic_t refcount;
 };
 
-ALWAYS_INLINE void kref_init(struct kref *ref)
+static __always_inline void kref_init(struct kref *ref)
 {
 	atomic_set(&ref->refcount, 1);
+}
+
+static __always_inline void kref_get(struct kref *ref)
+{
+
+}
+
+static __always_inline void kref_put(struct kref *ref)
+{
+
 }
 
 #endif /* _SANDIX_KREF_H_ */

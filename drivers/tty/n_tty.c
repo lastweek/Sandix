@@ -34,7 +34,6 @@ static ssize_t n_tty_read(struct tty_struct *tty, char __user *buf,
 
 }
 
-//tty->ops->write(tty, buf, count);
 static ssize_t n_tty_write(struct tty_struct *tty, struct file *file,
 			   const unsigned char *buf, size_t count)
 {

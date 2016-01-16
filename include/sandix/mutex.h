@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -21,16 +21,21 @@
 
 #include <sandix/compiler.h>
 
+/* TODO now used by tty part */
+
 struct mutex {
 	int x;
 };
 
-#define DEFINE_MUTEX(NAME)	struct mutex NAME
+#define DEFINE_MUTEX(NAME) \
+	struct mutex NAME
 
-INLINE void mutex_lock(struct mutex *m)
-{}
+static __always_inline void mutex_lock(struct mutex *m)
+{
+}
 
-INLINE void mutex_unlock(struct mutex *m)
-{}
+static __always_inline void mutex_unlock(struct mutex *m)
+{
+}
 
 #endif /* _SANDIX_MUTEX_H_ */

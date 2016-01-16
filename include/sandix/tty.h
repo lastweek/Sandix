@@ -41,39 +41,44 @@
 #ifndef _SANDIX_TTY_H_
 #define _SANDIX_TTY_H_
 
-#include <sandix/compiler.h>
-#include <sandix/termios.h>
-#include <sandix/types.h>
-#include <sandix/kref.h>
 #include <sandix/fs.h>
-#include <sandix/tty_driver.h>
+#include <sandix/kref.h>
+#include <sandix/types.h>
+#include <sandix/rwsem.h>
+#include <sandix/mutex.h>
+#include <sandix/termios.h>
+#include <sandix/compiler.h>
 #include <sandix/tty_ldisc.h>
+#include <sandix/tty_driver.h>
 
-/**
- * struct tty_struct
- *
- * @magic:		Magic number for of tty structs
- * @termios:		Termios of this tty struct
- * @ldisc:		Line discipline driver of this tty
- * @driver:		Low-Level tty driver of this tty
- * @ops:		Hardware-operations of this tty driver
- * @disc_data:		Additional data used by line discipline driver
- * @driver_data:	Additional data used by tty driver
- * @kref:		Reference count
+/*
+ *	XXX
+ *	All functions that manipulate locks should be reviewed
+ *	when Sandix is going to run on real SMP machines.
  */
 struct tty_struct {
-	int magic;
-	struct termios termios;
-	struct tty_ldisc *ldisc;
-	struct tty_driver *driver;
-	const struct tty_operations *ops;
-	void *disc_data;
-	void *driver_data;
-	struct kref kref;
+	int				magic;
+	int				index;
+	unsigned long			flags;
+
+	/* protect whole tty struct */
+	struct kref			kref;
+	struct mutex			tty_mutex;
+
+	struct rw_semaphore		termios_rwsem;
+	struct termios			termios;
+
+	struct tty_driver		*driver;
+	const struct tty_operations	*ops;
+	void 				*driver_data;
+
+	struct rw_semaphore		ldisc_rwsem;
+	struct tty_ldisc 		*ldisc;
+	void 				*ldisc_data;
 
 #define TTY_WRITE_BUF_SIZE 2048
-	int write_cnt;
-	unsigned char write_buf[TTY_WRITE_BUF_SIZE];
+	int				write_cnt;
+	unsigned char 			write_buf[TTY_WRITE_BUF_SIZE];
 };
 
 #define INTR_CHAR(tty)		((tty)->termios.c_cc[VINTR])
@@ -163,7 +168,6 @@ struct tty_struct {
 /* tty_table[0] is registed as console tty */
 extern struct tty_struct tty_table[2];
 
-
 /* tty layer */
 extern struct termios tty_std_termios;
 extern struct list_head tty_drivers;
@@ -173,8 +177,12 @@ int tty_unregister_driver(struct tty_driver *driver);
 int tty_register_driver(struct tty_driver *driver);
 void tty_print_drivers(void);
 struct tty_struct *alloc_tty_struct(struct tty_driver *driver, int idx);
+void tty_lock(struct tty_struct *tty);
+void tty_unlock(struct tty_struct *tty);
 void __init tty_init(void);
 
+/* XXX This should not be exported. Delete this after 
+       char device layer and filesystem operation stuff are built */
 ssize_t tty_write(struct file *file, const char __user *buf, size_t count, loff_t **ppos);
 
 /* line discipline layer */
