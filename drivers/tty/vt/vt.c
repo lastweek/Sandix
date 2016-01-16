@@ -33,15 +33,15 @@
  *	The abstraction of these layers:
  *
  *	-->TTY Layer
- *		-->Line Discipline(Cook)
+ *		-->Line Discipline
  *			-->Virtual Console  (VC)
  *				-->Console Driver (VGA, MDA, DUMMY)
  */
 
 #include <sandix/compiler.h>
 #include <sandix/console.h>
-#include <sandix/errno.h>
 #include <sandix/export.h>
+#include <sandix/errno.h>
 #include <sandix/types.h>
 #include <sandix/major.h>
 #include <sandix/magic.h>
@@ -63,42 +63,44 @@ struct vc_struct vc_struct_map[MAX_NR_CONSOLES];
 EXPORT_SYMBOL(vc_struct_map);
 
 /****************************************************************************/
+/*                                                                           */
 /*			Basic Screen Manipulation			    */
+/*                                                                           */
 /****************************************************************************/
 
-ALWAYS_INLINE void scrup(struct vc_struct *vc, int lines)
+static __always_inline void scrup(struct vc_struct *vc, int lines)
 {
 	vc->driver->con_scroll(vc, VWIN_UP, lines);
 }
 
-ALWAYS_INLINE void scrdown(struct vc_struct *vc, int lines)
+static __always_inline void scrdown(struct vc_struct *vc, int lines)
 {
 	vc->driver->con_scroll(vc, VWIN_DOWN, lines);
 }
 
-ALWAYS_INLINE void save_cursor(struct vc_struct *vc)
+static __always_inline void save_cursor(struct vc_struct *vc)
 {
 	vc->vc_saved_x = vc->vc_x;
 	vc->vc_saved_y = vc->vc_y;
 }
 
-ALWAYS_INLINE void restore_cursor(struct vc_struct *vc)
+static __always_inline void restore_cursor(struct vc_struct *vc)
 {
 	vc->vc_x = vc->vc_saved_x;
 	vc->vc_y = vc->vc_saved_y;
 }
 
-ALWAYS_INLINE void hide_cursor(struct vc_struct *vc)
+static __always_inline void hide_cursor(struct vc_struct *vc)
 {
 	vc->driver->con_cursor(vc, CM_ERASE);
 }
 
-ALWAYS_INLINE void set_cursor(struct vc_struct *vc)
+static __always_inline void set_cursor(struct vc_struct *vc)
 {
 	vc->driver->con_cursor(vc, CM_DRAW);
 }
 
-ALWAYS_INLINE void carriage_return(struct vc_struct *vc)
+static __always_inline void carriage_return(struct vc_struct *vc)
 {
 	vc->vc_pos -= (vc->vc_x << 1);
 	vc->vc_x = 0;
@@ -129,7 +131,7 @@ static void gotoxy(struct vc_struct *vc, int new_x, int new_y)
 		(((vc->vc_cols * vc->vc_y) + vc->vc_x) << 1);
 }
 
-__MUST_TODO__ __unused static void respond(struct tty_struct *tty)
+__unused static void respond(struct tty_struct *tty)
 {
 
 }
@@ -340,20 +342,21 @@ enum {
 };
 
 /**
- * con_write - write to VT screen
- * @tty:	tty_struct
- * @buf:	write buffer
- * @count:	bytes to write
- * Return:	bytes have been written out
+ *	con_write		-	write to VT screen
+ *	@tty: tty_struct
+ *	@buf: write buffer
+ *	@count: bytes to write
+ *	Return: bytes have been written out
  *
- * The data has aleady been cooked by Line Discipline Layer(or not). Here the
- * data string is passed down to console driver layer, who communicate with
- * low-level hardware diretly.
+ *	The data has aleady been cooked by N_TTY (or not). Here the data string
+ *	is passed down to console driver layer, who communicate with low-level
+ *	hardware diretly.
  *
- * We emulate VT102 by cooking escape and control sequences. Escape and control
- * sequences provide additional control functions not provided by the single
- * character controls of the character set. These multiple-character sequences
- * are not displayed; instead, they control terminal operation.
+ *	We emulate VT102 by cooking escape and control sequences. Escape and
+ *	control sequences provide additional control functions not provided by
+ *	the single character controls of the character set. These multiple
+ *	character sequences are not displayed; instead, they control terminal
+ *	operation.
  */
 static int con_write(struct tty_struct *tty, const unsigned char *buf,
 		     int count)
@@ -366,13 +369,10 @@ static int con_write(struct tty_struct *tty, const unsigned char *buf,
 #define CR	13		/* Carriage Return */
 #define ESC	27		/* Escape */
 #define DEL	127		/* Delete */
-	struct vc_struct *vc;
+
+	struct vc_struct *vc = tty->driver_data;
 	const struct con_driver *con;
 	int npar, c, ret, state;
-
-	vc = (struct vc_struct *)tty->driver_data;
-	if (!vc)
-		return -EINVAL;
 
 	con = vc->driver;
 	if (!con)
