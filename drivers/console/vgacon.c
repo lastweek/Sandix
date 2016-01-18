@@ -1,6 +1,4 @@
 /*
- *	Low-Level VGA Console Driver
- *
  *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
  *	This program is free software; you can redistribute it and/or modify
@@ -19,6 +17,8 @@
  */
 
 /*
+ *	Low-Level VGA Console Driver
+ *
  *	This is a simple driver for VGA video card. In a really system,
  *	every virtual console *must* have a in-memory buffer. Because many
  *	consoles may coexist in the meantime, so *no* one is allowed to talk
