@@ -16,9 +16,9 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <sandix/page.h>
 #include <sandix/types.h>
 #include <sandix/string.h>
-#include <sandix/page.h>
 #include <sandix/printk.h>
 
 #include <asm/e820.h>
@@ -27,9 +27,6 @@
 
 struct e820map e820;
 
-/*
- * Build up system memory map.
- */
 void __init setup_memory_map(void)
 {
 	int i, nr;
