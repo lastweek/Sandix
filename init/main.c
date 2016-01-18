@@ -34,18 +34,20 @@ void handle_int(void)
 
 asmlinkage void __init start_kernel(void)
 {
-	arch_setup();
-
 	/*
 	 * We need printk to print some info. So, before arch_setup or boot_mem
 	 * are built, let us just init tty first. Anyway, we need to rewrite some
 	 * code within tty after malloc/free done.
-	 *
-	 * So maybe we could call this early_prink?
 	 */
+	early_arch_setup();
 	tty_init();
 	tty_print_drivers();
 	printk("\033[32m%s\033[0m\n\r", sandix_banner);
 
-	panic("end");
+	/*
+	 * Architecture-independent initialization
+	 */
+	arch_setup();
+
+	panic("init end");
 }

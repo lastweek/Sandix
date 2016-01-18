@@ -1,6 +1,6 @@
 /*
  *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
- *	
+ *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
@@ -16,9 +16,32 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _ASM_X86_SECTIONS_H_
-#define _ASM_X86_SECTIONS_H_
+#include <sandix/types.h>
+#include <sandix/string.h>
+#include <sandix/page.h>
+#include <sandix/printk.h>
 
-#include <asm-generic/sections.h>
+#include <asm/e820.h>
+#include <asm/setup.h>
+#include <asm/bootparam.h>
 
-#endif /* _ASM_X86_SECTIONS_H_ */
+struct e820map e820;
+
+/*
+ * Build up system memory map.
+ */
+void __init setup_memory_map(void)
+{
+	int i, nr;
+	struct e820entry *entry, *dst, *src;
+	
+	dst = e820.map;
+	src = boot_params.e820_map;
+	memcpy((void *)dst, (void *)src, sizeof(struct e820entry) * E820MAX);
+	nr = e820.nr_entries = boot_params.e820_nr_entries;
+
+	for (i = 0; i < nr; i++) {
+		printk("Range: %15llX ~ %15llX \t %d\n", e820.map[i].addr,
+			e820.map[i].addr + e820.map[i].size, e820.map[i].type);
+	}
+}

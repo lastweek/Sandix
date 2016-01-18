@@ -8,5 +8,4 @@ unsigned long max_pfn;
 
 void init_memory(void)
 {
-	setup_memory_map();
 }

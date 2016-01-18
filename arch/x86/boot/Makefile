@@ -1,7 +1,5 @@
 #
-#	arch/x86/boot/Makefile - Build the final bzImage
-#
-#	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+#	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
 #
 #	This program is free software; you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
@@ -17,31 +15,21 @@
 #	with this program; if not, write to the Free Software Foundation, Inc.,
 #	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-##
 # Safe to override KBUILD_CFLAGS, KBUILD_AFLAGS,
 # since this is the last step of kbuild.
-#
 KBUILD_CFLAGS	:= $(USERINCLUDE) $(REALMODE_CFLAGS) -D__SETUP__
 KBUILD_AFLAGS	:= $(KBUILD_CFLAGS) -D__ASSEMBLY__
 
-##
-# HOST BUILD
-#
 hostprogs-y := tools/build
 
-##
 # Simple Boot Loader
 # TO BE REPLACED. Sandix should work with GRUB or something.
-#
 loader-y := bootloader.o
 
-##
-# Since Makefile.build has no rules for these
-# targets, so we have to add them manually. Then
-# they can get their saved-old commands included,
-# then they can use $(if_changed_cmd) freely.
-# Also, Makefile.clean knows how to clean them too.
-#
+# Since Makefile.build has no rules for these targets, so we have to add
+# them manually. Then they can get their saved-old commands included, then
+# they can use $(if_changed_cmd) freely. Also, Makefile.clean knows how to
+# clean them too.
 targets += voffset.h
 targets += vmSandix.bin
 targets += bootloader.bin
@@ -49,10 +37,8 @@ targets += setup.elf
 targets += setup.bin
 targets += bzImage
 
-##
 # Kernel Setup Part. (Real-Mode in x86, actually)
 # header.o must come first, as its name.
-#
 setup-y	:= header.o
 setup-y	+= main.o
 setup-y	+= a20.o
@@ -68,14 +54,12 @@ setup-y += version.o
 setup-y	+= video.o
 setup-targets := $(addprefix $(obj)/, $(setup-y))
 
-##
 # Building bzImage need four things:
 #	bootloader.bin	-	The so-called bootloader
 #	setup.bin	-	The real-mode kernel image
 #	vmSandix.bin	-	The bare kernel itself
 #	tools/build	-	Tool to concatenate
 #	voffset.h	-	Kernel virtual address offset
-#
 quiet_cmd_build_image = BUILD   $@
       cmd_build_image = $(obj)/tools/build $(obj)/bootloader.bin	\
       			$(obj)/setup.bin $(obj)/vmSandix.bin $@

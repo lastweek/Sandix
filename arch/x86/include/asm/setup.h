@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -16,16 +16,12 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/*
- * This file work with arch/x86/kernel/setup.c
- * for architecture-specific initialization.
- */
-
 #ifndef _ASM_X86_SETUP_H_
 #define _ASM_X86_SETUP_H_
 
 extern struct boot_params boot_params;
 
+void __init early_arch_setup(void);
 void __init arch_setup(void);
 
 #endif /* _ASM_X86_SETUP_H_ */

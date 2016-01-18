@@ -16,13 +16,15 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <sandix/compiler.h>
 #include <sandix/types.h>
+#include <sandix/export.h>
+#include <sandix/compiler.h>
 #include <sandix/screen_info.h>
 
+#include <asm/e820.h>
+#include <asm/segment.h>
 #include <asm/sections.h>
 #include <asm/bootparam.h>
-#include <asm/segment.h>
 #include <asm/descriptor.h>
 
 unsigned long max_pfn_mapped;
@@ -31,8 +33,11 @@ unsigned long brk_start = (unsigned long)__brk_start;
 unsigned long brk_end = (unsigned long)__brk_start;
 
 struct boot_params boot_params;
+EXPORT_SYMBOL(boot_params);
 
+/* Used by low-level console drivers */
 struct screen_info screen_info;
+EXPORT_SYMBOL(screen_info);
 
 struct desc_struct gdt_table[GDT_ENTRIES] __aligned(8) =
 {
@@ -52,7 +57,16 @@ struct desc_struct gdt_table[GDT_ENTRIES] __aligned(8) =
 
 struct desc_struct idt_table[IDT_ENTRIES] __aligned(8);
 
-void __init arch_setup(void)
+/*
+ * Prepare the screen, so we chould use printk()...
+ */
+void __init early_arch_setup(void)
 {
 	screen_info = boot_params.screen_info;
+}
+
+/* The real architecture-dependent initialization */
+void __init arch_setup(void)
+{
+	setup_memory_map();
 }

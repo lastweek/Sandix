@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -50,6 +50,8 @@ struct e820map {
 	unsigned int nr_entries;
 	struct e820entry map[E820MAX];
 }__attribute__((packed));
+
+void setup_memory_map(void);
 
 #endif /* __ASSEMBLY__ */
 #endif /* _ASM_X86_E820_H_ */

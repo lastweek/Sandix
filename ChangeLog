@@ -355,3 +355,10 @@ Sat Jan 16 10:29:09 CST 2016
 - [M] include/sandix/tty_driver.h		[D] new methods added into tty_operations
 - [M] drivers/tty/vt/vt.c			 >  write_room, chars_in_buffer, etc. I start to understand why they are here
 - [M] drivers/tty/n_tty.c			[D] OPOST processing
+
+
+Mon Jan 18 11:05:18 CST 2016
+- [+] arch/x86/pci/early.c			[D] early dump pci devices
+- [+] arch/x86/kernel/traps.c			[D] traps_init()
+- [M] arch/x86/kernel/e820.c			[D] Parse e820 table
+- [M] arch/x86/kernel/setup.c			[D] early_arch_setup()

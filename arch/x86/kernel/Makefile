@@ -1,12 +1,15 @@
+# Note:
 # Using $(extra-y) so Makefile.build and Makefile.clean know
-# what they should do.
+# what they should do (This is part of extra-y's job, actually).
 
-# $(head-y) Part
+# $(head-y) part defined in arch/x86/Makefile
 extra-y := head_32.o
 
 # Linker Script
 extra-y += vmSandix.ld
 
-# built-in
+# Core built-in
 obj-y := entry.o
 obj-y += setup.o
+obj-y += traps.o
+obj-y += e820.o

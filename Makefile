@@ -505,7 +505,7 @@ all: scripts vmSandix
 boot-y		:=
 head-y		:=
 init-y		:= init/
-core-y		:= kernel/
+core-y		:= kernel/ mm/
 libs-y		:= lib/
 #net-y		:= net/
 drivers-y	:= drivers/
