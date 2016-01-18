@@ -17,6 +17,7 @@
  */
 
 #include <stdarg.h>
+
 #include <asm/byteorder.h>		/* For endian */
 #include <sandix/page.h>		/* For PAGE_SIZE */
 #include <sandix/ctype.h>
@@ -67,7 +68,7 @@ struct printf_spec {
 	unsigned char	type;			/* format_type enum */
 	unsigned char	flags;			/* flags to number() */
 	unsigned char	base;			/* number base, 8, 10 or 16 only */
-	unsigned char	qualifier;		/* number qualifier, one of 'hHlLtzZ' */
+	unsigned char	modifier;		/* number modifier, one of 'hHlLtzZ' */
 	signed short	field_width;		/* width of output field */
 	signed short	precision;		/* # of digits/chars */
 };
@@ -282,6 +283,7 @@ static char *number(char *buf, char *end, unsigned long long num,
 		}
 	}
 
+	/* leading prefix '0x', '0X'... */
 	is_zero = (num == 0LL);
 	need_pfx = ((spec.flags & SPECIAL) && spec.base != 10);
 	if (need_pfx) {
@@ -429,7 +431,15 @@ static int format_decode(const char *fmt, struct printf_spec *spec)
 	const char *start = fmt;
 
 	/*
-	 * Handle the FIELD WIDTH and PRECISION first.
+	 * A field width or precision, or both, may be indicated
+	 * by an asterisk `*'. In this case, an int argument supplies
+	 * the field width or precision. A negative field width is
+	 * treated as a left adjustment flag followed by a positive
+	 * field width;
+	 */
+
+	/*
+	 * Get the FIELD WIDTH and PRECISION first
 	 */
 
 	if (spec->type == FORMAT_TYPE_WIDTH) {
@@ -445,10 +455,10 @@ static int format_decode(const char *fmt, struct printf_spec *spec)
 		if (spec->precision < 0)
 			spec->precision = 0;
 		spec->type = FORMAT_TYPE_NONE;
-		goto qualifier;
+		goto modifier;
 	}
 
-	/* Default TYPE */
+	/* Default type */
 	spec->type = FORMAT_TYPE_NONE;
 
 	for (; *fmt; ++fmt) {
@@ -460,7 +470,10 @@ static int format_decode(const char *fmt, struct printf_spec *spec)
 	if (fmt != start || !*fmt)
 		return fmt - start;
 
-	/* Handle the FLAGs. */
+	/*
+	 * Handle the [FLAGs]
+	 */
+
 	spec->flags = 0;
 	while (1) {
 		bool found = true;
@@ -480,18 +493,25 @@ static int format_decode(const char *fmt, struct printf_spec *spec)
 		if (!found)
 			break;
 	}
-	
-	/* Get the FIELD WIDTH. */
+
+	/*
+	 * Handle the [FIELD WIDTH]
+	 */
+
 	spec->field_width = -1;
 	if (isdigit(*fmt))
 		spec->field_width = skip_atoi(&fmt);
 	else if (*fmt == '*') {
+		/* See comment above */
 		spec->type = FORMAT_TYPE_WIDTH;
 		return ++fmt - start;
 	}
 
+	/*
+	 * Handle the [PRECISION]
+	 */
+
 precision:
-	/* Get the PRECISION. */
 	spec->precision = -1;
 	if (*fmt == '.') {
 		++fmt;
@@ -505,33 +525,42 @@ precision:
 		}
 	}
 
-qualifier:
-	/* Get the LENGTH QUALIFIER/MODIFIER. */
-	spec->qualifier = -1;
+	/*
+	 * Handle the [LENGTH MODIFIER]
+	 */
+
+modifier:
+	spec->modifier = -1;
 	if (*fmt == 'h' || _tolower(*fmt) == 'l' ||
 	    _tolower(*fmt) == 'z' || *fmt == 't')
 	{
-		spec->qualifier = *fmt++;
-		if (spec->qualifier == *fmt)
+		spec->modifier = *fmt++;
+		if (spec->modifier == *fmt)
 		{
-			if (spec->qualifier == 'l')
+			if (spec->modifier == 'l')
 			{
-				spec->qualifier = 'L';
+				spec->modifier = 'L';
 				++fmt;
 			}
-			else if (spec->qualifier == 'h')
+			else if (spec->modifier == 'h')
 			{
-				spec->qualifier = 'H';
+				spec->modifier = 'H';
 				++fmt;
 			}
 		}
 	}
 
-	/* Default. */
+	/* default */
 	spec->base = 10;
-	
-	/* Handle the CONVERSION SPECIFIERS. */
+
+	/*
+	 * Handle the [CONVERSION SPECIFIERS]
+	 */
+
 	switch (*fmt) {
+	/*
+	 * Length modifiers have no effect on following conversion specifiers:
+	 */
 	case 'c':
 		spec->type = FORMAT_TYPE_CHAR;
 		return ++fmt - start;
@@ -544,6 +573,9 @@ qualifier:
 	case '%':
 		spec->type = FORMAT_TYPE_PERCENT_CHAR;
 		return ++fmt - start;
+	/*
+	 * Lengh modifiers are applied to the following conversion specifiers:
+	 */
 	case 'd':
 	case 'i':
 		spec->flags |= SIGN;
@@ -567,17 +599,21 @@ qualifier:
 		return fmt - start;
 	}
 
-	if (spec->qualifier == 'L')
+	/*
+	 * Apply modifers, determine the final type
+	 */
+
+	if (spec->modifier == 'L')
 		spec->type = FORMAT_TYPE_LONG_LONG;
-	else if (spec->qualifier == 'l')
+	else if (spec->modifier == 'l')
 		spec->type = FORMAT_TYPE_ULONG + (spec->flags & SIGN);
-	else if (_tolower(spec->qualifier) == 'z')
+	else if (_tolower(spec->modifier) == 'z')
 		spec->type = FORMAT_TYPE_SIZE_T;
-	else if (spec->qualifier == 't')
+	else if (spec->modifier == 't')
 		spec->type = FORMAT_TYPE_PTRDIFF;
-	else if (spec->qualifier == 'H')
+	else if (spec->modifier == 'H')
 		spec->type = FORMAT_TYPE_UBYTE + (spec->flags & SIGN);
-	else if (spec->qualifier == 'h')
+	else if (spec->modifier == 'h')
 		spec->type = FORMAT_TYPE_USHORT + (spec->flags & SIGN);
 	else
 		spec->type = FORMAT_TYPE_UINT + (spec->flags & SIGN);
@@ -685,7 +721,7 @@ int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
 
 				}
 			}
-			c = (unsigned char) va_arg(args, int);
+			c = (unsigned char)va_arg(args, int);
 			if (str < end)
 				*str = c;
 			++str;

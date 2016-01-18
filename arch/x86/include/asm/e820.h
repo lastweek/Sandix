@@ -19,12 +19,34 @@
 #ifndef _ASM_X86_E820_H_
 #define _ASM_X86_E820_H_
 
+#include <sandix/compiler.h>
+
 /* e820 memory segment type */
-#define E820_RAM_TYPE		1		/* Available RAM */
-#define E820_RESERVED_TYPE	2		/* Reserved */
-#define E820_ACPI_TYPE		3
-#define E820_NVS_TYPE		4
-#define E820_UNUSABLE_TYPE	5
+#define E820_RAM		1		/* Available RAM */
+#define E820_RESERVED		2		/* Reserved */
+#define E820_ACPI		3
+#define E820_NVS		4
+#define E820_UNUSABLE		5
+#define E820_PMEM		7		/* Persistent Memory */
+
+/*
+ * This is a non-standardized way to represent ADR or NVDIMM regions that
+ * persist over a reboot.  The kernel will ignore their special capabilities
+ * unless the CONFIG_X86_PMEM_LEGACY=y option is set.
+ *
+ * ( Note that older platforms also used 6 for the same type of memory,
+ *   but newer versions switched to 12 as 6 was assigned differently.  Some
+ *   time they will learn... )
+ */
+#define E820_PRAM	12
+
+/*
+ * reserved RAM used by kernel itself
+ * if CONFIG_INTEL_TXT is enabled, memory of this type will be
+ * included in the S3 integrity calculation and so should not include
+ * any memory that BIOS might alter over the S3 transition
+ */
+#define E820_RESERVED_KERN        128
 
 /* Conventional segment start address */
 #define ISA_START_ADDRESS	0xa0000
@@ -46,12 +68,14 @@ struct e820entry {
 	unsigned int		type;	/* type of memory segment */
 } __attribute__((packed));
 
+/* e820 map used by kernel */
 struct e820map {
 	unsigned int nr_entries;
 	struct e820entry map[E820MAX];
 }__attribute__((packed));
 
-void setup_memory_map(void);
+void __init e820_print_map(char *who);
+void __init setup_memory_map(void);
 
 #endif /* __ASSEMBLY__ */
 #endif /* _ASM_X86_E820_H_ */

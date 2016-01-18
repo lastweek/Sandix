@@ -362,3 +362,5 @@ Mon Jan 18 11:05:18 CST 2016
 - [+] arch/x86/kernel/traps.c			[D] traps_init()
 - [M] arch/x86/kernel/e820.c			[D] Parse e820 table
 - [M] arch/x86/kernel/setup.c			[D] early_arch_setup()
+- [M] lib/vsnprintf.c				[D] Anyway, I reread the code, and change 'qualifiers' to 'modifiers',
+-						 >  which might be more proper, since all manuals call this way.

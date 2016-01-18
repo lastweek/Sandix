@@ -20,6 +20,7 @@
 #include <sandix/types.h>
 #include <sandix/string.h>
 #include <sandix/printk.h>
+#include <sandix/compiler.h>
 
 #include <asm/e820.h>
 #include <asm/setup.h>
@@ -27,18 +28,36 @@
 
 struct e820map e820;
 
+static const char *e820_type_to_string(unsigned int e820_type)
+{
+	switch (e820_type) {
+	case E820_RESERVED_KERN:
+	case E820_RAM:		return "System RAM";
+	case E820_ACPI:		return "ACPI Tables";
+	case E820_NVS:		return "ACPI Non-volatile Storage";
+	case E820_UNUSABLE:	return "Unusable memory";
+	case E820_PRAM:		return "Persistent Memory (legacy)";
+	case E820_PMEM:		return "Persistent Memory";
+	default:		return "Reserved";
+	}
+}
+
+void __init e820_print_map(char *who)
+{
+	int i;
+
+	for (i = 0; i < e820.nr_entries; i++) {
+		printk(KERN_INFO "%s: [mem %#018Lx-%#018Lx] %s\n", who,
+			e820.map[i].addr, (e820.map[i].addr + e820.map[i].size - 1),
+			e820_type_to_string(e820.map[i].type));
+	}
+}
+
 void __init setup_memory_map(void)
 {
-	int i, nr;
-	struct e820entry *entry, *dst, *src;
-	
-	dst = e820.map;
-	src = boot_params.e820_map;
-	memcpy((void *)dst, (void *)src, sizeof(struct e820entry) * E820MAX);
-	nr = e820.nr_entries = boot_params.e820_nr_entries;
+	memcpy((void *)e820.map, (void *)boot_params.e820_map, sizeof(struct e820entry) * E820MAX);
+	e820.nr_entries = boot_params.e820_nr_entries;
 
-	for (i = 0; i < nr; i++) {
-		printk("Range: %15llX ~ %15llX \t %d\n", e820.map[i].addr,
-			e820.map[i].addr + e820.map[i].size, e820.map[i].type);
-	}
+	printk(KERN_INFO "e820: BIOS-provided physical RAM map:\n");
+	e820_print_map("BIOS-e820");
 }
