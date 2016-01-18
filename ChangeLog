@@ -361,6 +361,7 @@ Mon Jan 18 11:05:18 CST 2016
 - [+] lib/sort.c				[D] a heapsort implementation
 - [+] include/sandix/sort.c
 - [+] arch/x86/pci/early.c			[D] early dump pci devices
+- [+] arch/x86/include/asm/pci-early.c
 - [+] arch/x86/kernel/traps.c			[D] traps_init()
 - [M] arch/x86/kernel/e820.c			[D] Parse e820 table, print map
 - [M] arch/x86/kernel/setup.c			[D] early_arch_setup()

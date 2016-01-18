@@ -26,6 +26,7 @@
 #include <asm/sections.h>
 #include <asm/bootparam.h>
 #include <asm/descriptor.h>
+#include <asm/pci-early.c>
 
 unsigned long max_pfn_mapped;
 
@@ -65,8 +66,9 @@ void __init early_arch_setup(void)
 	screen_info = boot_params.screen_info;
 }
 
-/* The real architecture-dependent initialization */
 void __init arch_setup(void)
 {
 	setup_memory_map();
+
+	early_dump_pci_devices();
 }
