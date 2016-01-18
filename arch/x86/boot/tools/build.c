@@ -94,7 +94,7 @@ static int get_color(void)
 
 int main(int argc, char **argv)
 {
-	FILE *fp_loader, *fp_setup, *fp_sys, *fp_image;
+	FILE *fp_loader, *fp_setup, *fp_sys, *fp_image, *fp_image2;
 	int len_loader, len_setup, len_sys;
 	int sectors_setup, sectors_sys, sectors_image;
 	int i, j, pad, sys_size;
@@ -114,7 +114,11 @@ int main(int argc, char **argv)
 
 	if ((fp_image = fopen(argv[4], "w")) == NULL)
 		die("Create %s failed\n", argv[4]);
+	
+	if ((fp_image2 = fopen("arch/x86/boot/bzimage2", "w")) == NULL)
+		die("Create b2 failed\n");
 	fseek(fp_image, 0, SEEK_SET);
+	fseek(fp_image2, 0, SEEK_SET);
 	
 	/* Read Bootloader */
 	fseek(fp_loader, 0, SEEK_END);
@@ -177,6 +181,20 @@ int main(int argc, char **argv)
 		c = fgetc(fp_sys);
 		fputc(c, fp_image);
 	}
+
+	/* bzimag2 */
+	if (fwrite(buf, 1, j, fp_image2) != j )
+		die("Write Setup2 failed\n");
+	fseek(fp_sys, 0, SEEK_SET);
+	for (i = 0; i < len_sys; i++) {
+		c = fgetc(fp_sys);
+		fputc(c, fp_image2);
+	}
+	if ((pad = len_sys % 512)) {
+		pad = 512 - pad;
+		for (i = 0; i < pad; i++)
+			fputc(NOP, fp_image2);
+	}
 	
 	/*
 	 * Yes, i choose to pad system to 512-bytes align, because
@@ -211,6 +229,7 @@ int main(int argc, char **argv)
 	fclose(fp_setup);
 	fclose(fp_sys);
 	fclose(fp_image);
+	fclose(fp_image2);
 
 	return 0;
 }
