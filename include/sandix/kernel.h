@@ -20,11 +20,12 @@
 #define _SANDIX_KERNEL_H_
 
 #include <sandix/bug.h>
-#include <sandix/compiler.h>
-#include <sandix/export.h>
-#include <sandix/linkage.h>
 #include <sandix/types.h>
+#include <sandix/export.h>
 #include <sandix/printk.h>
+#include <sandix/linkage.h>
+#include <sandix/compiler.h>
+#include <sandix/typecheck.h>
 
 #include <stdarg.h>
 
@@ -41,6 +42,8 @@
 #define LLONG_MIN	(-LLONG_MAX - 1)
 #define ULLONG_MAX	(~0ULL)
 #define SIZE_MAX	(~(size_t)0)
+
+#define ARRAY_SIZE(x)	(sizeof(x) / sizeof((x)[0]))
 
 /**
  * offsetof - find MEMBER offset within strcut TYPE

@@ -22,6 +22,7 @@
 #define KERN_SOH	"\001"		/* ASCII Start Of Header */
 #define KERN_SOH_ASCII	'\001'
 
+#ifdef __non_exist__
 #define KERN_EMERG	KERN_SOH "0"	/* System is unusable */
 #define KERN_ALERT	KERN_SOH "1"	/* Action must be taken immediately */
 #define KERN_CRIT	KERN_SOH "2"	/* Critical conditions */
@@ -30,8 +31,18 @@
 #define KERN_NOTICE	KERN_SOH "5"	/* Normal but significant condition */
 #define KERN_INFO	KERN_SOH "6"	/* Informational */
 #define KERN_DEBUG	KERN_SOH "7"	/* Debug-level messages */
-
 #define KERN_DEFAULT	KERN_SOH "d"	/* The default kernel loglevel */
+#else
+#define KERN_EMERG
+#define KERN_ALERT
+#define KERN_CRIT
+#define KERN_ERR
+#define KERN_WARN
+#define KERN_NOTICE
+#define KERN_INFO
+#define KERN_DEBUG
+#define KERN_DEFAULT
+#endif
 
 /*
  * Annotation for a "continued" line of log printout (only done after a

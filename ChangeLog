@@ -358,9 +358,11 @@ Sat Jan 16 10:29:09 CST 2016
 
 
 Mon Jan 18 11:05:18 CST 2016
+- [+] lib/sort.c				[D] a heapsort implementation
+- [+] include/sandix/sort.c
 - [+] arch/x86/pci/early.c			[D] early dump pci devices
 - [+] arch/x86/kernel/traps.c			[D] traps_init()
-- [M] arch/x86/kernel/e820.c			[D] Parse e820 table
+- [M] arch/x86/kernel/e820.c			[D] Parse e820 table, print map
 - [M] arch/x86/kernel/setup.c			[D] early_arch_setup()
-- [M] lib/vsnprintf.c				[D] Anyway, I reread the code, and change 'qualifiers' to 'modifiers',
+- [M] lib/vsnprintf.c				[D] I reread the code, and change 'qualifiers' to 'modifiers',
 -						 >  which might be more proper, since all manuals call this way.

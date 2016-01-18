@@ -1,7 +1,5 @@
 /*
- *	include/sandix/compiler.h - I mean, GCC...
- *
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -26,13 +24,8 @@
 #ifndef _SANDIX_COMPILER_H_
 #define _SANDIX_COMPILER_H_
 
-#define __MUST_TODO__
-
-#ifdef __INTEL_COMPILER
-# error Sorry, please use GCC
-#endif
-#ifdef __clang__
-# error Sorry, please use GCC
+#if defined (__INTEL_COMPILER) || defined (__clang__)
+# error "Sorry, please use GCC"
 #endif
 
 #include <sandix/types.h>

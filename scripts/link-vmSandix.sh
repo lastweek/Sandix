@@ -40,9 +40,35 @@ vmSandix_ld()
 		--end-group
 }
 
+# System.map is used by module-init tools and some debugging
+# tools to retrieve the actual addresses of symbols in the kernel.
+#
+# The second row specify the type of the symbol:
+#   A = Absolute
+#   B = Uninitialised data (.bss)
+#   C = Common symbol
+#   D = Initialised data
+#   G = Initialised data for small objects
+#   I = Indirect reference to another symbol
+#   N = Debugging symbol
+#   R = Read only
+#   S = Uninitialised data for small objects
+#   T = Text code symbol
+#   U = Undefined symbol
+#   V = Weak symbol
+#   W = Weak symbol
+#   Corresponding small letters are local symbols
+
+# For System.map filter away:
+#   a - local absolute symbols
+#   U - undefined global symbols
+#   N - debugging symbols
+#   w - local weak symbols
+
 mksysmap()
 {
-	${NM} -n ${1} > ${2}
+	$NM -n $1 > $2 
+	#$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( .L\)' > $2
 }
 
 cleanup()
@@ -54,16 +80,12 @@ cleanup()
 	rm -f arch/${SRCARCH}/boot/vmSandix
 }
 
-##
 # Enable Debug Mode; Print commands.
-#
 if [ "${KBUILD_VERBOSE}" = "1" ]; then
 	set -x;
 fi
 
-##
 # Link vmSandix
-#
 if [ "$1" == "LD" ]; then
 	info LD vmSandix
 	vmSandix_ld vmSandix
@@ -87,9 +109,6 @@ if [ "$1" == "LD" ]; then
 	cp System.map arch/${SRCARCH}/boot/
 fi
 
-##
-# Cleaning
-#
 if [ "$1" == "clean" ]; then
 	info CLEAN vmSandix
 	cleanup
