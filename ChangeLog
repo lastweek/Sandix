@@ -367,3 +367,11 @@ Mon Jan 18 11:05:18 CST 2016
 - [M] arch/x86/kernel/setup.c			[D] early_arch_setup()
 - [M] lib/vsnprintf.c				[D] I reread the code, and change 'qualifiers' to 'modifiers',
 -						 >  which might be more proper, since all manuals call this way.
+
+
+Wed Jan 20 10:21:18 CST 2016
+- [+] arch/x86/boot/install.sh
+- [+] scirpts/gcc-version.sh
+- [M] Makefile
+- [M] arch/x86/Makefile
+- [M] arch/x86/boot/Makefile

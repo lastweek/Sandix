@@ -1,7 +1,4 @@
-#
-#	scripts/Makefile.flags
-#
-#	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+#	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
 #
 #	This program is free software; you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
@@ -16,53 +13,12 @@
 #	You should have received a copy of the GNU General Public License along
 #	with this program; if not, write to the Free Software Foundation, Inc.,
 #	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#
 
-
-##
-# Note that:
-#
-# This Makefile.flags should be merged into top Makefile,
-# right after ARCH Makefile. But for brevity, we separate it.
-#
-# All these flags appeared in Linux top-Makefile, which contains
-# more opitional compiler/assember/linker flags.
-#
-
-#
-# Tell gcc to never replace conditional load with a non-conditional one
-KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
-
-# Tell gcc to never check null pointers
-KBUILD_CFLAGS	+= $(call cc-option,-fno-delete-null-pointer-checks,)
-
-# This warning generated too much noise in a regular build.
-# Use make W=1 to enable this warning (see scripts/Makefile.build)
-KBUILD_CFLAGS	+= $(call cc-disable-warning, unused-but-set-variable)
-
-# warn about C99 declaration after statement
-KBUILD_CFLAGS	+= $(call cc-option,-Wdeclaration-after-statement,)
-
-# disable pointer signed / unsigned warnings in gcc 4.0
-KBUILD_CFLAGS	+= $(call cc-disable-warning, pointer-sign)
-
-# disable invalid "can't wrap" optimizations for signed / pointers
-KBUILD_CFLAGS	+= $(call cc-option,-fno-strict-overflow)
-
-# conserve stack if available
-KBUILD_CFLAGS   += $(call cc-option,-fconserve-stack)
-
-# disallow errors like 'EXPORT_GPL(foo);' with missing header
-#KBUILD_CFLAGS   += $(call cc-option,-Werror=implicit-int)
-
-# require functions to have arguments in prototypes, not empty 'int foo()'
-KBUILD_CFLAGS   += $(call cc-option,-Werror=strict-prototypes)
-
-# Prohibit date/time macros, which would make the build non-deterministic
-KBUILD_CFLAGS   += $(call cc-option,-Werror=date-time)
-
-# use the deterministic mode of AR if available
-KBUILD_ARFLAGS := $(call ar-option,D)
+# Check for 'asm goto'
+ifeq ($(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-goto.sh $(CC)), y)
+KBUILD_CFLAGS += -DCC_HAVE_ASM_GOTO
+KBUILD_AFLAGS += -DCC_HAVE_ASM_GOTO
+endif
 
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os $(call cc-disable-warning,maybe-uninitialized,)
@@ -80,18 +36,116 @@ KBUILD_CFLAGS += $(call cc-option,-fno-reorder-blocks,) \
                  $(call cc-option,-fno-partial-inlining)
 endif
 
-# Check for 'asm goto'
-ifeq ($(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-goto.sh $(CC)), y)
-	KBUILD_CFLAGS += -DCC_HAVE_ASM_GOTO
-	KBUILD_AFLAGS += -DCC_HAVE_ASM_GOTO
+# Warn if the size of function frame is too big
+ifneq ($(CONFIG_FRAME_WARN),0)
+KBUILD_CFLAGS += $(call cc-option,-Wframe-larger-than=${CONFIG_FRAME_WARN})
 endif
 
-# To avoid any implicit rules
-scripts/Makefile.extrawarn: ;
-include scripts/Makefile.extrawarn
+# Handle stack protector mode.
+#
+# Since kbuild can potentially perform two passes (first with the old
+# .config values and then with updated .config values), we cannot error out
+# if a desired compiler option is unsupported. If we were to error, kbuild
+# could never get to the second pass and actually notice that we changed
+# the option to something that was supported.
+#
+# Additionally, we don't want to fallback and/or silently change which compiler
+# flags will be used, since that leads to producing kernels with different
+# security feature characteristics depending on the compiler used. ("But I
+# selected CC_STACKPROTECTOR_STRONG! Why did it build with _REGULAR?!")
+#
+# The middle ground is to warn here so that the failed option is obvious, but
+# to let the build fail with bad compiler flags so that we can't produce a
+# kernel when there is a CONFIG and compiler mismatch.
+#
+ifdef CONFIG_CC_STACKPROTECTOR_REGULAR
+  stackp-flag := -fstack-protector
+  ifeq ($(call cc-option, $(stackp-flag)),)
+    $(warning Cannot use CONFIG_CC_STACKPROTECTOR_REGULAR: \
+             -fstack-protector not supported by compiler)
+  endif
+else
+ifdef CONFIG_CC_STACKPROTECTOR_STRONG
+  stackp-flag := -fstack-protector-strong
+  ifeq ($(call cc-option, $(stackp-flag)),)
+    $(warning Cannot use CONFIG_CC_STACKPROTECTOR_STRONG: \
+	      -fstack-protector-strong not supported by compiler)
+  endif
+else
+  # Force off for distro compilers that enable stack protector by default.
+  stackp-flag := $(call cc-option, -fno-stack-protector)
+endif
+endif
+KBUILD_CFLAGS += $(stackp-flag)
 
-# Add any arch overrides and user supplied CPPFLAGS, AFLAGS and CFLAGS as the
-# last assignments
-KBUILD_CPPFLAGS += $(ARCH_CPPFLAGS) $(KCPPFLAGS)
-KBUILD_AFLAGS   += $(ARCH_AFLAGS)   $(KAFLAGS)
-KBUILD_CFLAGS   += $(ARCH_CFLAGS)   $(KCFLAGS)
+ifdef CONFIG_FRAME_POINTER
+KBUILD_CFLAGS	+= -fno-omit-frame-pointer -fno-optimize-sibling-calls
+else
+# Some targets (ARM with Thumb2, for example), can't be built with frame
+# pointers.  For those, we don't have FUNCTION_TRACER automatically
+# select FRAME_POINTER.  However, FUNCTION_TRACER adds -pg, and this is
+# incompatible with -fomit-frame-pointer with current GCC, so we don't use
+# -fomit-frame-pointer with FUNCTION_TRACER.
+ifndef CONFIG_FUNCTION_TRACER
+KBUILD_CFLAGS	+= -fomit-frame-pointer
+endif
+endif
+
+KBUILD_CFLAGS   += $(call cc-option, -fno-var-tracking-assignments)
+
+ifdef CONFIG_DEBUG_INFO
+  ifdef CONFIG_DEBUG_INFO_SPLIT
+    KBUILD_CFLAGS += $(call cc-option, -gsplit-dwarf, -g)
+  else
+    KBUILD_CFLAGS += -g
+  endif
+KBUILD_AFLAGS	+= -Wa,-gdwarf-2
+endif
+
+ifdef CONFIG_DEBUG_INFO_DWARF4
+KBUILD_CFLAGS	+= $(call cc-option, -gdwarf-4,)
+endif
+
+ifdef CONFIG_DEBUG_INFO_REDUCED
+KBUILD_CFLAGS 	+= $(call cc-option, -femit-struct-debug-baseonly) \
+		   $(call cc-option,-fno-var-tracking)
+endif
+
+# We trigger additional mismatches with less inlining
+ifdef CONFIG_DEBUG_SECTION_MISMATCH
+KBUILD_CFLAGS += $(call cc-option, -fno-inline-functions-called-once)
+endif
+
+# This warning generated too much noise in a regular build.
+# Use make W=1 to enable this warning (see scripts/Makefile.build)
+KBUILD_CFLAGS	+= $(call cc-disable-warning, unused-but-set-variable)
+
+# tell gcc to never replace conditional load with a non-conditional one
+KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
+
+# tell gcc to never check null pointers
+KBUILD_CFLAGS	+= $(call cc-option,-fno-delete-null-pointer-checks,)
+
+# warn about C99 declaration after statement
+KBUILD_CFLAGS	+= $(call cc-option,-Wdeclaration-after-statement,)
+
+# disable pointer signed / unsigned warnings in gcc 4.0
+KBUILD_CFLAGS	+= $(call cc-disable-warning, pointer-sign)
+
+# disable invalid "can't wrap" optimizations for signed / pointers
+KBUILD_CFLAGS	+= $(call cc-option,-fno-strict-overflow)
+
+# conserve stack if available
+KBUILD_CFLAGS   += $(call cc-option,-fconserve-stack)
+
+# disallow errors like 'EXPORT_GPL(foo);' with missing header
+KBUILD_CFLAGS   += $(call cc-option,-Werror=implicit-int)
+
+# require functions to have arguments in prototypes, not empty 'int foo()'
+KBUILD_CFLAGS   += $(call cc-option,-Werror=strict-prototypes)
+
+# Prohibit date/time macros, which would make the build non-deterministic
+KBUILD_CFLAGS   += $(call cc-option,-Werror=date-time)
+
+# use the deterministic mode of AR if available
+KBUILD_ARFLAGS := $(call ar-option,D)

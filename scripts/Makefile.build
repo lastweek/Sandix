@@ -1,7 +1,6 @@
-#
-#	script/Makefile.build - Shopping?
+#	Shopping?
 #	
-#	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+#	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
 #
 #	This program is free software; you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
@@ -80,7 +79,6 @@ objdump-y	:=
 subdir-asflags-y :=
 subdir-ccflags-y :=
 
-# Black Magic?
 # Included order matters. Makefile.lib is responsible
 # for processing variables defined in $(src)/Makefile.
 include $(srctree)/scripts/Kbuild.include
@@ -90,32 +88,29 @@ include $(srctree)/scripts/Makefile.lib
 # Do NOT include Makefile.host only if $(src)/Makefile
 # need building host programs.
 ifneq ($(hostprogs-y),)
-include $(srctree)/scripts/Makefile.host
+  include $(srctree)/scripts/Makefile.host
 endif
 
-# ------------------------------------------------------------------------
 # Figure out what $(srctree)/$(src)/Makefile want.
-# ------------------------------------------------------------------------
-
+# ===========================================================================
 ifneq ($(strip $(lib-y)),)
-lib-target := $(obj)/lib.a
+  lib-target := $(obj)/lib.a
 endif
 
 ifneq ($(strip $(obj-y) $(lib-target)),)
-builtin-target := $(obj)/built-in.o
+  builtin-target := $(obj)/built-in.o
 endif
 
 ifneq ($(strip $(objdump-y)),)
-objdump-target := $(patsubst %,%.objdump,$(objdump-y))
+  objdump-target := $(patsubst %,%.objdump,$(objdump-y))
 endif
 
 ifneq ($(strip $(loader-y)),)
-loader-target := $(loader-y)
+  loader-target := $(loader-y)
 endif
 
-##
 # Default target depends on everything
-# ------------------------------------------------------------------------
+# ===========================================================================
 __build: $(builtin-target) $(lib-target) $(subdir-y)	\
 	 $(loader-target) $(objdump-target)		\
 	 $(extra-y) $(always) $(setup-y)
@@ -123,13 +118,10 @@ __build: $(builtin-target) $(lib-target) $(subdir-y)	\
 
 targets += $(extra-y) $(always) $(setup-y)
 
-# ------------------------------------------------------------------------
 # Build everything
-# ------------------------------------------------------------------------
+# ===========================================================================
 
-##
 # Check source sanitary
-#
 ifneq ($(KBUILD_CHECKSRC),0)
   ifeq ($(KBUILD_CHECKSRC),2)
     quiet_cmd_force_checksrc = CHECK   $<
@@ -140,10 +132,8 @@ ifneq ($(KBUILD_CHECKSRC),0)
   endif
 endif
 
-##
 # Rule to compile a set of .o files into one .o file
-#
-# ------------------------------------------------------------------------
+# ===========================================================================
 ifdef builtin-target
 # If the list is empty, create an empty built-in.o
 quiet_cmd_link_o_target = LD $(quiet_modtag)  $@
@@ -159,10 +149,8 @@ targets += $(obj-y)
 targets += $(builtin-target)
 endif
 
-##
 # Rule to compile a set of .o files into one .a file
-#
-# ------------------------------------------------------------------------
+# ===========================================================================
 ifdef lib-target
 quiet_cmd_link_l_target = AR $(quiet_modtag)  $@
       cmd_link_l_target = rm -f $@; $(AR) rcs$(KBUILD_ARFLAGS) $@ $(lib-y)
@@ -174,15 +162,12 @@ targets += $(lib-y)
 targets += $(lib-target)
 endif
 
-##
 # Rule to link composite objects
-#
+# ===========================================================================
 #  Composite objects are specified in kbuild makefile as follows:
 #    <composite-object>-objs := <list of .o files>
 #  or
 #    <composite-object>-y    := <list of .o files>
-#
-# ------------------------------------------------------------------------
 link_multi_deps =                     \
 $(filter $(addprefix $(obj)/,         \
 $($(subst $(obj)/,,$(@:.o=-objs)))    \
@@ -197,10 +182,8 @@ $(call multi_depend, $(multi-used-y), .o, -objs -y)
 
 targets += $(multi-used-y)
 
-##
 # Rule to compile simple boot loader
-#
-# ------------------------------------------------------------------------
+# ===========================================================================
 ifdef loader-target
 quiet_cmd_loader = LOADER  $@
       cmd_loader = $(CC) $(a_flags) -c -o $@ $<
@@ -211,10 +194,8 @@ $(loader-target): $(patsubst %.o,%.S,$(loader-y))
 targets += $(loader-target)
 endif
 
-##
 # Rule to use objdump
-#
-# ------------------------------------------------------------------------
+# ===========================================================================
 ifdef objdump-target
 quiet_cmd_objdump = OBJDUMP $@
       cmd_objdump = $(OBJDUMP) $(objdump_flags) $(patsubst %-objdump,%,$@) >$@
@@ -224,10 +205,8 @@ $(objdump-target): $(objdump-y) FORCE
 endif
 
 
-##
 # Descending into sub-directory
-#
-# ------------------------------------------------------------------------
+# ===========================================================================
 $(sort $(subdir-obj-y)): $(subdir-y) ;
 PHONY += $(subdir-y)
 $(subdir-y):
@@ -237,14 +216,14 @@ $(subdir-y):
 # Hmm, now you know how $(targets) works?
 # Read all saved command lines and dependencies for the $(targets) we
 # may be building above, using by $(if_changed{,_dep,_rule}). 
-# ------------------------------------------------------------------------
+# ===========================================================================
 targets  := $(wildcard $(sort $(targets)))
 cmdfiles := $(wildcard $(foreach f,$(targets),$(dir $(f)).$(notdir $(f)).cmd))
 ifneq ($(cmdfiles),)
   include $(cmdfiles)
 endif
 
-###
+#
 # DO NOT INCLUDE
 # FOR COMPARISON ONLY
 #
@@ -253,9 +232,8 @@ endif
 #  include $(depfiles)
 #endif
 
-# ------------------------------------------------------------------------
 # Compile C sources (.c)
-# ------------------------------------------------------------------------
+# ===========================================================================
 
 # .c --> .s
 quiet_cmd_cc_s_c = CC $(quiet_modtag)  $@
@@ -307,9 +285,8 @@ $(obj)/%.o: $(src)/%.c FORCE
 	$(call cmd,checksrc)
 	$(call if_changed_dep,cc_o_c)
 
-# ------------------------------------------------------------------------
 # Compile Assembly Sources (.S)
-# ------------------------------------------------------------------------
+# ===========================================================================
 
 # .S --> .s
 quiet_cmd_as_s_S = CPP $(quiet_modtag) $@
@@ -325,9 +302,8 @@ quiet_cmd_as_o_S = AS $(quiet_modtag)  $@
 $(obj)/%.o: $(src)/%.S FORCE
 	$(call if_changed_dep,as_o_S)
 
-# ------------------------------------------------------------------------
 # Linker scripts preprocessor (.ld.S -> .ld)
-# ------------------------------------------------------------------------
+# ===========================================================================
 
 # .ld.S --> .ld
 quiet_cmd_cpp_ld_S = LDS $(quiet_modtag) $@
@@ -338,7 +314,6 @@ $(obj)/%.ld: $(src)/%.ld.S FORCE
 
 
 # Add FORCE to prequisites of a target to force it to be always rebuilt.
-# ------------------------------------------------------------------------
 PHONY += FORCE
 FORCE:
 
