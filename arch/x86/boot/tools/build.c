@@ -61,28 +61,28 @@ static void usage(void)
 	die("Usage: build bootloader setup system image\n");
 }
 
-static inline void __put_unaligned_le16(unsigned short val, unsigned char *p)
+static inline void __put_le16(unsigned short val, unsigned char *p)
 {
 	*p++ = val;
 	*p++ = val >> 8;
 }
 
-static inline void put_unaligned_le16(unsigned short val, unsigned char *p)
+static inline void put_le16(unsigned short val, unsigned char *p)
 {
-	__put_unaligned_le16(val, p);
+	__put_le16(val, p);
 }
 
-static inline void put_unaligned_le32(unsigned int val, unsigned char *p)
+static inline void put_le32(unsigned int val, unsigned char *p)
 {
-	__put_unaligned_le16(val, p);
-	__put_unaligned_le16(val >> 16, p + 2);
+	__put_le16(val, p);
+	__put_le16(val >> 16, p + 2);
 }
 
 static int get_color(void)
 {
 	char *color;
 
-	/* exported in Makefile */
+	/* exported in top Makefile */
 	color = getenv("KBUILD_COLOR");
 	if (*color > '0' || *color <= '7')
 		return *color - '0';
@@ -162,10 +162,10 @@ int main(int argc, char **argv)
 
 	/* Set the number of 16-bytes paragraphs */
 	sys_size = (len_sys + 15) / 16;
-	put_unaligned_le32(sys_size, &buf[0x1f4]);
+	put_le32(sys_size, &buf[0x1f4]);
 	
 	/* Set the default root device  What is this? */
-	put_unaligned_le16(DEFAULT_ROOT_DEV, &buf[508]);
+	put_le16(DEFAULT_ROOT_DEV, &buf[508]);
 
 	/* Set the sectors of setup */
 	buf[0x1f1] = sectors_setup - 1;
