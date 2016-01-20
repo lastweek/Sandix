@@ -370,6 +370,7 @@ Mon Jan 18 11:05:18 CST 2016
 
 
 Wed Jan 20 10:21:18 CST 2016
+- [+] scripts/tags.sh
 - [+] arch/x86/boot/install.sh
 - [+] scirpts/gcc-version.sh
 - [M] Makefile

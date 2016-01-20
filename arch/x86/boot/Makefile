@@ -83,4 +83,5 @@ $(obj)/setup.elf: $(src)/setup.ld $(setup-targets) FORCE
 	$(call if_changed,ld)
 
 install:
-	echo haha	
+	@$(CONFIG_SHELL) $(srctree)/$(src)/install.sh $(KERNELVERSION) \
+		$(src)/bzImage $(src)/System.map $(INSTALL_PATH)

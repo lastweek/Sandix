@@ -22,6 +22,9 @@
 *.dump
 *.objdump
 
+tags
+tags-e
+
 bzImage
 vmSandix
 System.map
