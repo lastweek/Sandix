@@ -1,9 +1,5 @@
 #!/bin/bash
 #
-# Link vmSandix
-#
-# System.map is generated to document addresses of all kernel symbols
-#
 # vmSandix is linked from the objects selected by $(KBUILD_VMLINUX_INIT) and
 # $(KBUILD_VMLINUX_MAIN). Most are built-in.o files from top-level directories
 # in the kernel tree, others are specified in arch/$(ARCH)/Makefile.
@@ -13,11 +9,12 @@
 #   ^
 #   |
 #   +-< $(KBUILD_VMLINUX_INIT)
-#   |   +--< arch/${SRCARCH}/kernel/head.o + init/main.o + more
+#   |   +--< arch/${SRCARCH}/kernel/head_${BITS}.o + init/built-in.o
 #   |
 #   +--< $(KBUILD_VMLINUX_MAIN)
-#   |    +--< drivers/built-in.o mm/built-in.o + more
+#   |    +--< mm/built-in.o + drivers/built-in.o + more
 
+# Error out on error
 set -e
 
 # Beautiful output in kbuild format
@@ -29,6 +26,7 @@ info()
 	fi
 }
 
+# Link vmSandix
 vmSandix_ld()
 {
 	local lds="${objtree}/${KBUILD_VMSANDIX_LDS}"
@@ -58,7 +56,7 @@ vmSandix_ld()
 #   V = Weak symbol
 #   W = Weak symbol
 #   Corresponding small letters are local symbols
-
+#
 # For System.map filter away:
 #   a - local absolute symbols
 #   U - undefined global symbols
@@ -102,9 +100,7 @@ if [ "$1" == "LD" ]; then
 	info SYSMAP System.map
 	mksysmap vmSandix System.map
 	
-	##
 	# Copy to make arch/$(SRCARCH)/boot/Makefile happy
-	#
 	cp vmSandix arch/${SRCARCH}/boot/
 	cp System.map arch/${SRCARCH}/boot/
 fi
@@ -114,4 +110,3 @@ if [ "$1" == "clean" ]; then
 	cleanup
 	exit 0
 fi
-

@@ -347,7 +347,7 @@ export CHECKFLAGS NOSTDINC_FLAGS SANDIXINCLUDE
 export KBUILD_CFLAGS KBUILD_CPPFLAGS KBUILD_LDFLAGS KBUILD_AFLAGS KBUILD_ARFLAGS 
 export OBJCOPYFLAGS OBJDUMPFLAGS
 
-#   3st	Third Part of the Makefile	
+# 3st	Third Part of the Makefile	
 # ===========================================================================
 # The third part describes the *config and build targets and their rules.
 
@@ -698,7 +698,6 @@ help:
 	@echo  ''
 	@echo  'Other generic targets:'
 	@echo  '  all		  - Build all targets marked with [*]'
-	@echo  '* bzImage         - Build the loadable kernel(with Bootloader, boot part)'
 	@echo  '* vmSandix	  - Build the bare kernel'
 	@echo  '  dir/            - Build all files in dir and below'
 	@echo  '  dir/file.[oisS] - Build specified target only'

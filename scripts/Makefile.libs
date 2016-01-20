@@ -1,0 +1,195 @@
+#	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
+#
+#	This program is free software; you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation; either version 2 of the License, or
+#	(at your option) any later version.
+#
+#	This program is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
+#
+#	You should have received a copy of the GNU General Public License along
+#	with this program; if not, write to the Free Software Foundation, Inc.,
+#	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+# ===========================================================================
+#			Process variables and flags
+# ===========================================================================
+
+# Flags that take effect in sub directories
+export KBUILD_SUBDIR_ASFLAGS := $(KBUILD_SUBDIR_ASFLAGS) $(subdir-asflags-y)
+export KBUILD_SUBDIR_CCFLAGS := $(KBUILD_SUBDIR_CCFLAGS) $(subdir-ccflags-y)
+
+# Filter out objects already built-in
+# ---------------------------------------------------------------------------
+# Suppose that you have:
+#	obj-y += foo.o
+#	lib-y += foo.o
+# in your Makefile, then foo.o is built-in
+lib-y := $(filter-out $(obj-y), $(sort $(lib-y)))
+
+# Handle objects in subdirs
+# ---------------------------------------------------------------------------
+# o if we encounter foo/ in $(obj-y), replace it by foo/built-in.o
+#   and add the directory to the list of dirs to descend into: $(subdir-y)
+subdir-y := $(sort $(patsubst %/, %, $(filter %/, $(obj-y))))
+obj-y    := $(patsubst %/, %/built-in.o, $(obj-y))
+
+# $(subdir-obj-y) is the list of objects in $(obj-y) which uses dir/ to
+# tell Kbuild to descend
+subdir-obj-y := $(filter %/built-in.o, $(obj-y))
+
+# Handle composite object
+# ---------------------------------------------------------------------------
+# If $(foo-objs) or $(foo-y) exists, foo.o is a composite object
+# Suppose that you have:
+#	obj-y := foo.o
+#	foo-objs := bar.o cat.o
+# or
+#	obj-y := foo.o
+#	foo-y := bar.o cat.o
+# in your Makefile, then foo.o is a composite object
+multi-used-y := $(sort $(foreach m,$(obj-y),$(if $(strip $($(m:.o=-objs)) $($(m:.o=-y))), $(m))))
+multi-objs-y := $(foreach m,$(multi-used-y),$($(m:.o=-objs)) $($(m:.o=-y)))
+
+# Add subdir path.
+# ---------------------------------------------------------------------------
+# Since we are always working on the root of kernel source tree, we never
+# working into any specific directories.
+obj-y		:= $(addprefix $(obj)/,$(obj-y))
+lib-y		:= $(addprefix $(obj)/,$(lib-y))
+setup-y		:= $(addprefix $(obj)/,$(setup-y))
+extra-y		:= $(addprefix $(obj)/,$(extra-y))
+always		:= $(addprefix $(obj)/,$(always))
+targets		:= $(addprefix $(obj)/,$(targets))
+subdir-y	:= $(addprefix $(obj)/,$(subdir-y))
+subdir-obj-y	:= $(addprefix $(obj)/,$(subdir-obj-y))
+multi-used-y	:= $(addprefix $(obj)/,$(multi-used-y))
+multi-objs-y	:= $(addprefix $(obj)/,$(multi-objs-y))
+
+loader-y	:= $(addprefix $(obj)/,$(loader-y))
+objcopy-y	:= $(addprefix $(obj)/,$(objcopy-y))
+objdump-y	:= $(addprefix $(obj)/,$(objdump-y))
+
+# Handle final flags delivered to compiler, ld, etc.
+# ---------------------------------------------------------------------------
+# o $(KBUILD_xFLAGS) are inherited from top Makefile
+# o $(basetarget) in scripts/Kbuild.include
+# o If foo.o need some EXTRA flags, it will have $(CFLAGS_foo.o) in Makefile.
+# o If foo.o do NOT need some flags, it will have $(CFLAGS_REMOVE_foo.o) in Makefile
+# o If the value of ‘$@’ is dir/foo.o then ‘$(@F)’ is foo.o.
+#   ‘$(@F)’ is equivalent to ‘$(notdir $@)’.
+
+orig_c_flags	= $(KBUILD_CPPFLAGS)		\
+		  $(KBUILD_CFLAGS)		\
+		  $(KBUILD_SUBDIR_CCFLAGS)	\
+		  $(CFLAGS_$(basetarget).o)
+
+orig_a_flags	= $(KBUILD_CPPFLAGS)		\
+		  $(KBUILD_AFLAGS)		\
+		  $(KBUILD_SUBDIR_ASFLAGS)	\
+		  $(AFLAGS_$(basetarget).o)
+
+orig_cpp_flags	= $(KBUILD_CPPFLAGS)		\
+		  $(CPPFLAGS_$(@F))
+
+orig_ld_flags	= $(KBUILD_LDFLAGS)		\
+		  $(LDFLAGS)
+
+__c_flags	= $(filter-out $(CFLAGS_REMOVE_$(basetarget).o), $(orig_c_flags))
+__a_flags	= $(orig_a_flags)
+__cpp_flags	= $(orig_cpp_flags)
+__ld_flags	= $(orig_ld_flags)
+
+c_flags		= -Wp,-MD,$(depfile),-MT,'$@' $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(__c_flags) 
+a_flags		= -Wp,-MD,$(depfile),-MT,'$@' $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(__a_flags)
+cpp_flags	= -Wp,-MD,$(depfile),-MT,'$@' $(NOSTDINC_FLAGS) $(SANDIXINCLUDE) $(__cpp_flags)
+ld_flags	= $(__ld_flags)
+
+# Useful for describing the dependency of composite objects
+# Usage:
+#   $(call multi_depend, multi_used_targets, suffix_to_remove, suffix_to_add)
+define multi_depend
+$(foreach m, $(notdir $1), \
+	$(eval $(obj)/$m: \
+	$(addprefix $(obj)/, $(foreach s, $3, $($(m:%$(strip $2)=%$(s)))))))
+endef
+
+# Useful Commands and Librarys.
+# ===========================================================================
+
+ifdef REGENERATE_PARSERS
+
+# GPERF
+# ---------------------------------------------------------------------------
+quiet_cmd_gperf = GPERF $@
+      cmd_gperf = gperf -t --output-file $@ -a -C -E -g -k 1,3,$$ -p -t $<
+
+.PRECIOUS: $(src)/%.hash.c_shipped
+$(src)/%.hash.c_shipped: $(src)/%.gperf
+	$(call cmd,gperf)
+
+# LEX
+# ---------------------------------------------------------------------------
+LEX_PREFIX = $(if $(LEX_PREFIX_${baseprereq}),$(LEX_PREFIX_${baseprereq}),yy)
+
+quiet_cmd_flex = LEX     $@
+      cmd_flex = flex -o$@ -L -P $(LEX_PREFIX) $<
+
+.PRECIOUS: $(src)/%.lex.c_shipped
+$(src)/%.lex.c_shipped: $(src)/%.l
+	$(call cmd,flex)
+
+# YACC
+# ---------------------------------------------------------------------------
+YACC_PREFIX = $(if $(YACC_PREFIX_${baseprereq}),$(YACC_PREFIX_${baseprereq}),yy)
+
+quiet_cmd_bison = YACC    $@
+      cmd_bison = bison -o$@ -t -l -p $(YACC_PREFIX) $<
+
+.PRECIOUS: $(src)/%.tab.c_shipped
+$(src)/%.tab.c_shipped: $(src)/%.y
+	$(call cmd,bison)
+
+quiet_cmd_bison_h = YACC    $@
+      cmd_bison_h = bison -o/dev/null --defines=$@ -t -l -p $(YACC_PREFIX) $<
+
+.PRECIOUS: $(src)/%.tab.h_shipped
+$(src)/%.tab.h_shipped: $(src)/%.y
+	$(call cmd,bison_h)
+
+endif
+
+# Shipped files
+# ---------------------------------------------------------------------------
+quiet_cmd_shipped = SHIPPED $@
+      cmd_shipped = cat $< > $@
+
+$(obj)/%: $(src)/%_shipped
+	$(call cmd,shipped)
+
+# Commands useful for building a boot image
+# ---------------------------------------------------------------------------
+# Use as following:
+#	target: source(s) FORCE
+#		$(if_changed,ld/objcopy)
+# and add target to extra-y so that we know we have to
+# read in the saved command line
+
+# Linking
+# ---------------------------------------------------------------------------
+quiet_cmd_ld = LD      $@
+      cmd_ld = $(LD) $(LDFLAGS) $(ldflags-y) $(LDFLAGS_$(@F)) \
+	       $(filter-out FORCE,$^) -o $@
+
+# Objdump
+# ---------------------------------------------------------------------------
+quiet_cmd_objdump = OBJDUMP $@
+      cmd_objcopy = $(OBJDUMP) $(OBJDUMPFLAGS) $(OBJCOPYFLAGS_$(@F)) $< > $@
+
+# Objcopy
+# ---------------------------------------------------------------------------
+quiet_cmd_objcopy = OBJCOPY $@
+      cmd_objcopy = $(OBJCOPY) $(OBJCOPYFLAGS) $(OBJCOPYFLAGS_$(@F)) $< $@

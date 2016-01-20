@@ -29,21 +29,10 @@ targets += setup.elf
 targets += setup.bin
 targets += bzImage
 
-# Kernel setup part. (Real mode of x86, actually)
+# Kernel setup part (real mode of x86)
 # header.o must come first, as its name.
-setup-y	:= header.o
-setup-y	+= main.o
-setup-y	+= a20.o
-setup-y	+= bioscall.o
-setup-y	+= memory.o
-setup-y	+= pm.o
-setup-y	+= pmjump.o 
-setup-y	+= printf.o
-setup-y	+= regs.o
-setup-y	+= string.o
-setup-y	+= tty.o
-setup-y += version.o
-setup-y	+= video.o
+setup-y	:= header.o main.o a20.o bioscall.o memory.o pm.o string.o \
+	   pmjump.o printf.o regs.o tty.o version.o video.o
 setup-targets := $(addprefix $(obj)/, $(setup-y))
 
 # It is safe to override KBUILD_CFLAGS, KBUILD_AFLAGS,
@@ -52,7 +41,7 @@ KBUILD_CFLAGS := $(USERINCLUDE) $(REALMODE_CFLAGS) -D__SETUP__
 KBUILD_AFLAGS := $(KBUILD_CFLAGS) -D__ASSEMBLY__
 
 # Building bzImage need four things:
-#	bootloader.bin	-	The so-called bootloader
+#	bootloader.bin	-	The simple bootloader
 #	setup.bin	-	The real-mode kernel image
 #	vmSandix.bin	-	The bare kernel itself
 #	tools/build	-	Tool to concatenate
@@ -65,7 +54,6 @@ quiet_cmd_build_image = BUILD   $@
 $(obj)/bzImage: $(obj)/bootloader.bin $(obj)/setup.bin $(obj)/voffset.h \
                 $(obj)/vmSandix.bin $(obj)/tools/build FORCE
 	$(call if_changed,build_image)
-	@chmod +x $(obj)/bzImage
 	@echo "$(COLOR_BEGIN)Sandix Kernel: $@ is ready$(COLOR_END)"
 
 sed-voffset := -e 's/^\([0-9a-fA-F]*\) [ABCDGRSTVW] \(kstart\|kend\)/\#define VO_\2 0x\1/p'
@@ -95,5 +83,4 @@ $(obj)/setup.elf: $(src)/setup.ld $(setup-targets) FORCE
 	$(call if_changed,ld)
 
 install:
-	sh $(srctree)/$(src)/install.sh $(KERNELRELEASE) $(obj)/bzImage \
-		Systenm.map "$(INSTALL_PATH)"
+	echo haha	

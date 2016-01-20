@@ -159,10 +159,7 @@ archclean:
 
 define archhelp
   echo  '* bzImage      - Compressed kernel image (arch/x86/boot/bzImage)'
-  echo  '  install      - Install kernel using'
-  echo  '                  (your) ~/bin/$(INSTALLKERNEL) or'
-  echo  '                  (distribution) /sbin/$(INSTALLKERNEL) or'
-  echo  '                  install to $$(INSTALL_PATH) and run lilo'
+  echo  '  install      - Install kernel to $(INSTALL_PATH)'
 endef
 
 # Kernel objects
@@ -170,6 +167,9 @@ endef
 # Here we init or extend the kernel objects predefined in top Makefile.
 # All directories listed below are architecture-dependent. Especially the
 # $(boot-y) part, this is real-mode 16-bit code.
+
+boot-y		:= arch/x86/boot
+KBUILD_IMAGE	:= $(boot-y)/bzImage
 
 head-y		:= arch/x86/kernel/head_$(BITS).o
 
@@ -180,20 +180,19 @@ libs-y		+= arch/x86/lib/
 
 drivers-$(CONFIG_PCI) += arch/x86/pci/
 
-boot-y		:= arch/x86/boot
-KBUILD_IMAGE	:= $(boot-y)/bzImage
-
 # The all: target is the default when no target is given on the command line.
 # This allow a user to issue only 'make' to build Sandix kernel.
 # In x86 building, the final kernel image is bzImage
-
 all: bzImage
 
+# This is the phony one. The real one is in boot
+PHONY += bzImage
 bzImage: vmSandix
 	$(Q)$(MAKE) $(build)=$(boot-y) $(KBUILD_IMAGE)
 	$(Q)mkdir -p $(objtree)/arch/$(UTS_MACHINE)/boot
 	$(Q)ln -fsn ../../x86/boot/bzImage $(objtree)/arch/$(UTS_MACHINE)/boot/$@
 
+# Install bzImage and System.map
 PHONY += install
 install:
-	$(Q)$(MAKE) $(build)=$(boot) $@
+	$(Q)$(MAKE) $(build)=$(boot-y) $@

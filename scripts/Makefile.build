@@ -1,5 +1,5 @@
 #	Shopping?
-#	
+#
 #	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
 #
 #	This program is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@
 src := $(obj)
 
 ifndef obj
-$(warning Kbuild: Makefile.build is included improperly)
+$(warining Makefile.build is included improperly)
 endif
 
 PHONY += __build
@@ -58,8 +58,6 @@ __build:
 #		 is out-dated. Those command files are saved by Makefile.build,
 #		 which using $(targets))
 #		(Examples using $(targets), please see arch/x86/boot/Makefile)
-#
-#	subdir-y - Sub-Directory to descend into
 
 obj-y		:=
 lib-y		:=
@@ -79,11 +77,10 @@ objdump-y	:=
 subdir-asflags-y :=
 subdir-ccflags-y :=
 
-# Included order matters. Makefile.lib is responsible
-# for processing variables defined in $(src)/Makefile.
+# Keep this including order, it matters.
 include $(srctree)/scripts/Kbuild.include
 include $(srctree)/$(src)/Makefile
-include $(srctree)/scripts/Makefile.lib
+include $(srctree)/scripts/Makefile.libs
 
 # Do NOT include Makefile.host only if $(src)/Makefile
 # need building host programs.
@@ -111,15 +108,38 @@ endif
 
 # Default target depends on everything
 # ===========================================================================
+# I have to say something about the tricks:
+#
+# As you can see, the __build target depends on everything that a user could
+# use in the $(src)/Makefile. If the $(src)/Makefile wants to build a lot of
+# things, like $(obj-y), $(lib-y) and $(loader-y), sure, that's ok, this __build
+# target will handle this, seems it covers everything. If the $(src)/Makefile
+# just wants to build $(obj-y), which is the normal case, sure, that's ok, this
+# __build target will just build $(builtin-target) and leave other targets alone.
+#
+# Of course, the __build target does not depend on objects listed in $(obj-y)
+# directly. In other words, __build depends on $(builtin-target), who depends
+# on $(obj-y) directly.
+#
+# Everything you list in $(obj-y) or $(lib-y) are files that you want Kbuild to
+# generate. Normally, those files have no dependencies on each other, they could
+# be object files that just depend on the original source and header files.
+#
+# How to handle them? We use [$(obj)/%.o: $(src)/%.c] to compile .c to .o,
+# use [$(obj)/%.s: $(src)/%.c] to compile .c to .s. You could see all those
+# in the below sections. So, all objects/assembly/cpp/list files you list in
+# $(src)/makefile are all marked as targets in this Makefile.build file !!!
+#
+# It feels like a supermarket, which contains everything in the shell. You give
+# the stuff (Makefile.build) a list ($(src)/Makefile), the stuff will take
+# everything you list in the list to you.
+
 __build: $(builtin-target) $(lib-target) $(subdir-y)	\
 	 $(loader-target) $(objdump-target)		\
 	 $(extra-y) $(always) $(setup-y)
 	@:
 
 targets += $(extra-y) $(always) $(setup-y)
-
-# Build everything
-# ===========================================================================
 
 # Check source sanitary
 ifneq ($(KBUILD_CHECKSRC),0)
@@ -132,7 +152,7 @@ ifneq ($(KBUILD_CHECKSRC),0)
   endif
 endif
 
-# Rule to compile a set of .o files into one .o file
+# Rule to link a set of .o files into one .o file
 # ===========================================================================
 ifdef builtin-target
 # If the list is empty, create an empty built-in.o
@@ -149,7 +169,7 @@ targets += $(obj-y)
 targets += $(builtin-target)
 endif
 
-# Rule to compile a set of .o files into one .a file
+# Rule to archive a set of .o files into one .a file
 # ===========================================================================
 ifdef lib-target
 quiet_cmd_link_l_target = AR $(quiet_modtag)  $@
@@ -182,7 +202,7 @@ $(call multi_depend, $(multi-used-y), .o, -objs -y)
 
 targets += $(multi-used-y)
 
-# Rule to compile simple boot loader
+# Rule to compile bootloader
 # ===========================================================================
 ifdef loader-target
 quiet_cmd_loader = LOADER  $@
@@ -215,7 +235,7 @@ $(subdir-y):
 ##
 # Hmm, now you know how $(targets) works?
 # Read all saved command lines and dependencies for the $(targets) we
-# may be building above, using by $(if_changed{,_dep,_rule}). 
+# may be building above. They are used by $(if_changed{,_dep,_rule}). 
 # ===========================================================================
 targets  := $(wildcard $(sort $(targets)))
 cmdfiles := $(wildcard $(foreach f,$(targets),$(dir $(f)).$(notdir $(f)).cmd))
@@ -223,14 +243,15 @@ ifneq ($(cmdfiles),)
   include $(cmdfiles)
 endif
 
+# DO NOT INCLUDE, FOR COMPARISON ONLY
+# depfiles := $(wildcard $(foreach f,$(targets),$(dir $(f)).$(notdir $(f)).d))
+# ifneq ($(depfiles),)
+#   include $(depfiles)
+# endif
+
 #
-# DO NOT INCLUDE
-# FOR COMPARISON ONLY
+# Dirty work
 #
-#depfiles := $(wildcard $(foreach f,$(targets),$(dir $(f)).$(notdir $(f)).d))
-#ifneq ($(depfiles),)
-#  include $(depfiles)
-#endif
 
 # Compile C sources (.c)
 # ===========================================================================

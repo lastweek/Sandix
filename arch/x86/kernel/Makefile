@@ -5,10 +5,10 @@
 # $(head-y) part defined in arch/x86/Makefile
 extra-y := head_32.o
 
-# Linker Script
+# linker script
+# it will be handled by Makefile.build
 extra-y += vmSandix.ld
 
-# Core built-in
 obj-y := entry.o
 obj-y += setup.o
 obj-y += traps.o
