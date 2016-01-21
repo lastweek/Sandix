@@ -376,3 +376,7 @@ Wed Jan 20 10:21:18 CST 2016
 - [M] Makefile
 - [M] arch/x86/Makefile
 - [M] arch/x86/boot/Makefile
+
+
+Thu Jan 21 11:43:12 CST 2016
+- [M] arch/x86/boot/tools/build.c		[D] Two output images, bzImage + bzImgae.iso

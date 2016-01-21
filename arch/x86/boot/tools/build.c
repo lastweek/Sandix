@@ -32,10 +32,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-/* x86 nop instruction */
-#define NOP			0x90
-#define ZERO			0
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <fcntl.h>
 
 #define DEFAULT_MAJOR_ROOT	0
 #define DEFAULT_MINOR_ROOT	0
@@ -45,37 +45,36 @@
 #define SETUP_SECT_MIN		5
 #define SETUP_SECT_MAX		62
 
-unsigned char buf[SETUP_SECT_MAX*512];
-
 static void die(const char *str, ...)
 {
 	va_list args;
 
 	va_start(args, str);
 	vfprintf(stderr, str, args);
+	fputc('\n', stderr);
 	exit(1);
 }
 
-static void usage(void)
+static inline unsigned short get_le16(const unsigned char *p)
 {
-	die("Usage: build bootloader setup system image\n");
+	return p[0] | p[1] << 8;
 }
 
-static inline void __put_le16(unsigned short val, unsigned char *p)
+static inline unsigned int get_le32(const unsigned char *p)
+{
+	return p[0] | p[1] << 8 | p[2] << 16 | p[3] << 24;
+}
+
+static inline void put_le16(unsigned short val, unsigned char *p)
 {
 	*p++ = val;
 	*p++ = val >> 8;
 }
 
-static inline void put_le16(unsigned short val, unsigned char *p)
-{
-	__put_le16(val, p);
-}
-
 static inline void put_le32(unsigned int val, unsigned char *p)
 {
-	__put_le16(val, p);
-	__put_le16(val >> 16, p + 2);
+	put_le16(val, p);
+	put_le16(val >> 16, p + 2);
 }
 
 static int get_color(void)
@@ -90,144 +89,150 @@ static int get_color(void)
 		return 0;
 }
 
+static void usage(void)
+{
+	die("Usage: build bootloader setup system image\n");
+}
+
 int main(int argc, char **argv)
 {
-	FILE *fp_loader, *fp_setup, *fp_sys, *fp_image, *fp_image2;
-	int len_loader, len_setup, len_sys;
-	int sectors_setup, sectors_sys, sectors_image;
-	int i, j, pad, sys_size;
-	char c;
+	FILE *file, *bzImage, *iso;
+	char iso_path[255];
+	unsigned char loader[512];
+	unsigned char setup[SETUP_SECT_MAX*512];
+	unsigned int i, c, sz, setup_sectors;
+	
+	int fd;
+	struct stat sb;
+	void *kernel;
+	unsigned int sys_size;
 
 	if (argc != 5)
 		usage();
 
-	if ((fp_loader = fopen(argv[1], "r")) == NULL)
-		die("Open %s failed\n", argv[1]);
-
-	if ((fp_setup = fopen(argv[2], "r")) == NULL)
-		die("Open %s failed\n", argv[2]);
-	
-	if ((fp_sys = fopen(argv[3], "r")) == NULL)
-		die("Open %s failed\n", argv[3]);
-
-	if ((fp_image = fopen(argv[4], "w")) == NULL)
-		die("Create %s failed\n", argv[4]);
-	
-	if ((fp_image2 = fopen("arch/x86/boot/bzimage2", "w")) == NULL)
-		die("Create b2 failed\n");
-	fseek(fp_image, 0, SEEK_SET);
-	fseek(fp_image2, 0, SEEK_SET);
-	
-	/* Read Bootloader */
-	fseek(fp_loader, 0, SEEK_END);
-	len_loader = ftell(fp_loader);
-	fseek(fp_loader, 0, SEEK_SET);
-
-	if (len_loader > (512 - 2))
-		die("Bootloader is %d bytes which is too big\n", len_loader);
-	
-	/* Write Bootloader to image */
-	for (i = 0; i < len_loader; i++) {
-	 	c = fgetc(fp_loader);
-		fputc(c, fp_image);
-	}
-	for (i = (512 - 2); i > len_loader; i--)
-		fputc(NOP, fp_image);
-	fputc(0x55, fp_image);
-	fputc(0xAA, fp_image);
-
-	/* Read Setup */
-	len_setup = fread(buf, 1, sizeof(buf), fp_setup);
-	if(ferror(fp_setup))
-		die("Read error on `setup'\n");
-
-	sectors_setup = (len_setup + 511) / 512;
-	if (sectors_setup > SETUP_SECT_MAX)
-		die("Setup is %d sectors which is too big\n", sectors_setup);
-	if (sectors_setup < SETUP_SECT_MIN)
-		sectors_setup = SETUP_SECT_MIN;
-	j = sectors_setup * 512;
-	memset(buf+len_setup, NOP, j-len_setup);
-
-	/* Read System */
-	fseek(fp_sys, 0, SEEK_END);
-	len_sys = ftell(fp_sys);
-	fseek(fp_sys, 0, SEEK_SET);
+	/*
+	 * OPEN bzImage
+	 */
+	bzImage = fopen(argv[4], "w");
+	if (!bzImage)
+		die("Unable to write [%s]", argv[4]);
 
 	/*
-	 * Patch the header of setup
-	 * The exact offset of each field if defined in header.S
-	 * Those fields are supposed to work with boot loader.
+	 * OPEN bzImage.iso
 	 */
+	strcpy(iso_path, argv[4]);
+	strcat(iso_path, ".iso");
+	iso = fopen(iso_path, "w");
+	if (!iso)
+		die("Unable to write [%s]", iso_path);
 
-	/* Set the number of 16-bytes paragraphs */
-	sys_size = (len_sys + 15) / 16;
-	put_le32(sys_size, &buf[0x1f4]);
-	
-	/* Set the default root device  What is this? */
-	put_le16(DEFAULT_ROOT_DEV, &buf[508]);
-
-	/* Set the sectors of setup */
-	buf[0x1f1] = sectors_setup - 1;
-
-	/* Write Setup to image */
-	if (fwrite(buf, 1, j, fp_image) != j )
-		die("Write Setup failed\n");
-
-	/* Write System to image */
-	for (i = 0; i < len_sys; i++) {
-		c = fgetc(fp_sys);
-		fputc(c, fp_image);
-	}
-
-	/* bzimag2 */
-	if (fwrite(buf, 1, j, fp_image2) != j )
-		die("Write Setup2 failed\n");
-	fseek(fp_sys, 0, SEEK_SET);
-	for (i = 0; i < len_sys; i++) {
-		c = fgetc(fp_sys);
-		fputc(c, fp_image2);
-	}
-	if ((pad = len_sys % 512)) {
-		pad = 512 - pad;
-		for (i = 0; i < pad; i++)
-			fputc(NOP, fp_image2);
-	}
-	
 	/*
-	 * Yes, i choose to pad system to 512-bytes align, because
-	 * loader have to load an entire sector even if you just want
-	 * to read one byte. Load more then we need do no harm, but
-	 * omit something is really harmful.
-	 *
-	 * Also, i choose to write sys_size which is 16-bytes align
-	 * to setup header. So the loader knows the 'precise' size.
-	 * Of course, this *16-bytes* comform with Linux boot protocol.
+	 * OPEN kernel file
+	 */
+	fd = open(argv[3], O_RDONLY);
+	if (fd < 0)
+		die("Unable to open [%s]", argv[3]);
+	if (fstat(fd, &sb))
+		die("Unable to stat [%s]", argv[3]);
+
+	/* number of 16-bytes paragraphs */
+	sz = sb.st_size;
+	sys_size = (sz + 15) / 16;
+	printf("\033[3%dmSystem is %d KB\n\033[0m",
+		get_color(), (sz+1023)/1024);
+
+	kernel = mmap(NULL, sz, PROT_READ, MAP_SHARED, fd, 0);
+	if (kernel == MAP_FAILED)
+		die("Unable to mmap [%s]", argv[3]);
+
+	/*
+	 * OPEN bootloader
+	 */
+	file = fopen(argv[1], "r");
+	if (!file)
+		die("Unable to open [%s]", argv[1]);
+	c = fread(loader, 1, sizeof(loader), file);
+	if (ferror(file))
+		die("Read error on loader");
+	if (c > 510)
+		die("The bootloader is too big");
+	fclose(file);
+
+	/*
+	 * PAD bootloader buffer
+	 */
+	memset(loader+c, 0, 512-c);
+	put_le16(0xAA55, &loader[510]);
+
+	/*
+	 * COPY setup code
+	 */
+	file = fopen(argv[2], "r");
+	if (!file)
+		die("Unable to open [%s]", argv[2]);
+
+	c = fread(setup, 1, sizeof(setup), file);
+	if (ferror(file))
+		die("Read error on setup");
+	if (get_le16(&setup[510]) != 0xAA55)
+		die("The setup hasn't got boot flag (0xAA55)");
+	fclose(file);
+
+	/*
+	 * PAD setup buffer
+	 */
+	setup_sectors = (c + 511) / 512;
+	if (setup_sectors < SETUP_SECT_MIN)
+		setup_sectors = SETUP_SECT_MIN;
+	i = setup_sectors * 512;
+	memset(setup+c, 0, i-c);
+	printf("\033[3%dmSetup is %d bytes (padded to %d bytes).\n\033[0m",
+		get_color(), c, i);
+
+	/* Sector 0, Offset 0x1f1, setup_sects */
+	setup[0x1f1] = setup_sectors - 1;
+
+	/* Sector 0, Offset 0x1f4, syssize */
+	put_le32(sys_size, &setup[0x1f4]);
+
+	/* Sector 0, Offset 0x1fc, root_dev */
+	put_le16(DEFAULT_ROOT_DEV, &setup[0x1fc]);
+
+	/*
+	 * WRITE to image
 	 */
 
-	/* Make it 512 bytes align */
-	if ((pad = len_sys % 512)) {
-		pad = 512 - pad;
-		for (i = 0; i < pad; i++)
-			fputc(NOP, fp_image);
-	}
+	/* bzImage */
+	if (fwrite(setup, 1, i, bzImage) != i)
+		die("Writing setup failed 1");
+	if (fwrite(kernel, 1, sz, bzImage) != sz)
+		die("Writing kernel failed 1");
 
-	/* Print Info */
-	sectors_sys	= (len_sys + 511) / 512; 
-	sectors_image	= 1 + sectors_setup + sectors_sys;
-	
-	printf("\033[3%dm", get_color());
-	printf("[loader]  : %8d Bytes (pad to %4d sector)\n",  len_loader, 1);
-	printf("[setup]   : %8d Bytes (pad to %4d sectors)\n", len_setup, sectors_setup);
-	printf("[system]  : %8d Bytes (pad to %4d sectors)\n", len_sys, sectors_sys);
-	printf("[bzImage] : %8d Bytes (Total: %4d sectors)\n", sectors_image*512, sectors_image);
-	printf("\033[0m");
+	c = sys_size*16 - sz;
+	while (c--)
+		if (fwrite("\0", 1, 1, bzImage) != 1)
+			die("Writing padding failed 1");
 
-	fclose(fp_loader);
-	fclose(fp_setup);
-	fclose(fp_sys);
-	fclose(fp_image);
-	fclose(fp_image2);
+	/* bzImage.iso */
+	if (fwrite(loader, 1, 512, iso) != 512)
+		die("Writing bootloader failed 2");
+	if (fwrite(setup, 1, i, iso) != i)
+		die("Writing setup failed 2");
+	if (fwrite(kernel, 1, sz, iso) != sz)
+		die("Writing kernel failed 2");
+
+	c = sys_size*16 - sz;
+	while (c--)
+		if (fwrite("\0", 1, 1, iso) != 1)
+			die("Writing padding failed 2");
+
+	/*
+	 * Clean up
+	 */
+	sync();
+	fclose(bzImage);
+	fclose(iso);
+	close(fd);
 
 	return 0;
 }
