@@ -39,13 +39,15 @@ start:
 # Normalize segment registers to avoid bad things.
 # segements are as follows: %cs = %ds = %ss = BOOTSEG
 # %es = %fs = SETUPSEG, %gs is not used.
-
+	
 	movw	$BOOTSEG, %ax
 	movw	%ax, %ds
 	movw	%ax, %ss
 	movw	$SETUPSEG, %ax
 	movw	%ax, %fs
 	movw	%ax, %es
+	
+	jmp	bs_fail
 ##
 # Set a reasonable stack. Arbitrary value behind bootloader.
 # %sp = 512(Bootloader size) + 8(Needed room for stack)

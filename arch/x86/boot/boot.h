@@ -1,6 +1,19 @@
 /*
- *	2015/04/02 Created by Shan Yizhou.
- *	boot.h: Header file for real-mode boot process.
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *
+ *	This program is free software; you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation; either version 2 of the License, or
+ *	(at your option) any later version.
+ *
+ *	This program is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
+ *
+ *	You should have received a copy of the GNU General Public License along
+ *	with this program; if not, write to the Free Software Foundation, Inc.,
+ *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifndef _X86_BOOT_BOOT_H_
@@ -241,4 +254,4 @@ void protected_mode_jump(u32 code_addr, u32 param_addr)
 __attribute__ ((regparm(3)));
 
 #endif /* __ASSEMBLY__ */
-#endif /* _ARCH_BOOT_BOOT_H_ */
+#endif /* _X86_BOOT_BOOT_H_ */
