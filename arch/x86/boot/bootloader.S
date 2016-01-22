@@ -47,7 +47,6 @@ start:
 	movw	%ax, %fs
 	movw	%ax, %es
 	
-	jmp	bs_fail
 ##
 # Set a reasonable stack. Arbitrary value behind bootloader.
 # %sp = 512(Bootloader size) + 8(Needed room for stack)

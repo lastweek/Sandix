@@ -99,9 +99,9 @@ int main(int argc, char **argv)
 	FILE *file, *bzImage, *iso;
 	char iso_path[255];
 	unsigned char loader[512];
-	unsigned char setup[SETUP_SECT_MAX*512];
+	unsigned char setup[SETUP_SECT_MAX * 512];
 	unsigned int i, c, sz, setup_sectors;
-	
+
 	int fd;
 	struct stat sb;
 	void *kernel;
@@ -139,7 +139,7 @@ int main(int argc, char **argv)
 	sz = sb.st_size;
 	sys_size = (sz + 15) / 16;
 	printf("\033[3%dmSystem is %d KB\n\033[0m",
-		get_color(), (sz+1023)/1024);
+	       get_color(), (sz + 1023) / 1024);
 
 	kernel = mmap(NULL, sz, PROT_READ, MAP_SHARED, fd, 0);
 	if (kernel == MAP_FAILED)
@@ -161,7 +161,7 @@ int main(int argc, char **argv)
 	/*
 	 * PAD bootloader buffer
 	 */
-	memset(loader+c, 0, 512-c);
+	memset(loader + c, 0, 512 - c);
 	put_le16(0xAA55, &loader[510]);
 
 	/*
@@ -185,9 +185,9 @@ int main(int argc, char **argv)
 	if (setup_sectors < SETUP_SECT_MIN)
 		setup_sectors = SETUP_SECT_MIN;
 	i = setup_sectors * 512;
-	memset(setup+c, 0, i-c);
+	memset(setup + c, 0, i - c);
 	printf("\033[3%dmSetup is %d bytes (padded to %d bytes).\n\033[0m",
-		get_color(), c, i);
+	       get_color(), c, i);
 
 	/* Sector 0, Offset 0x1f1, setup_sects */
 	setup[0x1f1] = setup_sectors - 1;
@@ -208,7 +208,7 @@ int main(int argc, char **argv)
 	if (fwrite(kernel, 1, sz, bzImage) != sz)
 		die("Writing kernel failed 1");
 
-	c = sys_size*16 - sz;
+	c = sys_size * 16 - sz;
 	while (c--)
 		if (fwrite("\0", 1, 1, bzImage) != 1)
 			die("Writing padding failed 1");
@@ -221,7 +221,7 @@ int main(int argc, char **argv)
 	if (fwrite(kernel, 1, sz, iso) != sz)
 		die("Writing kernel failed 2");
 
-	c = sys_size*16 - sz;
+	c = sys_size * 16 - sz;
 	while (c--)
 		if (fwrite("\0", 1, 1, iso) != 1)
 			die("Writing padding failed 2");
