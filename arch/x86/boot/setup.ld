@@ -1,7 +1,5 @@
 /*
- *	arch/x86/boot/setup.ld - Kernel Setup Part Linker Script
- *
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -16,6 +14,11 @@
  *	You should have received a copy of the GNU General Public License along
  *	with this program; if not, write to the Free Software Foundation, Inc.,
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+/*
+ * This file describes linker script for linking kernel setup part.
+ * Several symbols are used by assembly and C source code.
  */
 
 OUTPUT_FORMAT("elf32-i386")
@@ -42,15 +45,13 @@ SECTIONS
 	. = ALIGN(16);
 	.data		: { *(.data*) }
 	
-	.signature	:
-	{
+	.signature	: {
 		setup_sig = .;
 		LONG(0x5a5aaa55)
 	}
 
 	. = ALIGN(16);
-	.bss		:
-	{
+	.bss		: {
 		__bss_start = .;
 		*(.bss)
 		__bss_end = .;
@@ -63,7 +64,7 @@ SECTIONS
 	/DISCARD/ : { *(.eh_frame) }
 	/DISCARD/ : { *(.comment) }
 	
-	/* Confile the setup to 64 sectors(63 exactly) to avoid cross cylinder */
+	/* Confine the setup to 64 sectors(63 exactly) to avoid cross cylinder */
 	. = ASSERT(__end <= 0x8000, "Setup too big!");
 	. = ASSERT(hdr == 0x1f1, "The setup header has the wrong offset!");
 }

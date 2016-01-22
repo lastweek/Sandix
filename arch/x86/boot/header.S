@@ -1,9 +1,4 @@
-#
-#	arch/x86/boot/header.S - The head of Sandix kernel image
-#
-#	Fit with the Linux x86 boot protocol, I hope it can work with Bootloaders
-#
-#	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+#	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
 #
 #	This program is free software; you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
@@ -22,9 +17,9 @@
 #include <asm/boot.h>
 #include <asm/bootparam.h>
 
-BOOTSEG		= 0x07c0	# Bootsect address
-SYSSEG		= 0x1000	# Kernel System load address >> 4
-SETUPSEG	= 0x9000	# Kernel Setup load address >> 4
+BOOTSEG		= 0x07c0	# bootsect segment 
+SYSSEG		= 0x1000	# system segment (obsolete)
+SETUPSEG	= 0x9000	# setup segment
 
 #ifndef ROOT_RDONLY
 # define ROOT_RDONLY	1
@@ -34,21 +29,19 @@ SETUPSEG	= 0x9000	# Kernel Setup load address >> 4
 # define STACK_SIZE	512
 #endif
 
-##
 # Sandix should be loaded by boot loader. If no loader is
 # avaliable, the bootsect is loaded by BIOS directly into
 # 0x7c00. If that happens, we do nothing but print some
 # message to tell the user that a boot loader is needed.
-#
 
 	.code16
 
 #------------------------------------------------------------
-# SECTOR 0, OFFSET 0, 0x9000:0000
+# 0x9000:0000 (0x7c00:0000)
 	.section ".bstext", "ax"
 	.global boosect_start
 bootsect_start:
-	# Normalize the start address
+	# normalize the start address
 	ljmp	$BOOTSEG, $start2
 start2:
 	movw	%cs, %ax
@@ -68,34 +61,34 @@ msg_loop:
 	int	$0x10
 	jmp	msg_loop
 bootsect_die:
-	# Allow the user to press a key, then reboot
+	# allow the user to press a key, then reboot
 	xorw	%ax, %ax
 	int	$0x16
 	int	$0x19
 	
-	# Int 0x19 never return. In case it does
+	# int 0x19 never return. In case it does
 	# anyway, invoke the BIOS reset code.
 	ljmp	$0xf000,$0xfff0
 
 	.section ".bsdata", "a"
 bootsect_msg:
-	.ascii "Please use a boot loader.\r\n"
-	.ascii "\n"
+	.ascii "Please use a boot loader.\r\n\n"
 	.ascii "Remove disk and press any key to reboot..."
 	.byte  0
 
-##
-# Start of setup header ###################################################
+# Kernel attributes, used by setup. Also used by different
+# bootloaders to load kernel image (sectors and sizes).
+
 #
-# These fields appeared in old arch/i386/boot/bootsect.S
+# Part 1 of the header
 #
 
 #------------------------------------------------------------
-# SECTOR 0, OFFSET 495, 0x9000:1ef
+# 0x9000:1ef
 	.section ".header", "a"
 sentinel:	.byte 0xff, 0xff	# Used to detect broken loaders
 
-	.globl	hdr
+	.globl hdr
 hdr:
 setup_sects:	.byte 0			# Filled in by build.c
 root_flags:	.word ROOT_RDONLY
@@ -103,22 +96,27 @@ syssize:	.long 0			# Filled in by build.c
 ram_size:	.word 0			# Obsolete
 vid_mode:	.word NORMAL_VGA	# DO NOT NEED TO ASK
 root_dev:	.word 0			# Filled in by build.c
-boot_flag:	.word 0xAA55
+boot_flag:	.word 0xAA55		# Boot sector flag
+
+# After loading setup to 0x9000:0000 and system to 0x100000,
+# bootloaders simply jump to 0x9000:0x200, which is the next
+# instruction, which is a jump instruction.
 
 #------------------------------------------------------------
-# SECTOR 1, OFFSET 0, 0x9000:0200
+# 0x9000:0200
 	.global _start
 _start:
-	# Explicitly enter this as bytes, or the assembler
+	# explicitly enter this as bytes, or the assembler
 	# tries to generate a 3-byte jump here, which causes
 	# everything else to push off to the wrong offset.
 	.byte	0xeb	# short (2-byte) jump
 	.byte	start_of_setup-1f
 1:
 
-##
+#
 # Part 2 of the header
 #
+
 	.ascii	"HdrS"					# header signature
 	.word	0x020d					# header version number (>= 0x0105)
 							# or else old loadlin-1.5 will fail)
@@ -230,27 +228,20 @@ init_size:		.long	INIT_SIZE		# kernel initialization size
 
 handover_offset:	.long	0			# Filled in by build.c
 
-#
-# End of setup header #####################################################
-##
+# End of header
+#------------------------------------------------------------
 
-# Now comes the real entry point of kernel setup part.
-# Normally, with boot loader, the first instruction executed
-# of kernel starts from here (jumped from 0x9000:0200).
-
-# I do not how other boot loaders work, but i know mine.
-# Our bootloader always load setup kernel to: 0x9000:0000,
-# and protected-mode kernel to: 0x100000
+# The real entry point of setup
 
 	.section ".entrytext", "ax"
 start_of_setup:
-	# Sorry, but we are NOT relocatable
-	# Please put us to 0x9000:0000
+	# sorry, we are *not* relocatable
+	# please put us to 0x9000:0000
 	movw	%cs, %ax
 	cmpw	$SETUPSEG, %ax
 	jne	setup_bad_segment
 	
-	# Normalize everything.
+	# normalize everything
 	movw	%ax, %ds
 	movw	%ax, %ss
 	movw	%ax, %es
@@ -258,20 +249,28 @@ start_of_setup:
 	movw	%ax, %gs
 	cld
 	
-	# Set the stack behind the setup image.
-	# 512 byte is thought to be enough, if not, call 110
+	# set the stack behind the setup image.
 	movw	$__end, %ax
+	testb	$CAN_USE_HEAP, loadflags
+	jz	1f
+	movw	heap_end_ptr, %ax	# Use heap_end_ptr instead
+1:
 	addw	$STACK_SIZE, %ax
+	jnc	2f
+	xorw	%ax, %ax		# Prevent wraparound
+2:					# Now %ax point to end of stack
 	andw	$~3, %ax		# Make it dword aligned
-	jnz	1f
+	jnz	3f
 	movw	$0xfffc, %ax		# Make sure it's not zero
-1:	movzwl	%ax, %esp		# Clear uppper half of %esp
+3:
+	movzwl	%ax, %esp		# Clear uppper half of %esp
+					# Now we have a working stack!
 	
-	# Check signature at end of setup
+	# check signature at the end of setup
 	cmpl	$0x5a5aaa55, setup_sig
 	jne	setup_bad_signature
 
-	# Zero the bss
+	# zero the bss
 	movw	$__bss_start, %di 
 	movw	$__bss_end, %cx 
 	xorl	%eax, %eax
@@ -279,6 +278,7 @@ start_of_setup:
 	shrw    $2, %cx 
 	rep; stosl
 	
+	# goto setup C code (shouldn't return)...
 	calll	main
 
 setup_bad_signature:
@@ -302,8 +302,8 @@ setup_die:
 
 	.section ".entrydata", "a"
 setup_msg_sig:
-	.ascii "header.S: No setup signature found...\n\r"
+	.ascii "header.S: No setup signature found...\r\n"
 	.byte 0
 setup_msg_seg:
-	.ascii "header.S: Setup is not relocatable...\n\r"
+	.ascii "header.S: Setup is not relocatable...\r\n"
 	.byte 0

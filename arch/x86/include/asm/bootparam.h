@@ -67,6 +67,9 @@ struct setup_data {
 	__u8 data[0];
 };
 
+/*
+ * see header.S for details
+ */
 struct setup_header {
 	__u8	setup_sects;
 	__u16	root_flags;
@@ -109,8 +112,10 @@ struct setup_header {
 } __attribute__((packed));
 
 
-/* System information fetched from BIOS in boot time */
-/* The structure is padded to a page size, 4096 Bytes */
+/*
+ * "zeropage" - System information fetched from BIOS in boot time
+ * It is padded to a page size, 4096 bytes
+ */
 struct boot_params {
 	struct setup_header	hdr;
 	struct screen_info	screen_info;

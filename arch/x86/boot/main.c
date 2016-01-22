@@ -16,20 +16,19 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/*
- *	This code asks the BIOS for memory/disk/other parameters, and puts them
- *	in a "safe" place. After necessary preparation, control will be
- *	transfered to protected-mode kernel.
- */
-
 #include "boot.h"
+#include "string.h"
+
 #include <asm/bootparam.h>
 
 /*
- * Sleep in bss section:
- * &boot_params == __bss_start
+ * The "zeropage", used to store parameters acquired from BIOS.
+ * It would be passed to kernel later when we enter protected mode.
  */
-struct boot_params boot_params;
+struct boot_params boot_params __attribute__((aligned(16)));
+
+char *HEAP = __end;
+char *heap_end = __end;	/* Default end of heap = no heap */
 
 /*
  * Query the keyboard lock status as given by the BIOS, and
@@ -41,26 +40,77 @@ static void keyboard_init(void)
 	struct biosregs ireg, oreg;
 	initregs(&ireg);
 
-	ireg.ah = 0x02;		// Get keyboard status
+	/* Get keyboard status */
+	ireg.ah = 0x02;
 	intcall(0x16, &ireg, &oreg);
 	boot_params.kbd_status = oreg.al;
 
-	ireg.ax = 0x0305;	// Set keyboard repeat rate
+	/* Set keyboard repeat rate */
+	ireg.ax = 0x0305;
 	intcall(0x16, &ireg, NULL);
+}
+
+static void set_bios_mode(void)
+{
+#ifdef CONFIG_X86_64
+	struct biosregs ireg;
+
+	initregs(&ireg);
+	ireg.ax = 0xec00;
+	ireg.bx = 2;
+	intcall(0x15, &ireg, NULL);
+#endif
+}
+
+static void init_heap(void)
+{
+	char *stack_end;
+
+	asm volatile (
+		"nop\n\t"
+		"nop\n\t"
+		"leal %P1(%%esp), %0"
+		: "=r" (stack_end)
+		: "i" (-STACK_SIZE)
+	);
+
+	printf("%x\n", stack_end);
+
+	heap_end = (char *)((unsigned long)boot_params.hdr.heap_end_ptr + 0x200);
+	printf("%x\n", heap_end);
+
+	if (heap_end > stack_end)
+		heap_end = stack_end;
 }
 
 void main(void)
 {
-	/* Copy setup_header in header.S to boot_params */
-	boot_params.hdr = hdr;
+	/*
+	 * copy header info from "header.S" to "zeropage"
+	 */
+	memcpy(&boot_params.hdr, &hdr, sizeof(struct setup_header));
 
-	/* Various setup routines */
-	keyboard_init();
+	/* end of heap check */
+	init_heap();
+
+	/*
+	 * tell BIOS what mode we gonna use (why?)
+	 */
+	set_bios_mode();
+
+	/*
+	 * detect physical memory (e820 memory table)
+	 */
 	detect_memory();
-	enable_a20();
 	
-	/* Don't print anything after set_video() */
-	/* Because we have stored cursor position etc., already */
+	/*
+	 * set keyboard repear rate and query the lock flags (why?)
+	 */
+	keyboard_init();
+
+	enable_a20();
+
 	set_video();
+
 	go_to_protected_mode();
 }

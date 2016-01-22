@@ -381,3 +381,14 @@ Wed Jan 20 10:21:18 CST 2016
 Thu Jan 21 11:43:12 CST 2016
 - [M] arch/x86/boot/tools/build.c		[D] Two output images, bzImage + bzImgae.iso
 
+
+Fri Jan 22 16:57:04 CST 2016
+- [+] arch/x86/boot/copy.S
+- [+] arch/x86/boot/video-mode.c
+- [+] arch/x86/boot/video-bios.c
+- [+] arch/x86/boot/video-vga.c
+- [+] arch/x86/boot/video-vesa.c
+- [M] arch/x86/boot/video.h
+- [M] arch/x86/boot/video.c
+- [M] arch/x86/boot/main.c			[D] video code modifications
+- [M] arch/x86/boot/header.S			[D] heap_end_ptr + CAN_USE_HEAP
