@@ -94,7 +94,7 @@ setup_sects:	.byte 0			# Filled in by build.c
 root_flags:	.word ROOT_RDONLY
 syssize:	.long 0			# Filled in by build.c
 ram_size:	.word 0			# Obsolete
-vid_mode:	.word ASK_VGA		# DO NOT NEED TO ASK
+vid_mode:	.word ASK_VGA		# ASK
 root_dev:	.word 0			# Filled in by build.c
 boot_flag:	.word 0xAA55		# Boot sector flag
 
