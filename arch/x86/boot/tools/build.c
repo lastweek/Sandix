@@ -17,7 +17,7 @@
  */
 
 /*
- * This file builds a disk-image from three different files:
+ * This file builds two disk-image from three different files:
  *
  * - bootloader:	Simple bootloader for Sandix
  * - setup:		8086 machine code, sets up system parameters
@@ -26,6 +26,10 @@
  * It does some checking that all files are of the correct type, and writes
  * the result to the specified destination, padding to the right amount.
  * It also print some information to the stdout, error message to stderr.
+ *
+ * The output disk-image:
+ * - bzImage		kernel image that could be loaded by GRUB or LILO
+ * - bzImage.iso	bootloader + bzImage, which could be loaded by BIOS
  */
 
 #include <stdarg.h>

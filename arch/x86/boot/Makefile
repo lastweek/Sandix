@@ -29,10 +29,10 @@ targets += setup.elf
 targets += setup.bin
 targets += bzImage
 
-# Kernel setup part (real mode of x86)
-# header.o must come first, as its name.
+# 8086 machine code
 setup-y	:= header.o main.o a20.o bioscall.o memory.o pm.o string.o \
-	   pmjump.o printf.o regs.o tty.o version.o video.o
+	   pmjump.o printf.o regs.o tty.o version.o \
+	   video.o video-vga.o video-vesa.o video-bios.o
 setup-targets := $(addprefix $(obj)/, $(setup-y))
 
 # It is safe to override KBUILD_CFLAGS, KBUILD_AFLAGS,
