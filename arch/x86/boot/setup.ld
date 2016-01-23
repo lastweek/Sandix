@@ -42,6 +42,12 @@ SECTIONS
 	. = ALIGN(16);
 	.rodata		: { *(.rodata*) }
 	
+	.videocards	: {
+		video_cards = .;
+		*(.videocards)
+		video_cards_end = .;
+	}
+
 	. = ALIGN(16);
 	.data		: { *(.data*) }
 	

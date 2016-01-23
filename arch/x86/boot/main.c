@@ -66,19 +66,30 @@ static void init_heap(void)
 {
 	char *stack_end;
 
+	if (!(boot_params.hdr.loadflags & CAN_USE_HEAP)) {
+		puts("WARNING: Ancient bootloader! Can not use heap!\n");
+		return;
+	}
+
+	/*
+	 * Several bytes of stack have been used already, but that
+	 * is ok. We still use current %esp to minus STACK_SIZE, to
+	 * get the safest stack end.
+	 */
 	asm volatile (
-		"nop\n\t"
-		"nop\n\t"
 		"leal %P1(%%esp), %0"
 		: "=r" (stack_end)
 		: "i" (-STACK_SIZE)
 	);
 
-	printf("%x\n", stack_end);
+	heap_end = (char *)((size_t)boot_params.hdr.heap_end_ptr + 0x200);
 
-	heap_end = (char *)((unsigned long)boot_params.hdr.heap_end_ptr + 0x200);
-	printf("%x\n", heap_end);
+	printf("stack_end: %x\n", stack_end);
+	printf("heap_end:  %x\n", heap_end);
 
+	/*
+	 * Make sure we have a safe heap and a safe stack.
+	 */
 	if (heap_end > stack_end)
 		heap_end = stack_end;
 }
@@ -90,22 +101,12 @@ void main(void)
 	 */
 	memcpy(&boot_params.hdr, &hdr, sizeof(struct setup_header));
 
-	/* end of heap check */
 	init_heap();
 
-	/*
-	 * tell BIOS what mode we gonna use (why?)
-	 */
 	set_bios_mode();
 
-	/*
-	 * detect physical memory (e820 memory table)
-	 */
 	detect_memory();
-	
-	/*
-	 * set keyboard repear rate and query the lock flags (why?)
-	 */
+
 	keyboard_init();
 
 	enable_a20();

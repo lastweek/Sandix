@@ -27,9 +27,32 @@ asm(".code16gcc");
 
 #include <sandix/types.h>
 
+/* heap */
 extern char __end[];
 extern char *HEAP;
 extern char *heap_end;
+
+#define RESET_HEAP() \
+	((void *)(HEAP = __end))
+
+#define GET_HEAP(type, n) \
+	((type *)__get_heap(sizeof(type),__alignof__(type),(n)))
+
+static inline char *__get_heap(size_t s, size_t a, size_t n)
+{
+	char *tmp;
+
+	/* align */
+	HEAP = (char *)( ((size_t)HEAP+(a-1)) & ~(a-1) );
+	tmp = HEAP;
+	HEAP += s*n;
+	return tmp;
+}
+
+static inline bool heap_free(size_t n)
+{
+	return (int)(heap_end - HEAP) >= (int)n;
+}
 
 typedef unsigned int addr_t;
 
@@ -210,6 +233,12 @@ struct biosregs {
 	};
 };
 
+/* copy.S */
+void copy_to_fs(addr_t dst, void *src, size_t len);
+void *copy_from_fs(void *dst, addr_t src, size_t len);
+void copy_to_gs(addr_t dst, void *src, size_t len);
+void *copy_from_gs(void *dst, addr_t src, size_t len);
+
 /* bioscall.S */
 void intcall(u8 int_no, const struct biosregs *ireg, struct biosregs *oreg)
 __attribute__ ((regparm(3)));
@@ -239,6 +268,11 @@ void detect_memory(void);
 
 /* video.c */
 void set_video(void);
+
+/* video-mode.c */
+int set_mode(u16 mode);
+int mode_defined(u16 mode);
+void probe_cards(int unsafe);
 
 /* pm.c & pmjump.S */
 void go_to_protected_mode(void);

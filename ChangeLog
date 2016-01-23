@@ -384,11 +384,16 @@ Thu Jan 21 11:43:12 CST 2016
 
 Fri Jan 22 16:57:04 CST 2016
 - [+] arch/x86/boot/copy.S
-- [+] arch/x86/boot/video-mode.c
-- [+] arch/x86/boot/video-bios.c
+- [+] arch/x86/boot/video-mode.c		[D] select video mode when booting
+- [+] arch/x86/boot/video-bios.c		 >  many thanks to linux kernel developers!
 - [+] arch/x86/boot/video-vga.c
 - [+] arch/x86/boot/video-vesa.c
 - [M] arch/x86/boot/video.h
 - [M] arch/x86/boot/video.c
 - [M] arch/x86/boot/main.c			[D] video code modifications
 - [M] arch/x86/boot/header.S			[D] heap_end_ptr + CAN_USE_HEAP
+
+
+Sat Jan 23 21:39:06 CST 2016
+- [M] arch/x86/boot/video.c			[D] some updates about video.
+- [M] include/sandix/screen_info.h		[D] NOTE: need to modify vgacon.c

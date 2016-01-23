@@ -94,7 +94,7 @@ setup_sects:	.byte 0			# Filled in by build.c
 root_flags:	.word ROOT_RDONLY
 syssize:	.long 0			# Filled in by build.c
 ram_size:	.word 0			# Obsolete
-vid_mode:	.word NORMAL_VGA	# DO NOT NEED TO ASK
+vid_mode:	.word ASK_VGA		# DO NOT NEED TO ASK
 root_dev:	.word 0			# Filled in by build.c
 boot_flag:	.word 0xAA55		# Boot sector flag
 
@@ -135,7 +135,8 @@ type_of_loader:		.byte	0			# 0 means ancient bootloader, newer
 							# See Documentation/x86/boot.txt for
 							# assigned ids
 
-loadflags:		.byte	LOADED_HIGH		# The kernel is to be loaded high
+loadflags:		.byte	(LOADED_HIGH | CAN_USE_HEAP)
+							# The kernel is to be loaded high
 							# Unused bits must be zero bit
 
 setup_move_size:	.word	0x8000			# size to move, when setup is not
@@ -158,7 +159,8 @@ ramdisk_size:		.long	0			# its size in bytes
 
 bootsect_kludge:	.long	0			# obsolete
 
-heap_end_ptr:		.word	__end+STACK_SIZE-512	# (Header version 0x0201 or later)
+#XXX This value is derived from Grub2 source code
+heap_end_ptr:		.word	(0x9000-0x200)		# (Header version 0x0201 or later)
 							# space from here (exclusive) down to
 							# end of setup code can be used by setup
 							# for local heap purposes.

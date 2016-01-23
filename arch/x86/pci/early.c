@@ -69,13 +69,13 @@ void write_pci_config_16(u8 bus, u8 slot, u8 func, u8 offset, u16 val)
 
 void early_dump_pci_device(u8 bus, u8 slot, u8 func)
 {
+	printk(KERN_INFO "pci 0000:%02x:%02x.%d config space:",
+	       bus, slot, func);
+/*
 	int i;
 	int j;
 	u32 val;
 
-	printk(KERN_INFO "pci 0000:%02x:%02x.%d config space:",
-	       bus, slot, func);
-/*
 	for (i = 0; i < 256; i += 4) {
 		if (!(i & 0x0f))
 			printk("\n  %02x:",i);

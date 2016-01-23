@@ -32,9 +32,6 @@ SETUP_OFFSET	= 512		# Offset of entry point in setup
 	.globl start
 
 start:
-
-# Normalize the start address
-
 	ljmp	$BOOTSEG, $start2
 
 start2:
@@ -48,9 +45,7 @@ start2:
 	movw	$SETUPSEG, %ax
 	movw	%ax, %fs
 	movw	%ax, %es
-	sti
 	cld
-	jmp	bs_fail
 
 # Set a reasonable stack. Arbitrary value behind bootloader.
 # %sp = 512(Bootloader size) + 8(Needed room for stack)
@@ -272,7 +267,5 @@ sremain:	.word 0				# Sectors remained to read
 sys_size:	.long 0				# sys_size of system image
 boot_drive:	.byte 0				# Boot drive number
 
-	.org 506
-vid_mode:	.word 0xffff
-root_dev:	.word 0
+	.org 510
 bootflag:	.word 0xAA55
