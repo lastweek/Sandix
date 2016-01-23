@@ -158,15 +158,9 @@ int main(int argc, char **argv)
 	c = fread(loader, 1, sizeof(loader), file);
 	if (ferror(file))
 		die("Read error on loader");
-	if (c > 510)
-		die("The bootloader is too big");
+	if (get_le16(&loader[510]) != 0xAA55)
+		die("The bootloader hasn't got boot flag (0xAA55)");
 	fclose(file);
-
-	/*
-	 * PAD bootloader buffer
-	 */
-	memset(loader + c, 0, 512 - c);
-	put_le16(0xAA55, &loader[510]);
 
 	/*
 	 * COPY setup code

@@ -1,5 +1,4 @@
-#
-#	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+#	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
 #
 #	This program is free software; you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
@@ -15,51 +14,54 @@
 #	with this program; if not, write to the Free Software Foundation, Inc.,
 #	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-
-# Ugly boot loader for Sandix
+# Ugly boot loader for Sandix.
 #
 # 1) Load kernel setup to 0x9000:0000
 # 2) Load kernel system to 0x1000:0000 first,
 # 3) Then move kernel system from 0x1000:0000 to 0x100000
-#
 # 4) Jump to 0x9000:0200 setup.
 
-
 BOOTSEG		= 0x07c0	# Bootloader Segment.
-SETUPSEG	= 0x9000	# Real-Mode Kernel Image Segment.
-SYSSEG		= 0x1000	# Protected-Mode Kernel Image Segment.
-SETUP_OFFSET	= 512		# Offset of entry point in Real-mode setup
+SETUPSEG	= 0x9000	# Setup Image Segment.
+SYSSEG		= 0x1000	# System Image Segment.
+SETUP_OFFSET	= 512		# Offset of entry point in setup
 
 	.code16
-	
+
 	.text
 	.globl start
+
 start:
-##
-# Normalize segment registers to avoid bad things.
-# segements are as follows: %cs = %ds = %ss = BOOTSEG
+
+# Normalize the start address
+
+	ljmp	$BOOTSEG, $start2
+
+start2:
+
+# Segements are as follows: %cs = %ds = %ss = BOOTSEG
 # %es = %fs = SETUPSEG, %gs is not used.
-	
-	movw	$BOOTSEG, %ax
+
+	movw	%cs, %ax
 	movw	%ax, %ds
 	movw	%ax, %ss
 	movw	$SETUPSEG, %ax
 	movw	%ax, %fs
 	movw	%ax, %es
-	
-##
+	sti
+	cld
+	jmp	bs_fail
+
 # Set a reasonable stack. Arbitrary value behind bootloader.
 # %sp = 512(Bootloader size) + 8(Needed room for stack)
 # Use movl to clear upper 16-bit portion of %esp
 
 	movl	$520, %esp
 
-##
 # Get Disk Geometry Parameters.
-# In Modern BIOS(e.g. SeaBIOS), the CHS scheme used in INT 0x13 is
-# translated to LBA scheme to address disk. In CHS scheme, Cylinder
-# and Head start from 0, Sector start form 1, which means the fisrt
-# sector is: 0/0/1. In LBA scheme, the first sector starts from 0.
+# In CHS scheme, Cylinder and Head start from 0, Sector start form 1,
+# which means the fisrt sector is: 0/0/1. In LBA scheme, the first
+# sector starts from 0.
 #
 # Using Cylinder/Head/Sector to calculate LBA:
 #	LBA = (Cylinder * hPc + Head) * sPt + (Sector - 1)
@@ -69,18 +71,18 @@ start:
 # has capacity of 16*63*0.5 KB = 504KB. So, normally, it is NOT
 # possible to load cross-cylinder, if you do cross, call 110.
 
+	movb	%dl, boot_drive			# Save boot drive number
+
 	movb	$8,%ah
-	movb	$0x80, %dl			# 0x80 for hard disk
 	int	$0x13				# Get Disk Parameters
-	
+
 	xorw	%ax, %ax
 	movb	%dh, %al
 	movw	%ax, hPc			# Store heads/cylinder
 
 	andw	$0x3f, %cx
 	movw	%cx, sPt			# Store sectors/track
-	
-##
+
 # Load Kernel Setup
 # Load one sector first, then we read the sectors_of_setup
 # and sys_size to decide how many sectors we need to load.
@@ -88,12 +90,13 @@ start:
 
 	xorw	%ax, %ax
 	xorw	%dx, %dx
+	movb	boot_drive, %dl
 	int	$0x13				# Reset FDC
-	
+
 	xorw	%bx, %bx			# 0x9000:0000
 	movw	$0x0201, %ax			# Service 2, nr_of_sectors = 1
 	movw	$2, %cx				# Cylinder = 0, Sector = 2
-	movw	$0x80, %dx			# Head = 0, Hard Disk
+	movb	boot_drive, %dl			# Head = 0, Boot Drive
 	int	$0x13
 	jc	bs_fail
 
@@ -102,7 +105,6 @@ start:
 	movb	%fs:(%bx), %al			# sectors_of_setup, 1 byte
 	pushw	%ax				# In case BIOS touching
 
-##
 # Load the remaining Kernel Setup
 # Note that we have confined setup image to 64 sectors(It should be
 # 62 sectors, in my opinion), so it is very safe to load it in the
@@ -112,12 +114,11 @@ start:
 	movw	$0x200, %bx			# 0x9000:0200
 	movb	$0x2, %ah			# Service 2
 	movw	$3, %cx				# Cylinder = 0, Sector = 3
-	movw	$0x80, %dx			# Head = 0, Hard Disk
+	movb	boot_drive, %dl			# Head = 0, Boot Drive
 	int	$0x13
 	jc	bs_fail
 
-##
-# Before loading System, calculating the size of system image first.
+# Before loading system, calculating the size of system image first.
 # Note that the sys_size field is in 16-bytes unit, therefore:
 # sectors_of_system = (sys_size * 16 + 511) / 512
 
@@ -131,7 +132,6 @@ start:
 	shrl	$9, %eax			# / 512
 	movw	%ax, sremain			# Store it
 
-##
 # Loading System in an ugly way.
 # First, load the first portion that sleep in head 0. After that, we load
 # the remaining. I am NOT good at assembly code, here you go.
@@ -160,7 +160,7 @@ start:
 2:
 	movb	$0x2, %ah			# Service 2
 	movw	sread, %cx			# Starting sector number
-	movw	$0x80, %dx			# Head = 0, Hard Disk
+	movb	boot_drive, %dl			# Head = 0, Boot Drive
 	int	$0x13
 	jc	bs_fail
 
@@ -173,9 +173,8 @@ start:
 	addw	$1, %bx				# %bx = sPt - sread + 1
 	salw    $9, %bx				# %bx *= 512
 
-##
 # Now the remaining sectors after head 0
-# (Should merge with the code above) :(
+# (Should be merged with the code above) :(
 
 	movw	$1, sread
 loop:
@@ -198,7 +197,7 @@ loop:
 	movb	$0x2, %ah			# Service 2
 	movw	sread, %cx			# Starting sector number
 	movb	head, %dh			# Head X
-	movb	$0x80, %dl			# Hard disk
+	movb	boot_drive, %dl			# Boot drive
 	int	$0x13
 	jc	bs_fail
 	
@@ -243,18 +242,8 @@ bs_copy:
 
 	ljmp	$SETUPSEG, $SETUP_OFFSET
 	
-# Some variables for disk operation
-hPc:		.word 0				# Heads/Cylinder
-sPt:		.word 0				# Sectors/Track
-sread:		.word 0				# Starting sector number to read
-head:		.word 0				# Current head
-cylinder:	.word 0				# Current cylinder(not used)
-sremain:	.word 0				# Sectors remained to read
-sys_size:	.long 0				# sys_size of system image
-
-# Simple message, should be more specific
 bs_fail:
-	mov	$bs_msg, %si
+	movw	$bs_msg, %si
 bs_loop:
 	lodsb
 	andb	%al, %al
@@ -263,10 +252,27 @@ bs_loop:
 	movw	$7, %bx
 	int	$0x10
 	jmp	bs_loop
-
 bs_die:
-	hlt
-	jmp bs_die
+	xorw	%ax, %ax
+	int	$0x16
+	int	$0x19
 bs_msg:
-	.ascii "Fail to load Sandix..."
+	.ascii "Fail to load Sandix.\r\n\n"
+	.ascii "Press any key to reboot..."
 	.byte 0
+
+	.align 4
+# Some variables for disk operation
+hPc:		.word 0				# Heads/Cylinder
+sPt:		.word 0				# Sectors/Track
+sread:		.word 0				# Starting sector number to read
+head:		.word 0				# Current head
+cylinder:	.word 0				# Current cylinder(not used)
+sremain:	.word 0				# Sectors remained to read
+sys_size:	.long 0				# sys_size of system image
+boot_drive:	.byte 0				# Boot drive number
+
+	.org 506
+vid_mode:	.word 0xffff
+root_dev:	.word 0
+bootflag:	.word 0xAA55
