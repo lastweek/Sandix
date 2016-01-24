@@ -65,16 +65,16 @@ static	unsigned int	vga_video_num_cols;	/* Number of text columns */
 static	unsigned int	vga_video_num_rows;	/* Number of text rows */
 static	unsigned int	vga_video_port_reg;	/* Video register index port */
 static	unsigned int	vga_video_port_val;	/* Video register value port */
+static	int		vga_can_do_color;	/* Can we support colors? */
+static	unsigned char	vga_video_type;		/* Card type */
+const static unsigned char *vga_video_desc;	/* Card short description */
 
-/* WHY NOT? */
-#define BLANK		(0x20)
-#define SCREEN_SIZE	(4000)
-#define ROW_SIZE	(160)
+#define BLANK		(0x0020)
 
-#define VGA_OFFSET(y, x)	(unsigned long)((80*(y)+(x))<<1)
-#define VGA_ADDR(vc, y, x)	((vc)->vc_visible_origin + VGA_OFFSET((y), (x)))
-#define VGA_ATTR(vc, ch)	(unsigned short)(((vc->vc_attr) << 8) | (ch))
-#define VGA_MEM_MAP(__addr)	(unsigned long)phys_to_virt((__addr))
+#define VGA_OFFSET(vc, y, x)	(unsigned long)(((vc)->vc_cols*(y)+(x))<<1)
+#define VGA_ADDR(vc, y, x)	(unsigned long)((vc)->vc_visible_origin + VGA_OFFSET((vc), (y), (x)))
+
+#define VGA_ATTR(vc, ch)	(unsigned short)((((vc)->vc_attr) << 8) | (unsigned char)(ch))
 
 static __always_inline void write_vga(unsigned char reg, unsigned int val)
 {
@@ -164,13 +164,13 @@ static void vgacon_scroll(struct vc_struct *vc, int dir, int lines)
 	if (lines <= 0 || lines >= vc->vc_rows / 2)
 		return;
 	
-	delta = lines * ROW_SIZE;
+	delta = lines * vc->vc_row_size;
 
 	switch (dir) {
 	case (VWIN_UP):
 		if ((vc->vc_visible_origin - delta) <= vga_vram_base) {
 			vc->vc_visible_origin = vga_vram_base;
-			vc->vc_scr_end = vga_vram_base + SCREEN_SIZE;
+			vc->vc_scr_end = vga_vram_base + vc->vc_scr_size;
 		} else {
 			vc->vc_visible_origin -= delta;
 			vc->vc_scr_end -= delta;
@@ -188,7 +188,7 @@ static void vgacon_scroll(struct vc_struct *vc, int dir, int lines)
 			vc->vc_pos = vga_vram_base
 				+ (vc->vc_pos - vc->vc_visible_origin);
 			vc->vc_visible_origin = vga_vram_base;
-			vc->vc_scr_end = vga_vram_base + SCREEN_SIZE;
+			vc->vc_scr_end = vga_vram_base + vc->vc_scr_size;
 			
 			/* Draw cursor */
 			vga_set_cursor(vc);
@@ -202,16 +202,14 @@ static void vgacon_scroll(struct vc_struct *vc, int dir, int lines)
 static bool has_called_startup = false;
 
 /*
- * Much of the dirty work seems should be done in boot process. For simplicity,
- * we assume that in mode 3, an EGA or a VGA+ is present. So the vram_size is
- * 0x8000. How to detect the type of video card? Please see linux/boot/video
- * for details.
+ * This function should be called only once.
+ * Get basic information from "zeropage" to initialize
+ * this vga_console module.
  */
 static void vgacon_startup(void)
 {
 	if(has_called_startup)
 		return;
-	
 	has_called_startup = true;
 
 	/* boot_params.screen_info initialized? */
@@ -221,29 +219,60 @@ static void vgacon_startup(void)
 	    	return;
 
 	switch(screen_info.orig_video_mode) {
-	case 3:
-		/* Color Display. EGA, VGA+ */
-		vga_vram_base = 0xb8000;
-		vga_vram_size = 0x8000;
-		vga_video_port_reg = VGA_CRT_IC;
-		vga_video_port_val = VGA_CRT_DC;
-		break;
 	case 7:
-		/* Monochrome Display. MDA */
+		/* Monochrome Display */
 		vga_vram_base = 0xb0000;
-		vga_vram_size = 0x2000;
 		vga_video_port_reg = VGA_CRT_IM;
 		vga_video_port_val = VGA_CRT_DM;
+		
+		/* See video-vga.c */
+		if ((screen_info.orig_video_ega_bx & 0xff) != 0x10) {
+			vga_video_desc = "EGA+";
+			vga_video_type = VIDEO_TYPE_EGAM;
+			vga_vram_size = 0x8000;
+		} else {
+			vga_video_desc = "*MDA";
+			vga_video_type = VIDEO_TYPE_MDA;
+			vga_vram_size = 0x2000;
+		}
 		break;
 	default:
-		return;
+		/* Color Display */
+		vga_can_do_color = 1;
+		vga_vram_base = 0xb8000;
+		vga_video_port_reg = VGA_CRT_IC;
+		vga_video_port_val = VGA_CRT_DC;
+
+		/* EGA? VGA? CGA? */
+		if ((screen_info.orig_video_ega_bx & 0xff) != 0x10) {
+
+			vga_vram_size = 0x8000;
+
+			if (!screen_info.orig_video_isVGA) {
+				/* EGA! */
+				vga_video_desc = "EGA";
+				vga_video_type = VIDEO_TYPE_EGAC;
+			} else {
+				/* VGA! */
+				vga_video_desc = "VGA+";
+				vga_video_type = VIDEO_TYPE_VGAC;
+				/*XXX resize vram maybe? */
+			}
+		} else {
+			/* CGA! */
+			vga_video_desc = "*CGA";
+			vga_vram_size = 0x2000;
+		}
+		break;
 	}
+
+	/* Calculate the final physical vram address */
+	vga_vram_base = (unsigned long)phys_to_virt(vga_vram_base);
+	vga_vram_end = vga_vram_base + vga_vram_size;
 
 	vga_vram_attr = 0x7;
 	vga_erased_char = (vga_vram_attr << 8) | BLANK;
 	
-	vga_vram_base = VGA_MEM_MAP(vga_vram_base);
-	vga_vram_end = vga_vram_base + vga_vram_size;
 	vga_visible_origin = vga_vram_base;
 
 	vga_video_num_cols = screen_info.orig_video_cols;
@@ -251,7 +280,7 @@ static void vgacon_startup(void)
 
 	vga_x = screen_info.orig_x;
 	vga_y = screen_info.orig_y;
-	vga_pos = VGA_OFFSET(vga_y, vga_x) + vga_vram_base;
+	vga_pos = (unsigned long)(((vga_video_num_cols * vga_y) + vga_x) << 1) + vga_vram_base;
 }
 
 /* 
@@ -271,9 +300,10 @@ static int vgacon_init(struct vc_struct *vc)
 	vc->vc_cols	= vga_video_num_cols;
 	vc->vc_rows	= vga_video_num_rows;
 	vc->vc_row_size	= vga_video_num_cols << 1;
+	vc->vc_scr_size = vc->vc_row_size * vc->vc_rows;
 	vc->vc_attr	= vga_vram_attr;
 	vc->vc_origin	= vga_vram_base;
-	vc->vc_scr_end	= vga_visible_origin + SCREEN_SIZE;
+	vc->vc_scr_end	= vga_visible_origin + vc->vc_scr_size;
 	vc->vc_top	= 0;
 	vc->vc_bottom	= vga_video_num_rows;
 	vc->vc_visible_origin = vga_visible_origin;

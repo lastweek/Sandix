@@ -83,35 +83,35 @@ static void init_heap(void)
 	);
 
 	heap_end = (char *)((size_t)boot_params.hdr.heap_end_ptr + 0x200);
-
+	
+	/* XXX should be removed */
 	printf("stack_end: %x\n", stack_end);
 	printf("heap_end:  %x\n", heap_end);
 
-	/*
-	 * Make sure we have a safe heap and a safe stack.
-	 */
+	/* Make sure we have a safe heap and a safe stack. */
 	if (heap_end > stack_end)
 		heap_end = stack_end;
 }
 
 void main(void)
 {
-	/*
-	 * copy header info from "header.S" to "zeropage"
-	 */
+	/* move hdr to "zeropage" */
 	memcpy(&boot_params.hdr, &hdr, sizeof(struct setup_header));
 
 	init_heap();
 
 	set_bios_mode();
 
+	/* ask BIOS for e820 table */
 	detect_memory();
 
 	keyboard_init();
 
 	enable_a20();
 
+	/* set a reasonable video mode */
 	set_video();
 
+	/* jump to kernel */
 	go_to_protected_mode();
 }

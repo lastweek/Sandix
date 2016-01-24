@@ -47,6 +47,7 @@ struct vc_struct {
 	unsigned int	vc_cols;
 	unsigned int	vc_rows;
 	unsigned int	vc_row_size;		/* Bytes per row */
+	unsigned int	vc_scr_size;		/* Screen buffer size */
 	unsigned int	vc_scan_line;		/* Cursor scanlines? */
 	unsigned long	vc_origin;		/* Start of real screen */
 	unsigned long	vc_scr_end;		/* End of real screen */
