@@ -131,6 +131,7 @@ void __init e820_print_map(char *who)
  *	   ____________________33__
  *	   ______________________4_
  */
+
 struct change_member {
 	struct e820entry *pbios; /* pointer to original bios entry */
 	unsigned long long addr; /* address for this change point */
@@ -279,9 +280,7 @@ int __init sanitize_e820_map(struct e820entry *biosmap, int max_nr_map,
 	return 0;
 }
 
-/*
- * Add a memory region to the kernel e820 map.
- */
+/* Add a memory region to the kernel e820 map. */
 static void __init __e820_add_region(struct e820map *e820x, u64 start,
 				     u64 size, u32 type)
 {
