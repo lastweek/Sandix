@@ -55,9 +55,9 @@
 
 #ifndef __ASSEMBLY__
 
-#include <sandix/screen_info.h>
-#include <sandix/types.h>
 #include <asm/e820.h>
+#include <sandix/types.h>
+#include <sandix/screen_info.h>
 
 /* extensible setup data list node */
 struct setup_data {
@@ -68,7 +68,8 @@ struct setup_data {
 };
 
 /*
- * see header.S for details
+ * see arch/x86/boot/header.S and Documentation/x86/boot.txt
+ * for details about Sandix's and Linux's boot protocol.
  */
 struct setup_header {
 	__u8	setup_sects;

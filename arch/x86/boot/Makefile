@@ -32,7 +32,16 @@ targets += bzImage
 # 8086 machine code
 setup-y	:= header.o main.o a20.o bioscall.o memory.o pm.o string.o \
 	   pmjump.o printf.o regs.o tty.o version.o copy.o \
-	   video.o video-mode.o video-vga.o video-vesa.o video-bios.o
+	   video.o video-mode.o
+
+# The link order of the video-*.o modules can matter.  In particular,
+# video-vga.o *must* be listed first, followed by video-vesa.o.
+# Hardware-specific drivers should follow in the order they should be
+# probed, and video-bios.o should typically be last.
+setup-y += video-vga.o
+setup-y += video-vesa.o
+setup-y	+= video-bios.o
+
 setup-targets := $(addprefix $(obj)/, $(setup-y))
 
 # It is safe to override KBUILD_CFLAGS, KBUILD_AFLAGS,

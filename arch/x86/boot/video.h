@@ -19,9 +19,9 @@
 #ifndef _X86_BOOT_VIDEO_H_
 #define _X86_BOOT_VIDEO_H_
 
-#include <sandix/types.h>
-
 #include "boot.h"
+
+#include <sandix/types.h>
 
 /*
  * This code uses an extended set of video mode numbers. These include:
@@ -68,7 +68,6 @@ void store_screen(void);
 /*
  * Mode table structures
  */
-
 struct mode_info {
 	u16 mode;		/* Mode number (vga= style) */
 	u16 x, y;		/* Width, height */

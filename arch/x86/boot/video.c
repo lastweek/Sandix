@@ -16,6 +16,17 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ * All the video source code are copied from linux directly.
+ * I used to ignore these files because I think Sandix may not
+ * need it. However, when I run Sandix in real machines, graphics
+ * becomes mysteries, the original implementation would print funny
+ * characters or print out of bound. Therefore, I turn back and integrate
+ * this code into Sandix.
+ *
+ * Many thanks to linux developers. Thank you, hackers.
+ */
+
 #include "boot.h"
 #include "video.h"
 
@@ -61,6 +72,13 @@ static void store_mode_params(void)
 	u16 font_size;
 	int x, y;
 
+	/*
+	 * For graphics mode, it is up to the mode-setting driver
+	 * (currently only video-vesa.c) to store the parameters
+	 */
+	if (graphic_mode)
+		return;
+
 	store_cursor_position();
 	store_video_mode();
 
@@ -77,7 +95,13 @@ static void store_mode_params(void)
 	boot_params.screen_info.orig_video_points = font_size;
 
 	x = rdfs16(0x44a);
-	y = rdfs8(0x484)+1;
+	y = (adapter == ADAPTER_CGA) ? 25 : (rdfs8(0x484) + 1);
+
+	if (force_x)
+		x = force_x;
+	if (force_y)
+		y = force_y;
+
 	boot_params.screen_info.orig_video_cols  = x;
 	boot_params.screen_info.orig_video_lines = y;
 }
@@ -208,6 +232,7 @@ static unsigned int mode_menu(void)
 
 		puts("Enter a video mode or \"scan\" to scan for "
 		     "additional modes: ");
+
 		sel = get_entry();
 		if (sel != SCAN)
 			return sel;

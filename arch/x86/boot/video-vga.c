@@ -265,10 +265,12 @@ static int vga_probe(void)
 	intcall(0x10, &ireg, &oreg);
 
 #ifndef _WAKEUP
-	//boot_params.screen_info.orig_video_ega_bx = oreg.bx;
+	boot_params.screen_info.orig_video_ega_bx = oreg.bx;
 #endif
 
-	/* If we have MDA/CGA/HGC then BL will be unchanged at 0x10 */
+	/*
+	 * If we have MDA/CGA/HGC then BL will be unchanged at 0x10
+	 */
 	if (oreg.bl != 0x10) {
 		/* EGA/VGA */
 		ireg.ax = 0x1a00;
@@ -283,11 +285,17 @@ static int vga_probe(void)
 			adapter = ADAPTER_EGA;
 		}
 	} else {
+		/* CGA/MDA/HGC */
 		adapter = ADAPTER_CGA;
 	}
 
+	/*
+	 * Now we have detected adapter type,
+	 * set this card's info
+	 */
 	video_vga.modes = mode_lists[adapter];
 	video_vga.card_name = card_name[adapter];
+
 	return mode_count[adapter];
 }
 

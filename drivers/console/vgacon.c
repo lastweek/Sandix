@@ -35,13 +35,13 @@
  *	directly!
  */
 
-#include <sandix/screen_info.h>
-#include <sandix/compiler.h>
-#include <sandix/console.h>
+#include <sandix/io.h>
+#include <sandix/irq.h>
 #include <sandix/errno.h>
 #include <sandix/types.h>
-#include <sandix/irq.h>
-#include <sandix/io.h>
+#include <sandix/console.h>
+#include <sandix/compiler.h>
+#include <sandix/screen_info.h>
 
 #include <asm/bootparam.h>
 
@@ -76,13 +76,13 @@ static	unsigned int	vga_video_port_val;	/* Video register value port */
 #define VGA_ATTR(vc, ch)	(unsigned short)(((vc->vc_attr) << 8) | (ch))
 #define VGA_MEM_MAP(__addr)	(unsigned long)phys_to_virt((__addr))
 
-ALWAYS_INLINE void write_vga(unsigned char reg, unsigned int val)
+static __always_inline void write_vga(unsigned char reg, unsigned int val)
 {
 	outb(reg, vga_video_port_reg);
 	outb(val, vga_video_port_val);
 }
 
-INLINE void vga_set_mem_top(struct vc_struct *vc)
+static __always_inline void vga_set_mem_top(struct vc_struct *vc)
 {
 	unsigned long offset = vc->vc_visible_origin - vga_vram_base;
 
@@ -92,7 +92,7 @@ INLINE void vga_set_mem_top(struct vc_struct *vc)
 	irq_enable();
 }
 
-INLINE void vga_set_cursor(struct vc_struct *vc)
+static __always_inline void vga_set_cursor(struct vc_struct *vc)
 {
 	unsigned long offset = vc->vc_pos - vga_vram_base;
 
@@ -282,12 +282,13 @@ static int vgacon_init(struct vc_struct *vc)
 	return 0;
 }
 
+/* free memory maybe */
 static void vgacon_deinit(struct vc_struct *vc)
 {
 	return;
 }
 
-/**
+/*
  * vgacon_set_color
  * 00H  black  01H blue     02H  green  03H  cyan
  * 04H  red    05H magenta  06H  brown  07H  white
