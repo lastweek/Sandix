@@ -19,6 +19,7 @@
 #include <sandix/types.h>
 #include <sandix/export.h>
 #include <sandix/compiler.h>
+#include <sandix/bootmem.h>
 #include <sandix/screen_info.h>
 
 #include <asm/e820.h>
@@ -58,17 +59,25 @@ struct desc_struct gdt_table[GDT_ENTRIES] __aligned(8) =
 
 struct desc_struct idt_table[IDT_ENTRIES] __aligned(8);
 
-/*
- * Prepare the screen, so we chould use printk()...
- */
+/* Prepare the screen, so we chould use printk()... */
 void __init early_arch_setup(void)
 {
 	screen_info = boot_params.screen_info;
 }
 
+/*
+ * The real setup...
+ * x86 Architecture-specific boot-time initializations
+ */
 void __init arch_setup(void)
 {
 	setup_memory_map();
 
+	max_pfn = e820_end_of_ram_pfn();
+
+#ifdef CONFIG_PCI
 	early_dump_pci_devices();
+#endif
+
+	trap_init();
 }

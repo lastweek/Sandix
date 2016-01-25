@@ -45,6 +45,21 @@
 struct e820map e820;
 struct e820map e820_saved;
 
+static unsigned long __init e820_end_pfn(unsigned long limit_pfn)
+{
+
+}
+
+unsigned long __init e820_end_of_ram_pfn(void)
+{
+	
+}
+
+unsigned long __init e820_end_of_low_ram_pfn(void)
+{
+
+}
+
 static const char *e820_type_to_string(u32 e820_type)
 {
 	switch (e820_type) {

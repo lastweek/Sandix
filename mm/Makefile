@@ -1,1 +1,1 @@
-obj-y := init_mem.o
+obj-y := bootmem.o

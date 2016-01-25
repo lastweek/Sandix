@@ -74,6 +74,8 @@ struct e820map {
 	struct e820entry map[E820MAX];
 }__attribute__((packed));
 
+unsigned long __init e820_end_of_low_ram_pfn(void);
+unsigned long __init e820_end_of_ram_pfn(void);
 int __init sanitize_e820_map(struct e820entry *biosmap, int max_nr_map, u32 *pnr_map);
 void __init e820_add_region(u64 start, u64 size, u32 type);
 void __init e820_print_map(char *who);

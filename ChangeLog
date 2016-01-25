@@ -397,3 +397,14 @@ Fri Jan 22 16:57:04 CST 2016
 Sat Jan 23 21:39:06 CST 2016
 - [M] arch/x86/boot/video.c			[D] some updates about video.
 - [M] include/sandix/screen_info.h		[D] NOTE: need to modify vgacon.c
+
+
+Mon Jan 25 14:03:30 CST 2016
+- [-] arch/x86/kernel/entry.S
+- [+] arch/x86/entry/
+- [+] include/sandix/bootmem.h			[D] extern max_pfn ect. variables
+- [+] include/asm-generic/page.h
+- [+] arch/x86/include/asm/page_32.h		[D] separate 32/64 page definitions
+- [+] arch/x86/include/asm/page_64.h
+- [M] arch/x86/include/asm/page.h
+- [M] arch/x86/Kconfig				[D] HIGHMEM etc.

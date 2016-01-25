@@ -1,7 +1,5 @@
 /*
- *	include/sandix/page.h - Pages
- *
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -21,10 +19,10 @@
 #ifndef _SANDIX_PAGE_H_
 #define _SANDIX_PAGE_H_
 
+#include <asm/page.h>
+
 #include <sandix/types.h>
 #include <sandix/atomic.h>
-
-#include <asm/page.h>
 
 enum SANDIX_PAGE_FLAGS {
 	PG_present,

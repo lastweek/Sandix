@@ -9,7 +9,6 @@ extra-y := head_32.o
 # it will be handled by Makefile.build
 extra-y += vmSandix.ld
 
-obj-y := entry.o
-obj-y += setup.o
+obj-y := setup.o
 obj-y += traps.o
 obj-y += e820.o
