@@ -407,4 +407,11 @@ Mon Jan 25 14:03:30 CST 2016
 - [+] arch/x86/include/asm/page_32.h		[D] separate 32/64 page definitions
 - [+] arch/x86/include/asm/page_64.h
 - [M] arch/x86/include/asm/page.h
-- [M] arch/x86/Kconfig				[D] HIGHMEM etc.
+- [+] arch/x86/include/asm/pgtable_32.h		[D] separate 32/64 page table definitions
+- [+] arch/x86/include/asm/pgtable_64.h
+- [+] arch/x86/include/asm/pgtable-2level.h
+- [+] arch/x86/include/asm/pgtable-3level.h
+- [+] arch/x86/include/asm/pgtable-2level-types.h
+- [+] arch/x86/include/asm/pgtable-3level-types.h
+- [M] arch/x86/include/asm/pgtable.h
+- [M] arch/x86/Kconfig				[D] add CONFIG_HIGHMEM etc.

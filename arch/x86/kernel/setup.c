@@ -27,7 +27,7 @@
 #include <asm/sections.h>
 #include <asm/bootparam.h>
 #include <asm/descriptor.h>
-#include <asm/pci-early.c>
+#include <asm/pci_early.h>
 
 unsigned long max_pfn_mapped;
 
@@ -79,5 +79,5 @@ void __init arch_setup(void)
 	early_dump_pci_devices();
 #endif
 
-	trap_init();
+	//trap_init();
 }
