@@ -17,16 +17,23 @@
  */
 
 /*
- * Two-level page tables, in normal 32-bit x86 machines
+ * This file describes page table structures of 32-bit machines.
+ * If PAE is configured, kernel uses three-level page tables.
+ * If not, kernel uses two-level page tables.
  */
 
-#ifndef _ASM_X86_PGTABLE_2LEVEL_H_
-#define _ASM_X86_PGTABLE_2LEVEL_H_
+#ifndef _ASM_X86_PGTABLE_32_TYPES_H_
+#define _ASM_X86_PGTABLE_32_TYPES_H_
 
-#define pte_ERROR(e) \
-	pr_err("%s:%d: bad pte %08lx\n", __FILE__, __LINE__, (e).pte_low)
-#define pgd_ERROR(e) \
-	pr_err("%s:%d: bad pgd %08lx\n", __FILE__, __LINE__, pgd_val(e))
+#ifdef CONFIG_X86_PAE
+# include <asm/pgtable-3level-types.h>
+# define PMD_SIZE	(1UL << PMD_SHIFT)
+# define PMD_MASK	(~(PMD_SIZE - 1))
+# else
+# include <asm/pgtable-2level-types.h>
+#endif
 
+#define PGDIR_SIZE	(1UL << PGDIR_SHIFT)
+#define PGDIR_MASK	(~(PGDIR_SIZE - 1))
 
-#endif /* _ASM_X86_PGTABLE_2LEVEL_H_ */
+#endif /* _ASM_X86_PGTABLE_32_TYPES_H_ */

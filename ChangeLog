@@ -415,3 +415,8 @@ Mon Jan 25 14:03:30 CST 2016
 - [+] arch/x86/include/asm/pgtable-3level-types.h
 - [M] arch/x86/include/asm/pgtable.h
 - [M] arch/x86/Kconfig				[D] add CONFIG_HIGHMEM etc.
+
+
+Tue Jan 26 10:15:37 CST 2016
+- [+] arch/x86/include/asm/pgtable_32_types.h
+- [+] arch/x86/include/asm/pgtable_64_types.h

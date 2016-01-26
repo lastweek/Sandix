@@ -16,44 +16,40 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/*
- * Three-level paging is enabled when PAE is enabled in 32-bit x86.
- * PAE paging translates 32-bit linear address to 52-bit physical
- * address. If MAXPHYADDR < 52, bits in the range 51:MAXPHYADDR
- * will be 0 in any physical address used by PAE paging. The
- * MAXPHYADDR depends on each processor. Normally, 36-bit(?).
- */
-
-#ifndef _ASM_X86_PGTABLE_3LEVEL_TYPES_H_
-#define _ASM_X86_PGTABLE_3LEVEL_TYPES_H_
+#ifndef _ASM_X86_PGTABLE_64_TYPES_H_
+#define _ASM_X86_PGTABLE_64_TYPES_H_
 
 #ifndef __ASSEMBLY__
-#include <sandix/types.h>
+typedef unsigned long pteval_t;
+typedef unsigned long pmdval_t;
+typedef unsigned long pudval_t;
+typedef unsigned long pgdval_t;
+typedef unsigned long pgprotval_t;
 
-typedef u64 pteval_t;
-typedef u64 pmdval_t;
-typedef u64 pudval_t;
-typedef u64 pgdval_t;
-typedef u64 pgprotval_t;
-
-typedef union {
-	struct {
-		unsigned long pte_low, pte_high;
-	};
+typedef struct {
 	pteval_t pte;
 } pte_t;
 #endif
 
-#define SHARED_KERNEL_PMD	1
+#define SHARED_KERNEL_PMD	0
 
 /*
- * PGDIR_SHIFT determines what a top-level page table entry can map
+ * PGDIR_SHIFT determines the size of the area
+ * a top-level page table entry can map
  */
-#define PGDIR_SHIFT		30
-#define PTRS_PER_PGD		4
+#define PGDIR_SHIFT		39
+#define PTRS_PER_PGD		512
 
 /*
- * PMD_SHIFT determines the size of the area a middle-level page table can map
+ * PUD_SHIFT determines the size of the area
+ * a 3rd-level page table entry can map
+ */
+#define PUD_SHIFT		30
+#define PTRS_PER_PUD		512
+
+/*
+ * PMD_SHIFT determines the size of the area
+ * a middle-level page table entry can map
  */
 #define PMD_SHIFT		21
 #define PTRS_PER_PMD		512
@@ -63,5 +59,11 @@ typedef union {
  */
 #define PTRS_PER_PTE		512
 
-#endif /* _ASM_X86_PGTABLE_3LEVEL_TYPES_H_ */
+#define PMD_SIZE	(1UL << PMD_SHIFT)
+#define PMD_MASK	(~(PMD_SIZE - 1))
+#define PUD_SIZE	(1UL << PUD_SHIFT)
+#define PUD_MASK	(~(PUD_SIZE - 1))
+#define PGDIR_SIZE	(1UL << PGDIR_SHIFT)
+#define PGDIR_MASK	(~(PGDIR_SHIFT - 1))
 
+#endif /* _ASM_X86_PGTABLE_32_TYPES_H_ */
