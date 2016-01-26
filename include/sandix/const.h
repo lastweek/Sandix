@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,10 +20,10 @@
 #define _SANDIX_CONST_H_
 
 /*
- * Some constant macros are used in both assembler and
- * C code. Therefore we cannot annotate them always with
- * 'UL' and other type specifiers unilaterally.  We
- * use the following macros to deal with this.
+ * Some constant macros are used in both assembler and C code.
+ * Therefore we cannot annotate them always with 'UL' and other
+ * type specifiers unilaterally.  We use the following macros to
+ * deal with this.
  *
  * Similarly, _AT() will cast an expression with a type in C, but
  * leave it unchanged in asm.

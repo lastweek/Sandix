@@ -42,7 +42,7 @@ typedef union {
 	};
 	pteval_t pte;
 } pte_t;
-#endif
+#endif /* __ASSEMBLY__ */
 
 #define SHARED_KERNEL_PMD	1
 

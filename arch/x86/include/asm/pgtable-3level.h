@@ -17,11 +17,14 @@
  */
 
 /*
- * Three-level page tables, in Physical Address Extension (PAE) mode.
+ * Three-level page tables, in PAE mode.
+ * TODO
  */
 
 #ifndef _ASM_X86_PGTABLE_3LEVEL_H_
 #define _ASM_X86_PGTABLE_3LEVEL_H_
+
+#ifndef __ASSEMBLY__
 
 #define pte_ERROR(e)							\
 	pr_err("%s:%d: bad pte %p(%08lx%08lx)\n",			\
@@ -33,6 +36,15 @@
 	pr_err("%s:%d: bad pgd %p(%016Lx)\n",				\
 	       __FILE__, __LINE__, &(e), pgd_val(e))
 
+static inline void native_set_pte(pte_t *ptep, pte_t pte)
+{}
+
+static inline void native_set_pmd(pmd_t *pmdp, pmd_t pmd)
+{}
+
+static inline void native_set_pud(pud_t *pudp, pud_t pud)
+{}
+
+#endif /* __ASSEMBLY__ */
 
 #endif /* _ASM_X86_PGTABLE_3LEVEL_H_ */
-
