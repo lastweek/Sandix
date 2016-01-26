@@ -24,7 +24,7 @@
 #define _ASM_GENERIC_PAGE_H_
 
 #ifdef CONFIG_MMU
-# error Please provide a real <asm/page.h>
+# error "Please provide a real <asm/page.h>"
 #endif
 
 /*

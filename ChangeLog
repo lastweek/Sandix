@@ -421,3 +421,6 @@ Tue Jan 26 10:15:37 CST 2016
 - [+] arch/x86/include/asm/pgtable_32_types.h
 - [+] arch/x86/include/asm/pgtable_64_types.h
 - [+] arch/x86/include/asm/pgtable_types.h	[D] separate types from operations
+- [+] include/asm-generic/pgtable.h
+- [+] include/asm-generic/pgtable-nopud.h
+- [+] include/asm-generic/pgtable-nopmd.h
