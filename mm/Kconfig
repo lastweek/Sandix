@@ -1,0 +1,14 @@
+#
+# Memory management configurations
+#
+
+menu "Memory Management Configurations"
+
+config DMA_ADDR_T_64BIT
+	def_bool 64BIT || ARCH_DMA_ADDR_T_64BIT
+
+config PHYS_ADDR_T_64BIT
+	def_bool 64BIT || ARCH_PHYS_ADDR_T_64BIT
+
+
+endmenu

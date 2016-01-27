@@ -237,6 +237,14 @@ config X86_PAE
 	  has the cost of more pagetable lookup overhead, and also
 	  consumes more pagetable space per process.
 
+config ARCH_PHYS_ADDR_T_64BIT
+	def_bool y
+	depends on X86_64 || X86_PAE
+
+config ARCH_DMA_ADDR_T_64BIT
+	def_bool y
+	depends on X86_64 || HIGHMEM64G
+
 config HPET_TIMER
 	def_bool X86_64
 	prompt "HPET Timer Support" if X86_32
@@ -339,3 +347,5 @@ config PCI_DIRECT
 	depends on PCI && (X86_64 || (PCI_GODIRECT || PCI_GOANY || PCI_GOOLPC || PCI_GOMMCONFIG))
 
 endmenu
+
+source "mm/Kconfig"

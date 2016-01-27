@@ -21,9 +21,9 @@
 
 #ifndef __ASSEMBLY__
 
-#include <sandix/posix_types.h>
-#include <sandix/stddef.h>
 #include <asm/types.h>
+#include <sandix/stddef.h>
+#include <sandix/posix_types.h>
 
 #define BITS_PER_LONG		__BITS_PER_LONG
 #define BITS_PER_LONG_LONG	__BITS_PER_LONG_LONG
@@ -114,8 +114,35 @@ typedef unsigned long sector_t;
 typedef unsigned long blkcnt_t;
 #endif
 
+/*
+ * A dma_addr_t can hold any valid DMA address, i.e., any address returned
+ * by the DMA API.
+ *
+ * If the DMA API only uses 32-bit addresses, dma_addr_t need only be 32
+ * bits wide.  Bus addresses, e.g., PCI BARs, may be wider than 32 bits,
+ * but drivers do memory-mapped I/O to ioremapped kernel virtual addresses,
+ * so they don't care about the size of the actual bus addresses.
+ */
+
+#ifdef CONFIG_DMA_ADDR_T_64BIT
+typedef u64 dma_addr_t;
+#else
+typedef u32 dma_addr_t;
+#endif
+
+#ifdef CONFIG_PHYS_ADDR_T_64BIT
+typedef u64 phys_addr_t;
+#else
 typedef u32 phys_addr_t;
+#endif
+
 typedef phys_addr_t resource_size_t;
+
+#ifdef CONFIG_64BIT
+typedef struct {
+	long counter;
+} atomic64_t;
+#endif
 
 typedef struct {
 	int counter;

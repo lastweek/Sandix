@@ -19,41 +19,40 @@
 #ifndef _ASM_X86_PAGE_32_H_
 #define _ASM_X86_PAGE_32_H_
 
-#include <sandix/types.h>
-#include <sandix/const.h>
-
-#define PAGE_SHIFT	12
-#define PAGE_SIZE	(_AC(1,UL) << PAGE_SHIFT)
-#define PAGE_MASK	(~(PAGE_SIZE-1))
+#ifndef _ASM_X86_PAGE_H_
+# error "Please do not include this file directly"
+#endif
 
 /*
- * Physical / Virtual address mask.
- * Useless now!
+ * This handles the memory map.
+ *
+ * A __PAGE_OFFSET of 0xC0000000 means that the kernel has
+ * a virtual address space of one gigabyte, which limits the
+ * amount of physical memory you can use to about 950MB.
+ *
+ * If you want more physical memory than this then see the CONFIG_HIGHMEM4G
+ * and CONFIG_HIGHMEM64G options in the kernel configuration.
  */
-#define PHYS_MASK_SHIFT		32
-#define VIRT_MASK_SHIFT		32
+
+#define __PAGE_OFFSET		_AC(CONFIG_PAGE_OFFSET, UL)
+
+#define THREAD_SIZE_ORDER	1
+#define THREAD_SIZE		(PAGE_SIZE << THREAD_SIZE_ORDER)
 
 /*
- * The possible maximum page frame number
+ * Physical/Virtual address mask.
+ * When PAE enabled, 44 = 32 + 12
  */
-#define MAX_ARCH_PFN	(1ULL << (32 - PAGE_SHIFT))
 
-/*
- * Kernel base virtual address 0xC0000000 limits the
- * memory space kernel can use to one gigabyte.
- */
-#define __PAGE_OFFSET		0xC0000000
-#define PAGE_OFFSET		_AT(unsigned long, __PAGE_OFFSET)
+#ifdef CONFIG_X86_PAE
+# define __PHYSICAL_MASK_SHIFT	44
+# define __VIRTUAL_MASK_SHIFT	32
+#else
+# define __PHYSICAL_MASK_SHIFT	32
+# define __VIRTUAL_MASK_SHIFT	32
+#endif
 
 #define __phys_addr(x)		((x) - PAGE_OFFSET)
-#define __pa(x)			__phys_addr(_AT(unsigned long, x))
-#define __va(x)			(_AT(unsigned long, x) + PAGE_OFFSET)
-
-/*
- * Thread size in kernel can be one page or two pages.
- * The default is two pages each thread in Sandix.
- */
-#define THREAD_PAGE_NR		1
-#define THREAD_SIZE		(PAGE_SIZE << THREAD_PAGE_NR)
+#define __phys_addr_symbol(x)	__phys_addr(x)
 
 #endif /* _ASM_X86_PAGE_32_H_ */

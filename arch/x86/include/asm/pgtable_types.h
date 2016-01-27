@@ -31,7 +31,7 @@
 #include <sandix/types.h>
 
 /*
- * Bit layout of different layer page tables.
+ * Bit layout of different page tables.
  */
 
 #define __PAGE_BIT_PRESENT	0	/* is present */

@@ -424,3 +424,12 @@ Tue Jan 26 10:15:37 CST 2016
 - [+] include/asm-generic/pgtable.h
 - [+] include/asm-generic/pgtable-nopud.h
 - [+] include/asm-generic/pgtable-nopmd.h
+
+
+Wed Jan 27 09:27:12 CST 2016
+- [+] mm/Kconfig				[D] PHYS_ADDR_T_64BIT
+- [M] include/sandix/types.h			 >  same
+- [M] arch/x86/Kconfig
+- [M] arch/x86/include/asm/page_32.h		[D] finalize these files
+- [M] arch/x86/include/asm/page_64.h		 >  64-bit uses BUG()
+- [M] arch/x86/include/asm/page.h
