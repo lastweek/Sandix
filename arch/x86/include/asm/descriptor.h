@@ -17,7 +17,7 @@
  */
 
 /*
- * This file describes x86 segment *descriptors* used in Sandix.
+ * This file describes x86 segment descriptors used in Sandix.
  *
  * A segment descriptor is a data structure in a GDT or LDT that
  * provides the processor with the size and location of a segment,
@@ -52,14 +52,9 @@ struct desc_struct {
 	};
 } __packed;
 
-#ifdef CONFIG_X86_32
 typedef struct desc_struct gate_desc;
 typedef struct desc_struct ldt_desc;
 typedef struct desc_struct tss_desc;
-#else
-/* x86-64 needs 16 bytes descriptor */
-# error "16-byte descriptor not defined now"
-#endif
 
 struct desc_ptr {
 	unsigned short size;
@@ -75,6 +70,24 @@ extern struct desc_struct gdt_table[];
 	.b = (((base) & 0xff0000) >> 16) | (((flags) & 0xf0ff) << 8) |	\
 		((limit) & 0xf0000) | ((base) & 0xff000000),		\
 }
+
+static __always_inline void pack_gate(gate_desc *gate, unsigned char type,
+				      unsigned long base, unsigned int dpl,
+				      unsigned int flags, unsigned int seg)
+{
+	gate->a = ((base & 0xffff) << 16) | seg;
+}
+
+static inline int desc_empty(const void *ptr)
+{
+	const u32 *desc = ptr;
+
+	return !(desc[0] | desc[1]);
+}
+
+
+
+
 
 /*
  * (1)

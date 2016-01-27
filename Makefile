@@ -655,7 +655,7 @@ quiet_cmd_rmfiles = $(if $(wildcard $(rm-files)),CLEAN   $(wildcard $(rm-files))
       cmd_rmfiles = rm -f $(rm-files)
 
 rm-dirs  := include/config include/generated
-rm-files := .config .config.old .version .version.old scripts/.version
+rm-files := .config .config.old .version .version.old scripts/.version tags tags-e
 
 PHONY += distclean
 distclean: mrproper

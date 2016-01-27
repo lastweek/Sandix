@@ -65,6 +65,14 @@ void __init early_arch_setup(void)
 	screen_info = boot_params.screen_info;
 }
 
+void __foo(void)
+{
+	printk(KERN_INFO "Foo\n");
+	asm volatile (
+		"iret"
+	);
+}
+
 /*
  * The real arch setup...
  * x86 Architecture-specific boot-time initializations
@@ -78,6 +86,12 @@ void __init arch_setup(void)
 #ifdef CONFIG_PCI
 	early_dump_pci_devices();
 #endif
+
+	set_system_call_gate(0x80, (int)&__foo)
+	
+	asm volatile (
+		"int 0x80"
+	);
 
 	//trap_init();
 }
