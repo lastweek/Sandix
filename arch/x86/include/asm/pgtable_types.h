@@ -23,6 +23,9 @@
 # error "Please do not include this file directly"
 #endif
 
+#include <asm/page.h>
+#include <sandix/const.h>
+
 /*
  * Bit layout of different page tables.
  */
@@ -72,10 +75,11 @@
 # include <asm/pgtable_64_types.h>
 #endif
 
-/* Extracts the PFN from a (pte|pmd|pud|pgd)val_t of a 4KB page */
+/*
+ * o Extracts the PFN from a (pte|pmd|pud|pgd)val_t of a 4KB page
+ * o Extracts the flags from a (pte|pmd|pud|pgd)val_t of a 4KB page
+ */
 #define PTE_PFN_MASK		((pteval_t)PHYSICAL_PAGE_MASK)
-
-/* Extracts the flags from a (pte|pmd|pud|pgd)val_t of a 4KB page */
 #define PTE_FLAGS_MASK		(~PTE_PFN_MASK)
 
 typedef struct {
@@ -102,11 +106,11 @@ static inline pgdval_t pgd_flags(pgd_t pgd)
 }
 
 #if CONFIG_PGTABLE_LEVELS > 3
-
 typedef struct {
 	pudval_t pud;
 } pud_t;
 
+/*XXX why pmdval*/
 static inline pud_t native_make_pud(pmdval_t val)
 {
 	return (pud_t) { val };
@@ -116,48 +120,37 @@ static inline pudval_t native_pud_val(pud_t pud)
 {
 	return pud.pud;
 }
-
 #else
-
 #include <asm-generic/pgtable-nopud.h>
-
 static inline pudval_t native_pud_val(pud_t pud)
 {
 	return native_pgd_val(pud.pgd);
 }
-
-#endif /* CONFIG_PGTABLE_LEVELS > 3 */
+#endif
 
 #if CONFIG_PGTABLE_LEVELS > 2
-
 typedef struct {
 	pmdval_t pmd;
 } pmd_t;
-
 static inline pmd_t native_make_pmd(pmdval_t val)
 {
 	return (pmd_t) { val };
 }
-
 static inline pmdval_t native_pmd_val(pmd_t pmd)
 {
 	return pmd.pmd;
 }
-
 #else
-
 #include <asm-generic/pgtable-nopmd.h>
-
 static inline pmdval_t native_pmd_val(pmd_t pmd)
 {
 	return native_pgd_val(pmd.pud.pgd);
 }
-
-#endif /* CONFIG_PGTABLE_LEVELS > 2 */
+#endif
 
 static inline pudval_t pud_pfn_mask(pud_t pud)
 {
-	if (native_pud_val(pud) & _PAGE_PSE)
+	if (native_pud_val(pud) & __PAGE_PSE)
 		return PHYSICAL_PUD_PAGE_MASK;
 	else
 		return PTE_PFN_MASK;

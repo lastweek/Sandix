@@ -72,4 +72,51 @@
 # include <asm/pgtable_64.h>
 #endif
 
+#define set_pte(ptep, pte)		native_set_pte(ptep, pte)
+#define set_pte_atomic(ptep, pte)	native_set_pte_atomic(ptep, pte)
+
+#define set_pmd(pmdp, pmd)		native_set_pmd(pmdp, pmd)
+
+#define clear_pte(addr, ptep)		native_clear_pte(addr, ptep)
+#define clear_pmd(pmd)			native_clear_pmd(pmd)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif /* _ASM_X86_PGTABLE_H_ */

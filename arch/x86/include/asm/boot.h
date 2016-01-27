@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -26,7 +26,12 @@
 #define LOAD_PHYSICAL_ADDR	0x100000
 
 /* Minimum kernel alignment, as a power of two */
-#define MIN_KERNEL_ALIGN_LG2	(PAGE_SHIFT + THREAD_PAGE_NR)
+#ifdef CONFIG_X86_64
+# define MIN_KERNEL_ALIGN_LG2	PMD_SHIFT
+#else
+# define MIN_KERNEL_ALIGN_LG2	(PAGE_SHIFT + THREAD_SIZE_ORDER)
+#endif
+
 #define MIN_KERNEL_ALIGN	(_AC(1, UL) << MIN_KERNEL_ALIGN_LG2)
 
 #define BOOT_STACK_SIZE		0x1000
