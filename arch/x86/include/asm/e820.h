@@ -21,7 +21,14 @@
 
 #include <sandix/compiler.h>
 
-/* e820 memory segment type */
+/*
+ * Max e820 entries
+ */
+#define E820MAX			128
+
+/*
+ * e820 memory segment type
+ */
 #define E820_RAM		1		/* Available RAM */
 #define E820_RESERVED		2		/* Reserved */
 #define E820_ACPI		3
@@ -38,7 +45,7 @@
  *   but newer versions switched to 12 as 6 was assigned differently.  Some
  *   time they will learn... )
  */
-#define E820_PRAM	12
+#define E820_PRAM		12
 
 /*
  * reserved RAM used by kernel itself
@@ -46,7 +53,7 @@
  * included in the S3 integrity calculation and so should not include
  * any memory that BIOS might alter over the S3 transition
  */
-#define E820_RESERVED_KERN        128
+#define E820_RESERVED_KERN	128
 
 /* Conventional segment start address */
 #define ISA_START_ADDRESS	0xa0000
@@ -55,9 +62,6 @@
 #define BIOS_END		0x00100000
 #define BIOS_ROM_BASE		0xffe00000
 #define BIOS_ROM_END		0xffffffff
-
-/* Max e820 entries */
-#define E820MAX			128
 
 #ifndef __ASSEMBLY__
 

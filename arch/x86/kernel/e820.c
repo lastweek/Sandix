@@ -45,19 +45,78 @@
 struct e820map e820;
 struct e820map e820_saved;
 
+#define MAXMEM BUG()
+
+#ifdef CONFIG_X86_32
+# ifdef CONFIG_X86_PAE
+#  define MAX_ARCH_PFN	(1ULL << (36 - PAGE_SHIFT))
+# else
+#  define MAX_ARCH_PFN	(1ULL << (32 - PAGE_SHIFT))
+# endif
+#else
+# define MAX_ARCH_PFN	(MAXMEM >> PAGE_SHIFT)
+#endif
+
+/**
+ *	e820_end_pfn	-	fine the highest PFN available
+ *	@limit_pfn: threshold
+ *
+ *	Find the highest page frame number we have avaiable, within
+ *	the given limit pfn.
+ */
 static unsigned long __init e820_end_pfn(unsigned long limit_pfn)
 {
+	int i;
+	unsigned long last_pfn = 0;
+	unsigned long max_arch_pfn = MAX_ARCH_PFN;
 
+	for (i = 0; i < e820.nr_entries; i++) {
+		struct e820entry *ei = &e820.map[i];
+		unsigned long start_pfn;
+		unsigned long end_pfn;
+
+		/*
+		 * Persistent memory is accounted as RAM for purposes
+		 * of establishing max_pfn and mem_map.
+		 */
+		if (ei->type != E820_RAM && ei->type != E820_PRAM)
+			continue;
+
+		start_pfn = ei->addr >> PAGE_SHIFT;
+		end_pfn = (ei->addr + ei->size) >> PAGE_SHIFT;
+
+		if (start_pfn > limit_pfn)
+			continue;
+
+		if (end_pfn > limit_pfn) {
+			last_pfn = limit_pfn;
+			break;
+		}
+
+		if (end_pfn > last_pfn)
+			last_pfn = end_pfn;
+	}
+
+	if (last_pfn > max_arch_pfn)
+		last_pfn = max_arch_pfn;
+
+	printk(KERN_INFO "e820: last_pfn = %#lx max_arch_pfn = %#lx\n",
+		last_pfn, max_arch_pfn);
+
+	return last_pfn;
 }
 
 unsigned long __init e820_end_of_ram_pfn(void)
 {
-	
+	return e820_end_pfn(MAX_ARCH_PFN);
 }
 
+/*
+ * Low 1-GB memory
+ */
 unsigned long __init e820_end_of_low_ram_pfn(void)
 {
-
+	return e820_end_pfn(1UL << (32 - PAGE_SHIFT));
 }
 
 static const char *e820_type_to_string(u32 e820_type)

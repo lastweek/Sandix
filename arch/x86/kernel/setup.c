@@ -66,7 +66,7 @@ void __init early_arch_setup(void)
 }
 
 /*
- * The real setup...
+ * The real arch setup...
  * x86 Architecture-specific boot-time initializations
  */
 void __init arch_setup(void)

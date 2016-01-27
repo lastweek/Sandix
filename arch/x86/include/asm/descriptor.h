@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -28,7 +28,14 @@
 #ifndef _ASM_X86_DESCRIPTOR_H_
 #define _ASM_X86_DESCRIPTOR_H_
 
+#include <sandix/bug.h>
+#include <sandix/compiler.h>
+
 #include <asm/segment.h>
+
+/*
+ * 8-byte segment descriptor
+ */
 
 struct desc_struct {
 	union {
@@ -43,12 +50,21 @@ struct desc_struct {
 			unsigned limit1:4, avl:1, l:1, d:1, g:1, base2:8;
 		};
 	};
-}__attribute__((packed));
+} __packed;
+
+#ifdef CONFIG_X86_32
+typedef struct desc_struct gate_desc;
+typedef struct desc_struct ldt_desc;
+typedef struct desc_struct tss_desc;
+#else
+/* x86-64 needs 16 bytes descriptor */
+# error "16-byte descriptor not defined now"
+#endif
 
 struct desc_ptr {
 	unsigned short size;
 	unsigned long address;
-} __attribute__((packed));
+} __packed;
 
 extern struct desc_struct idt_table[];
 extern struct desc_struct gdt_table[];
@@ -82,8 +98,8 @@ extern struct desc_struct gdt_table[];
  *  generation of exceptions or NMI interrupts).
  */
 
-#define __GATE_INTR	0xe
-#define __GATE_TRAP	0xf
+#define __GATE_INTR	0xE
+#define __GATE_TRAP	0xF
 
 #define	__DPL_KERNEL	0
 #define __DPL_USER	3

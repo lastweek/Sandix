@@ -20,8 +20,9 @@
 #define _ASM_X86_PROCESSOR_H_
 
 #include <sandix/types.h>
-#include <asm/processor-flags.h>
+
 #include <asm/segment.h>
+#include <asm/processor-flags.h>
 
 /*TODO*/
 #define cpu_relax()
