@@ -7,6 +7,10 @@ WHAT IS SANDIX?
 	  on Linux kernel(Mimic everything in a simple implementation).
 	  Sandix is the abbreviation for Sandy Unix
 
+	- Just mimic everything, no innovative things about OS maybe. :)
+	  But I do hope I could bring something new when I learning and
+	  coding Sandix.
+
 WHO IS DEVELOPING SANDIX?
 
 	- Yizhou Shan <shanyizhou@ict.ac.cn>

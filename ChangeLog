@@ -1,4 +1,3 @@
-#
 #	ChangeLog of Sandix
 #
 #	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
@@ -433,3 +432,7 @@ Wed Jan 27 09:27:12 CST 2016
 - [M] arch/x86/include/asm/page_32.h		[D] finalize these files
 - [M] arch/x86/include/asm/page_64.h		 >  64-bit uses BUG()
 - [M] arch/x86/include/asm/page.h
+- [M] arch/x86/include/asm/pgtable.h
+- [M] include/asm-generic/pgtable.h
+- [M] include/asm-generic/pgtable-nopud.h
+- [M] include/asm-generic/pgtable-nopmd.h

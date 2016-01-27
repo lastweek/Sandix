@@ -16,19 +16,12 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/*
- * Consult Intel SDM-Vol 3, Chapter 4: Paging for details.
- */
-
 #ifndef _ASM_X86_PGTABLE_TYPES_H_
 #define _ASM_X86_PGTABLE_TYPES_H_
 
 #ifndef _ASM_X86_PGTABLE_H_
 # error "Please do not include this file directly"
 #endif
-
-#include <sandix/const.h>
-#include <sandix/types.h>
 
 /*
  * Bit layout of different page tables.
@@ -50,20 +43,20 @@
 #define __PAGE_BIT_PAT_LARGE	12	/* on 2 MB or 1 GB pages */
 #define __PAGE_BIT_NX		63	/* execute-disable */
 
-#define __PAGE_RRESENT		(_AT(pteval_t,1) << __PAGE_BIT_PRESENT)
-#define __PAGE_RW		(_AT(pteval_t,1) << __PAGE_BIT_RW)
-#define __PAGE_USER		(_AT(pteval_t,1) << __PAGE_BIT_USER)
-#define __PAGE_PWT		(_AT(pteval_t,1) << __PAGE_BIT_PWT)
-#define __PAGE_PCD		(_AT(pteval_t,1) << __PAGE_BIT_PCD)
-#define __PAGE_ACCESSED		(_AT(pteval_t,1) << __PAGE_BIT_ACCESSED)
-#define __PAGE_DIRTY		(_AT(pteval_t,1) << __PAGE_BIT_DIRTY)
-#define __PAGE_PSE		(_AT(pteval_t,1) << __PAGE_BIT_PSE)
-#define __PAGE_PAT		(_AT(pteval_t,1) << __PAGE_BIT_PAT)
-#define __PAGE_PAT_LARGE	(_AT(pteval_t,1) << __PAGE_BIT_PAT_LARGE)
-#define __PAGE_GLOBAL		(_AT(pteval_t,1) << __PAGE_BIT_GLOBAL)
-#define __PAGE_SOFTW1		(_AT(pteval_t,1) << __PAGE_BIT_SOFTW1)
-#define __PAGE_SOFTW2		(_AT(pteval_t,1) << __PAGE_BIT_SOFTW2)
-#define __PAGE_SOFTW3		(_AT(pteval_t,1) << __PAGE_BIT_SOFTW3)
+#define __PAGE_RRESENT		(_AT(pteval_t, 1) << __PAGE_BIT_PRESENT)
+#define __PAGE_RW		(_AT(pteval_t, 1) << __PAGE_BIT_RW)
+#define __PAGE_USER		(_AT(pteval_t, 1) << __PAGE_BIT_USER)
+#define __PAGE_PWT		(_AT(pteval_t, 1) << __PAGE_BIT_PWT)
+#define __PAGE_PCD		(_AT(pteval_t, 1) << __PAGE_BIT_PCD)
+#define __PAGE_ACCESSED		(_AT(pteval_t, 1) << __PAGE_BIT_ACCESSED)
+#define __PAGE_DIRTY		(_AT(pteval_t, 1) << __PAGE_BIT_DIRTY)
+#define __PAGE_PSE		(_AT(pteval_t, 1) << __PAGE_BIT_PSE)
+#define __PAGE_PAT		(_AT(pteval_t, 1) << __PAGE_BIT_PAT)
+#define __PAGE_PAT_LARGE	(_AT(pteval_t, 1) << __PAGE_BIT_PAT_LARGE)
+#define __PAGE_GLOBAL		(_AT(pteval_t, 1) << __PAGE_BIT_GLOBAL)
+#define __PAGE_SOFTW1		(_AT(pteval_t, 1) << __PAGE_BIT_SOFTW1)
+#define __PAGE_SOFTW2		(_AT(pteval_t, 1) << __PAGE_BIT_SOFTW2)
+#define __PAGE_SOFTW3		(_AT(pteval_t, 1) << __PAGE_BIT_SOFTW3)
 
 #if defined(CONFIG_X86_64) || defined(CONFIG_X86_PAE)
 #define __PAGE_NX		(_AT(pteval_t,1) << __PAGE_BIT_NX)
@@ -79,8 +72,11 @@
 # include <asm/pgtable_64_types.h>
 #endif
 
-//TODO
-#define PTE_FLAGS_MASK	1
+/* Extracts the PFN from a (pte|pmd|pud|pgd)val_t of a 4KB page */
+#define PTE_PFN_MASK		((pteval_t)PHYSICAL_PAGE_MASK)
+
+/* Extracts the flags from a (pte|pmd|pud|pgd)val_t of a 4KB page */
+#define PTE_FLAGS_MASK		(~PTE_PFN_MASK)
 
 typedef struct {
 	pgdval_t pgd;
@@ -106,11 +102,11 @@ static inline pgdval_t pgd_flags(pgd_t pgd)
 }
 
 #if CONFIG_PGTABLE_LEVELS > 3
+
 typedef struct {
 	pudval_t pud;
 } pud_t;
 
-/*XXX pmd?? */
 static inline pud_t native_make_pud(pmdval_t val)
 {
 	return (pud_t) { val };
@@ -120,17 +116,20 @@ static inline pudval_t native_pud_val(pud_t pud)
 {
 	return pud.pud;
 }
+
 #else
+
 #include <asm-generic/pgtable-nopud.h>
 
 static inline pudval_t native_pud_val(pud_t pud)
 {
-/*XXX pgd?*/
 	return native_pgd_val(pud.pgd);
 }
-#endif
+
+#endif /* CONFIG_PGTABLE_LEVELS > 3 */
 
 #if CONFIG_PGTABLE_LEVELS > 2
+
 typedef struct {
 	pmdval_t pmd;
 } pmd_t;
@@ -144,14 +143,71 @@ static inline pmdval_t native_pmd_val(pmd_t pmd)
 {
 	return pmd.pmd;
 }
+
 #else
+
 #include <asm-generic/pgtable-nopmd.h>
 
 static inline pmdval_t native_pmd_val(pmd_t pmd)
 {
 	return native_pgd_val(pmd.pud.pgd);
 }
-#endif
+
+#endif /* CONFIG_PGTABLE_LEVELS > 2 */
+
+static inline pudval_t pud_pfn_mask(pud_t pud)
+{
+	if (native_pud_val(pud) & _PAGE_PSE)
+		return PHYSICAL_PUD_PAGE_MASK;
+	else
+		return PTE_PFN_MASK;
+}
+
+static inline pudval_t pud_flags_mask(pud_t pud)
+{
+	return ~pud_pfn_mask(pud);
+}
+
+static inline pudval_t pud_flags(pud_t pud)
+{
+	return native_pud_val(pud) & pud_flags_mask(pud);
+}
+
+static inline pmdval_t pmd_pfn_mask(pmd_t pmd)
+{
+	if (native_pmd_val(pmd) & _PAGE_PSE)
+		return PHYSICAL_PMD_PAGE_MASK;
+	else
+		return PTE_PFN_MASK;
+}
+
+static inline pmdval_t pmd_flags_mask(pmd_t pmd)
+{
+	return ~pmd_pfn_mask(pmd);
+}
+
+static inline pmdval_t pmd_flags(pmd_t pmd)
+{
+	return native_pmd_val(pmd) & pmd_flags_mask(pmd);
+}
+
+static inline pte_t native_make_pte(pteval_t val)
+{
+	return (pte_t) { .pte = val };
+}
+
+static inline pteval_t native_pte_val(pte_t pte)
+{
+	return pte.pte;
+}
+
+static inline pteval_t pte_flags(pte_t pte)
+{
+	return native_pte_val(pte) & PTE_FLAGS_MASK;
+}
+
+#define pgprot_val(x)	((x).pgprot)
+#define __pgprot(x)	((pgprot_t) { (x) } )
 
 #endif /* __ASSEMBLY__ */
 

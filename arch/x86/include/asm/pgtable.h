@@ -16,9 +16,60 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ * There are 10 header files about page table (wtf?). Depends on the
+ * configuration, only a subset of them will be used in a certain build.
+ * Now, let me draw the whole picture first...
+ *
+ * Basic page table types:
+ *
+ *	pgtable_types.h
+ *		> generic types
+ *		> pgtable_32_types.h
+ * or
+ *	pgtable_types.h
+ *		> generic types
+ *		> pgtable_64_types.h
+ *
+ * The final page table header file:
+ *
+ *	pgtable.h
+ *		> pgtable_types.h
+ *		> pgtable_32.h
+ *		> generic ops
+ * or
+ *	pgtbale.h
+ *		> pgtable_types.h
+ *		> pgtable_64.h
+ *		> generic ops
+ *
+ * Especially, depends on whether PAE is enabled, i386
+ * has two mapping modes:
+ *
+ *	pgtable_32.h
+ *		> pgtable-2level.h
+ *	pgtable_32_types.h
+ *		> pgtable-2level-types.h
+ * or
+ *	pgtbale_32.h
+ *		> pgtable-3level.h
+ *	pgtable_32_types.h
+ *		> pgtable-3level-types.h
+ */
+
 #ifndef _ASM_X86_PGTABLE_H_
 #define _ASM_X86_PGTABLE_H_
 
+#include <asm/page.h>
+#include <sandix/const.h>
+#include <sandix/types.h>
+
 #include <asm/pgtable_types.h>
+
+#ifdef CONFIG_X86_32
+# include <asm/pgtable_32.h>
+#else
+# include <asm/pgtable_64.h>
+#endif
 
 #endif /* _ASM_X86_PGTABLE_H_ */

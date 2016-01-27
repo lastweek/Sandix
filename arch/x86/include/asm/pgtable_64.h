@@ -25,8 +25,6 @@
 #ifndef _ASM_X86_PGTABLE_64_H_
 #define _ASM_X86_PGTABLE_64_H_
 
-#include <asm/pgtable_64_types.h>
-
 #ifndef __ASSEMBLY__
 
 #define pte_ERROR(e)					\
