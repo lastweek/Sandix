@@ -22,14 +22,11 @@
 #include <sandix/printk.h>
 
 #include <asm/setup.h>
+#include <asm/descriptor.h>
 
 void handle_int(void)
 {
-	asm volatile (
-		"incb 0xb8000\n\t"
-		"incb 0xb8001\n\t"
-		"iret"
-	);
+	printk(KERN_INFO "Hello\n");
 }
 
 asmlinkage void __init start_kernel(void)
@@ -48,6 +45,9 @@ asmlinkage void __init start_kernel(void)
 	 * Architecture-independent initialization
 	 */
 	arch_setup();
+
+	set_trap_gate(0x2, &handle_int);
+	asm ("int $0x2");
 
 	panic("init end");
 }

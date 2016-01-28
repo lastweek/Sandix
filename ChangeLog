@@ -437,3 +437,7 @@ Wed Jan 27 09:27:12 CST 2016
 - [M] include/asm-generic/pgtable.h
 - [M] include/asm-generic/pgtable-nopud.h
 - [M] include/asm-generic/pgtable-nopmd.h
+
+
+Thu Jan 28 12:56:08 CST 2016
+- [M] arch/x86/include/asm/descriptor.h
