@@ -174,6 +174,7 @@ KBUILD_IMAGE	:= $(boot-y)/bzImage
 head-y		:= arch/x86/kernel/head_$(BITS).o
 
 core-y		+= arch/x86/kernel/
+core-y		+= arch/x86/entry/
 core-y		+= arch/x86/mm/
 
 libs-y		+= arch/x86/lib/
