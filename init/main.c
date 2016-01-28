@@ -21,13 +21,9 @@
 #include <sandix/kernel.h>
 #include <sandix/printk.h>
 
+#include <asm/traps.h>
 #include <asm/setup.h>
 #include <asm/descriptor.h>
-
-void handle_int(void)
-{
-	printk(KERN_INFO "Hello\n");
-}
 
 asmlinkage void __init start_kernel(void)
 {
@@ -46,7 +42,7 @@ asmlinkage void __init start_kernel(void)
 	 */
 	arch_setup();
 
-	set_trap_gate(0x2, &handle_int);
+	set_trap_gate(0x2, &divide_error);
 	asm ("int $0x2");
 
 	panic("init end");

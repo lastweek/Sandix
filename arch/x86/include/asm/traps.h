@@ -19,6 +19,10 @@
 #ifndef _ASM_X86_TRAPS_H_
 #define _ASM_X86_TRAPS_H_
 
+#include <sandix/linkage.h>
+
+asmlinkage void divide_error(void);
+
 /*
  * X86 Predefined Traps/Exceptions/Interrupts
  */

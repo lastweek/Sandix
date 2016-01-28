@@ -440,6 +440,9 @@ Wed Jan 27 09:27:12 CST 2016
 
 
 Thu Jan 28 12:56:08 CST 2016
+- [+] include/sandix/ptrace.h			[D] ptrace registers, operations etc.
+- [+] include/asm-generic/ptrace.h
+- [+] arch/x86/include/asm/ptrace.h
 - [+] arch/x86/entry/Makefile			[D] Cool! Now kernel entry points
 - [+] arch/x86/entry/entry_32.S
 - [M] arch/x86/Makefile
