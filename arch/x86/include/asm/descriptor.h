@@ -17,9 +17,6 @@
  */
 
 /*
- * This file describes x86 segment descriptors used in Sandix.
- * There is no way to disable segmentation, live with it.
- *
  * A segment descriptor is a data structure in a GDT or LDT that
  * provides the processor with the size and location of a segment,
  * as well as access control and status information.
@@ -259,6 +256,10 @@ static inline void pack_descriptor(struct desc_struct *desc, unsigned long base,
  * the IF flag to its value in the saved contents of the EFLAGS
  * register on the stack. (The IF flag does not affect the
  * generation of exceptions or NMI interrupts).
+ */
+
+/*
+ * Oh, by the way, I think IDT designed by Intel is really *ugly*.
  */
 
 static inline void __set_gate(int gate, unsigned char type, void *addr,

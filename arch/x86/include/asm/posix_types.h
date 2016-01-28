@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #define _ASM_X86_POSIX_TYPES_H_
 
 #ifndef _SANDIX_TYPES_H_
-# error INCLUDE ERROR: Do Not Include This File Directly.
+# error "Please do not include this file directly"
 #endif
 
 typedef unsigned short	__kernel_mode_t;

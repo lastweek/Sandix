@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -18,6 +18,10 @@
 
 #ifndef _ASM_X86_TRAPS_H_
 #define _ASM_X86_TRAPS_H_
+
+/*
+ * X86 Predefined Traps/Exceptions/Interrupts
+ */
 
 enum X86_TRAPS {
 	X86_TRAP_DE = 0,	/*  0, Divide-by-zero */
