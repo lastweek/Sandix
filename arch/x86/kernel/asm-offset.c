@@ -16,16 +16,8 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <sandix/linkage.h>
+#ifdef CONFIG_X86_32
 
-
-ENTRY(divide_error)
-
-	pushl $0
-	iret
-
-END(divide_error)
-
-ENTRY(debug)
-
-END(debug)
+#else
+ 
+#endif

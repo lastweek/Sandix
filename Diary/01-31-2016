@@ -1,0 +1,21 @@
+#
+# Sat Jan 30 08:41:58 CST 2016
+#
+
+# Keyword:
+
+1) SX-ACE from NEC, a memory insentive, vector CPU. It has 16 MC, BW=256 GB/s
+   It is a dedicated processor for datacenter. People are trying to customize
+   specific processors for datacenter workload's requirement
+
+   Need to mention that it has a variable cacheline size. DRAN power depends on
+   the size of cacheline. Anyway, this is my first time heard about this.
+
+2) SPARC64 from Fujitsu
+   It mentions some RAS features, which are pretty interesting.
+   So what is the difference between SPARC and SPARC64? Only Japanese companies
+   are shipping sparc processors now?
+
+3) Anton2. A molecular processor. ...
+   It must be a big project. From the CPU to system software to compiler to
+   biology software. It is a real all-layer co-design.

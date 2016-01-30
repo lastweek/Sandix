@@ -447,3 +447,9 @@ Thu Jan 28 12:56:08 CST 2016
 - [+] arch/x86/entry/entry_32.S
 - [M] arch/x86/Makefile
 - [M] arch/x86/include/asm/descriptor.h
+
+
+Sat Jan 30 09:47:23 CST 2016
+- [+] arch/x86/kernel/asm-offset.c
+- [+] arch/x86/kernel/asm-offset_32.c
+- [+] arch/x86/kernel/asm-offset_32.c

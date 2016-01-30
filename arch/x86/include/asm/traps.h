@@ -22,6 +22,9 @@
 #include <sandix/linkage.h>
 
 asmlinkage void divide_error(void);
+asmlinkage void debug(void);
+asmlinkage void nmi(void);
+asmlinkage void int3(void);
 
 /*
  * X86 Predefined Traps/Exceptions/Interrupts
