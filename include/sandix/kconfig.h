@@ -17,8 +17,7 @@
  */
 
 /*
- * This file is included by every file in Sandix kernel
- * by using GCC -include opinion
+ * This file is included by all files of Sandix
  */
 
 #ifndef _SANDIX_KCONFIG_H_

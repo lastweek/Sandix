@@ -17,7 +17,7 @@
  */
 
 #ifdef CONFIG_X86_32
-
+# include "asm-offset_32.c"
 #else
- 
+# include "asm-offset_64.c"
 #endif

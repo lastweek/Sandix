@@ -453,3 +453,7 @@ Sat Jan 30 09:47:23 CST 2016
 - [+] arch/x86/kernel/asm-offset.c
 - [+] arch/x86/kernel/asm-offset_32.c
 - [+] arch/x86/kernel/asm-offset_32.c
+
+
+Sun Jan 31 20:49:52 CST 2016
+- [+] include/sandix/kbuild.h

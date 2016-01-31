@@ -15,3 +15,28 @@
  *	with this program; if not, write to the Free Software Foundation, Inc.,
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
+#ifndef _SANDIX_KBUILD_H_
+#define _SANDIX_KBUILD_H_
+
+#define BLANK()				\
+	asm volatile (			\
+		"\n->"			\
+		: :			\
+	)
+
+#define COMMENT(x)			\
+	asm volatile (			\
+		"\n->#" x		\
+	)
+
+#define DEFINE(sym, val)		\
+	asm volatile (			\
+		"\n->" #sym " %0 " #val	\
+		: : "i" (val)		\
+	)
+
+#define OFFSET(sym, str, mem)		\
+	DEFINE(sym, offsetof(struct str, mem))
+
+#endif /* _SANDIX_KBUILD_H_ */
