@@ -16,3 +16,10 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <sandix/kbuild.h>
+
+void sandy(void)
+{
+	BLANK();
+	COMMENT("Hello");
+}

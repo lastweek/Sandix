@@ -460,5 +460,6 @@ Sun Jan 31 20:49:52 CST 2016
 
 
 Wed Feb  3 08:51:10 CST 2016
-- [+] include/asm-generic/asm-offset.h
-- [+] arch/x86/include/asm/asm-offset.h
+- [+] include/asm-generic/asm-offset.h		[D] <generared/asm-offset.h>, created in
+- [+] arch/x86/include/asm/asm-offset.h		 >  arch/x86/kernel/Makefile, then copied
+- [M] arch/x86/kernel/Makefile			 >  into generated directory.

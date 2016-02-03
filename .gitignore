@@ -34,5 +34,6 @@ include/generated
 include/config
 
 arch/x86/kernel/asm-offset.s
+arch/x86/kernel/asm-offset.h
 
 !.gitignore
