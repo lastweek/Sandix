@@ -26,7 +26,7 @@
 #ifdef CONFIG_X86_32
 
 struct pt_regs {
-
+	int a,b;
 };
 
 #else

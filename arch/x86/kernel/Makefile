@@ -1,16 +1,15 @@
+##
 # Note:
 # Using $(extra-y) so Makefile.build and Makefile.clean know
 # what they should do (This is part of extra-y's job, actually).
 
+##
 # head file
 extra-y := head_32.o
 
+##
 # linker script
 extra-y += vmSandix.ld
-
-obj-y := setup.o
-obj-y += traps.o
-obj-y += e820.o
 
 define sed-y
 	"/^->/{s:->#\(.*\):/* \1 */:; \
@@ -40,11 +39,20 @@ endef
 # asm-offset.c first. As you know, make can not handle this, it
 # has a circular dependency.
 #
+# In this order, files that will use <asm/asm-offset.h> must be
+# compiled after here. Currently, only kernel/entry/entry_32.S
+# uses this header file.
+#
 # After all, coping the header file into generated directory. Since
 # all generated header files are sleeping there.
 
-extra-y += asm-offset.s asm-offset.h
+extra-y += asm-offset.s
+extra-y += asm-offset.h
 
 arch/x86/kernel/asm-offset.h: arch/x86/kernel/asm-offset.s FORCE
 	$(call filechk,offset,_ASM_GENERATED_ASM_OFFSET_H_)
 	@cp $@ include/generated/asm-offset.h
+
+obj-y := setup.o
+obj-y += traps.o
+obj-y += e820.o

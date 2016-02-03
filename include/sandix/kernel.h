@@ -23,6 +23,7 @@
 #include <sandix/types.h>
 #include <sandix/export.h>
 #include <sandix/printk.h>
+#include <sandix/stddef.h>
 #include <sandix/linkage.h>
 #include <sandix/compiler.h>
 #include <sandix/typecheck.h>
@@ -44,17 +45,6 @@
 #define SIZE_MAX	(~(size_t)0)
 
 #define ARRAY_SIZE(x)	(sizeof(x) / sizeof((x)[0]))
-
-/**
- * offsetof - find MEMBER offset within strcut TYPE
- * @TYPE:	the type of the container struct this is embedded in
- * @MEMBER:	the name of the member within the struct
- */
-#ifdef __compiler_offsetof
-# define offsetof(TYPE, MEMBER)	__compiler_offsetof(TYPE, MEMBER)
-#else
-# define offsetof(TYPE, MEMBER)	((unsigned int)&((TYPE *)0)->MEMBER)
-#endif
 
 /**
  * container_of - find which structure this @ptr located

@@ -173,6 +173,7 @@ KBUILD_IMAGE	:= $(boot-y)/bzImage
 
 head-y		:= arch/x86/kernel/head_$(BITS).o
 
+# List entry after kernel, see kernel/Makefile comment
 core-y		+= arch/x86/kernel/
 core-y		+= arch/x86/entry/
 core-y		+= arch/x86/mm/
