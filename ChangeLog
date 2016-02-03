@@ -457,3 +457,8 @@ Sat Jan 30 09:47:23 CST 2016
 
 Sun Jan 31 20:49:52 CST 2016
 - [+] include/sandix/kbuild.h
+
+
+Wed Feb  3 08:51:10 CST 2016
+- [+] include/asm-generic/asm-offset.h
+- [+] arch/x86/include/asm/asm-offset.h

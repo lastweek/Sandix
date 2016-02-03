@@ -33,4 +33,6 @@ System.map
 include/generated
 include/config
 
+arch/x86/kernel/asm-offset.s
+
 !.gitignore
