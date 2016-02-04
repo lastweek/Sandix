@@ -16,10 +16,24 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <sandix/kbuild.h>
-
-void sandy(void)
+void foo(void)
 {
 	BLANK();
-	COMMENT("Hello");
+	OFFSET(PT_EBX, pt_regs, bx);
+	OFFSET(PT_ECX, pt_regs, cx);
+	OFFSET(PT_EDX, pt_regs, dx);
+	OFFSET(PT_ESI, pt_regs, si);
+	OFFSET(PT_EDI, pt_regs, di);
+	OFFSET(PT_EBP, pt_regs, bp);
+	OFFSET(PT_EAX, pt_regs, ax);
+	OFFSET(PT_DS,  pt_regs, ds);
+	OFFSET(PT_ES,  pt_regs, es);
+	OFFSET(PT_FS,  pt_regs, fs);
+	OFFSET(PT_GS,  pt_regs, gs);
+	OFFSET(PT_ORIG_EAX, pt_regs, orig_ax);
+	OFFSET(PT_EIP, pt_regs, ip);
+	OFFSET(PT_CS,  pt_regs, cs);
+	OFFSET(PT_EFLAGS, pt_regs, flags);
+	OFFSET(PT_OLDESP, pt_regs, sp);
+	OFFSET(PT_OLDSS,  pt_regs, ss);
 }

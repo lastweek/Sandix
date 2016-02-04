@@ -33,6 +33,7 @@ void common(void)
 	BLANK();
 	OFFSET(BP_loadflags, boot_params, hdr.loadflags);
 	OFFSET(BP_version, boot_params, hdr.version);
+	OFFSET(BP_code32_start, boot_params, hdr.code32_start);
 
 	BLANK();
 	DEFINE(PTREGS_SIZE, sizeof(struct pt_regs));
