@@ -136,7 +136,7 @@ KBUILD_CFLAGS += -pipe
 # an incorrect result when the signed value is converted to unsigned
 #KBUILD_CFLAGS += Wno-sign-compare
 
-#
+# ?
 KBUILD_CFLAGS += -fno-asynchronous-unwind-tables
 
 # General Targets
@@ -187,7 +187,7 @@ drivers-$(CONFIG_PCI) += arch/x86/pci/
 # In x86 building, the final kernel image is bzImage
 all: bzImage
 
-# This is the phony one. The real one is in boot
+# This is the phony one (the pathname...). The real one is in boot
 PHONY += bzImage
 bzImage: vmSandix
 	$(Q)$(MAKE) $(build)=$(boot-y) $(KBUILD_IMAGE)

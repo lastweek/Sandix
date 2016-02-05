@@ -468,3 +468,7 @@ Wed Feb  3 08:51:10 CST 2016
 Thu Feb  4 09:56:32 CST 2016
 - [M] include/asm-generic/ptrace.h
 - [M] arch/x86/include/asm/ptrace.h
+
+
+Fri Feb  5 10:15:40 CST 2016
+- [M] arch/x86/entry/entry_32.S

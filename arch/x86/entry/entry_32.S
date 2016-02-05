@@ -16,11 +16,51 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <sandix/linkage.h>
+/*
+ * entry_32.S contains the system-call and low-level fault and trap handling routines.
+ *
+ * Stack layout while running C code:
+ *
+ *	 0(%esp) - %ebx
+ *	 4(%esp) - %ecx
+ *	 8(%esp) - %edx
+ *	 C(%esp) - %esi
+ *	10(%esp) - %edi
+ *	14(%esp) - %ebp
+ *	18(%esp) - %eax
+ *	1C(%esp) - %ds
+ *	20(%esp) - %es
+ *	24(%esp) - %fs
+ *	28(%esp) - %gs
+ *	2C(%esp) - orig_eax
+ *	30(%esp) - %eip
+ *	34(%esp) - %cs
+ *	38(%esp) - %eflags
+ *	3C(%esp) - %oldesp
+ *	40(%esp) - %oldss
+ */
 
+#include <sandix/linkage.h>
+#include <generated/asm-offset.h>
+
+.macro SAVE_ALL
+	cld
+	pushl	%gs
+	pushl	%fs
+	pushl	%es
+	pushl	%ds
+	pushl	%eax
+	pushl	%ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%edx
+	pushl	%ecx
+	pushl	%ebx
+.endm
 
 ENTRY(divide_error)
 
+	SAVE_ALL
 	pushl $0
 	iret
 
