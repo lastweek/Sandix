@@ -19,7 +19,7 @@
 /*
  * entry_32.S contains the system-call and low-level fault and trap handling routines.
  *
- * Stack layout while running C code:
+ * Stack layout while running C code (struct pt_regs):
  *
  *	 0(%esp) - %ebx
  *	 4(%esp) - %ecx
@@ -41,10 +41,12 @@
  */
 
 #include <sandix/linkage.h>
-#include <generated/asm-offset.h>
+
+#include <asm/traps.h>
+#include <asm/segment.h>
+#include <asm/asm-offset.h>
 
 .macro SAVE_ALL
-	cld
 	pushl	%gs
 	pushl	%fs
 	pushl	%es
@@ -59,13 +61,60 @@
 .endm
 
 ENTRY(divide_error)
-
-	SAVE_ALL
-	pushl $0
-	iret
-
+	pushl	$0				# no error code
+	pushl	$do_divide_error
+	jmp	error_code
 END(divide_error)
 
 ENTRY(debug)
 
 END(debug)
+
+ENTRY(page_fault)
+	pushl	$do_page_fault
+	ALIGN
+error_code:
+	/*
+	 * the error code is in orig_eax's slot on the stack
+	 * the function address is in %gs's slot on the stack
+	 */
+	pushl	%fs
+	pushl	%es
+	pushl	%ds
+	pushl	%eax
+	pushl	%ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%edx
+	pushl	%ecx
+	pushl	%ebx
+	cld
+
+	movl	$(__KERNEL_PERCPU), %ecx
+	movl	%ecx, %fs
+
+	movl	$(__USER_DS), %ecx
+	movl	%ecx, %ds
+	movl	%ecx, %es
+
+	movl	PT_GS(%esp), %edi		# get the function address
+	movl	PT_ORIG_EAX(%esp), %edx		# get the error code
+	movl	$-1, PT_ORIG_EAX(%esp)		# no syscall to restart
+	movl	%esp, %eax			# get the pt_regs pointer
+
+	call	*%edi
+	iret
+END(page_fault)
+
+
+
+
+
+
+
+
+
+
+
+
+

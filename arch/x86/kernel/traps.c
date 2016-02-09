@@ -16,7 +16,20 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <asm/traps.h>
+
+#include <sandix/ptrace.h>
 #include <sandix/compiler.h>
+
+dotraplinkage void do_divide_error(struct pt_regs *regs, long error_code)
+{
+
+}
+
+dotraplinkage void do_page_fault(struct pt_regs *regs, long error_code)
+{
+
+}
 
 void __init traps_init(void)
 {

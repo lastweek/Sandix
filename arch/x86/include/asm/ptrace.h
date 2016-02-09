@@ -23,6 +23,8 @@
 # error "Please do not include this file directly"
 #endif
 
+#ifndef __ASSEMBLY__
+
 #ifdef CONFIG_X86_32
 struct pt_regs {
 	unsigned long bx;
@@ -104,4 +106,5 @@ static inline unsigned long kernel_stack_pointer(struct pt_regs *regs)
 
 #include <asm-generic/ptrace.h>
 
+#endif /* __ASSEMBLY__ */
 #endif /* _ASM_X86_PTRACE_H_ */

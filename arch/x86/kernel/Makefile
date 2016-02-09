@@ -1,13 +1,10 @@
-##
-# Note:
-# Using $(extra-y) so Makefile.build and Makefile.clean know
-# what they should do (This is part of extra-y's job, actually).
+obj-y := setup.o
+obj-y += traps.o
+obj-y += e820.o
 
-##
 # head file
 extra-y := head_32.o
 
-##
 # linker script
 extra-y += vmSandix.ld
 
@@ -33,7 +30,6 @@ define filechk_offset
 	 echo "#endif" )
 endef
 
-##
 # It looks ugly to generate this file here, it should be generated
 # before building the kernel. If doing that, we should compile
 # asm-offset.c first. As you know, make can not handle this, it
@@ -53,7 +49,3 @@ arch/x86/kernel/asm-offset.h: arch/x86/kernel/asm-offset.s FORCE
 	$(call filechk,offset,_ASM_GENERATED_ASM_OFFSET_H_)
 	@set -e
 	@cp $@ include/generated/asm-offset.h
-
-obj-y := setup.o
-obj-y += traps.o
-obj-y += e820.o

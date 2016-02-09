@@ -19,12 +19,21 @@
 #ifndef _ASM_X86_TRAPS_H_
 #define _ASM_X86_TRAPS_H_
 
+#include <sandix/ptrace.h>
 #include <sandix/linkage.h>
+#include <sandix/compiler.h>
+
+#define dotraplinkage __visible
+
+#ifndef __ASSEMBLY__
 
 asmlinkage void divide_error(void);
 asmlinkage void debug(void);
 asmlinkage void nmi(void);
 asmlinkage void int3(void);
+
+dotraplinkage void do_divide_error(struct pt_regs *, long);
+dotraplinkage void do_page_fault(struct pt_regs *, long);
 
 /*
  * X86 Predefined Traps/Exceptions/Interrupts
@@ -56,4 +65,5 @@ enum X86_TRAPS {
 				/* 32-255, User Defined Interrupts */
 };
 
+#endif /* __ASSEMBLY__ */
 #endif /* _ASM_X86_TRAPS_H_ */
