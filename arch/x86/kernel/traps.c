@@ -18,15 +18,15 @@
 
 #include <asm/traps.h>
 
+#include <sandix/kernel.h>
 #include <sandix/signal.h>
 #include <sandix/ptrace.h>
 #include <sandix/compiler.h>
 
-
 static void do_error_trap(struct pt_regs *regs, long error_code, char *str,
 			  unsigned long trapnr, int signr)
 {
-
+	printk(KERN_INFO "Hello trap");
 }
 
 #define DO_ERROR_TRAP(str, name, trapnr, signr)				\
@@ -35,16 +35,55 @@ dotraplinkage void do_##name(struct pt_regs *regs, long error_code)	\
 	do_error_trap(regs, error_code, str, trapnr, signr);		\
 }
 
-DO_ERROR_TRAP("divide error",		     divide_error,		  X86_TRAP_DE,	   SIGFPE)
-DO_ERROR_TRAP("overflow",     		     overflow,			  X86_TRAP_OF,	   SIGSEGV)
-DO_ERROR_TRAP("invalid opcode",		     invalid_op,		  X86_TRAP_UD,	   SIGILL)
-DO_ERROR_TRAP("invalid TSS",		     invalid_TSS,		  X86_TRAP_TS,	   SIGSEGV)
-DO_ERROR_TRAP("segment not present",	     segment_not_present,	  X86_TRAP_NP,	   SIGBUS)
-DO_ERROR_TRAP("stack segment",		     stack_segment,		  X86_TRAP_SS,	   SIGBUS)
-DO_ERROR_TRAP("alignment check",	     alignment_check,		  X86_TRAP_AC,	   SIGBUS)
-DO_ERROR_TRAP("coprocessor segment overrun", coprocessor_segment_overrun, X86_TRAP_OLD_MF, SIGFPE)
+DO_ERROR_TRAP("divide error",		     divide_error,		  X86_TRAP_DE,	   SIGFPE  )
+DO_ERROR_TRAP("debug",			     debug,			  X86_TRAP_DB,	   SIGTRAP )
+DO_ERROR_TRAP("int3",			     int3,			  X86_TRAP_BP,	   SIGTRAP )
+DO_ERROR_TRAP("overflow",     		     overflow,			  X86_TRAP_OF,	   SIGSEGV )
+DO_ERROR_TRAP("bounds",			     bounds,			  X86_TRAP_BR,	   SIGSEGV )
+DO_ERROR_TRAP("invalid opcode",		     invalid_op,		  X86_TRAP_UD,	   SIGILL  )
+DO_ERROR_TRAP("invalid TSS",		     invalid_TSS,		  X86_TRAP_TS,	   SIGSEGV )
+DO_ERROR_TRAP("segment not present",	     segment_not_present,	  X86_TRAP_NP,	   SIGBUS  )
+DO_ERROR_TRAP("stack segment",		     stack_segment,		  X86_TRAP_SS,	   SIGBUS  )
+DO_ERROR_TRAP("alignment check",	     alignment_check,		  X86_TRAP_AC,	   SIGBUS  )
+DO_ERROR_TRAP("simd exception",		     simd_exception,		  X86_TRAP_XM,	   SIGSEGV )
+DO_ERROR_TRAP("coprocessor segment overrun", coprocessor_segment_overrun, X86_TRAP_OLD_MF, SIGFPE  )
+
+dotraplinkage void do_nmi(struct pt_regs *regs, long error_code)
+{
+
+}
+
+dotraplinkage void do_device_not_available(struct pt_regs *regs, long error_code)
+{
+
+}
+
+dotraplinkage void do_double_fault(struct pt_regs *regs, long error_code)
+{
+
+}
+
+dotraplinkage void do_general_protection(struct pt_regs *regs, long error_code)
+{
+
+}
 
 dotraplinkage void do_page_fault(struct pt_regs *regs, long error_code)
+{
+
+}
+
+dotraplinkage void do_machine_check(struct pt_regs *regs, long error_code)
+{
+
+}
+
+dotraplinkage void do_virtualization_exception(struct pt_regs *regs, long error_code)
+{
+
+}
+
+dotraplinkage void do_reserved(struct pt_regs *regs, long error_code)
 {
 
 }

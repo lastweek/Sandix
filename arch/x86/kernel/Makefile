@@ -3,10 +3,13 @@ obj-y += traps.o
 obj-y += e820.o
 
 # head file
-extra-y := head_32.o
+extra-y := head_$(BITS).o
 
 # linker script
 extra-y += vmSandix.ld
+
+# for debug
+extra-y += traps.i
 
 define sed-y
 	"/^->/{s:->#\(.*\):/* \1 */:; \
@@ -49,7 +52,3 @@ arch/x86/kernel/asm-offset.h: arch/x86/kernel/asm-offset.s FORCE
 	$(call filechk,offset,_ASM_GENERATED_ASM_OFFSET_H_)
 	@set -e
 	@cp $@ include/generated/asm-offset.h
-
-
-# for debug
-extra-y += traps.i

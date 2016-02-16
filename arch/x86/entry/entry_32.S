@@ -108,6 +108,11 @@ ENTRY(device_not_available)
 	jmp	error_code
 END(device_not_available)
 
+ENTRY(double_fault)
+	pushl	$do_double_fault
+	jmp	error_code
+END(double_fault)
+
 ENTRY(coprocessor_segment_overrun)
 	pushl	$0
 	pushl	$do_coprocessor_segment_overrun

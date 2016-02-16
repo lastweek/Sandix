@@ -18,16 +18,17 @@
 
 #include <sandix/types.h>
 #include <sandix/export.h>
-#include <sandix/compiler.h>
 #include <sandix/bootmem.h>
+#include <sandix/compiler.h>
 #include <sandix/screen_info.h>
 
 #include <asm/e820.h>
+#include <asm/traps.h>
 #include <asm/segment.h>
 #include <asm/sections.h>
 #include <asm/bootparam.h>
-#include <asm/descriptor.h>
 #include <asm/pci_early.h>
+#include <asm/descriptor.h>
 
 unsigned long max_pfn_mapped;
 
