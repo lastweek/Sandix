@@ -1,6 +1,5 @@
 obj-y := setup.o
-obj-y += traps.o
-obj-y += e820.o
+obj-y += e820.o traps.o dumpstack.o process.o
 
 # head file
 extra-y := head_$(BITS).o
