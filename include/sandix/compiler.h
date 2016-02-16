@@ -220,7 +220,10 @@ extern void __chk_io_ptr(const volatile void __iomem *);
 #endif
 
 /*
- * Tell the optimizer that something else uses this function or variable.
+ * When used with Link Time Optimization, gcc can optimize away C functions or
+ * variables which are referenced only from assembly code.  __visible tells the
+ * optimizer that something else uses this function or variable, thus preventing
+ * this.
  */
 #if GCC_VERSION >= 40600
 # define __visible	__attribute__((externally_visible))

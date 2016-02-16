@@ -67,8 +67,101 @@ ENTRY(divide_error)
 END(divide_error)
 
 ENTRY(debug)
-
+	pushl	$0
+	pushl	$do_debug
+	jmp	error_code
 END(debug)
+
+ENTRY(nmi)
+	pushl	$0
+	pushl	$do_nmi
+	jmp	error_code
+END(nmi)
+
+ENTRY(int3)
+	pushl	$-1				# mask as int
+	pushl	$do_int3
+	jmp	error_code
+END(int3)
+
+ENTRY(overflow)
+	pushl	$0
+	pushl	$do_overflow
+	jmp	error_code
+END(overflow)
+
+ENTRY(bounds)
+	pushl	$0
+	pushl	$do_bounds
+	jmp	error_code
+END(bounds)
+
+ENTRY(invalid_op)
+	pushl	$0
+	pushl	$do_invalid_op
+	jmp	error_code
+END(invalid_op)
+
+ENTRY(device_not_available)
+	pushl	$-1
+	pushl	$do_device_not_available
+	jmp	error_code
+END(device_not_available)
+
+ENTRY(coprocessor_segment_overrun)
+	pushl	$0
+	pushl	$do_coprocessor_segment_overrun
+	jmp	error_code
+END(coprocessor_segment_overrun)
+
+ENTRY(invalid_TSS)
+	pushl	$do_invalid_TSS
+	jmp	error_code
+END(invalid_TSS)
+
+ENTRY(segment_not_present)
+	pushl	$do_segment_not_present
+	jmp	error_code
+END(segment_not_present)
+
+ENTRY(stack_segment)
+	pushl	$do_stack_segment
+	jmp	error_code
+END(stack_segment)
+
+ENTRY(general_protection)
+	pushl	$do_general_protection
+	jmp	error_code
+END(general_protection)
+
+ENTRY(alignment_check)
+	pushl	$do_alignment_check
+	jmp	error_code
+END(alignment_check)
+
+ENTRY(machine_check)
+	pushl	$0
+	pushl	$do_machine_check
+	jmp	error_code
+END(machine_check)
+
+ENTRY(simd_exception)
+	pushl	$0
+	pushl	$do_simd_exception
+	jmp	error_code
+END(simd_exception)
+
+ENTRY(virtualization_exception)
+	pushl	$0
+	pushl	$do_virtualization_exception
+	jmp	error_code
+END(virtualization_exception)
+
+ENTRY(reserved)
+	pushl	$0
+	pushl	$do_reserved
+	jmp	error_code
+END(reserved)
 
 ENTRY(page_fault)
 	pushl	$do_page_fault
@@ -105,16 +198,3 @@ error_code:
 	call	*%edi
 	iret
 END(page_fault)
-
-
-
-
-
-
-
-
-
-
-
-
-

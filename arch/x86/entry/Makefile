@@ -4,5 +4,5 @@
 
 obj-y := entry_$(BITS).o
 
-# debug
+# for debug
 extra-y := entry_$(BITS).i

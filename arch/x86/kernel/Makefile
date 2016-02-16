@@ -49,3 +49,7 @@ arch/x86/kernel/asm-offset.h: arch/x86/kernel/asm-offset.s FORCE
 	$(call filechk,offset,_ASM_GENERATED_ASM_OFFSET_H_)
 	@set -e
 	@cp $@ include/generated/asm-offset.h
+
+
+# for debug
+extra-y += traps.i
