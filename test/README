@@ -1,6 +1,0 @@
-#
-#	C files in tese/ are coded to solve confusions.
-#
-#	Most of them are tiny C code, for specific problems,
-#	such as GCC features or STD C library functions.
-#

@@ -17,9 +17,9 @@
  */
 
 #include <sandix/ctype.h>
+#include <sandix/types.h>
 #include <sandix/export.h>
 #include <sandix/kernel.h>
-#include <sandix/types.h>
 
 const char hex_asc[] = "0123456789abcdef";
 EXPORT_SYMBOL(hex_asc);
