@@ -19,25 +19,25 @@
 /*
  * entry_32.S contains the system-call and low-level fault and trap handling routines.
  *
- * Stack layout while running C code (struct pt_regs):
+ * Stack layout while running C code:
  *
- *	 0(%esp) - %ebx
- *	 4(%esp) - %ecx
- *	 8(%esp) - %edx
- *	 C(%esp) - %esi
- *	10(%esp) - %edi
- *	14(%esp) - %ebp
- *	18(%esp) - %eax
- *	1C(%esp) - %ds
- *	20(%esp) - %es
- *	24(%esp) - %fs
- *	28(%esp) - %gs
- *	2C(%esp) - orig_eax
- *	30(%esp) - %eip
- *	34(%esp) - %cs
- *	38(%esp) - %eflags
- *	3C(%esp) - %oldesp
  *	40(%esp) - %oldss
+ *	3C(%esp) - %oldesp
+ *	38(%esp) - %eflags
+ *	34(%esp) - %cs
+ *	30(%esp) - %eip
+ *	2C(%esp) - orig_eax
+ *	28(%esp) - %gs
+ *	24(%esp) - %fs
+ *	20(%esp) - %es
+ *	1C(%esp) - %ds
+ *	18(%esp) - %eax
+ *	14(%esp) - %ebp
+ *	10(%esp) - %edi
+ *	 C(%esp) - %esi
+ *	 8(%esp) - %edx
+ *	 4(%esp) - %ecx
+ *	 0(%esp) - %ebx
  */
 
 #include <sandix/linkage.h>
@@ -58,6 +58,21 @@
 	pushl	%edx
 	pushl	%ecx
 	pushl	%ebx
+.endm
+
+.macro RESTORE_ALL
+	popl	%ebx
+	popl	%ecx
+	popl	%edx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	popl	%eax
+
+	popl	%ds
+	popl	%es
+	popl	%fs
+	popl	%gs
 .endm
 
 ENTRY(divide_error)
@@ -201,5 +216,19 @@ error_code:
 	movl	%esp, %eax			# get the pt_regs pointer
 
 	call	*%edi
+
+	popl	%ebx
+	popl	%ecx
+	popl	%edx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	popl	%eax
+
+	popl	%ds
+	popl	%es
+	popl	%fs
+	addl	$8, %esp
+
 	iret
 END(page_fault)

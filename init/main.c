@@ -42,8 +42,8 @@ asmlinkage void __init start_kernel(void)
 	 */
 	arch_setup();
 
-	set_trap_gate(0x2, &divide_error);
-	//asm ("int $0x2");
+	set_trap_gate(0x0, &divide_error);
+	asm ("int $0x0");
 
 	panic("init end");
 }

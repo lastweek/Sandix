@@ -26,7 +26,7 @@
 static void do_error_trap(struct pt_regs *regs, long error_code, char *str,
 			  unsigned long trapnr, int signr)
 {
-	printk(KERN_INFO "Hello trap");
+	printk(KERN_INFO "%s, trapnr=%lu\n", str, trapnr);
 }
 
 #define DO_ERROR_TRAP(str, name, trapnr, signr)				\
