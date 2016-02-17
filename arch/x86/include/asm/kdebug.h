@@ -16,10 +16,16 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <sandix/ptrace.h>
-#include <sandix/kdebug.h>
+#ifndef _ASM_X86_KDEBUG_H_
+#define _ASM_X86_KDEBUG_H_
 
-void show_regs(struct pt_regs *regs)
-{
-	__show_regs(regs, 1);
-}
+#ifndef _SANDIX_KDEBUG_H_
+# error "Please do not include this file directly"
+#endif
+
+#include <sandix/ptrace.h>
+
+void show_regs(struct pt_regs *regs);
+void __show_regs(struct pt_regs *regs, int all);
+
+#endif /* _ASM_X86_KDEBUG_H_ */

@@ -16,10 +16,9 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <sandix/ptrace.h>
-#include <sandix/kdebug.h>
+#ifndef _SANDIX_KDEBUG_H_
+#define _SANDIX_KDEBUG_H_
 
-void show_regs(struct pt_regs *regs)
-{
-	__show_regs(regs, 1);
-}
+#include <asm/kdebug.h>
+
+#endif /* _SANDIX_KDEBUG_H_ */

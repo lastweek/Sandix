@@ -484,3 +484,7 @@ Tue Feb 16 09:51:28 CST 2016
 Wed Feb 17 09:19:12 CST 2016
 - [+] arch/x86/kernel/process_32.c		[D] show registers ...
 - [+] arch/x86/kernel/process_64.c
+- [+] arch/x86/include/asm/kdebug.h
+- [+] include/asm/kdebug.h
+- [M] arch/x86/include/asm/ptrace.h
+- [M] arch/x86/include/process.c

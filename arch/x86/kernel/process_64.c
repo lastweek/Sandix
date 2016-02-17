@@ -16,10 +16,26 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <sandix/types.h>
+#include <sandix/kernel.h>
 #include <sandix/ptrace.h>
 
 void __show_regs(struct pt_regs *regs)
 {
+	printk(KERN_DEFAULT "RIP: %04lx:[<%016lx>] ", regs->cs & 0xffff, regs->ip);
+	printk(KERN_DEFAULT "RSP: %04lx:%016lx  EFLAGS: %08lx\n", regs->ss,
+			regs->sp, regs->flags);
+	printk(KERN_DEFAULT "RAX: %016lx RBX: %016lx RCX: %016lx\n",
+	       regs->ax, regs->bx, regs->cx);
+	printk(KERN_DEFAULT "RDX: %016lx RSI: %016lx RDI: %016lx\n",
+	       regs->dx, regs->si, regs->di);
+	printk(KERN_DEFAULT "RBP: %016lx R08: %016lx R09: %016lx\n",
+	       regs->bp, regs->r8, regs->r9);
+	printk(KERN_DEFAULT "R10: %016lx R11: %016lx R12: %016lx\n",
+	       regs->r10, regs->r11, regs->r12);
+	printk(KERN_DEFAULT "R13: %016lx R14: %016lx R15: %016lx\n",
+	       regs->r13, regs->r14, regs->r15);
 
+	if (!all)
+		return;
 }
-

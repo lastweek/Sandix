@@ -138,4 +138,14 @@
 #define X86_CR4_SMAP_BIT	21 /* enable SMAP support */
 #define X86_CR4_SMAP		_BITUL(X86_CR4_SMAP_BIT)
 
+/*
+ * x86-64 Task Priority Register, CR8
+ */
+#define X86_CR8_TPR		_AC(0x0000000f,UL) /* task priority register */
+
+/*
+ * No VM86 support
+ */
+#define X86_VM_MASK		0
+
 #endif /* _ASM_X86_PROCESSOR_FLAGS_H_ */

@@ -138,4 +138,10 @@
 /* Bitmask of exception vectors which push an error code on the stack */
 #define EXCEPTION_ERRCODE_MASK  	0x00027d00
 
+/*
+ * Save a segment register away:
+ */
+#define savesegment(seg, value)				\
+	asm("mov %%" #seg ",%0":"=r" (value) : : "memory")
+
 #endif /* _ASM_X86_SEGMENT_H_ */

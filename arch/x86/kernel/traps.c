@@ -18,6 +18,7 @@
 
 #include <asm/traps.h>
 
+#include <sandix/kdebug.h>
 #include <sandix/kernel.h>
 #include <sandix/signal.h>
 #include <sandix/ptrace.h>
@@ -27,6 +28,7 @@ static void do_error_trap(struct pt_regs *regs, long error_code, char *str,
 			  unsigned long trapnr, int signr)
 {
 	printk(KERN_INFO "%s, trapnr=%lu\n", str, trapnr);
+	show_regs(regs);
 }
 
 #define DO_ERROR_TRAP(str, name, trapnr, signr)				\
