@@ -21,13 +21,17 @@
  * provides the processor with the size and location of a segment,
  * as well as access control and status information.
  *
+ * Segment descriptor is an ugly and complicated concept. Intel tried
+ * to use descriptor to protect code/data, to distinguish segment.
+ * Therefore, depends on its usage, these are many types:
+ *
  * Segment descriptor
  *   |
- *   |--- Code segment   (S=1, Bit11 = 1)
- *   |--- Data segment   (S=1, Bit11 = 0)
+ *   |--- Code segment   (S=1, Bit 11 = 1)
+ *   |--- Data segment   (S=1, Bit 11 = 0)
  *   |--- System segment (S=0)
  *          |
- *          |--- System-segmen descriptors (LDT, TSS segment)
+ *          |--- System-segment descriptors (LDT, TSS segment)
  *          |--- Gate descriptors (Call, Interrupt and Trap gates)
  */
 
@@ -258,10 +262,6 @@ static inline void pack_descriptor(struct desc_struct *desc, unsigned long base,
  * generation of exceptions or NMI interrupts).
  */
 
-/*
- * Oh, by the way, I think IDT designed by Intel is really *ugly*.
- */
-
 static inline void __set_gate(int gate, unsigned char type, void *addr,
 			unsigned int dpl, unsigned int ist, unsigned short seg)
 {
@@ -270,6 +270,14 @@ static inline void __set_gate(int gate, unsigned char type, void *addr,
 	pack_gate(&s, type, (unsigned long)addr, dpl, ist, seg);
 	write_idt_entry(idt_table, gate, &s);
 }
+
+/*
+ * The following two routines:
+ *	set_system_intr_gate
+ *	set_system_trap_gate
+ * are used to set intr/trap gate with 0x3 DPL, those gates can be called
+ * via INT instruction from userspace.
+ */
 
 static inline void set_system_intr_gate(unsigned int gate, void *addr)
 {
@@ -283,6 +291,20 @@ static inline void set_system_trap_gate(unsigned int gate, void *addr)
 	__set_gate(gate, GATE_TRAP, addr, 0x3, 0, __KERNEL_CS);
 }
 
+/*
+ * The following two routines:
+ *	set_intr_gate
+ *	set_trap_gate
+ * are used to set intr/trap gate with 0x0 DPL, those gates can NOT be called
+ * via INT instruction from userspace
+ */
+
+static inline void set_intr_gate(unsigned int gate, void *addr)
+{
+	BUG_ON(gate > 0xFF);
+	__set_gate(gate, GATE_INTR, addr, 0, 0, __KERNEL_CS);
+}
+
 static inline void set_trap_gate(unsigned int gate, void *addr)
 {
 	BUG_ON(gate > 0xFF);
@@ -293,6 +315,19 @@ static inline void set_task_gate(unsigned int gate, unsigned int gdt_entry)
 {
 	BUG_ON(gate > 0xFF);
 	__set_gate(gate, GATE_TASK, (void *)0, 0, 0, (gdt_entry << 3));
+}
+
+extern unsigned long used_vectors[];
+
+static inline void alloc_system_vector(int n)
+{
+
+}
+
+static inline void alloc_intr_gate(unsigned int n, void *addr)
+{
+	alloc_system_vector(n);
+	set_intr_gate(n, addr);
 }
 
 #endif /* _ASM_X86_DESCRIPTOR_H_*/

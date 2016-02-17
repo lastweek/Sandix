@@ -154,6 +154,18 @@ ENTRY(general_protection)
 	jmp	error_code
 END(general_protection)
 
+ENTRY(spurious_interrupt_bug)
+	pushl	$0
+	pushl	$do_spurious_interrupt_bug
+	jmp	error_code
+END(spurious_interrupt_bug)
+
+ENTRY(coprocessor_error)
+	pushl	$0
+	pushl	$do_coprocessor_error
+	jmp	error_code
+END(coprocessor_error)
+
 ENTRY(alignment_check)
 	pushl	$do_alignment_check
 	jmp	error_code
@@ -188,8 +200,8 @@ ENTRY(page_fault)
 	ALIGN
 error_code:
 	/*
-	 * the error code is in orig_eax's slot on the stack
-	 * the function address is in %gs's slot on the stack
+	 * The error code is in orig_eax's slot on the stack
+	 * The function address is in %gs's slot on the stack
 	 */
 	pushl	%fs
 	pushl	%es

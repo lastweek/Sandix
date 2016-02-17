@@ -347,9 +347,9 @@ source "mm/Kconfig"
 
 endmenu
 
-#
+##
 # Misc configurations
-#
+##
 menu	"Misc features"
 
 config SPINLOCK_TICKET
@@ -366,9 +366,9 @@ config SPINLOCK_TICKET
 endmenu
 
 
-#
+##
 # Bus configurations
-#
+##
 menu	"Bus options (PCI etc.)"
 
 config PCI

@@ -17,12 +17,14 @@
  */
 
 #include <asm/traps.h>
+#include <asm/segment.h>
+#include <asm/descriptor.h>
+#include <asm/irq_vectors.h>
 
 #include <sandix/kdebug.h>
 #include <sandix/kernel.h>
 #include <sandix/signal.h>
 #include <sandix/ptrace.h>
-#include <sandix/compiler.h>
 
 static void do_error_trap(struct pt_regs *regs, long error_code, char *str,
 			  unsigned long trapnr, int signr)
@@ -47,23 +49,8 @@ DO_ERROR_TRAP("invalid TSS",		     invalid_TSS,		  X86_TRAP_TS,	   SIGSEGV )
 DO_ERROR_TRAP("segment not present",	     segment_not_present,	  X86_TRAP_NP,	   SIGBUS  )
 DO_ERROR_TRAP("stack segment",		     stack_segment,		  X86_TRAP_SS,	   SIGBUS  )
 DO_ERROR_TRAP("alignment check",	     alignment_check,		  X86_TRAP_AC,	   SIGBUS  )
-DO_ERROR_TRAP("simd exception",		     simd_exception,		  X86_TRAP_XM,	   SIGSEGV )
+DO_ERROR_TRAP("simd exception",		     simd_exception,		  X86_TRAP_XF,	   SIGSEGV )
 DO_ERROR_TRAP("coprocessor segment overrun", coprocessor_segment_overrun, X86_TRAP_OLD_MF, SIGFPE  )
-
-dotraplinkage void do_nmi(struct pt_regs *regs, long error_code)
-{
-
-}
-
-dotraplinkage void do_device_not_available(struct pt_regs *regs, long error_code)
-{
-
-}
-
-dotraplinkage void do_double_fault(struct pt_regs *regs, long error_code)
-{
-
-}
 
 dotraplinkage void do_general_protection(struct pt_regs *regs, long error_code)
 {
@@ -75,22 +62,72 @@ dotraplinkage void do_page_fault(struct pt_regs *regs, long error_code)
 
 }
 
+dotraplinkage void do_nmi(struct pt_regs *regs, long error_code)
+{
+	panic("NMI");
+}
+
+dotraplinkage void do_device_not_available(struct pt_regs *regs, long error_code)
+{
+	panic("Device Not Avaliable");
+}
+
+dotraplinkage void do_double_fault(struct pt_regs *regs, long error_code)
+{
+	panic("Double Fault");
+}
+
+dotraplinkage void do_spurious_interrupt_bug(struct pt_regs *regs, long error_code)
+{
+	panic("Spurious Interrupt Bug");
+}
+
+dotraplinkage void do_coprocessor_error(struct pt_regs *regs, long error_code)
+{
+	panic("X87 Coprocessor Error");
+}
+
 dotraplinkage void do_machine_check(struct pt_regs *regs, long error_code)
 {
-
+	panic("Machine Check");
 }
 
 dotraplinkage void do_virtualization_exception(struct pt_regs *regs, long error_code)
 {
-
+	panic("Virtualization Exception");
 }
 
 dotraplinkage void do_reserved(struct pt_regs *regs, long error_code)
 {
-
+	panic("Reserved");
 }
 
 void __init traps_init(void)
 {
+	int i;
 
+	set_intr_gate(X86_TRAP_DE, divide_error);
+	set_intr_gate(X86_TRAP_DB, debug);
+	set_intr_gate(X86_TRAP_NMI, nmi);
+	set_intr_gate(X86_TRAP_BP, int3);
+	set_intr_gate(X86_TRAP_OF, overflow);
+	set_intr_gate(X86_TRAP_BR, bounds);
+	set_intr_gate(X86_TRAP_UD, invalid_op);
+	set_intr_gate(X86_TRAP_NM, device_not_available);
+	set_intr_gate(X86_TRAP_DF, double_fault);
+	set_intr_gate(X86_TRAP_OLD_MF, coprocessor_segment_overrun);
+	set_intr_gate(X86_TRAP_TS, invalid_TSS);
+	set_intr_gate(X86_TRAP_NP, segment_not_present);
+	set_intr_gate(X86_TRAP_SS, stack_segment);
+	set_intr_gate(X86_TRAP_GP, general_protection);
+	set_intr_gate(X86_TRAP_PF, page_fault);
+	set_intr_gate(X86_TRAP_SPURIOUS, spurious_interrupt_bug);
+	set_intr_gate(X86_TRAP_MF, coprocessor_error);
+	set_intr_gate(X86_TRAP_AC, alignment_check);
+	set_intr_gate(X86_TRAP_MC, machine_check);
+	set_intr_gate(X86_TRAP_XF, simd_exception);
+	set_intr_gate(X86_TRAP_VE, virtualization_exception);
+
+	for (i = 0; i < FIRST_EXTERNAL_VECTOR; i++)
+		;
 }

@@ -45,7 +45,9 @@ asmlinkage void invalid_TSS(void);
 asmlinkage void segment_not_present(void);
 asmlinkage void stack_segment(void);
 asmlinkage void general_protection(void);
+asmlinkage void spurious_interrupt_bug(void);
 asmlinkage void alignment_check(void);
+asmlinkage void coprocessor_error(void);
 asmlinkage void machine_check(void);
 asmlinkage void simd_exception(void);
 asmlinkage void virtualization_exception(void);
@@ -70,6 +72,8 @@ dotraplinkage void do_invalid_TSS(struct pt_regs *, long);
 dotraplinkage void do_segment_not_present(struct pt_regs *, long);
 dotraplinkage void do_stack_segment(struct pt_regs *, long);
 dotraplinkage void do_general_protection(struct pt_regs *, long);
+dotraplinkage void do_spurious_interrupt_bug(struct pt_regs *, long);
+dotraplinkage void do_coprocessor_error(struct pt_regs *, long);
 dotraplinkage void do_alignment_check(struct pt_regs *, long);
 dotraplinkage void do_machine_check(struct pt_regs *, long);
 dotraplinkage void do_simd_exception(struct pt_regs *, long);
@@ -97,13 +101,14 @@ enum X86_TRAPS {
 	X86_TRAP_SS,		/* 12, Stack Segment Fault */
 	X86_TRAP_GP,		/* 13, General Protection Fault */
 	X86_TRAP_PF,		/* 14, Page Fault */
-	X86_TRAP_RESERVED,	/* 15, Intel Reserved. Do not use */
+	X86_TRAP_SPURIOUS,	/* 15, Spurious Interrupt */
 	X86_TRAP_MF,		/* 16, x87 Floating-Point Exception */
 	X86_TRAP_AC,		/* 17, Alignment Check */
 	X86_TRAP_MC,		/* 18, Machine Check */
-	X86_TRAP_XM,		/* 19, SIMD Floating-Point Exception */
+	X86_TRAP_XF,		/* 19, SIMD Floating-Point Exception */
 	X86_TRAP_VE,		/* 20, Virtualization Exception */
 				/* 21-31, Intel Reserved. Do not use */
+	X86_TRAP_IRET = 32,	/* 32, IRET Exception */
 				/* 32-255, User Defined Interrupts */
 };
 
