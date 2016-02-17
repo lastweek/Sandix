@@ -17,6 +17,7 @@
  */
 
 #include <sandix/tty.h>
+#include <sandix/sched.h>
 #include <sandix/types.h>
 #include <sandix/kernel.h>
 #include <sandix/printk.h>
@@ -42,8 +43,9 @@ asmlinkage void __init start_kernel(void)
 	 */
 	arch_setup();
 
-	set_trap_gate(0x0, &divide_error);
-	asm ("int $0x0");
+	trap_init();
+
+	asm ("int $0x2");
 
 	panic("init end");
 }

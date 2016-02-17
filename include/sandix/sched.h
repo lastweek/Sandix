@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 #define _SANDIX_SCHED_H_
 
 #include <asm/processor.h>
+
 #include <sandix/mm.h>
 #include <sandix/page.h>
 
@@ -69,8 +70,6 @@ struct thread_info {
 	unsigned int cpu;		/* current cpu */
 };
 
-/* 8 KB Stack */
-#define THREAD_SIZE		(PAGE_SIZE<<1)
 #define CURRENT_MASK		0xFFFFE000
 
 union thread_union {
@@ -88,5 +87,7 @@ union thread_union {
 
 #define for_each_process(p)	\
 	for (p = &init_task; (p = next_task(p)) != &init_task; )
+
+void __init trap_init(void);
 
 #endif /* _SANDIX_SCHED_H_ */

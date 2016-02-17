@@ -102,7 +102,7 @@ dotraplinkage void do_reserved(struct pt_regs *regs, long error_code)
 	panic("Reserved");
 }
 
-void __init traps_init(void)
+void __init trap_init(void)
 {
 	int i;
 

@@ -23,7 +23,7 @@
 # error INCLUDE ERROR: Do NOT Include This File Directly.
 #endif
 
-static inline struct thread_info * current_thread_info()
+static inline struct thread_info *current_thread_info(void)
 {
 	int d0;
 	struct thread_info *__tip;
@@ -51,6 +51,5 @@ static inline struct thread_info * current_thread_info()
 	__tsp;					\
 })
 
-#define current	get_current()
 
 #endif /* _ASM_X86_CURRENT_H_ */
