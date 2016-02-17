@@ -16,8 +16,9 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <sandix/compiler.h>
 #include <asm/page.h>
+
+#include <sandix/compiler.h>
 
 #define LOAD_OFFSET		__PAGE_OFFSET
 #define	LOAD_PHYS_OFFSET	0x100000

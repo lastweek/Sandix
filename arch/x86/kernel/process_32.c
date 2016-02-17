@@ -18,7 +18,8 @@
 
 #include <sandix/ptrace.h>
 
-void show_regs(struct pt_regs *regs)
+void __show_regs(struct pt_regs *regs)
 {
 
 }
+
