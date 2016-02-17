@@ -22,6 +22,7 @@
 #ifndef __ASSEMBLY__
 
 #include <asm/types.h>
+
 #include <sandix/stddef.h>
 #include <sandix/posix_types.h>
 

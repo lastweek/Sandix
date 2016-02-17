@@ -488,3 +488,4 @@ Wed Feb 17 09:19:12 CST 2016
 - [+] include/asm/kdebug.h
 - [M] arch/x86/include/asm/ptrace.h
 - [M] arch/x86/include/process.c
+- [M] include/sandix/sched.h			[D] extern trap_init() here...
