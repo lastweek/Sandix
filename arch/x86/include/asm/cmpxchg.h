@@ -19,9 +19,9 @@
 #ifndef _ASM_X86_CMPXCHG_H_
 #define _ASM_X86_CMPXCHG_H_
 
-#include <sandix/compiler.h>
-#include <sandix/types.h>
 #include <asm/asm.h>
+#include <sandix/types.h>
+#include <sandix/compiler.h>
 
 /*
  * Non-existant functions to indicate usage errors at link time,

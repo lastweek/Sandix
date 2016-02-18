@@ -18,6 +18,7 @@
 
 #include <asm/page.h>
 
+#include <sandix/cache.h>
 #include <sandix/compiler.h>
 
 #define LOAD_OFFSET		__PAGE_OFFSET
@@ -53,11 +54,11 @@ SECTIONS
 		*(.data)
 		
 		/* __read_mostly */
-		. = ALIGN(L1_CACHE_LINE_SIZE);
+		. = ALIGN(L1_CACHE_BYTES);
 		*(.data..read_mostly)
 		
 		/* WARN_ONCE etc.*/
-		. = ALIGN(L1_CACHE_LINE_SIZE);
+		. = ALIGN(L1_CACHE_BYTES);
 		*(.data..unlikely)
 		
 		__data_end = .;

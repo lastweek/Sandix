@@ -19,84 +19,148 @@
 #ifndef _ASM_X86_PROCESSOR_H_
 #define _ASM_X86_PROCESSOR_H_
 
+#include <sandix/cache.h>
 #include <sandix/types.h>
+#include <sandix/stddef.h>
+#include <sandix/compiler.h>
 
+#include <asm/page.h>
 #include <asm/segment.h>
 #include <asm/processor-flags.h>
 
-/*TODO*/
-#define cpu_relax()
+#define X86_VENDOR_INTEL	0
+#define X86_VENDOR_CYRIX	1
+#define X86_VENDOR_AMD		2
+#define X86_VENDOR_UMC		3
+#define X86_VENDOR_CENTAUR	5
+#define X86_VENDOR_TRANSMETA	7
+#define X86_VENDOR_NSC		8
+#define X86_VENDOR_NUM		9
+#define X86_VENDOR_UNKNOWN	0xff
 
 /*
- * x86 cpu type and hardware bug flags.
- * Kept separately for each CPU.
- * Members of this structure are referenced in head.S.
+ *  CPU type and hardware bug flags. Kept separately for each CPU.
+ *  Members of this structure are referenced in head.S, so think twice
+ *  before touching them.
  */
-struct cpuinfo {
-	__u8		x86;		/* CPU family */
-	__u8		x86_vendor;	/* CPU vendor */
-	__u8		x86_model;
-	__u8		x86_mask;
-	__u8		x86_virt_bits;
-	__u8		x86_phys_bits;
+struct cpuinfo_x86 {
+	unsigned char		x86;		/* CPU family */
+	unsigned char		x86_vendor;	/* CPU vendor */
+	unsigned char		x86_model;
+	unsigned char		x86_mask;
+#ifdef CONFIG_X86_32
+	char			wp_works_ok;	/* It doesn't on 386's */
+
+	/* Problems on some 486Dx4's and old 386's: */
+	char			rfu;
+	char			pad0;
+	char			pad1;
+#else
+	/* Number of 4K pages in DTLB/ITLB combined(in pages): */
+	int			x86_tlbsize;
+#endif
+	unsigned char		x86_virt_bits;
+	unsigned char		x86_phys_bits;
+	/* CPUID returned core id bits: */
+	unsigned char		x86_coreid_bits;
+	/* Max extended CPUID function supported: */
+	unsigned int		extended_cpuid_level;
+	/* Maximum supported CPUID level, -1=no CPUID: */
+	int			cpuid_level;
+	unsigned int		x86_capability[14 + 1];
+	char			x86_vendor_id[16];
+	char			x86_model_id[64];
+	/* in KB - valid for CPUS which support this call: */
+	int			x86_cache_size;
+	int			x86_cache_alignment;	/* In bytes */
+	/* Cache QoS architectural values: */
+	int			x86_cache_max_rmid;	/* max index */
+	int			x86_cache_occ_scale;	/* scale to bytes */
+	int			x86_power;
+	unsigned long		loops_per_jiffy;
 	/* cpuid returned max cores value: */
-	__u16		x86_max_cores;
-	__u16		apicid;
-	__u16		initial_apicid;
-	__u16		x86_clflush_size;
+	unsigned short		x86_max_cores;
+	unsigned short		apicid;
+	unsigned short		initial_apicid;
+	unsigned short		x86_clflush_size;
 	/* number of cores as seen by the OS: */
-	__u16		booted_cores;
+	unsigned short		booted_cores;
 	/* Physical processor id: */
-	__u16		phys_proc_id;
+	unsigned short		phys_proc_id;
 	/* Core id: */
-	__u16		cpu_core_id;
+	unsigned short		cpu_core_id;
+	/* Compute unit id */
+	unsigned char		compute_unit_id;
 	/* Index into per_cpu list: */
-	__u16		cpu_index;
-}__attribute__((packed));
+	unsigned short		cpu_index;
+	unsigned int		microcode;
+};
 
+/*
+ * This is the TSS defined by the hardware.
+ */
+#ifdef CONFIG_X86_32
+struct x86_hw_tss {
+	unsigned short		back_link, __blh;
+	unsigned long		sp0;
+	unsigned short		ss0, __ss0h;
+	unsigned long		sp1;
 
-/**
- * Intel x86 hardware task-state segment(tss).
- * Consult SDM-VOL3 section 7.2.1 for details.
- **/
-struct x86_tss {
-	__u16		link, __linkh;
-	
-	__u32		esp0;
-	__u16		ss0, __ss0h;
-	
-	__u32		esp1;
-	__u16		ss1, __ss1h;
-	
-	__u32		esp2;
-	__u16		ss2, __ss2h;
-	
-	__u32		cr3;
-	
-	__u32		eip;
-	__u32		eflags;
-	__u32		eax;
-	__u32		ecx;
-	__u32		edx;
-	__u32		ebx;
-	__u32		esp;
-	__u32		ebp;
-	__u32		esi;
-	__u32		edi;
-	
-	__u16		es, __esh;
-	__u16		cs, __csh;
-	__u16		ss, __ssh;
-	__u16		ds, __dsh;
-	__u16		fs, __fsh;
-	__u16		gs, __gsh;
-	
-	__u16		ldt, __ldth;
-	__u16		trace;
-	__u16		io_bitmap_base;
+	/*
+	 * We don't use ring 1, so ss1 is a convenient scratch space in
+	 * the same cacheline as sp0.  We use ss1 to cache the value in
+	 * MSR_IA32_SYSENTER_CS.  When we context switch
+	 * MSR_IA32_SYSENTER_CS, we first check if the new value being
+	 * written matches ss1, and, if it's not, then we wrmsr the new
+	 * value and update ss1.
+	 *
+	 * The only reason we context switch MSR_IA32_SYSENTER_CS is
+	 * that we set it to zero in vm86 tasks to avoid corrupting the
+	 * stack if we were to go through the sysenter path from vm86
+	 * mode.
+	 */
+	unsigned short		ss1;	/* MSR_IA32_SYSENTER_CS */
 
-} __attribute__((packed));
+	unsigned short		__ss1h;
+	unsigned long		sp2;
+	unsigned short		ss2, __ss2h;
+	unsigned long		__cr3;
+	unsigned long		ip;
+	unsigned long		flags;
+	unsigned long		ax;
+	unsigned long		cx;
+	unsigned long		dx;
+	unsigned long		bx;
+	unsigned long		sp;
+	unsigned long		bp;
+	unsigned long		si;
+	unsigned long		di;
+	unsigned short		es, __esh;
+	unsigned short		cs, __csh;
+	unsigned short		ss, __ssh;
+	unsigned short		ds, __dsh;
+	unsigned short		fs, __fsh;
+	unsigned short		gs, __gsh;
+	unsigned short		ldt, __ldth;
+	unsigned short		trace;
+	unsigned short		io_bitmap_base;
 
+} __packed;
+#else
+struct x86_hw_tss {
+	unsigned int		reserved1;
+	unsigned long		sp0;
+	unsigned long		sp1;
+	unsigned long		sp2;
+	unsigned long		reserved2;
+	unsigned long		ist[7];
+	unsigned int		reserved3;
+	unsigned int		reserved4;
+	unsigned short		reserved5;
+	unsigned short		io_bitmap_base;
+
+} __packed __cacheline_aligned;
+#endif
 
 /*
  * IO-bitmap sizes:
@@ -107,39 +171,40 @@ struct x86_tss {
 #define IO_BITMAP_OFFSET		offsetof(struct tss_struct, io_bitmap)
 #define INVALID_IO_BITMAP_OFFSET	0x8000
 
-/*
- * cpu specific state for task.
- */
+struct tss_struct {
+	/*
+	 * The hardware state:
+	 */
+	struct x86_hw_tss	x86_tss;
+
+	/*
+	 * The extra 1 is there because the CPU will access an
+	 * additional byte beyond the end of the IO permission
+	 * bitmap. The extra byte must be all 1 bits, and must
+	 * be within the limit.
+	 */
+	unsigned long		io_bitmap[IO_BITMAP_LONGS + 1];
+} __cacheline_aligned;
+
+#ifdef CONFIG_X86_32
+struct irq_stack {
+	unsigned long 		stack[THREAD_SIZE/sizeof(unsigned long)];
+} __aligned(THREAD_SIZE);
+#else
+#endif
+
 struct thread_struct {
-	/* Cached TLS descriptors: */
-	//struct desc_struct	tls_array[GDT_ENTRY_TLS_ENTRIES];
-	
-	__u32		sp0;
-	__u32		sp;
-	__u32		sysenter_cs;
-	__u32		ip;
-	__u32		gs;
-	
-	/* Debug status used for traps, single steps, etc... */
-	__u32           debugreg6;
-	
-	/* Keep track of the exact dr7 value set by the user */
-	__u32           ptrace_dr7;
-	
-	/* Fault info: */
-	__u32		cr2;
-	__u32		trap_nr;
-	__u32		error_code;
-	
-	/* floating point and extended processor state */
-	//struct fpu		fpu;
-	
-	/* IO permissions: */
-	__u32		*io_bitmap_ptr;
-	__u32		iopl;
-	
-	/* Max allowed port in the bitmap, in bytes: */
-	__u32		io_bitmap_max;
+
 };
+
+static __always_inline void rep_nop(void)
+{
+	asm volatile ("rep; nop" ::: "memory");
+}
+
+static __always_inline void cpu_relax(void)
+{
+	rep_nop();
+}
 
 #endif /* _ASM_X86_PROCESSOR_H_ */

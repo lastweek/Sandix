@@ -22,6 +22,8 @@
 #include <asm/processor.h>
 
 #include <sandix/mm.h>
+#include <sandix/types.h>
+#include <sandix/list.h>
 #include <sandix/page.h>
 
 #define TASK_RUNNING		0
