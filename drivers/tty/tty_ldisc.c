@@ -20,6 +20,7 @@
  * This file describes the line discipline layer
  */
 
+#include <sandix/bug.h>
 #include <sandix/err.h>
 #include <sandix/tty.h>
 #include <sandix/list.h>

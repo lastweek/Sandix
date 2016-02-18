@@ -16,6 +16,7 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <sandix/bug.h>
 #include <sandix/sort.h>
 #include <sandix/page.h>
 #include <sandix/types.h>

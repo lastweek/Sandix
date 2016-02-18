@@ -20,19 +20,20 @@
  * This file describes the tty layer
  */
 
-#include <sandix/errno.h>
-#include <sandix/compiler.h>
-#include <sandix/console.h>
-#include <sandix/export.h>
+#include <sandix/fs.h>
+#include <sandix/bug.h>
 #include <sandix/tty.h>
-#include <sandix/types.h>
-#include <sandix/major.h>
 #include <sandix/list.h>
+#include <sandix/kref.h>
+#include <sandix/errno.h>
+#include <sandix/major.h>
 #include <sandix/mutex.h>
 #include <sandix/magic.h>
-#include <sandix/kref.h>
-#include <sandix/fs.h>
+#include <sandix/types.h>
+#include <sandix/export.h>
+#include <sandix/console.h>
 #include <sandix/uaccess.h>
+#include <sandix/compiler.h>
 
 struct termios tty_std_termios = {
 	.c_iflag = ICRNL | IXON,

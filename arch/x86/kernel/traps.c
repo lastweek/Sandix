@@ -25,6 +25,7 @@
 #include <sandix/kernel.h>
 #include <sandix/signal.h>
 #include <sandix/ptrace.h>
+#include <sandix/bitops.h>
 
 static void do_error_trap(struct pt_regs *regs, long error_code, char *str,
 			  unsigned long trapnr, int signr)
@@ -102,6 +103,11 @@ dotraplinkage void do_reserved(struct pt_regs *regs, long error_code)
 	panic("Reserved");
 }
 
+int first_system_vector = FIRST_SYSTEM_VECTOR;
+
+DEFINE_BITMAP(used_vectors, NR_VECTORS);
+EXPORT_SYMBOL(used_vectors);
+
 void __init trap_init(void)
 {
 	int i;
@@ -128,6 +134,14 @@ void __init trap_init(void)
 	set_intr_gate(X86_TRAP_XF, simd_exception);
 	set_intr_gate(X86_TRAP_VE, virtualization_exception);
 
+	/* Reserve all predefined vectors */
 	for (i = 0; i < FIRST_EXTERNAL_VECTOR; i++)
-		;
+		set_bit(i, used_vectors);
+
+	/*
+	 * IA32 INT80 System Call
+	 * XXX: intr or trap???
+	 */
+	set_system_intr_gate(SYSCALL_VECTOR, entry_INT80);
+	set_bit(SYSCALL_VECTOR, used_vectors);
 }

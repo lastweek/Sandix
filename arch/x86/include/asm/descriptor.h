@@ -45,6 +45,7 @@
 #include <sandix/compiler.h>
 
 #include <asm/segment.h>
+#include <asm/irq_vectors.h>
 
 /*
  * 8-byte descriptor
@@ -321,7 +322,7 @@ static inline void set_task_gate(unsigned int gate, unsigned int gdt_entry)
 
 /* traps.c */
 extern int first_system_vector;
-extern unsigned long used_vectors[];
+DECLARE_BITMAP(used_vectors, NR_VECTORS);
 
 static inline void alloc_system_vector(int vector)
 {

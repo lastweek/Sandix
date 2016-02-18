@@ -244,3 +244,6 @@ error_code:
 
 	iret
 END(page_fault)
+
+ENTRY(entry_INT80)
+END(entry_INT80)

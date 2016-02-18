@@ -31,6 +31,8 @@
  * Assembly entries
  */
 
+void entry_INT80(void);
+
 asmlinkage void divide_error(void);
 asmlinkage void debug(void);
 asmlinkage void nmi(void);

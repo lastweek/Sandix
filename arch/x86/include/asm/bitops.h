@@ -23,6 +23,7 @@
 # error "Please do not include this file directly"
 #endif
 
+#include <asm/asm.h>
 #include <sandix/types.h>
 #include <sandix/compiler.h>
 

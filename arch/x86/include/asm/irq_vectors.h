@@ -16,8 +16,8 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _ASM_IRQ_VECTORS_H_
-#define _ASM_IRQ_VECTORS_H_
+#ifndef _ASM_X86_IRQ_VECTORS_H_
+#define _ASM_X86_IRQ_VECTORS_H_
 
 /*
  * There are 256 IDT entries (per CPU - each entry is 8 bytes) which can
@@ -163,4 +163,4 @@
 # define NR_IRQS			NR_IRQS_LEGACY
 #endif
 
-#endif /* _ASM_IRQ_VECTORS_H_ */
+#endif /* _ASM_X86_IRQ_VECTORS_H_ */
