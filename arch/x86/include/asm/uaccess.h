@@ -23,7 +23,7 @@
 # error "Please do not include this file directly"
 #endif
 
-/* XXX: implement x86 version */
+/* TODO: implement x86 version */
 #include <asm-generic/uaccess.h>
 
 #endif /* _ASM_X86_UACCESS_H_ */

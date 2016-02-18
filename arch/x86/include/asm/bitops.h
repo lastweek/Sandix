@@ -20,16 +20,18 @@
 #define _ASM_X86_BITOPS_H_
 
 #ifndef _SANDIX_BITOPS_H_
-# error "Please not include this file directly"
+# error "Please do not include this file directly"
 #endif
 
 #include <sandix/types.h>
 #include <sandix/compiler.h>
 
-/*
- *	XXX
- *	This is just a temporary version, needs rewrite. (32-bit version and 64-bit version )
- */
+#if BITS_PER_LONG == 32
+# define __BITOPS_LONG_SHIFT 5
+#elif BITS_PER_LONG == 64
+# define __BITOPS_LONG_SHIFT 6
+#endif
+
 
 /*
  * These have to be done with inline assembly: that way the bit-setting
@@ -58,10 +60,11 @@
  */
 static inline void set_bit(int nr, volatile unsigned long * addr)
 {
-	__asm__ __volatile__( LOCK_PREFIX
-		"btsl %1,%0"
+	asm volatile (
+		LOCK_PREFIX "btsl %1,%0"
 		:"+m" (ADDR)
-		:"Ir" (nr));
+		:"Ir" (nr)
+	);
 }
 
 /**
@@ -76,10 +79,11 @@ static inline void set_bit(int nr, volatile unsigned long * addr)
  */
 static inline void clear_bit(int nr, volatile unsigned long * addr)
 {
-	__asm__ __volatile__( LOCK_PREFIX
-		"btrl %1,%0"
+	asm volatile (
+		LOCK_PREFIX "btrl %1,%0"
 		:"+m" (ADDR)
-		:"Ir" (nr));
+		:"Ir" (nr)
+	);
 }
 
 /**
@@ -95,10 +99,11 @@ static inline int test_and_set_bit(int nr, volatile unsigned long * addr)
 {
 	int oldbit;
 
-	__asm__ __volatile__( LOCK_PREFIX
-		"btsl %2,%1\n\tsbbl %0,%0"
+	asm volatile (
+		LOCK_PREFIX "btsl %2,%1\n\tsbbl %0,%0"
 		:"=r" (oldbit),"+m" (ADDR)
-		:"Ir" (nr) : "memory");
+		:"Ir" (nr) : "memory"
+	);
 	return oldbit;
 }
 
@@ -111,18 +116,21 @@ static inline int variable_test_bit(int nr, const volatile unsigned long * addr)
 {
 	int oldbit;
 
-	__asm__ __volatile__(
+	asm volatile (
 		"btl %2,%1\n\tsbbl %0,%0"
 		:"=r" (oldbit)
-		:"m" (ADDR),"Ir" (nr));
+		:"m" (ADDR),"Ir" (nr)
+	);
 	return oldbit;
 }
 
-#define test_bit(nr,addr) \
-(__builtin_constant_p(nr) ? \
- constant_test_bit((nr),(addr)) : \
- variable_test_bit((nr),(addr)))
+#define test_bit(nr,addr)			\
+(						\
+	__builtin_constant_p(nr) ?		\
+	constant_test_bit((nr),(addr)) :	\
+	variable_test_bit((nr),(addr))		\
+)
 
 #undef ADDR
 
-#endif
+#endif /* _ASM_X86_BITOPS_H_ */

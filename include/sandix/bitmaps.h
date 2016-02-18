@@ -16,48 +16,16 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _ASM_X86_SWAB_H_
-#define _ASM_X86_SWAB_H_
+#ifndef _SANDIX_BITMAPS_H_
+#define _SANDIX_BITMAPS_H_
 
-#ifndef _SANDIX_SWAB_H_
-# error "Please do not include this file directly"
-#endif
-
-#include <sandix/compiler.h>
 #include <sandix/types.h>
+#include <sandix/bitops.h>
+#include <sandix/kernel.h>
 
-static inline __attribute_const __u32 __arch_swab32(__u32 val)
-{
-	asm volatile (
-		"bswapl %0"
-		: "=r" (val)
-		: "0" (val)
-	);
-	return val;
-}
-#define __arch_swab32 __arch_swab32
+/*
+ * TODO:
+ * bitmap routines (lib/bitmap.c)
+ */
 
-/* Life is easier in x86_64, bswapq %0 */
-static inline __attribute_const __u64 __arch_swab64(__u64 val)
-{
-	union {
-		struct {
-			__u32 a;
-			__u32 b;
-		} s;
-		__u64 u;
-	} v;
-	
-	v.u = val;
-	asm volatile (
-		"bswapl %0"
-		"bswapl %1"
-		"xchgl %0,%1"
-		: "=r" (v.s.a), "=r" (v.s.b)
-		: "0" (v.s.a), "1" (v.s.b)
-	);
-	return v.u;
-}
-#define __arch_swab64 __arch_swab64
-
-#endif /* _ASM_X86_SWAB_H_ */
+#endif /* _SANDIX_BITMAPS_H_ */

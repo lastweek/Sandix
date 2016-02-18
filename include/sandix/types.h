@@ -29,6 +29,9 @@
 #define BITS_PER_LONG		__BITS_PER_LONG
 #define BITS_PER_LONG_LONG	__BITS_PER_LONG_LONG
 
+#define DEFINE_BITMAP(name, bits)	unsigned long name[BITS_TO_LONG(bits)]
+#define DECLARE_BITMAP(name, bits)	extern DEFINE_BITMAP(name, bits)
+
 typedef _Bool			bool;
 
 typedef unsigned short		umode_t;
