@@ -20,7 +20,7 @@
 #define _ASM_X86_CACHE_H_
 
 /*
- * L1 Cacheline Size
+ * L1 Cacheline Size. See Kbuild.cpu for more details.
  */
 
 #define L1_CACHE_SHIFT	(CONFIG_X86_L1_CACHE_SHIFT)

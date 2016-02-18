@@ -19,7 +19,7 @@
 #ifndef _SANDIX_CACHE_H_
 #define _SANDIX_CACHE_H_
 
-#include <asm/cache.h>
+#include <asm/cache.h>	/* architecture-related cacheline size  ... */
 
 #define __cacheline_aligned	\
 	__attribute__((__aligned__(L1_CACHE_BYTES)))
