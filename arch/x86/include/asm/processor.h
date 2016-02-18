@@ -26,6 +26,7 @@
 
 #include <asm/page.h>
 #include <asm/segment.h>
+#include <asm/descriptor.h>
 #include <asm/processor-flags.h>
 
 #define X86_VENDOR_INTEL	0
@@ -186,15 +187,48 @@ struct tss_struct {
 	unsigned long		io_bitmap[IO_BITMAP_LONGS + 1];
 } __cacheline_aligned;
 
-#ifdef CONFIG_X86_32
+/*
+ * TODO???
+ */
 struct irq_stack {
 	unsigned long 		stack[THREAD_SIZE/sizeof(unsigned long)];
 } __aligned(THREAD_SIZE);
-#else
-#endif
 
 struct thread_struct {
+	struct desc_struct	tls_array[GDT_ENTRY_TLS_ENTRIES];
 
+	unsigned long		sp0;
+	unsigned long		sp;
+
+#ifdef CONFIG_X86_32
+	unsigned long		sysenter_cs;
+	unsigned long		ip;
+#else
+	unsigned short		es;
+	unsigned short		ds;
+	unsigned short		fsindex;
+	unsigned short		gsindex;
+	unsigned long		fs;
+#endif
+	unsigned long		gs;
+
+	/*
+	 * Fault info:
+	 */
+	unsigned long		cr2;
+	unsigned long		trap_nr;
+	unsigned long		error_code;
+
+	/*
+	 * IO permissions:
+	 */
+	unsigned long		*io_bitmap_ptr;
+	unsigned long		iopl;
+
+	/*
+	 * Max allowed port in bitmap, in bytes:
+	 */
+	unsigned int		io_bitmap_max;
 };
 
 static __always_inline void rep_nop(void)
