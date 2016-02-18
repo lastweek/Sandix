@@ -1,0 +1,8 @@
+#
+# Thu Feb 18 11:20:30 CST 2016
+#
+
+# Keyword: syscall
+
+Hmm, the syscall framework was built today. I have to follow linux's ABI.
+Next step is building thread things.
