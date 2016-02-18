@@ -39,7 +39,9 @@
 #define _ASM_X86_DESCRIPTOR_H_
 
 #include <sandix/bug.h>
+#include <sandix/types.h>
 #include <sandix/string.h>
+#include <sandix/bitops.h>
 #include <sandix/compiler.h>
 
 #include <asm/segment.h>
@@ -317,11 +319,19 @@ static inline void set_task_gate(unsigned int gate, unsigned int gdt_entry)
 	__set_gate(gate, GATE_TASK, (void *)0, 0, 0, (gdt_entry << 3));
 }
 
+/* traps.c */
+extern int first_system_vector;
 extern unsigned long used_vectors[];
 
-static inline void alloc_system_vector(int n)
+static inline void alloc_system_vector(int vector)
 {
-
+	if (!test_bit(vector, used_vectors)) {
+		set_bit(vector, used_vectors);
+		if (first_system_vector > vector)
+			first_system_vector = vector;
+	} else {
+		BUG();
+	}
 }
 
 static inline void alloc_intr_gate(unsigned int n, void *addr)
