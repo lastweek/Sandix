@@ -492,8 +492,10 @@ Wed Feb 17 09:19:12 CST 2016
 
 
 Thu Feb 18 09:40:21 CST 2016
+- [+] arch/x86/entry/common.c			[D] SYSCALL entry
 - [+] include/sandix/bitmaps.h
 - [M] include/sandix/types.h			[D] bitmaps
 - [M] include/sandix/bitops.h
 - [M] arch/x86/include/asm/bitops.h
 - [M] include/sandix/kernel.h			[D] roundup things
+- [M] arch/x86/entry/entry_32.S

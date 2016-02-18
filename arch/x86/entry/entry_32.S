@@ -68,7 +68,6 @@
 	popl	%edi
 	popl	%ebp
 	popl	%eax
-
 	popl	%ds
 	popl	%es
 	popl	%fs
@@ -240,10 +239,18 @@ error_code:
 	popl	%ds
 	popl	%es
 	popl	%fs
-	addl	$8, %esp
+	addl	$8, %esp			# gs and orig_eax
 
 	iret
 END(page_fault)
 
-ENTRY(entry_INT80)
-END(entry_INT80)
+ENTRY(entry_INT80_32)
+	pushl	%eax				# orig_eax
+	SAVE_ALL
+	movl	%esp, %eax			# get the pt_regs pointer
+	call	do_syscall_32_irqs_on
+
+	RESTORE_ALL
+	addl	$4, %esp			# orig_eax
+	iret
+END(entry_INT80_32)

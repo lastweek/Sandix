@@ -16,39 +16,14 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <sandix/tty.h>
-#include <sandix/sched.h>
 #include <sandix/types.h>
 #include <sandix/kernel.h>
-#include <sandix/printk.h>
+#include <sandix/kdebug.h>
+#include <sandix/ptrace.h>
+#include <sandix/compiler.h>
 
-#include <asm/traps.h>
-#include <asm/setup.h>
-#include <asm/descriptor.h>
-
-asmlinkage void __init start_kernel(void)
+__visible void do_syscall_32_irqs_on(struct pt_regs *regs)
 {
-	/*
-	 * We need printk to print some info. So, before arch_setup or boot_mem
-	 * are built, let us just init tty first. Anyway, we need to rewrite some
-	 * code within tty after malloc/free done.
-	 */
-	early_arch_setup();
-	tty_init();
-	tty_print_drivers();
-	printk("\033[32m%s\033[0m\n\r", sandix_banner);
-
-	/*
-	 * Architecture-independent initialization
-	 */
-	arch_setup();
-
-	trap_init();
-
-	asm (
-		"movl $0x1, %eax\n\t"
-		"int $0x80"
-	);
-
-	panic("init end");
+	printk("SYSCALL\n");
+	show_regs(regs);
 }

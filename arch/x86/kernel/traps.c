@@ -140,8 +140,8 @@ void __init trap_init(void)
 
 	/*
 	 * IA32 INT80 System Call
-	 * XXX: intr or trap???
+	 * XXX: intr or trap gate???
 	 */
-	set_system_intr_gate(SYSCALL_VECTOR, entry_INT80);
+	set_system_intr_gate(SYSCALL_VECTOR, entry_INT80_32);
 	set_bit(SYSCALL_VECTOR, used_vectors);
 }

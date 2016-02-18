@@ -31,7 +31,7 @@
  * Assembly entries
  */
 
-void entry_INT80(void);
+asmlinkage void entry_INT80_32(void);
 
 asmlinkage void divide_error(void);
 asmlinkage void debug(void);
@@ -59,6 +59,8 @@ asmlinkage void page_fault(void);
 /*
  * C entries
  */
+
+dotraplinkage void do_syscall_32_irqs_on(struct pt_regs *);
 
 dotraplinkage void do_divide_error(struct pt_regs *, long);
 dotraplinkage void do_debug(struct pt_regs *, long);
