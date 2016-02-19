@@ -19,7 +19,101 @@
 #ifndef _ASM_X86_IRQFLAGS_H_
 #define _ASM_X86_IRQFLAGS_H_
 
-#define arch_local_irq_disable()
-#define arch_local_irq_enable()
+static inline unsigned long native_save_flags(void)
+{
+	unsigned long flags;
+
+	/*
+	 * "=rm" is safe here, because "pop" adjusts the stack before
+	 * it evaluates its effective address -- this is part of the
+	 * documented behavior of the "pop" instruction.
+	 */
+	asm volatile (
+		"pushf; pop %0"
+		: "=rm" (flags)
+		: /* no input */
+		: "memory"
+	);
+}
+
+static inline void native_restore_flags(unsigned long flags)
+{
+	asm volatile (
+		"push %0; popf"
+		: /* no output */
+		: "g" (flags)
+		: "memory", "cc"
+	);
+}
+
+static inline void native_irq_disable(void)
+{
+	asm volatile ("cli" ::: "memory");
+}
+
+static inline void native_irq_enable(void)
+{
+	asm volatile ("sti" ::: "memory");
+}
+
+static inline void native_safe_halt(void)
+{
+	asm volatile ("sti; hlt" ::: "memory");
+}
+
+static inline void native_halt(void)
+{
+	asm volatile ("hlt" ::: "memory");
+}
+
+/*
+ * Again, we skip paravirt here.
+ */
+
+static inline unsigned long arch_local_save_flags(void)
+{
+	return native_save_flags();
+}
+
+static inline void arch_local_irq_restore(unsigned long flags)
+{
+	native_restore_flags(flags);
+}
+
+static inline void arch_local_irq_disable(void)
+{
+	native_irq_disable();
+}
+
+static inline void arch_local_irq_enable(void)
+{
+	native_irq_enable();
+}
+
+/*
+ * Used in the idle loop; sti taks one instruction cycle
+ * to complete.
+ */
+static inline void arch_safe_halt(void)
+{
+	native_safe_halt();
+}
+
+/*
+ * Used when interrupts are already enabled or to
+ * shutdown the processor.
+ */
+static inline void arch_halt(void)
+{
+	native_halt();
+}
+
+/* For spinlocks, etc. */
+static inline unsigned long arch_local_irq_save(void)
+{
+	unsigned long flags = arch_local_save_flags();
+	arch_local_irq_disable();
+	return flags;
+}
 
 #endif /* _ASM_X86_IRQFLAGS_H_ */

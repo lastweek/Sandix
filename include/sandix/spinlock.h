@@ -19,10 +19,10 @@
 #ifndef _SANDIX_SPINLOCK_H_
 #define _SANDIX_SPINLOCK_H_
 
-#include <sandix/compiler.h>
-#include <sandix/typecheck.h>
-#include <sandix/irqflags.h>
 #include <sandix/preempt.h>
+#include <sandix/compiler.h>
+#include <sandix/irqflags.h>
+#include <sandix/typecheck.h>
 #include <sandix/bottom_half.h>
 
 #ifdef CONFIG_SMP

@@ -502,3 +502,8 @@ Thu Feb 18 09:40:21 CST 2016
 - [M] arch/x86/include/asm/bitops.h
 - [M] include/sandix/kernel.h			[D] roundup things
 - [M] arch/x86/entry/entry_32.S
+
+
+Fri Feb 19 12:38:05 CST 2016
+- [M] arch/x86/include/asm/irqflags.h
+- [M] include/sandix/irqflags.h			[D] local_irq_XXX APIs
