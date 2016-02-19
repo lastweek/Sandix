@@ -1,0 +1,65 @@
+config JUMP_LABEL
+       bool "Optimize very unlikely/likely branches"
+       depends on HAVE_ARCH_JUMP_LABEL
+       help
+         This option enables a transparent branch optimization that
+	 makes certain almost-always-true or almost-always-false branch
+	 conditions even cheaper to execute within the kernel.
+
+	 Certain performance-sensitive kernel code, such as trace points,
+	 scheduler functionality, networking code and KVM have such
+	 branches and include support for this optimization technique.
+
+         If it is detected that the compiler has support for "asm goto",
+	 the kernel will compile such branches with just a nop
+	 instruction. When the condition flag is toggled to true, the
+	 nop will be converted to a jump instruction to execute the
+	 conditional block of instructions.
+
+	 This technique lowers overhead and stress on the branch prediction
+	 of the processor and generally makes the kernel faster. The update
+	 of the condition is slower, but those are always very rare.
+
+	 ( On 32-bit x86, the necessary options added to the compiler
+	   flags may increase the size of the kernel slightly. )
+
+config HAVE_EFFICIENT_UNALIGNED_ACCESS
+	bool
+	help
+	  Some architectures are unable to perform unaligned accesses
+	  without the use of get_unaligned/put_unaligned. Others are
+	  unable to perform such accesses efficiently (e.g. trap on
+	  unaligned access and require fixing it up in the exception
+	  handler.)
+
+	  This symbol should be selected by an architecture if it can
+	  perform unaligned accesses efficiently to allow different
+	  code paths to be selected for these cases. Some network
+	  drivers, for example, could opt to not fix up alignment
+	  problems with received packets if doing so would not help
+	  much.
+
+	  See Documentation/unaligned-memory-access.txt for more
+	  information on the topic of unaligned memory accesses.
+
+config ARCH_USE_BUILTIN_BSWAP
+	bool
+	help
+	 Modern versions of GCC (since 4.4) have builtin functions
+	 for handling byte-swapping. Using these, instead of the old
+	 inline assembler that the architecture code provides in the
+	 __arch_bswapXX() macros, allows the compiler to see what's
+	 happening and offers more opportunity for optimisation. In
+	 particular, the compiler will be able to combine the byteswap
+	 with a nearby load or store and use load-and-swap or
+	 store-and-swap instructions if the architecture has them. It
+	 should almost *never* result in code which is worse than the
+	 hand-coded assembler in <asm/swab.h>.  But just in case it
+	 does, the use of the builtins is optional.
+
+	 Any architecture with load-and-swap or store-and-swap
+	 instructions should set this. And it shouldn't hurt to set it
+	 on architectures that don't have such instructions.
+
+config HAVE_ARCH_JUMP_LABEL
+	bool
