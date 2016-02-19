@@ -19,6 +19,8 @@
 #ifndef _ASM_X86_IRQFLAGS_H_
 #define _ASM_X86_IRQFLAGS_H_
 
+#include <asm/processor-flags.h>
+
 static inline unsigned long native_save_flags(void)
 {
 	unsigned long flags;
@@ -114,6 +116,18 @@ static inline unsigned long arch_local_irq_save(void)
 	unsigned long flags = arch_local_save_flags();
 	arch_local_irq_disable();
 	return flags;
+}
+
+static inline int arch_irqs_disabled_flags(unsigned long flags)
+{
+	return !(flags & X86_EFLAGS_IF);
+}
+
+static inline int arch_irqs_disabled(void)
+{
+	unsigned long flags = arch_local_save_flags();
+
+	return arch_irqs_disabled_flags(flags);
 }
 
 #endif /* _ASM_X86_IRQFLAGS_H_ */

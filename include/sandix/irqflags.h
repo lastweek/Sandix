@@ -26,25 +26,19 @@
 #include <asm/irqflags.h>
 #include <sandix/typecheck.h>
 
-static __always_inline void local_irq_enable(void)
-{
-	arch_local_irq_enable();
-}
+#define local_irq_enable()	arch_local_irq_enable()
+#define local_irq_disable()	arch_local_irq_disable()
 
-static inline void local_irq_disable(void)
-{
-	arch_local_irq_disable();
-}
+#define safe_halt()		arch_safe_halt()
+#define halt()			arch_halt()
 
-static inline void safe_halt(void)
-{
-	arch_safe_halt();
-}
+#define irqs_disabled()		arch_irqs_disabled()
 
-static inline void halt(void)
-{
-	arch_halt();
-}
+#define irqs_disabled_flags(flags)			\
+	do {						\
+		typecheck(unsigned long, flags);	\
+		arch_irqs_disabled_flags(flags);	\
+	} while (0)
 
 #define local_irq_save(flags)				\
 	do {						\
