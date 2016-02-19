@@ -505,6 +505,8 @@ Thu Feb 18 09:40:21 CST 2016
 
 
 Fri Feb 19 12:38:05 CST 2016
+- [+] arch/x86/include/asm/thread_info.h
+- [+] include/sandix/thread_info.h		[D] struct thread_info
 - [+] arch/Kconfig
 - [+] include/sandix/percpu.h
 - [+] arch/x86/include/asm/percpu.h		[D] PER_CPU things.. empty
