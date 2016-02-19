@@ -1,6 +1,6 @@
 /*
  *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
- *	
+ *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
@@ -98,8 +98,9 @@ struct cpuinfo_x86 {
 };
 
 /*
- * This is the TSS defined by the hardware.
+ * TSS defined by the hardware
  */
+
 #ifdef CONFIG_X86_32
 struct x86_hw_tss {
 	unsigned short		back_link, __blh;
@@ -146,7 +147,7 @@ struct x86_hw_tss {
 	unsigned short		trace;
 	unsigned short		io_bitmap_base;
 
-} __packed;
+} __packed __cacheline_aligned;
 #else
 struct x86_hw_tss {
 	unsigned int		reserved1;
@@ -189,6 +190,7 @@ struct tss_struct {
 
 /*
  * TODO???
+ * what's this
  */
 struct irq_stack {
 	unsigned long 		stack[THREAD_SIZE/sizeof(unsigned long)];

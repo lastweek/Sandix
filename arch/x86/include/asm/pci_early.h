@@ -27,13 +27,13 @@
  * (arch/x86/pci/early.c)
  */
 
-extern u32 read_pci_config(u8 bus, u8 slot, u8 func, u8 offset);
-extern u8 read_pci_config_byte(u8 bus, u8 slot, u8 func, u8 offset);
-extern u16 read_pci_config_16(u8 bus, u8 slot, u8 func, u8 offset);
-extern void write_pci_config(u8 bus, u8 slot, u8 func, u8 offset, u32 val);
-extern void write_pci_config_byte(u8 bus, u8 slot, u8 func, u8 offset, u8 val);
-extern void write_pci_config_16(u8 bus, u8 slot, u8 func, u8 offset, u16 val);
-extern void early_dump_pci_device(u8 bus, u8 slot, u8 func);
-extern void early_dump_pci_devices(void);
+u32 read_pci_config(u8 bus, u8 slot, u8 func, u8 offset);
+u8 read_pci_config_byte(u8 bus, u8 slot, u8 func, u8 offset);
+u16 read_pci_config_16(u8 bus, u8 slot, u8 func, u8 offset);
+void write_pci_config(u8 bus, u8 slot, u8 func, u8 offset, u32 val);
+void write_pci_config_byte(u8 bus, u8 slot, u8 func, u8 offset, u8 val);
+void write_pci_config_16(u8 bus, u8 slot, u8 func, u8 offset, u16 val);
+void early_dump_pci_device(u8 bus, u8 slot, u8 func);
+void early_dump_pci_devices(void);
 
 #endif /* _ASM_X86_PCI_EARLY_H_ */

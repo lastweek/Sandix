@@ -19,6 +19,9 @@
 #ifndef _ASM_X86_SETUP_H_
 #define _ASM_X86_SETUP_H_
 
+#include <asm/bootparam.h>
+#include <sandix/compiler.h>
+
 extern struct boot_params boot_params;
 
 void __init early_arch_setup(void);
