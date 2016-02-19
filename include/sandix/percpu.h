@@ -21,4 +21,8 @@
 
 #include <asm/percpu.h>
 
+/*TODO*/
+#define DEFINE_PER_CPU(type, name)	type name
+#define DECLARE_PER_CPU(type, name)	extern DEFINE_PER_CPU(type, name)
+
 #endif /* _SANDIX_PERCPU_H_ */

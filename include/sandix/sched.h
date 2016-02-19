@@ -22,9 +22,9 @@
 #include <asm/processor.h>
 
 #include <sandix/mm.h>
-#include <sandix/types.h>
 #include <sandix/list.h>
 #include <sandix/page.h>
+#include <sandix/types.h>
 
 #define TASK_RUNNING		0
 #define TASK_INTERRUPTIBLE	1
@@ -73,13 +73,12 @@ struct thread_info {
 };
 
 #define CURRENT_MASK		0xFFFFE000
+#include <asm/current.h>
 
 union thread_union {
 	struct thread_info thread_info;
 	unsigned int stack[THREAD_SIZE/sizeof(int)];
 };
-
-#include <asm/current.h>
 
 #define task_thread_info(task)	((struct thread_info *)(task)->stack)
 #define task_stack_page(task)	((task)->stack)

@@ -453,7 +453,7 @@ ifeq ($(dot-config),1)
 # ===========================================================================
 # We need .config file. And we must handle it properly. See comments below.
 
-# Read in config
+# read in config
 -include include/config/auto.conf
 
 # Read in dependencies to all Kconfig* files, make sure to
@@ -499,9 +499,13 @@ include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
 	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
 
 else
+
+# read in config? XXX Seems wrong
+-include include/config/auto.conf
+
 # Dummy target needed, since it is used as prerequisite.
 include/config/auto.conf: ;
-endif
+endif # !$(dot-config)
 
 # The all: target is the default when no target is given on the command line.
 # This allow a user to issue only 'make' to build Sandix kernel.
@@ -673,6 +677,7 @@ clean-dirs := $(addprefix __clean__,$(clean-dirs))
 
 PHONY += clean
 clean: $(clean-dirs) archclean vmSandix-clean
+	echo $(CONFIG_X86_32)
 
 # Clean files by descending into sub-directories
 PHONY += $(clean-dirs)
