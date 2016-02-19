@@ -36,6 +36,7 @@ static inline unsigned long native_save_flags(void)
 		: /* no input */
 		: "memory"
 	);
+	return flags;
 }
 
 static inline void native_restore_flags(unsigned long flags)
