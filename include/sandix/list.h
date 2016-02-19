@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@
 #define _SANDIX_LIST_H_
 
 #include <sandix/types.h>
-#include <sandix/kernel.h>
 #include <sandix/const.h>
+#include <sandix/kernel.h>
 #include <sandix/compiler.h>
 
 /*
@@ -37,15 +37,15 @@
 #define LIST_HEAD(name) \
 	struct list_head name = LIST_HEAD_INIT(name)
 
-INLINE void INIT_LIST_HEAD(struct list_head *list)
+static __always_inline void INIT_LIST_HEAD(struct list_head *list)
 {
 	list->next = list;
 	list->prev = list;
 }
 
-INLINE void __list_add(struct list_head *new,
-		       struct list_head *prev,
-		       struct list_head *next)
+static __always_inline void __list_add(struct list_head *new,
+				       struct list_head *prev,
+				       struct list_head *next)
 {
 	prev->next = new;
 	next->prev = new;
@@ -53,7 +53,8 @@ INLINE void __list_add(struct list_head *new,
 	new->prev = prev;
 }
 
-INLINE void __list_del(struct list_head *prev, struct list_head *next)
+static __always_inline void __list_del(struct list_head *prev,
+				       struct list_head *next)
 {
 	prev->next = next;
 	next->prev = prev;
@@ -64,7 +65,8 @@ INLINE void __list_del(struct list_head *prev, struct list_head *next)
  * @new: new entry to be added
  * @head: list head to add it after
  */
-INLINE void list_add(struct list_head *new, struct list_head *head)
+static __always_inline void list_add(struct list_head *new,
+				     struct list_head *head)
 {
 	__list_add(new, head, head->next);
 }
@@ -74,7 +76,8 @@ INLINE void list_add(struct list_head *new, struct list_head *head)
  * @new: new entry to be added
  * @head: list head to add it before
  */
-INLINE void list_add_tail(struct list_head *new, struct list_head *head)
+static __always_inline void list_add_tail(struct list_head *new,
+					  struct list_head *head)
 {
 	__list_add(new, head->prev, head);
 }
@@ -83,7 +86,7 @@ INLINE void list_add_tail(struct list_head *new, struct list_head *head)
  * list_del - delete a entry from list
  * @entry: entry to be deleted
  */
-INLINE void list_del(struct list_head *entry)
+static __always_inline void list_del(struct list_head *entry)
 {
 	__list_del(entry->prev, entry->next);
 }
@@ -92,7 +95,7 @@ INLINE void list_del(struct list_head *entry)
  * list_del_init - deletes entry from list and reinitialized it
  * @entry: the element to delete from the list
  */
-INLINE void list_del_init(struct list_head *entry)
+static __always_inline void list_del_init(struct list_head *entry)
 {
 	__list_del(entry->prev, entry->next);
 	INIT_LIST_HEAD(entry);
@@ -103,7 +106,8 @@ INLINE void list_del_init(struct list_head *entry)
  * @old: the element to be replaced
  * @new: the new element to insert
  */
-INLINE void list_replace(struct list_head *old, struct list_head *new)
+static __always_inline void list_replace(struct list_head *old,
+					 struct list_head *new)
 {
 	old->prev->next = new;
 	old->next->prev = new;
@@ -116,7 +120,8 @@ INLINE void list_replace(struct list_head *old, struct list_head *new)
  * @old: the element to be replaced
  * @new: the new element to insert
  */
-INLINE void list_replace_init(struct list_head *old, struct list_head *new)
+static __always_inline void list_replace_init(struct list_head *old,
+					      struct list_head *new)
 {
 	list_replace(old, new);
 	INIT_LIST_HEAD(old);
@@ -127,7 +132,8 @@ INLINE void list_replace_init(struct list_head *old, struct list_head *new)
  * @list: the entry to move
  * @head: the head that will precede our entry
  */
-INLINE void list_move(struct list_head *list, struct list_head *head)
+static __always_inline void list_move(struct list_head *list,
+				      struct list_head *head)
 {
 	list_del(list);
 	list_add(list, head);
@@ -138,7 +144,8 @@ INLINE void list_move(struct list_head *list, struct list_head *head)
  * @list: the entry to move
  * @head: the head that will follow our entry
  */
-INLINE void list_move_tail(struct list_head *list, struct list_head *head)
+static __always_inline void list_move_tail(struct list_head *list,
+					   struct list_head *head)
 {
 	list_del(list);
 	list_add_tail(list, head);
@@ -149,7 +156,8 @@ INLINE void list_move_tail(struct list_head *list, struct list_head *head)
  * @list: the entry to test
  * @head: the head of the list
  */
-INLINE int list_is_last(const struct list_head *list, const struct list_head *head)
+static __always_inline int list_is_last(const struct list_head *list,
+					const struct list_head *head)
 {
 	return list->next == head;
 }
@@ -158,7 +166,7 @@ INLINE int list_is_last(const struct list_head *list, const struct list_head *he
  * list_empty - test whether a list is empty
  * @head: the list to test
  */
-INLINE int list_empty(const struct list_head *head)
+static __always_inline int list_empty(const struct list_head *head)
 {
 	return head->next == head;
 }
@@ -167,7 +175,7 @@ INLINE int list_empty(const struct list_head *head)
  * list_is_singular - tests whether a list has just one entry.
  * @head: the list to test.
  */
-INLINE int list_is_singular(const struct list_head *head)
+static __always_inline int list_is_singular(const struct list_head *head)
 {
 	return !list_empty(head) && (head->next == head->prev);
 }

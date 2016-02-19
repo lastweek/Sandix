@@ -16,8 +16,8 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _STDARG_H_
-#define _STDARG_H_
+#ifndef _SANDIX_STDARG_H_
+#define _SANDIX_STDARG_H_
 
 #define __STACK_ALIGN		sizeof(long)
 #define __va_rounded_size(TYPE) \
@@ -38,4 +38,4 @@ typedef char *va_list;
 #define va_end(AP)		(AP) = NULL
 #define va_copy(DEST, SRC)	(DEST) = (SRC)
 
-#endif /* _STDARG_H_ */
+#endif /* _SANDIX_STDARG_H_ */

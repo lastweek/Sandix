@@ -16,11 +16,13 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <sandix/compiler.h>
-#include <sandix/linkage.h>
-#include <sandix/kern_levels.h>
+#ifndef _SANDIX_PRINTK_H_
+#define _SANDIX_PRINTK_H_
 
 #include <stdarg.h>
+#include <sandix/linkage.h>
+#include <sandix/compiler.h>
+#include <sandix/kern_levels.h>
 
 extern const char sandix_banner[];
 
@@ -77,3 +79,5 @@ int printk(const char *fmt, ...);
 	printk_once(KERN_NOTICE pr_fmt(fmt), ##__VA_ARGS__)
 #define pr_info_once(fmt, ...)					\
 	printk_once(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
+
+#endif /* _SANDIX_PRINTK_H_ */

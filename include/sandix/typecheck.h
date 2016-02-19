@@ -23,6 +23,7 @@
  * Check at compile time that something is of a particular type.
  * Compiler will give you a warning.
  */
+
 #define typecheck(type, x)		\
 ({					\
 	type __dummy;			\

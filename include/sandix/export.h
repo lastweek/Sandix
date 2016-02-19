@@ -1,7 +1,5 @@
 /*
- *	include/sandix/export.h - Export Kernel Symbols
- *
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *	
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -22,13 +20,12 @@
 #define _SANDIX_EXPORT_H_
 
 /* TODO 
-	Add Module Support First.
-	Then we can talk about export symbols.
+ * Add module support first,
+ * Then we can talk about exporting symbols.
  */
 
 #define __EXPORT_SYMBOL(sym)	extern typeof(sym) sym
 
 #define EXPORT_SYMBOL(sym)	__EXPORT_SYMBOL(sym)
-//#define EXPORT_SYMBOL(sym)
 
 #endif /* _SANDIX_EXPORT_H_ */

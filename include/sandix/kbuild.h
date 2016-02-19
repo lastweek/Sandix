@@ -19,6 +19,10 @@
 #ifndef _SANDIX_KBUILD_H_
 #define _SANDIX_KBUILD_H_
 
+/*
+ * Used to generate assembly offset macros
+ */
+
 #define BLANK()				\
 	asm volatile (			\
 		"\n->"			\
