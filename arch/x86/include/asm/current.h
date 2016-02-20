@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -18,38 +18,6 @@
 
 #ifndef _ASM_X86_CURRENT_H_
 #define _ASM_X86_CURRENT_H_
-
-#ifndef _SANDIX_SCHED_H_
-# error INCLUDE ERROR: Do NOT Include This File Directly.
-#endif
-
-static inline struct thread_info *current_thread_info(void)
-{
-	int d0;
-	struct thread_info *__tip;
-	asm volatile (
-		"movl %2, %%ecx\n\t"
-		"andl %%esp, %%ecx\n\t"
-		"movl %%ecx, %0"
-		: "=r" (__tip), "=c" (d0)
-		: "i" (CURRENT_MASK)
-	);
-	return __tip;
-}
-
-#define current					\
-({						\
-	int d0;					\
-	struct task_struct *__tsp;		\
-	asm volatile (				\
-		"movl %2, %%ecx\n\t"		\
-		"andl %%esp, %%ecx\n\t"		\
-		"movl (%%ecx), %0"		\
-		: "=r" (__tsp), "=c" (d0)	\
-		: "i" (CURRENT_MASK)		\
-	);					\
-	__tsp;					\
-})
 
 
 #endif /* _ASM_X86_CURRENT_H_ */

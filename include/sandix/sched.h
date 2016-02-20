@@ -25,6 +25,7 @@
 #include <sandix/list.h>
 #include <sandix/page.h>
 #include <sandix/types.h>
+#include <sandix/thread_info.h>
 
 #define TASK_RUNNING		0
 #define TASK_INTERRUPTIBLE	1
@@ -63,13 +64,6 @@ struct task_struct {
 	struct thread_struct thread;		/* cpu specific state of this task*/
 	
 	struct mm_struct *mm;			/* memory management struct */
-};
-
-struct thread_info {
-	struct task_struct *task;	/* main task structure */
-	unsigned int flags;		/* low level flags */
-	unsigned int status;		/* thread synchronous flags */
-	unsigned int cpu;		/* current cpu */
 };
 
 #define CURRENT_MASK		0xFFFFE000

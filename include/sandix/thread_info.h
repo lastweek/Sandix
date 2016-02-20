@@ -19,9 +19,17 @@
 #ifndef _SANDIX_THREAD_INFO_
 #define _SANDIX_THREAD_INFO_
 
+/*
+ * Comoon low-level thread information structure helpers
+ */
+
 #include <sandix/types.h>
+#include <sandix/bitops.h>
 #include <sandix/compiler.h>
 
+#include <asm/page.h>
 #include <asm/thread_info.h>
+
+
 
 #endif /* _SANDIX_THREAD_INFO_ */
