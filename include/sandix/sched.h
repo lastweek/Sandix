@@ -61,9 +61,8 @@ struct task_struct {
 	struct list_head children;		/* list of my children */
 	struct list_head sibling;		/* list of my parent's children */
 	
-	struct thread_struct thread;		/* cpu specific state of this task*/
-	
 	struct mm_struct *mm;			/* memory management struct */
+	struct thread_struct thread;		/* cpu specific state of this task*/
 };
 
 #define CURRENT_MASK		0xFFFFE000
@@ -71,7 +70,7 @@ struct task_struct {
 
 union thread_union {
 	struct thread_info thread_info;
-	unsigned int stack[THREAD_SIZE/sizeof(int)];
+	unsigned long stack[THREAD_SIZE/sizeof(long)];
 };
 
 #define task_thread_info(task)	((struct thread_info *)(task)->stack)

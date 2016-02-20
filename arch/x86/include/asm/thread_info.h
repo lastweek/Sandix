@@ -16,6 +16,10 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ * Low-level architecture-dependent thread information structure definition
+ */
+
 #ifndef _ASM_X86_THREAD_INFO_H_
 #define _ASM_X86_THREAD_INFO_H_
 
@@ -41,11 +45,10 @@
 struct task_struct;
 
 /**
- * struct thread_info	-	Low-level thread information
+ * struct thread_info
  * @task: main task structure
  * @flags: low level flags
  * @cpu: current CPU
- * @addr_limit:
  */
 struct thread_info {
 	struct task_struct	*task;
@@ -125,9 +128,9 @@ static __always_inline unsigned long current_stack_pointer(void)
 {
 	unsigned long sp;
 #ifdef CONFIG_X86_32
-	asm ("mov %%esp, %0" : "=g" (sp));
+	asm volatile ("movl %%esp, %0" : "=g" (sp));
 #else
-	asm ("mov %%rsp, %0" : "=g" (sp));
+	asm volatile ("movq %%rsp, %0" : "=g" (sp));
 #endif
 	return sp;
 }

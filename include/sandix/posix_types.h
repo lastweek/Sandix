@@ -23,12 +23,13 @@
 # error "Please do not include this file directly"
 #endif
 
-#include <asm/posix_types.h>	/* Architecture-Dependent Posix Types */
 #include <asm/types.h>		/* For __BITS_PER_LONG */
+#include <asm/posix_types.h>	/* Architecture-Dependent Posix Types */
 
 /*
  * Types maybe architecture-dependent.
  */
+
 #ifndef __kernel_long_t
 typedef long			__kernel_long_t;
 typedef unsigned long		__kernel_ulong_t;
