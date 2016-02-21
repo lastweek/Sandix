@@ -16,14 +16,19 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <sandix/sched.h>
 #include <sandix/types.h>
 #include <sandix/kernel.h>
 #include <sandix/kdebug.h>
 #include <sandix/ptrace.h>
-#include <sandix/compiler.h>
+#include <sandix/thread_info.h>
+
+#include <asm/processor.h>
 
 __visible void do_syscall_32_irqs_on(struct pt_regs *regs)
 {
-	printk("SYSCALL\n");
+	struct thread_info *ti = pt_regs_to_thread_info(regs);
+
+	printk("SYSCALL baby...\n");
 	show_regs(regs);
 }

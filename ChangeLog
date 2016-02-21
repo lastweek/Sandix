@@ -524,3 +524,4 @@ Sun Feb 21 09:34:09 CST 2016
 - [M] arch/x86/kernel/vmSandix.ld.S		[D] handle .data.init_task
 - [M] arch/x86/include/asm/current.h		[D] using esp to obtain task
 - [M] arch/x86/include/asm/thread_info.h
+- [M] arch/x86/include/asm/processor.h		[D] finally, pt_regs, thread_info, task ~~~~

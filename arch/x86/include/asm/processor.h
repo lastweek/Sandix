@@ -263,4 +263,16 @@ struct thread_struct {
 
 #endif /* CONFIG_X86_32 */
 
+#define pt_regs_to_thread_info(regs)					\
+({									\
+	unsigned long top_of_stack =					\
+		(unsigned long)(regs+1) + TOP_OF_KERNEL_STACK_PADDING;	\
+	(struct thread_info *)(top_of_stack - THREAD_SIZE);		\
+})
+
+#define pt_regs_to_task(regs)						\
+({									\
+	pt_regs_to_thread_info(regs)->task;				\
+})
+
 #endif /* _ASM_X86_PROCESSOR_H_ */
