@@ -19,8 +19,6 @@
 /* The first task of Sandix */
 
 #include <sandix/sched.h>
-#include <sandix/export.h>
-#include <sandix/compiler.h>
 
 #define INIT_MM(mm) {						\
 								\
@@ -50,12 +48,12 @@
 }
 
 struct mm_struct   init_mm		= INIT_MM(init_mm);
-
 struct task_struct init_task		= INIT_TASK(init_task);
 
-/* Align init thread to THREAD_SIZE */
+/*
+ * Initial task kernel stack.
+ * The alignment is handled specially by linker script.
+ */
 union thread_union init_thread_union __init_task_data = {
 	INIT_THREAD_INFO(init_task) 
 };
-
-EXPORT_SYMBOL(init_task);

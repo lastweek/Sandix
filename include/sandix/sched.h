@@ -24,6 +24,7 @@
 #include <sandix/page.h>
 #include <sandix/magic.h>
 #include <sandix/types.h>
+#include <sandix/atomic.h>
 #include <sandix/cpumask.h>
 #include <sandix/spinlock.h>
 #include <sandix/compiler.h>

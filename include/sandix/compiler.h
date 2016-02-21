@@ -29,6 +29,7 @@
 #endif
 
 #include <sandix/types.h>
+#include <sandix/cache.h>
 
 #define GCC_VERSION				\
 (						\

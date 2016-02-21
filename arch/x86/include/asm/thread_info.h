@@ -24,7 +24,6 @@
 #define _ASM_X86_THREAD_INFO_H_
 
 #include <asm/page.h>
-#include <sandix/compiler.h>
 
 /*
  * TOP_OF_KERNEL_STACK_PADDING is a number of unused bytes that we reserve at
@@ -65,28 +64,26 @@ struct thread_info {
 #define init_thread_info	(init_thread_union.thread_info)
 #define init_stack		(init_thread_union.stack)
 
-#define __TI_MASK	(~((unsigned long)THREAD_SIZE-1))
-
-static __always_inline struct thread_info *current_thread_info(void)
+static inline struct thread_info *current_thread_info(void)
 {
 	struct thread_info *ti;
 #ifdef CONFIG_X86_32
 	asm volatile (
 		"andl %%esp, %0"
 		: "=r" (ti)
-		: "0" (__TI_MASK)
+		: "0" (~((unsigned long)THREAD_SIZE-1))
 	);
 #else
 	asm volatile (
 		"andq %%rsp, %0"
 		: "=r" (ti)
-		: "0" (__TI_MASK)
+		: "0" (~((unsigned long)THREAD_SIZE-1))
 	);
 #endif
 	return ti;
 }
 
-static __always_inline unsigned long current_stack_pointer(void)
+static inline unsigned long current_stack_pointer(void)
 {
 	unsigned long sp;
 #ifdef CONFIG_X86_32
