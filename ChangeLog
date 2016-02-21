@@ -520,5 +520,7 @@ Sun Feb 21 09:34:09 CST 2016
 - [+] init/init_task.c
 - [+] Diary/02-21-2016				[D] ISCA 1973 paper, accelerator
 - [+] include/asm-generic/current.h
+- [M] include/sandix/compiler.h			[D] new label: __init_task_data
+- [M] arch/x86/kernel/vmSandix.ld.S		[D] handle .data.init_task
 - [M] arch/x86/include/asm/current.h		[D] using esp to obtain task
 - [M] arch/x86/include/asm/thread_info.h
