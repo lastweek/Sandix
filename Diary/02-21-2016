@@ -1,0 +1,28 @@
+#
+# Sun Feb 21 09:32:25 CST 2016
+#
+
+# Keyword: Accelerator
+
+So, I am reading the first ISCA. Some papers are pretty interesting, and are
+related to some fashion things nowadays. Come on, we are talking about 1973.
+Intel released 4004 at 1974.
+
+After reading these old papers, I realized the importance of circuit like
+vaccum, electronic tube, transistor and Integrated Circuits, Large Scale Integration,
+Very LSC. Without the improvements of physical circuits, no modern computer
+systems would exist any more.
+
+1)
+ISCA, 1973, "Implementation aspects of the SYMBOL hardware compiler"
+
+This might be the first hardware accelerator I've ever seen. It is a compiler
+implemented totally in hardware. Interesting.
+
+2)
+ISCA, 1973, "The architecture of CASSM: A cellular system for non-numeric processing"
+
+This paper describes a hardware accelerator system for non-numeric processing.
+The most important things is: it talks about "relational database". And its
+references including the earliest papar about datebase:
+	"A relational model of data for large shared data banks" of Dr. Codd

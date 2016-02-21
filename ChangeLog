@@ -514,3 +514,7 @@ Fri Feb 19 12:38:05 CST 2016
 - [+] include/asm-generic/irqflags.h
 - [M] arch/x86/include/asm/irqflags.h
 - [M] include/sandix/irqflags.h			[D] local_irq_XXX APIs
+
+
+Sun Feb 21 09:34:09 CST 2016
+- [+] Diary/02-21-2016				[D] ISCA 1973 paper, accelerator
