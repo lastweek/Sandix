@@ -179,15 +179,15 @@ struct thread_struct {
 /*
  * TOP_OF_KERNEL_STACK_PADDING is a number of unused bytes that we reserve at
  * the top of the kernel stack. We do it because of a nasty 32-bit corner case.
- * On x86_32, the hardware stack frame is variable-length. Except for vm86 mode,
- * struct pt_regs assumes a maximum-length frame.
- * 
- * In vm86 mode, the hardware frame is much longer still, so add 16 bytes to
- * make room for the real-mode segments.
+ * On x86_32, the hardware stack frame is variable-length. On x86_64, the
+ * hardware has a fixed-length stack frame.
  *
- * If we enter from CPL 0, the top 8 bytes of pt_regs don't actually exist.
- *
- * x86_64 has a fixed-length stack frame.
+ * struct pt_regs assumes a maximum-length frame. Hence, in x86_32, we have to
+ * reserve some bytes to avoid cross-boundary accesses, which may cause page
+ * fault:
+ *  - If we enter from CPL 0, the top 8 bytes of pt_regs don't actually exist.
+ *  - In vm86 mode, the hardware frame is much longer still, so add 16 bytes to
+ *    make room for the real-mode segments.
  */
 #ifdef CONFIG_X86_32
 # ifdef CONFIG_VM86
@@ -218,21 +218,21 @@ struct thread_struct {
 }
 
 /*
- * TOP_OF_KERNEL_STACK_PADDING reserves 8 bytes on top of the ring0 stack.
+ * TOP_OF_KERNEL_STACK_PADDING reserves some bytes on top of the Ring 0 stack.
  * This is necessary to guarantee that the entire "struct pt_regs" is accessible
  * even if the CPU haven't stored the SS/ESP registers on the stack (interrupt
  * gate does not save these registers when switching to the same priv ring).
- * Therefore beware: accessing the ss/esp fields of the "struct pt_regs" is
+ * Therefore beware: accessing the SS/ESP fields of the "struct pt_regs" is
  * possible, but they may contain the completely wrong values.
  *
  * Also, we have to use macro instead of inline function here, to avoid
  * infinite including hell (try include sched.h then you know why).
  */
-#define task_pt_regs(task)						\
+#define task_to_pt_regs(task)						\
 ({									\
-	unsigned long __ptr = (unsigned long)task_stack_page(task);	\
-	__ptr += THREAD_SIZE - TOP_OF_KERNEL_STACK_PADDING;		\
-	(struct pt_regs *)__ptr - 1;					\
+	unsigned long __regs = (unsigned long)task_stack_page(task);	\
+	__regs += THREAD_SIZE - TOP_OF_KERNEL_STACK_PADDING;		\
+	(struct pt_regs *)__regs - 1;					\
 })
 
 #else /* x86_64 */
@@ -256,7 +256,7 @@ struct thread_struct {
 	.sp0 = TOP_OF_INIT_STACK,					\
 }
 
-#define task_pt_regs(task)						\
+#define task_to_pt_regs(task)						\
 ({									\
 	((struct pt_regs *)(task)->thread.sp0 - 1);			\
 })
