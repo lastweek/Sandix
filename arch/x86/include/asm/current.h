@@ -19,9 +19,10 @@
 #ifndef _ASM_X86_CURRENT_H_
 #define _ASM_X86_CURRENT_H_
 
-#ifndef _SANDIX_SCHED_H_
-# error "Please do not include this file directly"
-#endif
+#include <sandix/compiler.h>
+#include <sandix/thread_info.h>
+
+struct task_struct;
 
 static __always_inline struct task_struct *get_current(void)
 {

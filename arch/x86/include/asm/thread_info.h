@@ -23,9 +23,8 @@
 #ifndef _ASM_X86_THREAD_INFO_H_
 #define _ASM_X86_THREAD_INFO_H_
 
-#ifndef _SANDIX_THREAD_INFO_
-# error "Please do not include this file directly"
-#endif
+#include <asm/page.h>
+#include <sandix/compiler.h>
 
 /*
  * TOP_OF_KERNEL_STACK_PADDING is a number of unused bytes that we reserve at
@@ -56,12 +55,15 @@ struct thread_info {
 	unsigned long		cpu;
 };
 
-#define INIT_THREAD_INFO(task)		\
-{					\
-	.task		= &task,	\
-	.flags		= 0,		\
-	.cpu		= 0,		\
+#define INIT_THREAD_INFO(tsk)	\
+{				\
+	.task		= &tsk,	\
+	.flags		= 0,	\
+	.cpu		= 0,	\
 }
+
+#define init_thread_info	(init_thread_union.thread_info)
+#define init_stack		(init_thread_union.stack)
 
 #define __TI_MASK	(~((unsigned long)THREAD_SIZE-1))
 

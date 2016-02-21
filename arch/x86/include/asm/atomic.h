@@ -23,8 +23,9 @@
 # error "Please do not include this file directly"
 #endif
 
-#include <sandix/compiler.h>
 #include <sandix/types.h>
+#include <sandix/compiler.h>
+
 #include <asm/asm.h>
 #include <asm/cmpxchg.h>
 

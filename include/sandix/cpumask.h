@@ -1,6 +1,6 @@
 /*
  *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
- *
+ *	
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
@@ -16,13 +16,13 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifndef _SANDIX_CPUMASK_H_
+#define _SANDIX_CPUMASK_H_
 
-#ifndef _SANDIX_MAGIC_H_
-#define _SANDIX_MAGIC_H_
+#ifndef CONFIG_NR_CPUS
+#define CONFIG_NR_CPUS	(1)
+#endif
 
-#define TTY_STRUCT_MAGIC		0x3131
-#define TTY_CONSOLE_DATA		0x3101
+#define NR_CPUS			CONFIG_NR_CPUS
 
-#define STACK_END_MAGIC			0x57AC6E9D
-
-#endif /* _SANDIX_MAGIC_H_ */
+#endif /* _SANDIX_CPUMASK_H_ */

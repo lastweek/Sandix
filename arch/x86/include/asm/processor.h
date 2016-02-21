@@ -233,6 +233,28 @@ struct thread_struct {
 	unsigned int		io_bitmap_max;
 };
 
+#define TOP_OF_INIT_STACK \
+	((unsigned long)&init_stack + sizeof(init_stack) - TOP_OF_KERNEL_STACK_PADDING)
+
+#ifdef CONFIG_X86_32
+
+/* User space process size: 3GB (default) */
+#define TASK_SIZE		PAGE_OFFSET
+#define TASK_SIZE_MAX		TASK_SIZE
+#define STACK_TOP		TASK_SIZE
+#define STACK_TOP_MAX		STACK_TOP
+
+#define INIT_THREAD {				\
+	.sp0		= TOP_OF_INIT_STACK,	\
+	.sysenter_cs	= __KERNEL_CS,		\
+	.io_bitmap_ptr	= NULL,			\
+}
+
+#else
+
+
+#endif /* CONFIG_X86_32 */
+
 static __always_inline void rep_nop(void)
 {
 	asm volatile ("rep; nop" ::: "memory");
