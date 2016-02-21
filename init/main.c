@@ -25,6 +25,7 @@
 #include <asm/traps.h>
 #include <asm/setup.h>
 #include <asm/descriptor.h>
+#include <asm/processor.h>
 
 asmlinkage void __init start_kernel(void)
 {

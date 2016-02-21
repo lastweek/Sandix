@@ -30,6 +30,7 @@
 #endif
 
 #include <asm/processor.h>
+
 #include <sandix/types.h>
 #include <sandix/compiler.h>
 

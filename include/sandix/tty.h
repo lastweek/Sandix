@@ -48,6 +48,7 @@
 #include <sandix/mutex.h>
 #include <sandix/termios.h>
 #include <sandix/compiler.h>
+#include <sandix/spinlock.h>
 #include <sandix/tty_ldisc.h>
 #include <sandix/tty_driver.h>
 

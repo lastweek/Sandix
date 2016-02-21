@@ -25,21 +25,6 @@
 
 #include <asm/page.h>
 
-/*
- * TOP_OF_KERNEL_STACK_PADDING is a number of unused bytes that we reserve at
- * the top of the kernel stack. We do it because of a nasty 32-bit corner case.
- * On x86_32, the hardware stack frame is variable-length. Except for vm86 mode,
- * struct pt_regs assumes a maximum-length frame. If we enter from CPL 0, the
- * top 8 bytes of pt_regs don't actually exist.
- *
- * x86_64 has a fixed-length stack frame.
- */
-#ifdef CONFIG_X86_32
-# define TOP_OF_KERNEL_STACK_PADDING	8
-#else
-# define TOP_OF_KERNEL_STACK_PADDING	0
-#endif
-
 struct task_struct;
 
 /**
