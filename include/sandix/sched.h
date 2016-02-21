@@ -65,7 +65,6 @@ struct task_struct {
 	struct thread_struct thread;		/* cpu specific state of this task*/
 };
 
-#define CURRENT_MASK		0xFFFFE000
 #include <asm/current.h>
 
 union thread_union {

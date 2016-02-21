@@ -17,7 +17,7 @@
  */
 
 /*
- * Low-level architecture-dependent thread information structure definition
+ * Low-level architecture-dependent thread information
  */
 
 #ifndef _ASM_X86_THREAD_INFO_H_
@@ -61,6 +61,44 @@ struct thread_info {
 	.task		= &task,	\
 	.flags		= 0,		\
 	.cpu		= 0,		\
+}
+
+#define __TI_MASK	(~((unsigned long)THREAD_SIZE-1))
+
+static __always_inline struct thread_info *current_thread_info(void)
+{
+	struct thread_info *ti;
+#ifdef CONFIG_X86_32
+	asm volatile (
+		"andl %%esp, %0"
+		: "=r" (ti)
+		: "0" (__TI_MASK)
+	);
+#else
+	asm volatile (
+		"andq %%rsp, %0"
+		: "=r" (ti)
+		: "0" (__TI_MASK)
+	);
+#endif
+	return ti;
+}
+
+static __always_inline unsigned long current_stack_pointer(void)
+{
+	unsigned long sp;
+#ifdef CONFIG_X86_32
+	asm volatile (
+		"movl %%esp, %0"
+		: "=g" (sp)
+	);
+#else
+	asm volatile (
+		"movq %%rsp, %0"
+		: "=g" (sp)
+	);
+#endif
+	return sp;
 }
 
 /*
@@ -113,26 +151,5 @@ struct thread_info {
 #define _TIF_SYSCALL_TRACEPOINT	(1 << TIF_SYSCALL_TRACEPOINT)
 #define _TIF_ADDR32		(1 << TIF_ADDR32)
 #define _TIF_X32		(1 << TIF_X32)
-
-/*
- * Thread information structure helpers
- */
-
-/*TODO*/
-static __always_inline struct thread_info *current_thread_info(void)
-{
-	return NULL;
-}
-
-static __always_inline unsigned long current_stack_pointer(void)
-{
-	unsigned long sp;
-#ifdef CONFIG_X86_32
-	asm volatile ("movl %%esp, %0" : "=g" (sp));
-#else
-	asm volatile ("movq %%rsp, %0" : "=g" (sp));
-#endif
-	return sp;
-}
 
 #endif /* _ASM_X86_THREAD_INFO_H_ */

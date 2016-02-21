@@ -57,7 +57,7 @@ static inline void set_thread_flag(int flag)
 
 static inline void clear_thread_flag(int flag)
 {
-	clear_thread_flag(current_thread_info(), flag);
+	clear_ti_thread_flag(current_thread_info(), flag);
 }
 
 static inline int test_thread_flag(int flag)

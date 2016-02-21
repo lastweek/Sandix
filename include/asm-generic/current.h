@@ -16,10 +16,12 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _ASM_GENERIC_BITOPS_H_
-#define _ASM_GENERIC_BITOPS_H_
+#ifndef _ASM_GENERIC_CURRENT_H_
+#define _ASM_GENERIC_CURRENT_H_
 
-#include <asm-generic/bitops/ffs.h>
-#include <asm-generic/bitops/ffz.h>
+#include <sandix/thread_info.h>
 
-#endif /* _ASM_GENERIC_BITOPS_H_ */
+#define get_current()	(current_thread_info()->task)
+#define current		get_current()
+
+#endif /* _ASM_GENERIC_CURRENT_H_ */

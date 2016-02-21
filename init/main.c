@@ -45,6 +45,8 @@ asmlinkage void __init start_kernel(void)
 
 	trap_init();
 
+	current_thread_info();
+
 	asm (
 		"movl 0xb0001000, %eax\n\t"	/* #PF */
 		"movl $0x1, %eax\n\t"
