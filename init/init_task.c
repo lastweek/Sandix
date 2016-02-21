@@ -16,9 +16,15 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* The first task */
+/* The first task of Sandix */
 
 #include <sandix/sched.h>
+#include <sandix/export.h>
+#include <sandix/compiler.h>
+
+#define INIT_MM(mm) {						\
+								\
+}
 
 #define INIT_TASK(task)						\
 {								\
@@ -43,6 +49,13 @@
 	.thread		= INIT_THREAD,				\
 }
 
-struct mm_struct   init_mm		= {};
+struct mm_struct   init_mm		= INIT_MM(init_mm);
+
 struct task_struct init_task		= INIT_TASK(init_task);
-union thread_union init_thread_union	= { INIT_THREAD_INFO(init_task) };
+
+/* Align init thread to THREAD_SIZE */
+union thread_union init_thread_union __init_task_data = {
+	INIT_THREAD_INFO(init_task) 
+};
+
+EXPORT_SYMBOL(init_task);

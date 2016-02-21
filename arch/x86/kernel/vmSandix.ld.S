@@ -32,7 +32,7 @@ SECTIONS
 {
 	. = LOAD_OFFSET + LOAD_PHYS_OFFSET;
 	phys_startup_32 = startup_32 - LOAD_OFFSET;
-	
+
 	__kstart = .;
 
 	.text : {
@@ -40,7 +40,7 @@ SECTIONS
 		*(.text*)
 		__text_end = .;
 	}
-	
+
 	. = ALIGN(PAGE_SIZE);
 	.rodata : {
 		__rodata_start = .;
@@ -51,19 +51,27 @@ SECTIONS
 	. = ALIGN(PAGE_SIZE);
 	.data : {
 		__data_start = .;
-		*(.data)
-		
+
+		/*
+		 * the init task, which needs to be aligned
+		 * with THREAD_SIZE (8KB in 32bit, 32KB in 64bit)
+		 */
+		. = ALIGN(THREAD_SIZE);
+		*(.data..init_task)
+
 		/* __read_mostly */
 		. = ALIGN(L1_CACHE_BYTES);
 		*(.data..read_mostly)
-		
+
+		*(.data)
+
 		/* WARN_ONCE etc.*/
 		. = ALIGN(L1_CACHE_BYTES);
 		*(.data..unlikely)
-		
+
 		__data_end = .;
 	}
-	
+
 	. = ALIGN(PAGE_SIZE);
 	.init : {
 		__init_start = .;
@@ -93,11 +101,11 @@ SECTIONS
 	}
 
 	__kend = .;
-	
+
 	/DISCARD/ : { *(.note*) }
 	/DISCARD/ : { *(.eh_frame) }
 	/DISCARD/ : { *(.comment) }
-	
+
 	/*
 	 * Because .brk section is used for page tables during
 	 * boot, which means we can have 16 page tables at most.
@@ -105,10 +113,9 @@ SECTIONS
 	 * Therefore, assert if kernel virtual address __kend
 	 * exceed 64M upper limit, then we can change .brk size
 	 */
-	
+
 	/* If exp is zero, then exit the linker and print message. */
 	. = ASSERT((__kend - __kstart <= 64*1024*1024),
 		"Kernel image bigger than 64M. Please changing .brk size,
 		also check arch/x86/kernel/head.S");
-
 }

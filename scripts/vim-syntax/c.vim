@@ -7,8 +7,9 @@
 "
 "	Actually, we only concern about the colors, not the syntax groups.
 "	Hence the additional colorful words should not mess up the code. In my
-"	opinion, the principle of color choosing is: Reducing Cross-Color Code!
+"	opinion, the principle of color choosing is: Reduce Cross-Color Code!
 "	Of course, feel free to choose your own favorite color schemes.
+"
 
 syn keyword	cInclude	likely
 syn keyword	cInclude	unlikely
@@ -28,6 +29,8 @@ syn keyword	cLabel		__init
 syn keyword	cLabel		__initdata
 syn keyword	cLabel		__read_mostly
 syn keyword	cLabel		__cacheline_aligned
+syn keyword	cLabel		__init_task_data
+syn keyword	cLabel		__lockfunc
 
 syn keyword	cType		__u8	__s8
 syn keyword	cType		__u16	__s16
@@ -41,6 +44,8 @@ syn keyword	cType		__be16	__le16
 syn keyword	cType		__be32	__le32
 syn keyword	cType		__be64	__le64
 syn keyword	cType		atomic_t
+syn keyword	cType		cpumask_t
+syn keyword	cType		spinlock_t
 
 syn keyword	cLabel		asmlinkage
 syn keyword	cLabel		dotraplinkage

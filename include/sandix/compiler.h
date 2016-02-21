@@ -103,14 +103,6 @@ extern void __chk_io_ptr(const volatile void __iomem *);
 	 sizeof(t) == sizeof(long))
 
 /*
- * Many architecture use 64 bytes cache line.
- * Keep data cache line size align will improve program performance.
- * Also, this size is used to align __read_mostly section in linker.
- * See kernel/vmSandix.ld.S for more details.
- */
-#define L1_CACHE_LINE_SIZE	64
-
-/*
  * Sections - Collaborate with Linker Script
  *
  * When changing/adding section names, please, remember modify the
@@ -133,6 +125,7 @@ extern void __chk_io_ptr(const volatile void __iomem *);
 #define __init			__section(.init.text)
 #define __initdata		__section(.init.data)
 #define __read_mostly		__section(.data..read_mostly)
+#define __init_task_data	__section(.data..init_task)
 #define __lockfunc		__section(.spinlock.text)
 
 /*
