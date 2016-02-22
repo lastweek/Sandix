@@ -108,10 +108,12 @@
 #define TLS_SIZE			(GDT_ENTRY_TLS_ENTRIES << 3)
 
 /*
- * Segment Selector (16 bits) Layout:
- * Bit 1-0	Ring Privilege Level 
- * Bit 2	Table Indicator (LDT/GDT)
- * Bit 15-3	Index
+ * Segment selectors (16 bits) layout:
+ * Bit 1-0	Ring privilege level
+ * Bit 2	Table indicator (LDT or GDT)
+ * Bit 15-3	Index into table
+ *
+ * Segment selectors including: CS, DS, SS, ES, FS, GS.
  */
 
 #define __KERNEL_CS			(GDT_ENTRY_KERNEL_CS << 3)
@@ -137,11 +139,5 @@
 
 /* Bitmask of exception vectors which push an error code on the stack */
 #define EXCEPTION_ERRCODE_MASK  	0x00027d00
-
-/*
- * Save a segment register away:
- */
-#define savesegment(seg, value)				\
-	asm("mov %%" #seg ",%0":"=r" (value) : : "memory")
 
 #endif /* _ASM_X86_SEGMENT_H_ */

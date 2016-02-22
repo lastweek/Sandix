@@ -16,7 +16,7 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <asm/segment.h>
+#include <asm/descriptor.h>
 
 #include <sandix/types.h>
 #include <sandix/kernel.h>

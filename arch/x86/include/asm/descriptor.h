@@ -341,4 +341,13 @@ static inline void alloc_intr_gate(unsigned int n, void *addr)
 	set_intr_gate(n, addr);
 }
 
+/* Save a segment register away */
+#define savesegment(seg, value)		\
+	asm (				\
+		"mov %%" #seg ",%0"	\
+		:"=r" (value)		\
+		:			\
+		: "memory"		\
+	)
+
 #endif /* _ASM_X86_DESCRIPTOR_H_*/

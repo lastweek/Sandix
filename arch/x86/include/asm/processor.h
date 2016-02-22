@@ -52,7 +52,7 @@ static inline void cpu_relax(void)
 #define X86_VENDOR_UNKNOWN	0xff
 
 /*
- * TSS defined by the hardware
+ * Task-State Segment (TSS)
  */
 
 #ifdef CONFIG_X86_32

@@ -677,7 +677,6 @@ clean-dirs := $(addprefix __clean__,$(clean-dirs))
 
 PHONY += clean
 clean: $(clean-dirs) archclean vmSandix-clean
-	echo $(CONFIG_X86_32)
 
 # Clean files by descending into sub-directories
 PHONY += $(clean-dirs)
