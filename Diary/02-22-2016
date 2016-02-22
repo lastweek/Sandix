@@ -1,0 +1,8 @@
+#
+# Mon Feb 22 11:29:18 CST 2016
+#
+
+# Keyword: task switch
+
+Today I am working on task switch things. In x86, we depend on TSS segment.
+I need to understand SDM first.
