@@ -1,6 +1,6 @@
 /*
  *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
- *	
+ *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
@@ -20,5 +20,12 @@
 #define _SANDIX_IO_H_
 
 #include <asm/io.h>
+
+#include <sandix/types.h>
+#include <sandix/compiler.h>
+
+struct resource {
+
+};
 
 #endif /* _SANDIX_IO_H_ */
