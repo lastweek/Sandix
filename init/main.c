@@ -16,28 +16,40 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <sandix/smp.h>
 #include <sandix/tty.h>
+#include <sandix/cpu.h>
 #include <sandix/sched.h>
 #include <sandix/types.h>
 #include <sandix/kernel.h>
 #include <sandix/printk.h>
+#include <sandix/irqflags.h>
 
 #include <asm/traps.h>
 #include <asm/setup.h>
 #include <asm/descriptor.h>
 #include <asm/processor.h>
 
+static void __init boot_cpu_init(void)
+{
+	int cpu = smp_processor_id();
+}
+
 asmlinkage void __init start_kernel(void)
 {
+	local_irq_disable();
+
 	/*
-	 * We need printk to print some info. So, before arch_setup or boot_mem
-	 * are built, let us just init tty first. Anyway, we need to rewrite some
-	 * code within tty after malloc/free done.
+	 * We need printk. So, before arch_setup or boot_mem
+	 * are initialized, let us just init tty first.
 	 */
 	early_arch_setup();
 	tty_init();
-	tty_print_drivers();
-	printk("\033[32m%s\033[0m\n\r", sandix_banner);
+	printk("%s", sandix_banner);
+
+	set_task_stack_end_magic(&init_task);
+
+	boot_cpu_init();
 
 	arch_setup();
 	trap_init();

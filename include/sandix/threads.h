@@ -16,15 +16,13 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <sandix/magic.h>
-#include <sandix/sched.h>
-#include <sandix/compiler.h>
+#ifndef _SANDIX_THREADS_H_
+#define _SANDIX_THREADS_H_
 
-#include <asm/switch_to.h>
+#ifndef CONFIG_NR_CPUS
+#define CONFIG_NR_CPUS	1
+#endif
 
+#define NR_CPUS CONFIG_NR_CPUS
 
-void set_task_stack_end_magic(struct task_struct *task)
-{
-	unsigned long *ptr = end_of_stack(task);
-	*ptr = STACK_END_MAGIC;
-}
+#endif /* _SANDIX_THREADS_H_ */

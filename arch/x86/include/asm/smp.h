@@ -16,15 +16,10 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <sandix/magic.h>
-#include <sandix/sched.h>
-#include <sandix/compiler.h>
+#ifndef _ASM_X86_SMP_H_
+#define _ASM_X86_SMP_H_
 
-#include <asm/switch_to.h>
+/*TODO*/
+#define arch_smp_processor_id()	0
 
-
-void set_task_stack_end_magic(struct task_struct *task)
-{
-	unsigned long *ptr = end_of_stack(task);
-	*ptr = STACK_END_MAGIC;
-}
+#endif /* _ASM_X86_SMP_H_ */

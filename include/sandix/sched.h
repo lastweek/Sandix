@@ -25,6 +25,7 @@
 #include <sandix/magic.h>
 #include <sandix/types.h>
 #include <sandix/atomic.h>
+#include <sandix/threads.h>
 #include <sandix/cpumask.h>
 #include <sandix/spinlock.h>
 #include <sandix/compiler.h>
@@ -401,6 +402,8 @@ static inline long rlimit_to_nice(long prio)
 {
 	return (MAX_NICE - prio + 1);
 }
+
+void set_task_stack_end_magic(struct task_struct *task);
 
 void __init trap_init(void);
 
