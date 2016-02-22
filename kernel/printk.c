@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -16,10 +16,10 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <sandix/kernel.h>
-#include <sandix/kern_levels.h>
-#include <sandix/linkage.h>
 #include <sandix/tty.h>
+#include <sandix/kernel.h>
+#include <sandix/linkage.h>
+#include <sandix/kern_levels.h>
 
 static unsigned char KMBUF[1024];
 
