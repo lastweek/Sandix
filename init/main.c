@@ -33,6 +33,10 @@
 static void __init boot_cpu_init(void)
 {
 	int cpu = smp_processor_id();
+	set_cpu_possible(cpu, true);
+	set_cpu_present(cpu, true);
+	set_cpu_online(cpu, true);
+	set_cpu_active(cpu, true);
 }
 
 asmlinkage void __init start_kernel(void)

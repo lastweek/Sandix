@@ -19,22 +19,56 @@
 #ifndef _SANDIX_CPUMASK_H_
 #define _SANDIX_CPUMASK_H_
 
+#include <sandix/bug.h>
 #include <sandix/types.h>
+#include <sandix/bitops.h>
 #include <sandix/threads.h>
 #include <sandix/bitmaps.h>
+
+#if NR_CPUS == 1
+# define nr_cpu_ids 1
+#else
+  extern int nr_cpu_ids; /* kernel/smp.c */
+#endif
 
 typedef struct cpumask {
 	DEFINE_BITMAP(bits, NR_CPUS);
 } cpumask_t;
 
-#define cpumask_bits(maskp)	((maskp)->bits)
+#define bits_to_cpumask(bits)	(struct cpumask *)(bits)
+#define cpumask_to_bits(maskp)	((maskp)->bits)
 
-#if NR_CPUS == 1
-#define nr_cpu_ids	1
-#else
-extern int nr_cpu_ids;
-#endif
+extern const struct cpumask *const cpu_possible_mask;
+extern const struct cpumask *const cpu_present_mask;
+extern const struct cpumask *const cpu_online_mask;
+extern const struct cpumask *const cpu_active_mask;
 
-#define nr_cpumask_bits	nr_cpu_ids
+/* verify cpu argument to cpumask_* operators */
+static inline unsigned int cpumask_check(unsigned int cpu)
+{
+	WARN_ON(cpu >= nr_cpu_ids);
+	return cpu;
+}
+
+static inline void cpumask_set_cpu(unsigned int cpu, struct cpumask *maskp)
+{
+	set_bit(cpumask_check(cpu), cpumask_to_bits(maskp));
+}
+
+static inline void cpumask_clear_cpu(unsigned int cpu, struct cpumask *maskp)
+{
+	clear_bit(cpumask_check(cpu), cpumask_to_bits(maskp));
+}
+
+static inline int cpumask_test_cpu(unsigned int cpu, const struct cpumask *maskp)
+{
+	return test_bit(cpumask_check(cpu), cpumask_to_bits(maskp));
+}
+
+/* Wrappers for boot code to modify normally-constant masks */
+void set_cpu_possible(unsigned int cpu, bool possible);
+void set_cpu_present(unsigned int cpu, bool present);
+void set_cpu_online(unsigned int cpu, bool online);
+void set_cpu_active(unsigned int cpu, bool active);
 
 #endif /* _SANDIX_CPUMASK_H_ */
