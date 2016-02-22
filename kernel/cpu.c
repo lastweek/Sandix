@@ -27,6 +27,7 @@ static DEFINE_BITMAP(cpu_present_bits, NR_CPUS) __read_mostly;
 static DEFINE_BITMAP(cpu_online_bits, NR_CPUS) __read_mostly;
 static DEFINE_BITMAP(cpu_active_bits, NR_CPUS) __read_mostly;
 
+/* http://c-faq.com/decl/spiral.anderson.html */
 const struct cpumask *const cpu_possible_mask = bits_to_cpumask(cpu_possible_bits);
 const struct cpumask *const cpu_present_mask = bits_to_cpumask(cpu_present_bits);
 const struct cpumask *const cpu_online_mask = bits_to_cpumask(cpu_online_bits);
@@ -37,6 +38,7 @@ EXPORT_SYMBOL(cpu_present_mask);
 EXPORT_SYMBOL(cpu_online_mask);
 EXPORT_SYMBOL(cpu_active_mask);
 
+/* Wrappers to manipulate const cpumask */
 void set_cpu_possible(unsigned int cpu, bool possible)
 {
 	if (possible)

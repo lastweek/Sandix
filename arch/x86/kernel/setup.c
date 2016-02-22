@@ -31,6 +31,7 @@
 #include <asm/descriptor.h>
 
 unsigned long max_pfn_mapped;
+EXPORT_SYMBOL(max_pfn_mapped);
 
 unsigned long brk_start = (unsigned long)__brk_start;
 unsigned long brk_end = (unsigned long)__brk_start;
@@ -66,10 +67,6 @@ void __init early_arch_setup(void)
 	screen_info = boot_params.screen_info;
 }
 
-/*
- * The real arch setup...
- * x86 Architecture-specific boot-time initializations
- */
 void __init arch_setup(void)
 {
 	setup_memory_map();

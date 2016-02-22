@@ -49,12 +49,10 @@ asmlinkage void __init start_kernel(void)
 	 */
 	early_arch_setup();
 	tty_init();
-	printk("%s", sandix_banner);
+	pr_notice("%s", sandix_banner);
 
 	set_task_stack_end_magic(&init_task);
-
 	boot_cpu_init();
-
 	arch_setup();
 	trap_init();
 

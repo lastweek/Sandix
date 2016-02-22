@@ -26,9 +26,9 @@
 #include <sandix/bitmaps.h>
 
 #if NR_CPUS == 1
-# define nr_cpu_ids 1
+#define nr_cpu_ids 1
 #else
-  extern int nr_cpu_ids; /* kernel/smp.c */
+extern int nr_cpu_ids; /* kernel/smp.c */
 #endif
 
 typedef struct cpumask {
@@ -65,7 +65,7 @@ static inline int cpumask_test_cpu(unsigned int cpu, const struct cpumask *maskp
 	return test_bit(cpumask_check(cpu), cpumask_to_bits(maskp));
 }
 
-/* Wrappers for boot code to modify normally-constant masks */
+/* Wrappers for boot code to modify constant masks */
 void set_cpu_possible(unsigned int cpu, bool possible);
 void set_cpu_present(unsigned int cpu, bool present);
 void set_cpu_online(unsigned int cpu, bool online);
