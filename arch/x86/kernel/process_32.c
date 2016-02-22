@@ -18,9 +18,11 @@
 
 #include <asm/descriptor.h>
 
+#include <sandix/sched.h>
 #include <sandix/types.h>
 #include <sandix/kernel.h>
 #include <sandix/ptrace.h>
+#include <sandix/compiler.h>
 
 void __show_regs(struct pt_regs *regs, int all)
 {
@@ -49,4 +51,9 @@ void __show_regs(struct pt_regs *regs, int all)
 
 	if (!all)
 		return;
+}
+
+__visible struct task_struct *__switch_to(struct task_struct *prev,
+					  struct task_struct *next)
+{
 }

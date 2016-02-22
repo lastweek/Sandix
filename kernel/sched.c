@@ -16,26 +16,7 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _ASM_X86_SWITCH_TO_H_
-#define _ASM_X86_SWITCH_TO_H_
-
+#include <sandix/sched.h>
 #include <sandix/compiler.h>
 
-/* Strange C forward declaration */
-struct task_struct;
-
-__visible struct task_struct *__switch_to(struct task_struct *prev,
-					  struct task_struct *next);
-
-#ifdef CONFIG_X86_32
-#define switch_to(prev, next, last)		\
-	do {					\
-	} while (0)
-
-#else
-#define switch_to(prev, next, last)		\
-	do {					\
-	} while (0)
-#endif
-
-#endif /* _ASM_X86_SWITCH_TO_H_ */
+#include <asm/switch_to.h>
