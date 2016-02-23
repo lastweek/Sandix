@@ -28,6 +28,7 @@
 #include <asm/asm.h>
 #include <asm/page.h>
 #include <asm/segment.h>
+#include <asm/cpufeature.h>
 #include <asm/descriptor.h>
 #include <asm/thread_info.h>
 #include <asm/processor-flags.h>
@@ -57,7 +58,7 @@ struct cpuinfo_x86 {
 	unsigned int		extended_cpuid_level;
 	/* Maximum supported CPUID level, -1=no CPUID: */
 	int			cpuid_level;
-	unsigned int		x86_capability[14+1];
+	unsigned int		x86_capability[NCAPINTS+NBUGINTS];
 	char			x86_vendor_id[16];
 	char			x86_model_id[64];
 	/* in KB - valid for CPUS which support this call: */
