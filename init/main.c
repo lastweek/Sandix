@@ -33,6 +33,7 @@
 static void __init boot_cpu_init(void)
 {
 	int cpu = smp_processor_id();
+
 	set_cpu_possible(cpu, true);
 	set_cpu_present(cpu, true);
 	set_cpu_online(cpu, true);
@@ -52,11 +53,12 @@ asmlinkage void __init start_kernel(void)
 	pr_notice("%s", sandix_banner);
 
 	set_task_stack_end_magic(&init_task);
-	boot_cpu_init();
-	arch_setup();
-	trap_init();
 
-	current_thread_info();
+	boot_cpu_init();
+
+	arch_setup();
+
+	trap_init();
 
 	asm (
 		"movl 0xb0001000, %eax\n\t"	/* #PF */

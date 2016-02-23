@@ -16,6 +16,7 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <sandix/io.h>
 #include <sandix/types.h>
 #include <sandix/export.h>
 #include <sandix/bootmem.h>
@@ -27,21 +28,76 @@
 #include <asm/segment.h>
 #include <asm/sections.h>
 #include <asm/bootparam.h>
+#include <asm/processor.h>
 #include <asm/pci_early.h>
 #include <asm/descriptor.h>
 
+unsigned long max_low_pfn_mapped;
 unsigned long max_pfn_mapped;
-EXPORT_SYMBOL(max_pfn_mapped);
 
 unsigned long brk_start = (unsigned long)__brk_start;
 unsigned long brk_end = (unsigned long)__brk_start;
 
+/* machine parameters obtained from BIOS */
 struct boot_params boot_params;
 EXPORT_SYMBOL(boot_params);
 
-/* Used by low-level console drivers */
+/* used by low-level console drivers */
 struct screen_info screen_info;
 EXPORT_SYMBOL(screen_info);
+
+/* kernel image... */
+static struct resource data_resource = {
+	.name	= "Kernel data",
+	.start	= 0,
+	.end	= 0,
+	.flags	= IORESOURCE_BUSY | IORESOURCE_MEM
+};
+static struct resource code_resource = {
+	.name	= "Kernel code",
+	.start	= 0,
+	.end	= 0,
+	.flags	= IORESOURCE_BUSY | IORESOURCE_MEM
+};
+static struct resource bss_resource = {
+	.name	= "Kernel bss",
+	.start	= 0,
+	.end	= 0,
+	.flags	= IORESOURCE_BUSY | IORESOURCE_MEM
+};
+
+/* x86 io port... */
+static struct resource standard_io_resources[] = {
+	{
+		.name	= "dma1",
+		.start	= 0x00,
+		.end	= 0x1f,
+		.flags	= IORESOUCE_BUSY | IORESOUCE_IO
+	} ,
+	{
+		.name	= "pci1",
+		.start	=
+		.end	=
+		.flags	=
+	} ,
+	{
+		.name	= "pci1",
+		.start	=
+		.end	=
+		.flags	=
+	} ,
+	{
+		.name	= "pci1",
+		.start	=
+		.end	=
+		.flags	=
+	} ,
+};
+
+struct cpuinfo_x86 boot_cpu_data __read_mostly = {
+	.vendor = X86_VENDOR_INTEL,
+	.wp_works_ok = -1
+};
 
 struct desc_struct gdt_table[GDT_ENTRIES] __aligned(8) =
 {
@@ -61,7 +117,7 @@ struct desc_struct gdt_table[GDT_ENTRIES] __aligned(8) =
 
 struct desc_struct idt_table[IDT_ENTRIES] __aligned(8);
 
-/* Prepare the screen, so we chould use printk()... */
+/* prepare the screen, so we chould use printk() */
 void __init early_arch_setup(void)
 {
 	screen_info = boot_params.screen_info;
