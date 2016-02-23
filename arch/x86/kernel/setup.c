@@ -47,9 +47,6 @@ EXPORT_SYMBOL(boot_params);
 struct screen_info screen_info;
 EXPORT_SYMBOL(screen_info);
 
-struct cpuinfo_x86 boot_cpu_data __read_mostly;
-EXPORT_SYMBOL(boot_cpu_data);
-
 /* kernel image... */
 static struct resource data_resource = {
 	.name	= "kernel data",

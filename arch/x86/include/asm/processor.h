@@ -25,6 +25,7 @@
 #include <sandix/ptrace.h>
 #include <sandix/compiler.h>
 
+#include <asm/asm.h>
 #include <asm/page.h>
 #include <asm/segment.h>
 #include <asm/descriptor.h>
@@ -85,9 +86,11 @@ struct cpuinfo_x86 {
 	unsigned int		microcode;
 };
 
+/* Vendor-specific identification */
 struct cpu_dev {
 	const char		*cpu_vendor;
 	const char		*cpu_ident;
+	int			cpu_x86_vendor;
 
 	void			(*cpu_early_init)(struct cpuinfo_x86 *);
 	void			(*cpu_bsp_init)(struct cpuinfo_x86 *);
@@ -95,7 +98,6 @@ struct cpu_dev {
 	void			(*cpu_identify)(struct cpuinfo_x86 *);
 	void			(*cpu_detect_tlb)(struct cpuinfo_x86 *);
 	void			(*cpu_bsp_resume)(struct cpuinfo_x86 *);
-	int			cpu_x86_vendor;
 #ifdef CONFIG_X86_32
 	/* Optional vendor specific routine to obtain the cache size. */
 	unsigned int		(*legacy_cache_size)(struct cpuinfo_x86 *,
@@ -125,10 +127,7 @@ struct _tlb_table {
 #define X86_VENDOR_NUM		9
 #define X86_VENDOR_UNKNOWN	0xff
 
-/*
- * Task-State Segment (TSS)
- */
-
+/* Task-State Segment (TSS) */
 #ifdef CONFIG_X86_32
 struct x86_hw_tss {
 	unsigned short		back_link, __blh;
@@ -192,9 +191,7 @@ struct x86_hw_tss {
 } __packed __cacheline_aligned;
 #endif
 
-/*
- * IO-bitmap sizes:
- */
+/* IO-bitmap sizes */
 #define IO_BITMAP_BITS			65536
 #define IO_BITMAP_BYTES			(IO_BITMAP_BITS/8)
 #define IO_BITMAP_LONGS			(IO_BITMAP_BYTES/sizeof(long))
@@ -349,17 +346,7 @@ struct thread_struct {
 	pt_regs_to_thread_info(regs)->task;				\
 })
 
-static inline void rep_nop(void)
-{
-	asm volatile ("rep; nop" ::: "memory");
-}
-
-static inline void cpu_relax(void)
-{
-	rep_nop();
-}
-
-extern struct cpuinfo_x86 boot_cpu_data;
+extern struct cpuinfo_x86 boot_cpu_info;
 extern struct cpu_dev intel_cpu_dev;
 
 void __init early_cpu_init(void);
