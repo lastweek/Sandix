@@ -16,16 +16,9 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <asm/processor.h>
+#ifndef _ASM_X86_MSR_H_
+#define _ASM_X86_MSR_H_
 
-static void intel_cpu_early_init(struct cpuinfo_x86 *c)
-{
 
-}
 
-struct cpu_dev intel_cpu_dev = {
-	.cpu_vendor	= "Intel",
-	.cpu_ident	= "GenuineIntel",
-	.cpu_x86_vendor	= X86_VENDOR_INTEL,
-	.cpu_early_init	= intel_cpu_early_init
-};
+#endif /* _ASM_X86_MSR_H_ */

@@ -25,19 +25,17 @@
 #include <sandix/export.h>
 #include <sandix/kernel.h>
 #include <sandix/printk.h>
-#include <sandix/compiler.h>
 
-/* x86 cpu detailed infomation */
 struct cpuinfo_x86 boot_cpu_info __read_mostly;
 EXPORT_SYMBOL(boot_cpu_info);
 
-/* x86 vendor specific table */
+/* x86 vendor driver table */
 static struct cpu_dev *cpudevs[] = {
 	[X86_VENDOR_INTEL]	= &intel_cpu_dev,
 	[X86_VENDOR_UNKNOWN]	= NULL
 };
 
-static struct cpu_dev dummy_cpu_dev = {
+static struct cpu_dev dummy_cpu_dev __initdata = {
 	.cpu_vendor	= "Unkonwn",
 	.cpu_x86_vendor	= X86_VENDOR_UNKNOWN
 };
@@ -49,9 +47,9 @@ static struct cpu_dev *this_cpu = &dummy_cpu_dev;
  * - eax = 0x00000000, vendor string
  * - eax = 0x00000001, cpu version
  */
-static void detect_cpu_basic(struct cpuinfo_x86 *c)
+static void __init detect_cpu_basic(struct cpuinfo_x86 *c)
 {
-	/* get vendor string */
+	/* get vendor string id */
 	cpuid(0x00000000,
 	      (unsigned int *)&c->cpuid_level,
 	      (unsigned int *)&c->x86_vendor_id[0],
@@ -182,6 +180,7 @@ static void __init early_identify_cpu(struct cpuinfo_x86 *c)
 	c->x86_phys_bits = 36;
 #endif
 	c->x86_cache_alignment = c->x86_clflush_size;
+	c->cpu_index = 0;
 
 	/* get basic information first */
 	detect_cpu_basic(c);
@@ -191,11 +190,21 @@ static void __init early_identify_cpu(struct cpuinfo_x86 *c)
 
 	/* if yes, detect its capability */
 	detect_cpu_capability(c);
+
+	if (this_cpu->cpu_early_init)
+		this_cpu->cpu_early_init(c);
+
+	if (this_cpu->cpu_bsp_init)
+		this_cpu->cpu_bsp_init(c);
 }
 
 /*
- * This function obtains some baisc information about local
- * machine's cpu, which will be used before formal cpu_init.
+ * Do minimum CPU detection early. Fields really needed: vendor, cpuid_level,
+ * family, model, mask, cache alignment. The others are not touched to avoid
+ * unwanted side effects.
+ *
+ * WARNING: this function is only called on the BP.
+ * Don't add code here that is supposed to run on all CPUs.
  */
 void __init early_cpu_init(void)
 {
