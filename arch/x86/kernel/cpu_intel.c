@@ -19,5 +19,7 @@
 #include <asm/processor.h>
 
 struct cpu_dev intel_cpu_dev = {
-
+	.cpu_vendor	= "Intel",
+	.cpu_ident	= "GenuineIntel",
+	.cpu_x86_vendor	= X86_VENDOR_INTEL,
 };

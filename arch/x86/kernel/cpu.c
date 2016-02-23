@@ -19,9 +19,10 @@
 #include <asm/processor.h>
 
 #include <sandix/types.h>
+#include <sandix/kernel.h>
+#include <sandix/printk.h>
 #include <sandix/compiler.h>
 
-/* intel only now */
 static struct cpu_dev *cpudevs[] = {
 	[X86_VENDOR_INTEL]	= &intel_cpu_dev,
 	[X86_VENDOR_UNKNOWN]	= NULL
@@ -32,9 +33,10 @@ void __init early_cpu_init(void)
 	int i = 0;
 
 	while (cpudevs[i++]) {
-	
-	}
+		struct cpu_dev *cdev = cpudevs[i - 1];
 
+		printk(KERN_INFO "%s\n", cdev->cpu_ident);
+	}
 }
 
 void __init cpu_init(void)

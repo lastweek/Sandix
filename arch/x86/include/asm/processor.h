@@ -86,18 +86,16 @@ struct cpuinfo_x86 {
 };
 
 struct cpu_dev {
-	const char		*c_vendor;
+	const char		*cpu_vendor;
+	const char		*cpu_ident;
 
-	/* some have two possibilities for cpuid string */
-	const char		*c_ident[2];
-
-	void			(*c_early_init)(struct cpuinfo_x86 *);
-	void			(*c_bsp_init)(struct cpuinfo_x86 *);
-	void			(*c_init)(struct cpuinfo_x86 *);
-	void			(*c_identify)(struct cpuinfo_x86 *);
-	void			(*c_detect_tlb)(struct cpuinfo_x86 *);
-	void			(*c_bsp_resume)(struct cpuinfo_x86 *);
-	int			c_x86_vendor;
+	void			(*cpu_early_init)(struct cpuinfo_x86 *);
+	void			(*cpu_bsp_init)(struct cpuinfo_x86 *);
+	void			(*cpu_init)(struct cpuinfo_x86 *);
+	void			(*cpu_identify)(struct cpuinfo_x86 *);
+	void			(*cpu_detect_tlb)(struct cpuinfo_x86 *);
+	void			(*cpu_bsp_resume)(struct cpuinfo_x86 *);
+	int			cpu_x86_vendor;
 #ifdef CONFIG_X86_32
 	/* Optional vendor specific routine to obtain the cache size. */
 	unsigned int		(*legacy_cache_size)(struct cpuinfo_x86 *,
