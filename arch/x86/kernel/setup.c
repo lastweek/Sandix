@@ -165,7 +165,7 @@ void __init early_arch_setup(void)
 	screen_info = boot_params.screen_info;
 }
 
-/* the real x86 architecture setup */
+/* the real x86 architecture setup, safe to printk */
 void __init arch_setup(void)
 {
 	setup_memory_map();
@@ -175,6 +175,8 @@ void __init arch_setup(void)
 #ifdef CONFIG_PCI
 	early_dump_pci_devices();
 #endif
+
+	early_cpu_init();
 
 	reserve_standard_io_resources();
 }

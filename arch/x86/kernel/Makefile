@@ -7,6 +7,7 @@ obj-y += e820.o
 obj-y += traps.o
 obj-y += dumpstack.o
 obj-y += process.o process_$(BITS).o
+obj-y += cpu.o cpu_intel.o
 
 # head file
 extra-y := head_$(BITS).o

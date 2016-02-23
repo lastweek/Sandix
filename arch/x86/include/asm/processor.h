@@ -31,21 +31,12 @@
 #include <asm/thread_info.h>
 #include <asm/processor-flags.h>
 
-static inline void rep_nop(void)
-{
-	asm volatile ("rep; nop" ::: "memory");
-}
-
-static inline void cpu_relax(void)
-{
-	rep_nop();
-}
-
+/* Detailed CPU infomation */
 struct cpuinfo_x86 {
-	u8			x86;		/* CPU family */
-	u8			x86_vendor;	/* CPU vendor */
-	u8			x86_model;
-	u8			x86_mask;
+	unsigned char		x86;		/* CPU family */
+	unsigned char		x86_vendor;	/* CPU vendor */
+	unsigned char		x86_model;
+	unsigned char		x86_mask;
 #ifdef CONFIG_X86_32
 	char			wp_works_ok;	/* It doesn't on 386's */
 
@@ -57,15 +48,15 @@ struct cpuinfo_x86 {
 	/* Number of 4K pages in DTLB/ITLB combined(in pages): */
 	int			x86_tlbsize;
 #endif
-	u8			x86_virt_bits;
-	u8			x86_phys_bits;
+	unsigned char		x86_virt_bits;
+	unsigned char		x86_phys_bits;
 	/* CPUID returned core id bits: */
-	u8			x86_coreid_bits;
+	unsigned char		x86_coreid_bits;
 	/* Max extended CPUID function supported: */
-	u32			extended_cpuid_level;
+	unsigned int		extended_cpuid_level;
 	/* Maximum supported CPUID level, -1=no CPUID: */
 	int			cpuid_level;
-	u32			x86_capability[14+1];
+	unsigned int		x86_capability[14+1];
 	char			x86_vendor_id[16];
 	char			x86_model_id[64];
 	/* in KB - valid for CPUS which support this call: */
@@ -77,24 +68,54 @@ struct cpuinfo_x86 {
 	int			x86_power;
 	unsigned long		loops_per_jiffy;
 	/* cpuid returned max cores value: */
-	u16			x86_max_cores;
-	u16			apicid;
-	u16			initial_apicid;
-	u16			x86_clflush_size;
+	unsigned short		x86_max_cores;
+	unsigned short		apicid;
+	unsigned short		initial_apicid;
+	unsigned short		x86_clflush_size;
 	/* number of cores as seen by the OS: */
-	u16			booted_cores;
+	unsigned short		booted_cores;
 	/* Physical processor id: */
-	u16			phys_proc_id;
+	unsigned short		phys_proc_id;
 	/* Core id: */
-	u16			cpu_core_id;
+	unsigned short		cpu_core_id;
 	/* Compute unit id */
-	u8			compute_unit_id;
+	unsigned char		compute_unit_id;
 	/* Index into per_cpu list: */
-	u16			cpu_index;
-	u32			microcode;
+	unsigned short		cpu_index;
+	unsigned int		microcode;
 };
 
-extern struct cpuinfo_x86 boot_cpu_data;
+struct cpu_dev {
+	const char		*c_vendor;
+
+	/* some have two possibilities for cpuid string */
+	const char		*c_ident[2];
+
+	void			(*c_early_init)(struct cpuinfo_x86 *);
+	void			(*c_bsp_init)(struct cpuinfo_x86 *);
+	void			(*c_init)(struct cpuinfo_x86 *);
+	void			(*c_identify)(struct cpuinfo_x86 *);
+	void			(*c_detect_tlb)(struct cpuinfo_x86 *);
+	void			(*c_bsp_resume)(struct cpuinfo_x86 *);
+	int			c_x86_vendor;
+#ifdef CONFIG_X86_32
+	/* Optional vendor specific routine to obtain the cache size. */
+	unsigned int		(*legacy_cache_size)(struct cpuinfo_x86 *,
+						     unsigned int);
+	/* Family/stepping-based lookup table for model names. */
+	struct legacy_cpu_model_info {
+		int		family;
+		const char	*model_names[16];
+	} legacy_models[5];
+#endif
+};
+
+struct _tlb_table {
+	unsigned char		descriptor;
+	char			tlb_type;
+	unsigned int		entries;
+	char			info[128];		/* unsigned int ways */
+};
 
 #define X86_VENDOR_INTEL	0
 #define X86_VENDOR_CYRIX	1
@@ -329,5 +350,21 @@ struct thread_struct {
 ({									\
 	pt_regs_to_thread_info(regs)->task;				\
 })
+
+static inline void rep_nop(void)
+{
+	asm volatile ("rep; nop" ::: "memory");
+}
+
+static inline void cpu_relax(void)
+{
+	rep_nop();
+}
+
+extern struct cpuinfo_x86 boot_cpu_data;
+extern struct cpu_dev intel_cpu_dev;
+
+void __init early_cpu_init(void);
+void __init cpu_init(void);
 
 #endif /* _ASM_X86_PROCESSOR_H_ */

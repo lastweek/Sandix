@@ -16,19 +16,28 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <sandix/sched.h>
-#include <sandix/types.h>
-#include <sandix/kernel.h>
-#include <sandix/kdebug.h>
-#include <sandix/ptrace.h>
-#include <sandix/thread_info.h>
-
 #include <asm/processor.h>
 
-__visible void do_syscall_32_irqs_on(struct pt_regs *regs)
-{
-	//struct thread_info *ti = pt_regs_to_thread_info(regs);
+#include <sandix/types.h>
+#include <sandix/compiler.h>
 
-	printk("SYSCALL baby...\n");
-	show_regs(regs);
+/* intel only now */
+static struct cpu_dev *cpudevs[] = {
+	[X86_VENDOR_INTEL]	= &intel_cpu_dev,
+	[X86_VENDOR_UNKNOWN]	= NULL
+};
+
+void __init early_cpu_init(void)
+{
+	int i = 0;
+
+	while (cpudevs[i++]) {
+	
+	}
+
+}
+
+void __init cpu_init(void)
+{
+
 }

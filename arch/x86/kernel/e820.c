@@ -34,17 +34,11 @@
  * and that is also registered with modifications in the kernel resource tree
  * with the iomem_resource as parent.
  *
- * The e820_saved is directly saved after the BIOS-provided memory map is
- * copied. It doesn't get modified afterwards. It's registered for the
- * /sys/firmware/memmap interface.
- *
- * That memory map is not modified and is used as base for kexec. The kexec'd
- * kernel should get the same memory map as the firmware provides. Then the
- * user can e.g. boot the original kernel with mem=1G while still booting the
- * next kernel with full memory.
+ * The e820_bios is directly saved after the BIOS-provided memory map is
+ * copied. It doesn't get modified afterwards.
  */
 struct e820map e820;
-struct e820map e820_saved;
+struct e820map e820_bios;
 
 #define MAXMEM BUG()
 
@@ -409,20 +403,20 @@ static int __init append_e820_map(struct e820entry *biosmap, int nr_map)
 
 /*
  * Sanitize the e820 table from BIOS, and then copy it
- * a safe place: e820_saved.
+ * a safe place: e820_bios.
  *
  * If we have a empty e820 table, we do not fake one, just panic.
  */
 void __init setup_memory_map(void)
 {
 	sanitize_e820_map(boot_params.e820_map,
-			ARRAY_SIZE(boot_params.e820_map),
-			&boot_params.e820_nr_entries);
+			  ARRAY_SIZE(boot_params.e820_map),
+			  &boot_params.e820_nr_entries);
 
 	if (append_e820_map(boot_params.e820_map, boot_params.e820_nr_entries) < 0)
 		panic("e820 error");
 	
-	memcpy(&e820_saved, &e820, sizeof(struct e820map));
+	memcpy(&e820_bios, &e820, sizeof(struct e820map));
 
 	printk(KERN_INFO "e820: BIOS-provided physical RAM map:\n");
 	e820_print_map("BIOS-e820");
