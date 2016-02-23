@@ -44,6 +44,7 @@ config X86
 	select HAVE_KERNEL_LZMA
 	select HAVE_KERNEL_LZO
 	select HAVE_KERNEL_X
+	select X86_FEATURE_NAMES
 
 config OUTPUT_FORMAT
 	string
@@ -132,6 +133,17 @@ config NR_CPUS
 
 	  This is purely to save memory - each supported CPU adds
 	  approximately eight kilobytes to the kernel image.
+
+config X86_FEATURE_NAMES
+	bool "Processor feature human-readable names"
+	default y
+	---help---
+	  This option compiles in a table of x86 feature bits and corresponding
+	  names.  This is required to support /proc/cpuinfo and a few kernel
+	  messages.  You can disable this to save space, at the expense of
+	  making those few kernel messages show numeric feature bits instead.
+
+	  If in doubt, say Y.
 
 choice
 	prompt "High Memory Support"

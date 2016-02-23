@@ -9,8 +9,10 @@ obj-y += dumpstack.o
 obj-y += process.o process_$(BITS).o
 obj-y += cpu.o cpu_intel.o
 
+extra-y += cpufeature.i
+
 # head file
-extra-y := head_$(BITS).o
+extra-y += head_$(BITS).o
 
 # linker script
 extra-y += vmSandix.ld
