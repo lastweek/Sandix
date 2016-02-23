@@ -16,6 +16,7 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <asm/asm.h>
 #include <asm/processor.h>
 
 #include <sandix/types.h>
@@ -32,6 +33,49 @@ static const struct cpu_dev *const cpudevs[] = {
 struct cpuinfo_x86 boot_cpu_info __read_mostly;
 EXPORT_SYMBOL(boot_cpu_info);
 
+/*
+ * Basic CPUID information:
+ * - eax = 0x00000000
+ * - eax = 0x00000001
+ */
+static void detect_cpu_basic(struct cpuinfo_x86 *c)
+{
+	/* get vendor name */
+	cpuid(0x00000000,
+	      (unsigned int *)&c->cpuid_level,
+	      (unsigned int *)&c->x86_vendor_id[0],
+	      (unsigned int *)&c->x86_vendor_id[8],
+	      (unsigned int *)&c->x86_vendor_id[4]);
+
+	/* get basic cpu information */
+	c->x86 = 4;
+	if (c->cpuid_level > 0x00000001) {
+		unsigned int eax, ebx, ecx, edx;
+
+		cpuid(0x00000001, &eax, &ebx, &ecx, &edx);
+		
+		/* family, model, stepping id */
+		c->x86_mask = eax & 0xf;
+		c->x86_model = (eax >> 4) & 0xf;
+		c->x86 = (eax >> 8) & 0xf;
+
+		if (c->x86 == 0xf) {
+			c->x86 += (eax >> 20) & 0xff;
+			c->x86_model += ((eax >> 16) & 0xf) << 4;
+		}
+
+		if (c->x86 == 0x6)
+			c->x86_model += ((eax >> 16) & 0xf) << 4;
+
+		/* cache line size */
+		if (edx & (1 << 19)) {
+			c->x86_clflush_size = ((ebx >> 8) & 0xff) * 8;
+			c->x86_cache_alignment = c->x86_clflush_size;
+		}
+		
+	}
+}
+
 /* Identify what vendor's cpu we are running on */
 static void __init early_identify_cpu(struct cpuinfo_x86 *c)
 {
@@ -46,7 +90,7 @@ static void __init early_identify_cpu(struct cpuinfo_x86 *c)
 #endif
 	c->x86_cache_alignment = c->x86_clflush_size;
 
-
+	detect_cpu_basic(c);
 }
 
 /*
@@ -58,7 +102,7 @@ void __init early_cpu_init(void)
 	int i = 0;
 	printk(KERN_INFO "Kernel supported CPUs:\n");
 	while (cpudevs[i++]) {
-		struct cpu_dev *cdev = cpudevs[i - 1];
+		const struct cpu_dev *cdev = cpudevs[i - 1];
 		printk(KERN_INFO "  %s %s\n", cdev->cpu_vendor, cdev->cpu_ident);
 	}
 	early_identify_cpu(&boot_cpu_info);
