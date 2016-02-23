@@ -18,6 +18,7 @@
 
 #include <asm/asm.h>
 #include <asm/processor.h>
+#include <asm/cpufeature.h>
 
 #include <sandix/types.h>
 #include <sandix/string.h>
@@ -113,7 +114,19 @@ static void __init detect_cpu_capability(struct cpuinfo_x86 *c)
 		/* QoS sub-leaf, eax=0fh, ecx=0 */
 		cpuid_count(0x0000000f, 0, &eax, &ebx, &ecx, &edx);
 		c->x86_capability[11] = edx;
-		/*TODO*/
+		if (cpu_has_cap(c, X86_FEATURE_CQM_LLC)) {
+			c->x86_cache_max_rmid = ebx;
+			/* QoS sub-leaf, eax=0fh, ecx=1 */
+			cpuid_count(0x0000000f, 1, &eax, &ebx, &ecx, &edx);
+			c->x86_capability[12] = edx;
+			if (cpu_has_cap(c, X86_FEATURE_CQM_OCCUP_LLC)) {
+				c->x86_cache_max_rmid = ecx;
+				c->x86_cache_occ_scale = ebx;
+			}
+		} else {
+			c->x86_cache_max_rmid = -1;
+			c->x86_cache_occ_scale = -1;
+		}
 	}
 
 	/* Maximum Input Value for Extended CPUID */
