@@ -25,11 +25,8 @@
 #define _SANDIX_COMPILER_H_
 
 #if defined (__INTEL_COMPILER) || defined (__clang__)
-# error "Sorry, please use GCC"
+# error "Please use GCC"
 #endif
-
-#include <sandix/types.h>
-#include <sandix/cache.h>
 
 #define GCC_VERSION				\
 (						\
@@ -39,8 +36,11 @@
 )
 
 #if GCC_VERSION < 30200
-# error Sorry, please upgrade GCC
+# error "Please upgrade GCC"
 #endif
+
+#include <sandix/types.h>
+#include <sandix/cache.h>
 
 /*
  * Barrier for Compiler.
@@ -67,7 +67,7 @@
 # define __percpu		__attribute__((noderef, address_space(3)))
 # define __pmem			__attribute__((noderef, address_space(5)))
 #ifdef CONFIG_SPARSE_RCU_POINTER
-# define __rcu		__attribute__((noderef, address_space(4)))
+# define __rcu			__attribute__((noderef, address_space(4)))
 #else
 # define __rcu
 #endif

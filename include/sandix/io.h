@@ -61,4 +61,9 @@ extern struct resource iomem_resource;
 #define IORESOURCE_AUTO		0x40000000
 #define IORESOURCE_BUSY		0x80000000	/* Driver has marked this resource busy */
 
+
+int release_resource(struct resource *old);
+int request_resource(struct resource *root, struct resource *new);
+
+
 #endif /* _SANDIX_IO_H_ */

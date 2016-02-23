@@ -154,7 +154,9 @@ struct desc_struct idt_table[IDT_ENTRIES] __aligned(8);
 
 void __init reserve_standard_io_resources(void)
 {
-
+	int i;
+	for (i = 0; i < ARRAY_SIZE(standard_io_resources); i++)
+		BUG_ON(!!request_resource(&ioport_resource, &standard_io_resources[i]));
 }
 
 /* prepare screen, then we can use printk */
