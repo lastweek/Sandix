@@ -18,6 +18,7 @@
 
 #include <sandix/io.h>
 #include <sandix/types.h>
+#include <sandix/kernel.h>
 #include <sandix/export.h>
 #include <sandix/bootmem.h>
 #include <sandix/compiler.h>
@@ -46,57 +47,91 @@ EXPORT_SYMBOL(boot_params);
 struct screen_info screen_info;
 EXPORT_SYMBOL(screen_info);
 
+struct cpuinfo_x86 boot_cpu_data __read_mostly;
+EXPORT_SYMBOL(boot_cpu_data);
+
 /* kernel image... */
 static struct resource data_resource = {
-	.name	= "Kernel data",
+	.name	= "kernel data",
 	.start	= 0,
 	.end	= 0,
 	.flags	= IORESOURCE_BUSY | IORESOURCE_MEM
 };
 static struct resource code_resource = {
-	.name	= "Kernel code",
+	.name	= "kernel code",
 	.start	= 0,
 	.end	= 0,
 	.flags	= IORESOURCE_BUSY | IORESOURCE_MEM
 };
 static struct resource bss_resource = {
-	.name	= "Kernel bss",
+	.name	= "kernel bss",
 	.start	= 0,
 	.end	= 0,
 	.flags	= IORESOURCE_BUSY | IORESOURCE_MEM
 };
 
-/* x86 io port... */
+/* legacy io port distribution */
 static struct resource standard_io_resources[] = {
 	{
 		.name	= "dma1",
 		.start	= 0x00,
 		.end	= 0x1f,
-		.flags	= IORESOUCE_BUSY | IORESOUCE_IO
+		.flags	= IORESOURCE_BUSY | IORESOURCE_IO
 	} ,
 	{
 		.name	= "pci1",
-		.start	=
-		.end	=
-		.flags	=
+		.start	= 0x20,
+		.end	= 0x21,
+		.flags	= IORESOURCE_BUSY | IORESOURCE_IO
 	} ,
 	{
-		.name	= "pci1",
-		.start	=
-		.end	=
-		.flags	=
+		.name	= "timer0",
+		.start	= 0x40,
+		.end	= 0x43,
+		.flags	= IORESOURCE_BUSY | IORESOURCE_IO
 	} ,
 	{
-		.name	= "pci1",
-		.start	=
-		.end	=
-		.flags	=
+		.name	= "timer1",
+		.start	= 0x50,
+		.end	= 0x53,
+		.flags	= IORESOURCE_BUSY | IORESOURCE_IO
 	} ,
-};
-
-struct cpuinfo_x86 boot_cpu_data __read_mostly = {
-	.vendor = X86_VENDOR_INTEL,
-	.wp_works_ok = -1
+	{
+		.name	= "keyboard",
+		.start	= 0x60,
+		.end	= 0x60,
+		.flags	= IORESOURCE_BUSY | IORESOURCE_IO
+	} ,
+	{
+		.name	= "keyboard",
+		.start	= 0x64,
+		.end	= 0x64,
+		.flags	= IORESOURCE_BUSY | IORESOURCE_IO
+	} ,
+	{
+		.name	= "dma page reg",
+		.start	= 0x80,
+		.end	= 0x8f,
+		.flags	= IORESOURCE_BUSY | IORESOURCE_IO
+	} ,
+	{
+		.name	= "pic2",
+		.start	= 0xa0,
+		.end	= 0xa1,
+		.flags	= IORESOURCE_BUSY | IORESOURCE_IO
+	} ,
+	{
+		.name	= "dma2",
+		.start	= 0xc0,
+		.end	= 0xdf,
+		.flags	= IORESOURCE_BUSY | IORESOURCE_IO
+	} ,
+	{
+		.name	= "fpu",
+		.start	= 0xf0,
+		.end	= 0xff,
+		.flags	= IORESOURCE_BUSY | IORESOURCE_IO
+	}
 };
 
 struct desc_struct gdt_table[GDT_ENTRIES] __aligned(8) =
@@ -117,12 +152,18 @@ struct desc_struct gdt_table[GDT_ENTRIES] __aligned(8) =
 
 struct desc_struct idt_table[IDT_ENTRIES] __aligned(8);
 
-/* prepare the screen, so we chould use printk() */
+void __init reserve_standard_io_resources(void)
+{
+
+}
+
+/* prepare screen, then we can use printk */
 void __init early_arch_setup(void)
 {
 	screen_info = boot_params.screen_info;
 }
 
+/* the real x86 architecture setup */
 void __init arch_setup(void)
 {
 	setup_memory_map();
@@ -132,4 +173,6 @@ void __init arch_setup(void)
 #ifdef CONFIG_PCI
 	early_dump_pci_devices();
 #endif
+
+	reserve_standard_io_resources();
 }

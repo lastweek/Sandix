@@ -29,8 +29,11 @@ struct resource {
 	resource_size_t end;
 	const char *name;
 	unsigned long flags;
-	struct resource *parent, *silbing, *child
+	struct resource *parent, *silbing, *child;
 };
+
+extern struct resource ioport_resource;
+extern struct resource iomem_resource;
 
 #define IORESOURCE_IO		0x00000100	/* PCI/ISA I/O ports*/
 #define IORESOURCE_MEM		0x00000200
