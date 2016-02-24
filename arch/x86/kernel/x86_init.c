@@ -18,7 +18,7 @@
 
 #include <asm/x86_init.h>
 
-#include <sandix/compiler.c>
+#include <sandix/compiler.h>
 
 struct x86_init_ops x86_init __initdata = {
 

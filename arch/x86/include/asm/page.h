@@ -63,4 +63,6 @@
 #define __pa(x)			__phys_addr((unsigned long)x)
 #define __pa_symbol(x)		__pa(x)
 
+#define __va(x)			((void *)((unsigned long)(x) + PAGE_OFFSET))
+
 #endif /* _ASM_X86_PAGE_H_ */

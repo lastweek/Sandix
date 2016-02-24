@@ -25,10 +25,6 @@
 #ifndef _ASM_X86_PAGE_64_H_
 #define _ASM_X86_PAGE_64_H_
 
-#ifndef _ASM_X86_PAGE_H_
-# error "Please do not include this file directly"
-#endif
-
 /*
  * Set __PAGE_OFFSET to the most negative possible address +
  * PGDIR_SIZE*16 (pgd slot 272).  The gap is to allow a space for a

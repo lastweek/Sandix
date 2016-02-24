@@ -156,9 +156,8 @@ void __init early_arch_setup(void)
 /* the real x86 architecture setup, safe to printk */
 void __init arch_setup(void)
 {
-	early_cpu_init();
 	setup_memory_map();
-
+	early_cpu_init();
 	iomem_resource.end = (1ULL << boot_cpu_info.x86_phys_bits) - 1;
 
 	init_mm.start_code	= (unsigned long)__text_start;

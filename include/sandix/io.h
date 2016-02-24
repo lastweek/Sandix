@@ -19,10 +19,9 @@
 #ifndef _SANDIX_IO_H_
 #define _SANDIX_IO_H_
 
-#include <asm/io.h>
-
 #include <sandix/types.h>
-#include <sandix/compiler.h>
+
+#include <asm/io.h>
 
 struct resource {
 	resource_size_t start;
