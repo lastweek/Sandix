@@ -20,6 +20,7 @@
 #include <asm/processor.h>
 #include <asm/cpufeature.h>
 
+#include <sandix/ctype.h>
 #include <sandix/types.h>
 #include <sandix/string.h>
 #include <sandix/export.h>
@@ -42,12 +43,39 @@ static struct cpu_dev dummy_cpu_dev __initdata = {
 
 static struct cpu_dev *this_cpu = &dummy_cpu_dev;
 
-/*
- * Basic CPUID information:
- * - eax = 0x00000000, vendor string
- * - eax = 0x00000001, cpu version
- */
-static void __init detect_cpu_basic(struct cpuinfo_x86 *c)
+/* Get human-readable model string */
+static void __init get_model_name(struct cpuinfo_x86 *c)
+{
+	unsigned int *v;
+	char *p, *q, *s;
+
+	if (c->extended_cpuid_level < 0x80000004)
+		return;
+
+	v = (unsigned int *)c->x86_model_id;
+	cpuid(0x80000002, &v[0], &v[1], &v[2], &v[3]);
+	cpuid(0x80000003, &v[4], &v[5], &v[6], &v[7]);
+	cpuid(0x80000004, &v[8], &v[9], &v[10], &v[11]);
+	c->x86_model_id[48] = 0;
+
+	/* trim whitespace */
+	p = q = s = &c->x86_model_id[0];
+
+	while (*p == ' ')
+		p++;
+
+	while (*p) {
+		/* note the last non-whitespace index */
+		if (!isspace(*p))
+			s = q;
+
+		*q++ = *p++;
+	}
+
+	*(s + 1) = '\0';
+}
+
+static void __init get_cpu_basic(struct cpuinfo_x86 *c)
 {
 	/* get vendor string id */
 	cpuid(0x00000000,
@@ -84,7 +112,7 @@ static void __init detect_cpu_basic(struct cpuinfo_x86 *c)
 	}
 }
 
-static void __init detect_cpu_capability(struct cpuinfo_x86 *c)
+static void __init get_cpu_capability(struct cpuinfo_x86 *c)
 {
 	unsigned int eax, ebx, ecx, edx;
 
@@ -183,13 +211,15 @@ static void __init early_identify_cpu(struct cpuinfo_x86 *c)
 	c->cpu_index = 0;
 
 	/* get basic information first */
-	detect_cpu_basic(c);
+	get_cpu_basic(c);
 
 	/* then see if we are running upon intel */
 	identify_cpu_vendor(c);
 
 	/* if yes, detect its capability */
-	detect_cpu_capability(c);
+	get_cpu_capability(c);
+
+	get_model_name(c);
 
 	if (this_cpu->cpu_early_init)
 		this_cpu->cpu_early_init(c);

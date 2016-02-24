@@ -173,7 +173,7 @@ void __init arch_setup(void)
 	early_dump_pci_devices();
 #endif
 
-	/* get basic info about current cpu */
+	/* get basic info about cpu */
 	early_cpu_init();
 
 	reserve_standard_io_resources();
