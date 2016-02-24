@@ -555,6 +555,7 @@ Tue Feb 23 12:48:24 CST 2016
 
 Wed Feb 24 10:56:24 CST 2016
 - [+] arch/x86/kernel/x86_init.c
-- [+] arch/x86/include/asm/x86_init.h
-- [M] arch/x86/include/asm/msr.h
+- [+] arch/x86/include/asm/x86_init.h		[D] Add x86 init ops
+- [M] arch/x86/include/asm/io.h			[D] Rewrite
+- [M] arch/x86/include/asm/msr.h		[D] Add all ops
 - [M] include/sandix/mm.h
