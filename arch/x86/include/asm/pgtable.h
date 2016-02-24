@@ -24,37 +24,37 @@
  * Basic page table types:
  *
  *	pgtable_types.h
- *		> generic types
- *		> pgtable_32_types.h
+ *		+ generic types
+ *		+ pgtable_32_types.h
  * or
  *	pgtable_types.h
- *		> generic types
- *		> pgtable_64_types.h
+ *		+ generic types
+ *		+ pgtable_64_types.h
  *
  * The final page table header file:
  *
  *	pgtable.h
- *		> pgtable_types.h
- *		> pgtable_32.h
- *		> generic ops
+ *		+ pgtable_types.h
+ *		+ pgtable_32.h
+ *		+ generic ops
  * or
  *	pgtbale.h
- *		> pgtable_types.h
- *		> pgtable_64.h
- *		> generic ops
+ *		+ pgtable_types.h
+ *		+ pgtable_64.h
+ *		+ generic ops
  *
  * Especially, depends on whether PAE is enabled, i386
  * has two mapping modes:
  *
  *	pgtable_32.h
- *		> pgtable-2level.h
+ *		+ pgtable-2level.h
  *	pgtable_32_types.h
- *		> pgtable-2level-types.h
+ *		+ pgtable-2level-types.h
  * or
  *	pgtbale_32.h
- *		> pgtable-3level.h
+ *		+ pgtable-3level.h
  *	pgtable_32_types.h
- *		> pgtable-3level-types.h
+ *		+ pgtable-3level-types.h
  */
 
 #ifndef _ASM_X86_PGTABLE_H_

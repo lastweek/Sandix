@@ -32,9 +32,6 @@ struct resource {
 	struct resource *parent, *silbing, *child;
 };
 
-extern struct resource ioport_resource;
-extern struct resource iomem_resource;
-
 #define IORESOURCE_IO		0x00000100	/* PCI/ISA I/O ports*/
 #define IORESOURCE_MEM		0x00000200
 #define IORESOURCE_REG		0x00000300	/* Register offsets*/
@@ -61,9 +58,11 @@ extern struct resource iomem_resource;
 #define IORESOURCE_AUTO		0x40000000
 #define IORESOURCE_BUSY		0x80000000	/* Driver has marked this resource busy */
 
+/* PC address space */
+extern struct resource ioport_resource;
+extern struct resource iomem_resource;
 
 int release_resource(struct resource *old);
 int request_resource(struct resource *root, struct resource *new);
-
 
 #endif /* _SANDIX_IO_H_ */

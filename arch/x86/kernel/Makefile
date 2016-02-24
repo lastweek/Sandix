@@ -6,6 +6,7 @@ obj-y := setup.o
 obj-y += e820.o
 obj-y += traps.o
 obj-y += dumpstack.o
+obj-y += x86_init.o
 obj-y += process.o process_$(BITS).o
 obj-y += cpu.o cpu_intel.o
 

@@ -60,4 +60,7 @@
 
 #define PAGE_OFFSET		((unsigned long)__PAGE_OFFSET)
 
+#define __pa(x)			__phys_addr((unsigned long)x)
+#define __pa_symbol(x)		__pa(x)
+
 #endif /* _ASM_X86_PAGE_H_ */

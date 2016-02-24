@@ -18,12 +18,14 @@
 
 #include <sandix/io.h>
 #include <sandix/types.h>
+#include <sandix/sched.h>
 #include <sandix/kernel.h>
 #include <sandix/export.h>
 #include <sandix/bootmem.h>
 #include <sandix/compiler.h>
 #include <sandix/screen_info.h>
 
+#include <asm/page.h>
 #include <asm/e820.h>
 #include <asm/traps.h>
 #include <asm/segment.h>
@@ -48,14 +50,14 @@ struct screen_info screen_info;
 EXPORT_SYMBOL(screen_info);
 
 /* kernel image... */
-static struct resource data_resource = {
-	.name	= "kernel data",
+static struct resource code_resource = {
+	.name	= "kernel code",
 	.start	= 0,
 	.end	= 0,
 	.flags	= IORESOURCE_BUSY | IORESOURCE_MEM
 };
-static struct resource code_resource = {
-	.name	= "kernel code",
+static struct resource data_resource = {
+	.name	= "kernel data",
 	.start	= 0,
 	.end	= 0,
 	.flags	= IORESOURCE_BUSY | IORESOURCE_MEM
@@ -68,68 +70,57 @@ static struct resource bss_resource = {
 };
 
 /* legacy io port distribution */
-static struct resource standard_io_resources[] = {
-	{
-		.name	= "dma1",
-		.start	= 0x00,
-		.end	= 0x1f,
-		.flags	= IORESOURCE_BUSY | IORESOURCE_IO
-	} ,
-	{
-		.name	= "pci1",
-		.start	= 0x20,
-		.end	= 0x21,
-		.flags	= IORESOURCE_BUSY | IORESOURCE_IO
-	} ,
-	{
-		.name	= "timer0",
-		.start	= 0x40,
-		.end	= 0x43,
-		.flags	= IORESOURCE_BUSY | IORESOURCE_IO
-	} ,
-	{
-		.name	= "timer1",
-		.start	= 0x50,
-		.end	= 0x53,
-		.flags	= IORESOURCE_BUSY | IORESOURCE_IO
-	} ,
-	{
-		.name	= "keyboard",
-		.start	= 0x60,
-		.end	= 0x60,
-		.flags	= IORESOURCE_BUSY | IORESOURCE_IO
-	} ,
-	{
-		.name	= "keyboard",
-		.start	= 0x64,
-		.end	= 0x64,
-		.flags	= IORESOURCE_BUSY | IORESOURCE_IO
-	} ,
-	{
-		.name	= "dma page reg",
-		.start	= 0x80,
-		.end	= 0x8f,
-		.flags	= IORESOURCE_BUSY | IORESOURCE_IO
-	} ,
-	{
-		.name	= "pic2",
-		.start	= 0xa0,
-		.end	= 0xa1,
-		.flags	= IORESOURCE_BUSY | IORESOURCE_IO
-	} ,
-	{
-		.name	= "dma2",
-		.start	= 0xc0,
-		.end	= 0xdf,
-		.flags	= IORESOURCE_BUSY | IORESOURCE_IO
-	} ,
-	{
-		.name	= "fpu",
-		.start	= 0xf0,
-		.end	= 0xff,
-		.flags	= IORESOURCE_BUSY | IORESOURCE_IO
-	}
-};
+static struct resource standard_io_resources[] = { {
+	.name	= "dma1",
+	.start	= 0x00,
+	.end	= 0x1f,
+	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
+} , {
+	.name	= "pci1",
+	.start	= 0x20,
+	.end	= 0x21,
+	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
+} , {
+	.name	= "timer0",
+	.start	= 0x40,
+	.end	= 0x43,
+	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
+} , {
+	.name	= "timer1",
+	.start	= 0x50,
+	.end	= 0x53,
+	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
+} , {
+	.name	= "keyboard",
+	.start	= 0x60,
+	.end	= 0x60,
+	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
+} , {
+	.name	= "keyboard",
+	.start	= 0x64,
+	.end	= 0x64,
+	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
+} , {
+	.name	= "dma page reg",
+	.start	= 0x80,
+	.end	= 0x8f,
+	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
+} , {
+	.name	= "pic2",
+	.start	= 0xa0,
+	.end	= 0xa1,
+	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
+} , {
+	.name	= "dma2",
+	.start	= 0xc0,
+	.end	= 0xdf,
+	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
+} , {
+	.name	= "fpu",
+	.start	= 0xf0,
+	.end	= 0xff,
+	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
+} };
 
 struct desc_struct gdt_table[GDT_ENTRIES] __aligned(8) =
 {
@@ -165,16 +156,30 @@ void __init early_arch_setup(void)
 /* the real x86 architecture setup, safe to printk */
 void __init arch_setup(void)
 {
+	early_cpu_init();
 	setup_memory_map();
+
+	iomem_resource.end = (1ULL << boot_cpu_info.x86_phys_bits) - 1;
+
+	init_mm.start_code	= (unsigned long)__text_start;
+	init_mm.start_data	= (unsigned long)__data_start;
+	init_mm.start_brk	= (unsigned long)__brk_start;
+	init_mm.end_code	= (unsigned long)__text_end;
+	init_mm.end_data	= (unsigned long)__data_end;
+	init_mm.brk		= (unsigned long)__brk_limit;
+
+	code_resource.start	= __pa(__text_start);
+	data_resource.start	= __pa(__data_start);
+	bss_resource.start	= __pa(__bss_start);
+	code_resource.end	= __pa(__text_end) - 1;
+	data_resource.end	= __pa(__data_end) - 1;
+	bss_resource.end	= __pa(__bss_end) - 1;
 
 	max_pfn = e820_end_of_ram_pfn();
 
 #ifdef CONFIG_PCI
 	early_dump_pci_devices();
 #endif
-
-	/* get basic info about cpu */
-	early_cpu_init();
 
 	reserve_standard_io_resources();
 }

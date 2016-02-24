@@ -1,6 +1,6 @@
 /*
  *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
- *	
+ *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
@@ -19,22 +19,47 @@
 #ifndef _SANDIX_MM_H_
 #define _SANDIX_MM_H_
 
+//#include <asm/pgtable.h>
+
+#include <sandix/page.h>
 #include <sandix/types.h>
 #include <sandix/atomic.h>
-#include <sandix/page.h>
+#include <sandix/spinlock.h>
 
+struct mm_struct;
+
+/*
+ * This struct defines a memory VMM memory area. There is one of these
+ * per VM-area/task.  A VM area is any part of the process virtual memory
+ * space that has a special rule for the page-fault handlers (ie a shared
+ * library, the executable area etc).
+ */
+struct vm_area_struct {
+	unsigned long vm_start, vm_end;
+	struct vm_area_struct *vm_next, *vm_prev;
+	struct mm_struct *vm_mm;
+};
+
+/**
+ * struct mm_struct
+ * @mmap:		list of VMAs
+ * @mmap_base:		base of mmap area
+ * @pgd:		global page table
+ * @mm_users:		how many users with userspace
+ * @mm_count:		how many references to this struct
+ * @page_table_lock:	protects page table and some counters
+ */
 struct mm_struct {
-	int a;
-};
-
-enum ZONE_TYPE {
-	ZONE_NORMAL,
-	ZONE_HIGHMEM,
-	ZONE_DMA
-};
-
-struct zone {
-	int zone_type;
+	struct vm_area_struct	*mmap;
+	//pgd_t 			*pgd;
+	atomic_t		mm_users;
+	atomic_t		mm_count;
+	spinlock_t		page_table_lock;
+	unsigned long		mmap_base;
+	unsigned long		start_code, end_code;
+	unsigned long		start_data, end_data;
+	unsigned long		start_brk, brk;
+	unsigned long		start_stack;
 };
 
 extern unsigned long max_low_pfn;
