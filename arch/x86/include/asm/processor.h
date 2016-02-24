@@ -352,5 +352,6 @@ extern struct cpu_dev intel_cpu_dev;
 
 void __init early_cpu_init(void);
 void __init cpu_init(void);
+void print_cpu_info(struct cpuinfo_x86 *c);
 
 #endif /* _ASM_X86_PROCESSOR_H_ */

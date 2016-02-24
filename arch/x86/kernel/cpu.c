@@ -215,9 +215,25 @@ void __init early_cpu_init(void)
 		printk(KERN_INFO "  %s %s\n", cdev->cpu_vendor, cdev->cpu_ident);
 	}
 	early_identify_cpu(&boot_cpu_info);
+	print_cpu_info(&boot_cpu_info);
 }
 
 void __init cpu_init(void)
 {
 
+}
+
+void print_cpu_info(struct cpuinfo_x86 *c)
+{
+	if (c->x86_model_id[0])
+		printk(KERN_CONT "%s", c->x86_model_id);
+	else
+		printk(KERN_CONT "%d86", c->x86);
+
+	printk(KERN_CONT " (family: 0x%x, model: 0x%x", c->x86, c->x86_model);
+
+	if (c->x86_mask || c->cpuid_level >= 0)
+		printk(KERN_CONT ", stepping: 0x%x)\n", c->x86_mask);
+	else
+		printk(KERN_CONT ")\n");
 }

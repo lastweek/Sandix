@@ -551,3 +551,7 @@ Tue Feb 23 12:48:24 CST 2016
 - [M] arch/x86/include/asm/processor.c		[D] struct cpu_dev
 - [M] arch/x86/kernel/setup.c
 - [M] include/sandix/bug.h			[D] BUILD_BUG_ON
+
+
+Wed Feb 24 10:56:24 CST 2016
+- [M] arch/x86/include/asm/msr.h
