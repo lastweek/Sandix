@@ -559,3 +559,8 @@ Wed Feb 24 10:56:24 CST 2016
 - [M] arch/x86/include/asm/io.h			[D] Rewrite
 - [M] arch/x86/include/asm/msr.h		[D] Add all ops
 - [M] include/sandix/mm.h
+
+
+Thu Feb 25 08:39:28 CST 2016
+- [+] arch/x86/mm/fault.c			[D] Move page fault handler here
+- [M] arch/x86/kernel/trap.c

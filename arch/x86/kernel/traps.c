@@ -58,13 +58,6 @@ dotraplinkage void do_general_protection(struct pt_regs *regs, long error_code)
 	panic("#GP");
 }
 
-dotraplinkage void do_page_fault(struct pt_regs *regs, long error_code)
-{
-	printk(KERN_INFO "Error code: %x\n", error_code);
-	show_regs(regs);
-	panic("#PF");
-}
-
 dotraplinkage void do_nmi(struct pt_regs *regs, long error_code)
 {
 	panic("NMI");
