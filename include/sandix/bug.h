@@ -23,20 +23,23 @@
 #include <sandix/kernel.h>
 #include <sandix/compiler.h>
 
-#define __BUILD_BUG_ON(condition, msg, prefix, suffix)			\
+#define __BUILD_BUG_ON_MSG(condition, msg, prefix, suffix)		\
 do {									\
-	extern void prefix ## suffix(void) __compiletime_error(msg);	\
+	extern void prefix##suffix(void) __compiletime_error(msg);	\
 									\
-	bool __cond = !(condition);					\
+	bool __cond = !!(condition);					\
 	if (__cond)							\
-		prefix ## suffix();					\
+		prefix##suffix();					\
 } while (0)
 
-#define _BUILD_BUG_ON(condition, msg, prefix, suffix)			\
-	__BUILD_BUG_ON(condition, msg, prefix, suffix)
+#define _BUILD_BUG_ON_MSG(condition, msg, prefix, suffix)		\
+	__BUILD_BUG_ON_MSG(condition, msg, prefix, suffix)
 
-#define BUILD_BUG_ON(condition, msg)					\
-	_BUILD_BUG_ON(condition, msg, __func__, __LINE__)
+#define BUILD_BUG_ON_MSG(condition, msg)				\
+	_BUILD_BUG_ON_MSG(condition, msg, __func__, __LINE__)
+
+#define BUILD_BUG_ON(condition)						\
+	BUILD_BUG_ON_MSG(condition, "BUILD_BUG_ON failed: " #condition)
 
 /*
  * Don't use BUG() or BUG_ON() unless there's really no way out; one

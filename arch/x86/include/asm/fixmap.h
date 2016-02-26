@@ -89,10 +89,10 @@ enum fixed_addresses {
 	__end_of_fixed_addresses
 };
 
-#ifdef CONFIF_X86_32
+#ifdef CONFIG_X86_32
 #define FIXADDR_TOP	((unsigned long)0xfffff000)
 #else
-#define FIXADDR_TOP	BUG()
+#define FIXADDR_TOP
 #endif
 
 #define FIXADDR_SIZE	(__end_of_permanent_fixed_addresses << PAGE_SHIFT)

@@ -56,4 +56,5 @@ void __show_regs(struct pt_regs *regs, int all)
 __visible struct task_struct *__switch_to(struct task_struct *prev,
 					  struct task_struct *next)
 {
+	return NULL;
 }

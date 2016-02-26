@@ -178,11 +178,6 @@ void __init arch_setup(void)
 
 
 
-
-
-
-
-
 #ifdef CONFIG_PCI
 	early_dump_pci_devices();
 #endif
