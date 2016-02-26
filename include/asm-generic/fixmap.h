@@ -19,6 +19,48 @@
 #ifndef _ASM_GENERIC_FIXMAP_H_
 #define _ASM_GENERIC_FIXMAP_H_
 
+/*
+ * Compile-time virtual memory allocation
+ */
+
+#define __fix_to_virt(x)	(FIXADDR_TOP - ((x) << PAGE_SHIFT))
+#define __virt_to_fix(x)	((FIXADDR_TOP - ((x) & PAGE_MASK)) >> PAGE_SHIFT)
+
+static inline unsigned long fix_to_virt(const unsigned int idx)
+{
+
+	BUILD_BUG_ON(idx >= __end_of_fixed_addresses);
+	return __fix_to_virt(idx);
+}
+
+static inline unsigned long virt_to_fix(const unsigned long vaddr)
+{
+	BUG_ON(vaddr >= FIXADDR_TOP || vaddr < FIXADDR_START);
+	return __virt_to_fix(vaddr);
+}
+
+#ifndef FIXMAP_PAGE_NORMAL
+#define FIXMAP_PAGE_NORMAL	PAGE_KERNEL
+#endif
+
+#ifndef FIXMAP_PAGE_CLEAR
+#define FIXMAP_PAGE_CLEAR	__pgprot(0)
+#endif
+
+#define set_fixmap(idx, phys)	__set_fixmap(idx, phys, FIXMAP_PAGE_NORMAL)
+#define clear_fixmap(idx)	__set_fixmap(idx, 0, FIXMAP_PAGE_CLEAR)
+
+/* Return a pointer with offset calculated */
+#define __set_fixmap_offset(idx, phys, flags)		      \
+({							      \
+	unsigned long addr;				      \
+	__set_fixmap(idx, phys, flags);			      \
+	addr = fix_to_virt(idx) + ((phys) & (PAGE_SIZE - 1)); \
+	addr;						      \
+})
+
+#define set_fixmap_offset(idx, phys) \
+	__set_fixmap_offset(idx, phys, FIXMAP_PAGE_NORMAL)
 
 
 #endif /* _ASM_GENERIC_FIXMAP_H_ */

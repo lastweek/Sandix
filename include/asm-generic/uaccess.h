@@ -19,10 +19,6 @@
 #ifndef _ASM_GENERIC_UACCESS_H_
 #define _ASM_GENERIC_UACCESS_H_
 
-#ifndef _SANDIX_UACCESS_H_
-# error "Please do not include this file directly"
-#endif
-
 #include <sandix/types.h>
 #include <sandix/string.h>
 #include <sandix/compiler.h>

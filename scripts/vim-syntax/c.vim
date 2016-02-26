@@ -19,6 +19,7 @@ syn keyword	cInclude	BUG_ON
 syn keyword	cInclude	WARN
 syn keyword	cInclude	WARN_ON
 syn keyword	cInclude	WARN_ON_ONCE
+syn keyword	cInclude	BUILD_BUG_ON
 
 syn keyword	cInclude	READ_ONCE
 syn keyword	cInclude	WRITE_ONCE
