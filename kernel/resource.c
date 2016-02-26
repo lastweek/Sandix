@@ -39,7 +39,6 @@ struct resource iomem_resource = {
 };
 EXPORT_SYMBOL(iomem_resource);
 
-/* a read/write lock is more efficient */
 static DEFINE_SPINLOCK(resource_lock);
 
 int release_resource(struct resource *old)

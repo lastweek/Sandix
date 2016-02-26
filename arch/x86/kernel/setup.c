@@ -41,15 +41,14 @@ unsigned long max_pfn_mapped;
 unsigned long brk_start = (unsigned long)__brk_start;
 unsigned long brk_end = (unsigned long)__brk_start;
 
-/* machine parameters obtained from BIOS */
+/* Machine parameters obtained from BIOS */
 struct boot_params boot_params;
 EXPORT_SYMBOL(boot_params);
 
-/* used by low-level console drivers */
+/* Used by low-level console drivers */
 struct screen_info screen_info;
 EXPORT_SYMBOL(screen_info);
 
-/* kernel image... */
 static struct resource code_resource = {
 	.name	= "kernel code",
 	.start	= 0,
@@ -69,7 +68,7 @@ static struct resource bss_resource = {
 	.flags	= IORESOURCE_BUSY | IORESOURCE_MEM
 };
 
-/* legacy io port distribution */
+/* Legacy IO port distribution */
 static struct resource standard_io_resources[] = { {
 	.name	= "dma1",
 	.start	= 0x00,
@@ -147,13 +146,12 @@ void __init reserve_standard_io_resources(void)
 		BUG_ON(!!request_resource(&ioport_resource, &standard_io_resources[i]));
 }
 
-/* prepare screen, then we can use printk */
+/* Prepare screen first */
 void __init early_arch_setup(void)
 {
 	screen_info = boot_params.screen_info;
 }
 
-/* the real x86 architecture setup, safe to printk */
 void __init arch_setup(void)
 {
 	setup_memory_map();
@@ -175,6 +173,15 @@ void __init arch_setup(void)
 	bss_resource.end	= __pa(__bss_end) - 1;
 
 	max_pfn = e820_end_of_ram_pfn();
+
+
+
+
+
+
+
+
+
 
 #ifdef CONFIG_PCI
 	early_dump_pci_devices();

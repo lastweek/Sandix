@@ -80,7 +80,6 @@ BUILD_MMIO_WRITE(writeq, "q", unsigned long, "r", :"memory")
  *	almost all conceivable cases a device driver should not be using
  *	this function
  */
-
 static inline phys_addr_t virt_to_phys(volatile void *address)
 {
 	return __pa(address);
@@ -98,7 +97,6 @@ static inline phys_addr_t virt_to_phys(volatile void *address)
  *	almost all conceivable cases a device driver should not be using
  *	this function
  */
-
 static inline void *phys_to_virt(phys_addr_t address)
 {
 	return __va(address);
@@ -107,16 +105,6 @@ static inline void *phys_to_virt(phys_addr_t address)
 static inline void native_io_delay(void)
 {
 	asm volatile ("outb %al, $0x80");
-}
-
-static inline void slow_down_io(void)
-{
-	native_io_delay();
-#ifdef REALLY_SLOW_IO
-	native_io_delay();
-	native_io_delay();
-	native_io_delay();
-#endif
 }
 
 #define BUILD_IO_OPS(bwl, bw, type)					\
@@ -137,17 +125,18 @@ static inline unsigned type in##bwl(int port)				\
 static inline void out##bwl##_p(unsigned type value, int port)		\
 {									\
 	out##bwl(value, port);						\
-	slow_down_io();							\
+	native_io_delay();						\
 }									\
 									\
 static inline unsigned type in##bwl##_p(int port)			\
 {									\
 	unsigned type value = in##bwl(port);				\
-	slow_down_io();							\
+	native_io_delay();						\
 	return value;							\
 }									\
 									\
-static inline void outs##bwl(int port, const void *addr, unsigned long count) \
+static inline void outs##bwl(int port, const void *addr,		\
+			     unsigned long count)			\
 {									\
 	asm volatile("rep; outs" #bwl					\
 		     : "+S"(addr), "+c"(count) : "d"(port));		\

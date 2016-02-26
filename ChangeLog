@@ -564,3 +564,10 @@ Wed Feb 24 10:56:24 CST 2016
 Thu Feb 25 08:39:28 CST 2016
 - [+] arch/x86/mm/fault.c			[D] Move page fault handler here
 - [M] arch/x86/kernel/trap.c
+
+
+Fri Feb 26 15:39:18 CST 2016
+- [+] arch/x86/include/asm/apic.h
+- [+] arch/x86/include/asm/fixmap.h		[D] FIXMAP, interesting!!!!
+- [+] include/asm-generic/fixmap.h
+- [+] arch/x86/mm/ioremap.c
