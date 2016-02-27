@@ -19,9 +19,9 @@
 #ifndef _SANDIX_MM_H_
 #define _SANDIX_MM_H_
 
-//#include <asm/pgtable.h>
+#include <asm/page.h>
+#include <asm/pgtable.h>
 
-#include <sandix/page.h>
 #include <sandix/types.h>
 #include <sandix/atomic.h>
 #include <sandix/spinlock.h>
@@ -51,7 +51,7 @@ struct vm_area_struct {
  */
 struct mm_struct {
 	struct vm_area_struct	*mmap;
-	//pgd_t 			*pgd;
+	pgd_t 			*pgd;
 	atomic_t		mm_users;
 	atomic_t		mm_count;
 	spinlock_t		page_table_lock;

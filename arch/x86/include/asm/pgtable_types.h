@@ -67,8 +67,8 @@
 #define __PAGE_NX			(_AT(pteval_t,0))
 #endif
 
-#define __KERNEL_PAGE_TABLE		(__PAGE_PRESENT | __PAGE_RW | __PAGE_ACCESSED | __PAGE_DIRTY)
-#define __PAGE_TABLE			(__KERNEL_PAGE_TABLE | __PAGE_USER)
+#define __KERNEL_TABLE			(__PAGE_PRESENT | __PAGE_RW | __PAGE_ACCESSED | __PAGE_DIRTY)
+#define __PAGE_TABLE			(__KERNEL_TABLE | __PAGE_USER)
 
 /* set of bits not changed in pte_modify */
 #define __PAGE_CHG_MASK			(PTE_PFN_MASK | __PAGE_PCD | __PAGE_PWT | __PAGE_ACCESSED | __PAGE_DIRTY)
@@ -128,11 +128,6 @@ static inline pgdval_t native_pgd_val(pgd_t pgd)
 	return pgd.pgd;
 }
 
-static inline pgdval_t pgd_flags(pgd_t pgd)
-{
-	return native_pgd_val(pgd) & PTE_FLAGS_MASK;
-}
-
 #if CONFIG_PGTABLE_LEVELS > 3
 typedef struct {
 	pudval_t pud;
@@ -179,42 +174,6 @@ static inline pmdval_t native_pmd_val(pmd_t pmd)
 }
 #endif
 
-static inline pudval_t pud_pfn_mask(pud_t pud)
-{
-	if (native_pud_val(pud) & __PAGE_PSE)
-		return PHYSICAL_PUD_PAGE_MASK;
-	else
-		return PTE_PFN_MASK;
-}
-
-static inline pudval_t pud_flags_mask(pud_t pud)
-{
-	return ~pud_pfn_mask(pud);
-}
-
-static inline pudval_t pud_flags(pud_t pud)
-{
-	return native_pud_val(pud) & pud_flags_mask(pud);
-}
-
-static inline pmdval_t pmd_pfn_mask(pmd_t pmd)
-{
-	if (native_pmd_val(pmd) & __PAGE_PSE)
-		return PHYSICAL_PMD_PAGE_MASK;
-	else
-		return PTE_PFN_MASK;
-}
-
-static inline pmdval_t pmd_flags_mask(pmd_t pmd)
-{
-	return ~pmd_pfn_mask(pmd);
-}
-
-static inline pmdval_t pmd_flags(pmd_t pmd)
-{
-	return native_pmd_val(pmd) & pmd_flags_mask(pmd);
-}
-
 static inline pte_t native_make_pte(pteval_t val)
 {
 	return (pte_t) { .pte = val };
@@ -224,13 +183,5 @@ static inline pteval_t native_pte_val(pte_t pte)
 {
 	return pte.pte;
 }
-
-static inline pteval_t pte_flags(pte_t pte)
-{
-	return native_pte_val(pte) & PTE_FLAGS_MASK;
-}
-
-#define pgprot_val(x)	((x).pgprot)
-#define __pgprot(x)	( (pgprot_t) { (x) } )
 
 #endif /* _ASM_X86_PGTABLE_TYPES_H_ */

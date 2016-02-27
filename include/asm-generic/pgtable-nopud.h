@@ -24,8 +24,8 @@
 #define __PGTABLE_PUD_FOLDED
 
 /*
- * Having the pud type consist of a pgd gets the size right, and allows
- * us to conceptually access the pgd entry that this pud is folded into
+ * Having the PUD type consist of a PGD gets the size right, and allows
+ * us to conceptually access the PGD entry that this PUD is folded into
  * without casting.
  */
 typedef struct {
@@ -39,8 +39,8 @@ typedef struct {
 
 /*
  * The "pgd_xxx()" functions here are trivial for a folded two-level
- * setup: the pud is never bad, and a pud always exists (as it's folded
- * into the pgd entry)
+ * setup: the PUD is never bad, and a PUD always exists (as it's folded
+ * into the PGD entry)
  */
 static inline int  pgd_none(pgd_t pgd)		{ return 0; }
 static inline int  pgd_bad(pgd_t pgd)		{ return 0; }
@@ -52,7 +52,7 @@ static inline void pgd_clear(pgd_t *pgd)	{ }
 #define pgd_populate(mm, pgd, pud)		do { } while (0)
 
 /*
- * puds are folded into pgds so this doesn't get actually called,
+ * PUDs are folded into PGDs so this doesn't get actually called,
  * but the define is needed for a generic inline function.
  */
 #define pgd_set(pgdptr, pgdval) \
@@ -70,8 +70,8 @@ static inline pud_t *pud_offset(pgd_t *pgd, unsigned long address)
 #define pgd_page_vaddr(pgd)			(pud_page_vaddr((pud_t){ pgd }))
 
 /*
- * allocating and freeing a pud is trivial: the 1-entry pud is
- * inside the pgd, so has no extra memory associated with it.
+ * Allocating and freeing a PUD is trivial: the 1-entry PUD is
+ * inside the PGD, so has no extra memory associated with it.
  */
 #define pud_alloc_one(mm, address)		NULL
 #define pud_free(mm, x)				do { } while (0)
