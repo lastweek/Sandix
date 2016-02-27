@@ -65,45 +65,173 @@
 
 #include <asm/page.h>
 #include <asm/pgtable_types.h>
+
+/* Skip paravirt */
+
+/*
+ * Batch 1
+ */
+
+#ifndef __PGTABLE_PUD_FOLDED
+#define pgd_set(pgdp, pgd)		native_pgd_set(pgdp, pgd)
+#define pgd_clear(pgd)			native_pgd_clear(pgd)
+#endif
+
+#ifndef __PGTABLE_PMD_FOLDED
+#define pud_set(pudp, pud)		native_pud_set(pudp, pud)
+#define pud_clear(pud)			native_pud_clear(pud)
+#endif
+
+#define pmd_set(pmdp, pmd)		native_pmd_set(pmdp, pmd)
+#define pmd_clear(pmd)			native_pmd_clear(pmd)
+
+#define pte_set(ptep, pte)		native_pte_set(ptep, pte)
+#define pte_clear(addr, ptep)		native_pte_clear(addr, ptep)
+
+/*
+ * Batch 2
+ */
+
+#define pgd_val(x)			native_pgd_val(x)
+#define __pgd(x)			native_make_pgd(x)
+
+#ifndef __PGTABLE_PUD_FOLDED
+#define pud_val(x)			native_pud_val(x)
+#define __pud(x)			native_make_pud(x)
+#endif
+
+#ifndef __PGTABLE_PMD_FOLDED
+#define pmd_val(x)			native_pmd_val(x)
+#define __pmd(x)			native_make_pmd(x)
+#endif
+
+#define pte_val(x)			native_pte_val(x)
+#define __pte(x)			native_make_pte(x)
+
+/*
+ * Batch 3
+ */
+
+static inline int pte_none(pte_t pte)
+{
+	return !pte.pte;
+}
+
+#define __HAVE_ARCH_PTE_SAME
+static inline int pte_same(pte_t a, pte_t b)
+{
+	return a.pte == b.pte;
+}
+
+static inline int pte_present(pte_t a)
+{
+	return pte_flags(a) & __PAGE_PSE;
+}
+
+static inline int pte_dirty(pte_t pte)
+{
+	return pte_flags(pte) & __PAGE_DIRTY;
+}
+
+static inline int pte_accessed(pte_t pte)
+{
+	return pte_flags(pte) & __PAGE_ACCESSED;
+}
+
+static inline int pte_write(pte_t pte)
+{
+	return pte_flags(pte) & __PAGE_RW;
+}
+
+static inline int pte_huge(pte_t pte)
+{
+	return pte_flags(pte) & __PAGE_PSE;
+}
+
+static inline int pte_global(pte_t pte)
+{
+	return pte_flags(pte) & __PAGE_GLOBAL;
+}
+
+static inline int pte_exec(pte_t pte)
+{
+	return !(pte_flags(pte) & __PAGE_NX);
+}
+
+static inline int pmd_dirty(pmd_t pmd)
+{
+	return pmd_flags(pmd) & __PAGE_DIRTY;
+}
+
+static inline int pmd_accessed(pmd_t pmd)
+{
+	return pmd_flags(pmd) & __PAGE_ACCESSED;
+}
+
+/* Get Page Frame Number */
+static inline unsigned long pte_pfn(pte_t pte)
+{
+	return (pte_val(pte) & PTE_PFN_MASK) >> PAGE_SHIFT;
+}
+
+static inline unsigned long pmd_pfn(pmd_t pmd)
+{
+	return (pmd_val(pmd) & pmd_pfn_mask(pmd)) >> PAGE_SHIFT;
+}
+
+static inline unsigned long pud_pfn(pud_t pud)
+{
+	return (pud_val(pud) & pud_pfn_mask(pud)) >> PAGE_SHIFT;
+}
+
+/*
+ * Batch 4
+ */
+
+static inline pte_t pte_set_flags(pte_t pte, pteval_t set)
+{
+	pteval_t v = pte_val(pte);
+
+	return __pte(v | set);
+}
+
+static inline pte_t pte_clear_flags(pte_t pte, pteval_t clear)
+{
+	pteval_t v = pte_val(pte);
+
+	return __pte(v & ~clear);
+}
+
+static inline pte_t pte_mkclean(pte_t pte)
+{
+	return pte_clear_flags(pte, __PAGE_DIRTY);
+}
+
+static inline pte_t pte_mkdirty(pte_t pte)
+{
+	return pte_set_flags(pte, __PAGE_DIRTY);
+}
+
+static inline pte_t pte_mkexec(pte_t pte)
+{
+	return pte_clear_flags(pte, __PAGE_NX);
+}
+
+static inline pte_t pte_mkold(pte_t pte)
+{
+	return pte_clear_flags(pte, __PAGE_ACCESSED);
+}
+
+static inline pte_t pte_mkyoung(pte_t pte)
+{
+	return pte_set_flags(pte, __PAGE_ACCESSED);
+}
+
 #ifdef CONFIG_X86_32
 #include <asm/pgtable_32.h>
 #else
 #include <asm/pgtable_64.h>
 #endif
-
-#define set_pte(ptep, pte)		native_set_pte(ptep, pte)
-#define set_pte_atomic(ptep, pte)	native_set_pte_atomic(ptep, pte)
-
-#define set_pmd(pmdp, pmd)		native_set_pmd(pmdp, pmd)
-
-#define clear_pte(addr, ptep)		native_clear_pte(addr, ptep)
-#define clear_pmd(pmd)			native_clear_pmd(pmd)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -20,7 +20,8 @@
 #define _ASM_X86_PGTABLE_3LEVEL_H_
 
 /*
- * x86_32 three-level page tables, in PAE mode.
+ * Physical Address Extension (PAE) Mode
+ * Three level paging structure
  */
 
 #ifndef __ASSEMBLY__
@@ -35,17 +36,22 @@
 	pr_err("%s:%d: bad pgd %p(%016Lx)\n",				\
 	       __FILE__, __LINE__, &(e), pgd_val(e))
 
-static inline void native_set_pte(pte_t *ptep, pte_t pte)
+static inline void native_pte_set(pte_t *ptep, pte_t pte)
 {
 	BUG();
 }
 
-static inline void native_set_pmd(pmd_t *pmdp, pmd_t pmd)
+static inline void native_pte_set_atomic(pte_t *ptep, pte_t pte)
 {
 	BUG();
 }
 
-static inline void native_set_pud(pud_t *pudp, pud_t pud)
+static inline void native_pmd_set(pmd_t *pmdp, pmd_t pmd)
+{
+	BUG();
+}
+
+static inline void native_pud_set(pud_t *pudp, pud_t pud)
 {
 	BUG();
 }

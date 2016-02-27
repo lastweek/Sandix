@@ -19,14 +19,6 @@
 #ifndef _ASM_X86_PGTABLE_32_TYPES_H_
 #define _ASM_X86_PGTABLE_32_TYPES_H_
 
-/*
- * This file describes page table structures of 32-bit machines.
- *  - If PAE is configured, kernel uses three-level page tables.
- *  - If not, kernel uses two-level page tables.
- *
- * PUD directory is not used on both circumstances.
- */
-
 #ifdef CONFIG_X86_PAE
 # include <asm/pgtable-3level-types.h>
 # define PMD_SIZE	(1UL << PMD_SHIFT)

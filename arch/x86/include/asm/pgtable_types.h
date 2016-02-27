@@ -19,9 +19,6 @@
 #ifndef _ASM_X86_PGTABLE_TYPES_H_
 #define _ASM_X86_PGTABLE_TYPES_H_
 
-#include <asm/page.h>
-#include <sandix/const.h>
-
 /*
  * Bit layout of different page tables.
  */
@@ -107,8 +104,8 @@
 #endif
 
 /*
- * o Extracts the PFN from a (pte|pmd|pud|pgd)val_t of a 4KB page
- * o Extracts the flags from a (pte|pmd|pud|pgd)val_t of a 4KB page
+ * Extracts the PFN from a (pte|pmd|pud|pgd)val_t of a 4KB page
+ * Extracts the flags from a (pte|pmd|pud|pgd)val_t of a 4KB page
  */
 #define PTE_PFN_MASK		((pteval_t)PHYSICAL_PAGE_MASK)
 #define PTE_FLAGS_MASK		(~PTE_PFN_MASK)
@@ -182,24 +179,58 @@ static inline pmdval_t native_pmd_val(pmd_t pmd)
 }
 #endif
 
+static inline pudval_t pud_pfn_mask(pud_t pud)
+{
+	if (native_pud_val(pud) & __PAGE_PSE)
+		return PHYSICAL_PUD_PAGE_MASK;
+	else
+		return PTE_PFN_MASK;
+}
 
+static inline pudval_t pud_flags_mask(pud_t pud)
+{
+	return ~pud_pfn_mask(pud);
+}
 
+static inline pudval_t pud_flags(pud_t pud)
+{
+	return native_pud_val(pud) & pud_flags_mask(pud);
+}
 
+static inline pmdval_t pmd_pfn_mask(pmd_t pmd)
+{
+	if (native_pmd_val(pmd) & __PAGE_PSE)
+		return PHYSICAL_PMD_PAGE_MASK;
+	else
+		return PTE_PFN_MASK;
+}
 
+static inline pmdval_t pmd_flags_mask(pmd_t pmd)
+{
+	return ~pmd_pfn_mask(pmd);
+}
 
+static inline pmdval_t pmd_flags(pmd_t pmd)
+{
+	return native_pmd_val(pmd) & pmd_flags_mask(pmd);
+}
 
+static inline pte_t native_make_pte(pteval_t val)
+{
+	return (pte_t) { .pte = val };
+}
 
+static inline pteval_t native_pte_val(pte_t pte)
+{
+	return pte.pte;
+}
 
+static inline pteval_t pte_flags(pte_t pte)
+{
+	return native_pte_val(pte) & PTE_FLAGS_MASK;
+}
 
-
-
-
-
-
-
-
-
-
-
+#define pgprot_val(x)	((x).pgprot)
+#define __pgprot(x)	( (pgprot_t) { (x) } )
 
 #endif /* _ASM_X86_PGTABLE_TYPES_H_ */

@@ -21,6 +21,7 @@
 
 #include <asm/page.h>
 #include <asm/apic.h>
+#include <asm/pgtable.h>
 
 #include <sandix/bug.h>
 #include <sandix/threads.h>

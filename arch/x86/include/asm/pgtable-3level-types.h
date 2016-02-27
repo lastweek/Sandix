@@ -67,4 +67,3 @@ typedef union {
 #define PTRS_PER_PTE		512
 
 #endif /* _ASM_X86_PGTABLE_3LEVEL_TYPES_H_ */
-

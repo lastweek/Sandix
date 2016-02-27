@@ -21,7 +21,7 @@
 
 #ifndef __ASSEMBLY__
 
-#define PGTABLE_PUD_FOLDED
+#define __PGTABLE_PUD_FOLDED
 
 /*
  * Having the pud type consist of a pgd gets the size right, and allows
@@ -55,8 +55,8 @@ static inline void pgd_clear(pgd_t *pgd)	{ }
  * puds are folded into pgds so this doesn't get actually called,
  * but the define is needed for a generic inline function.
  */
-#define set_pgd(pgdptr, pgdval) \
-	set_pud((pud_t *)(pgdptr), (pud_t) { pgdval })
+#define pgd_set(pgdptr, pgdval) \
+	pud_set((pud_t *)(pgdptr), (pud_t) { pgdval })
 
 static inline pud_t *pud_offset(pgd_t *pgd, unsigned long address)
 {

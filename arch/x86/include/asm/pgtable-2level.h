@@ -21,6 +21,8 @@
 
 /*
  * Traditional i386 two-level paging structure
+ *
+ * We fold PMD into PUD to fit with x86_32's 3-level framework.
  */
 
 #ifndef __ASSEMBLY__
@@ -30,29 +32,29 @@
 #define pgd_ERROR(e) \
 	pr_err("%s:%d: bad pgd %#08lx\n", __FILE__, __LINE__, pgd_val(e))
 
-static inline void native_set_pte(pte_t *ptep, pte_t pte)
+static inline void native_pte_set(pte_t *ptep, pte_t pte)
 {
 	*ptep = pte;
 }
 
-static inline void native_set_pmd(pmd_t *pmdp, pmd_t pmd)
+static inline void native_pmd_set(pmd_t *pmdp, pmd_t pmd)
 {
 	*pmdp = pmd;
 }
 
-static inline void native_set_pte_atomic(pte_t *ptep, pte_t pte)
+static inline void native_pte_set_atomic(pte_t *ptep, pte_t pte)
 {
-	native_set_pte(ptep, pte);
+	native_pte_set(ptep, pte);
 }
 
-static inline void native_clear_pte(pte_t *ptep)
+static inline void native_pte_clear(pte_t *ptep)
 {
-	native_set_pte(ptep, __pte(0));
+	native_pte_set(ptep, __pte(0));
 }
 
-static inline void native_clear_pmd(pmd_t *pmdp)
+static inline void native_pmd_clear(pmd_t *pmdp)
 {
-	native_set_pmd(pmdp, __pmd(0));
+	native_pmd_set(pmdp, __pmd(0));
 }
 
 #endif /* __ASSEMBLY__ */

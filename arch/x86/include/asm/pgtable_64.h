@@ -17,9 +17,7 @@
  */
 
 /*
- * This file describes the functions and dedines necessary to
- * modify and use the x86_64 page table tree.
- * TODO
+ * WARNING: Not implemented!
  */
 
 #ifndef _ASM_X86_PGTABLE_64_H_
@@ -40,50 +38,50 @@
 	pr_err("%s:%d: bad pgd %p(%016lx)\n",		\
 	       __FILE__, __LINE__, &(e), pgd_val(e))
 
-static inline void native_set_pte(pte_t *ptep, pte_t pte)
+static inline void native_pte_set(pte_t *ptep, pte_t pte)
 {
 	*ptep = pte;
 }
 
-static inline void native_set_pte_atomic(pte_t *ptep, pte_t pte)
+static inline void native_pte_set_atomic(pte_t *ptep, pte_t pte)
 {
-	native_set_pte(ptep, pte);
+	native_pte_set(ptep, pte);
 }
 
-static inline void native_clear_pte(pte_t *ptep)
+static inline void native_pte_clear(pte_t *ptep)
 {
-	native_set_pte(ptep, native_make_pte(0));
+	native_pte_set(ptep, __pte(0));
 }
 
-static inline void native_set_pmd(pmd_t *pmdp, pmd_t pmd)
+static inline void native_pmd_set(pmd_t *pmdp, pmd_t pmd)
 {
 	*pmdp = pmd;
 }
 
-static inline void native_clear_pmd(pmd_t *pmdp)
+static inline void native_pmd_clear(pmd_t *pmdp)
 {
-	native_set_pmd(pmdp, native_make_pmd(0));
+	native_pmd_set(pmdp, __pmd(0));
 }
 
-static inline void native_set_pud(pud_t *pudp, pud_t pud)
+static inline void native_pud_set(pud_t *pudp, pud_t pud)
 {
 	*pudp = pud;
 }
 
-static inline void native_clear_pud(pud_t *pudp)
+static inline void native_pud_clear(pud_t *pudp)
 {
-	native_set_pud(pud, native_make_pud(0));
+	native_pud_set(pud, __pud(0));
 }
 
-static inline void native_set_pgd(pgd_t *pgdp, pgd_t pgd)
+static inline void native_pgd_set(pgd_t *pgdp, pgd_t pgd)
 {
 	*pgdp = pgd;
 }
 
-static inline void native_clear_pgd(pgd_t *pgdp)
+static inline void native_pgd_clear(pgd_t *pgdp)
 {
-	native_set_pgd(pgdp, native_make_pgd(0));
+	native_pgd_set(pgdp, __pgd(0));
 }
-#endif /* __ASSEMBLY__ */
 
+#endif /* __ASSEMBLY__ */
 #endif /* _ASM_X86_PGTABLE_64_H_ */
