@@ -88,6 +88,46 @@ static inline void clear_bit(int nr, volatile unsigned long * addr)
 }
 
 /**
+ * test_and_clear_bit - Clear a bit and return its old value
+ * @nr: Bit to clear
+ * @addr: Address to count from
+ *
+ * This operation is atomic and cannot be reordered.
+ * It can be reorderdered on other architectures other than x86.
+ * It also implies a memory barrier.
+ */
+static inline int test_and_clear_bit(int nr, volatile unsigned long * addr)
+{
+	int oldbit;
+
+	asm volatile( LOCK_PREFIX
+		"btrl %2,%1\n\tsbbl %0,%0"
+		:"=r" (oldbit),"+m" (ADDR)
+		:"Ir" (nr) : "memory");
+	return oldbit;
+}
+
+/**
+ * __test_and_clear_bit - Clear a bit and return its old value
+ * @nr: Bit to clear
+ * @addr: Address to count from
+ *
+ * This operation is non-atomic and can be reordered.  
+ * If two examples of this operation race, one can appear to succeed
+ * but actually fail.  You must protect multiple accesses with a lock.
+ */
+static inline int __test_and_clear_bit(int nr, volatile unsigned long *addr)
+{
+	int oldbit;
+
+	asm (
+		"btrl %2,%1\n\tsbbl %0,%0"
+		:"=r" (oldbit),"+m" (ADDR)
+		:"Ir" (nr));
+	return oldbit;
+}
+
+/**
  * test_and_set_bit - Set a bit and return its old value
  * @nr: Bit to set
  * @addr: Address to count from

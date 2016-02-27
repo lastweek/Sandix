@@ -55,11 +55,29 @@
 #define S64_MAX			((s64)(U64_MAX>>1))
 #define S64_MIN			((s64)(-S64_MAX - 1))
 
+/*
+ * This looks more complex than it should be. But we need to
+ * get the type for the ~ right in round_down (it needs to be
+ * as wide as the result!), and we want to evaluate the macro
+ * arguments just once each.
+ */
+#define __round_mask(x, y)	((__typeof__(x))((y)-1))
+#define round_up(x, y)		((((x)-1) | __round_mask(x, y))+1)
+#define round_down(x, y)	((x) & ~__round_mask(x, y))
+
 #define STACK_MAGIC		0xdeadbeef
 
 #define DIV_ROUND_UP(n,d)	(((n) + (d) - 1) / (d))
 
 #define ARRAY_SIZE(x)		(sizeof(x) / sizeof((x)[0]))
+
+#define _RET_IP_		(unsigned long)__builtin_return_address(0)
+#define _THIS_IP_						\
+({								\
+__label__ __here;						\
+		__here:						\
+		(unsigned long)&&__here;			\
+})
 
 /**
  * container_of - find which structure this @ptr located

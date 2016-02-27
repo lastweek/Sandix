@@ -45,6 +45,13 @@
  * TLB entries of such buffers will not be flushed across task switches.
  */
 
+#ifdef CONFIG_X86_32
+extern unsigned long 	__FIXADDR_TOP;
+#define FIXADDR_TOP	((unsigned long)__FIXADDR_TOP)
+#else
+#define FIXADDR_TOP	BUILD_BUG_ON(1)
+#endif
+
 
 enum fixed_addresses {
 
@@ -90,12 +97,6 @@ enum fixed_addresses {
 
 	__end_of_fixed_addresses
 };
-
-#ifdef CONFIG_X86_32
-#define FIXADDR_TOP	((unsigned long)0xfffff000)
-#else
-#define FIXADDR_TOP	BUILD_BUG_ON(1)
-#endif
 
 #define FIXADDR_SIZE	(__end_of_permanent_fixed_addresses << PAGE_SHIFT)
 #define FIXADDR_START	(FIXADDR_TOP - FIXADDR_SIZE)

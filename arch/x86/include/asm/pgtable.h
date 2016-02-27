@@ -162,7 +162,7 @@ static inline int pte_dirty(pte_t pte)
 	return pte_flags(pte) & __PAGE_DIRTY;
 }
 
-static inline int pte_accessed(pte_t pte)
+static inline int pte_young(pte_t pte)
 {
 	return pte_flags(pte) & __PAGE_ACCESSED;
 }
@@ -202,6 +202,11 @@ static inline int pmd_present(pmd_t pmd)
 static inline int pmd_dirty(pmd_t pmd)
 {
 	return pmd_flags(pmd) & __PAGE_DIRTY;
+}
+
+static inline int pmd_young(pmd_t pmd)
+{
+	return pmd_flags(pmd) & __PAGE_ACCESSED;
 }
 
 static inline int pmd_accessed(pmd_t pmd)
@@ -481,6 +486,27 @@ static inline unsigned long pgd_index(unsigned long address)
 #define KERNEL_PGD_PTRS		(PTRS_PER_PGD - KERNEL_PGD_BASE)
 
 
+/*
+ * We only update the dirty/accessed state if we set
+ * the dirty bit by hand in the kernel, since the hardware
+ * will do the accessed bit for us, and we don't want to
+ * race with other CPU's that might be updating the dirty
+ * bit at the same time.
+ */
+struct vm_area_struct;
+
+#define  __HAVE_ARCH_PTEP_SET_ACCESS_FLAGS
+extern int ptep_set_access_flags(struct vm_area_struct *vma,
+				 unsigned long address, pte_t *ptep,
+				 pte_t entry, int dirty);
+
+#define __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
+extern int ptep_test_and_clear_young(struct vm_area_struct *vma,
+				     unsigned long addr, pte_t *ptep);
+
+#define __HAVE_ARCH_PTEP_CLEAR_YOUNG_FLUSH
+extern int ptep_clear_flush_young(struct vm_area_struct *vma,
+				  unsigned long address, pte_t *ptep);
 
 
 
