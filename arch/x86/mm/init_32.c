@@ -23,7 +23,5 @@
 #include <sandix/export.h>
 #include <sandix/compiler.h>
 
-void __set_fixmap(enum fixed_addresses idx, phys_addr_t phys, pgprot_t flags)
-{
-
-}
+pteval_t __supported_pte_mask __read_mostly = ~(__PAGE_NX | __PAGE_GLOBAL);
+EXPORT_SYMBOL(__supported_pte_mask);
