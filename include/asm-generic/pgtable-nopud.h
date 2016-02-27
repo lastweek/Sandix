@@ -77,6 +77,7 @@ static inline pud_t *pud_offset(pgd_t *pgd, unsigned long address)
 #define pud_free(mm, x)				do { } while (0)
 #define __pud_free_tlb(tlb, x, a)		do { } while (0)
 
+/* Used to walk through page table */
 #undef  pud_addr_end
 #define pud_addr_end(addr, end)			(end)
 

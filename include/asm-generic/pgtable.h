@@ -19,6 +19,39 @@
 #ifndef _ASM_GENERIC_PGTABLE_H_
 #define _ASM_GENERIC_PGTABLE_H_
 
+#if 4 - defined(__PGTABLE_PUD_FOLDED) - defined(__PGTABLE_PMD_FOLDED) != \
+	CONFIG_PGTABLE_LEVELS
+#error "CONFIG_PGTABLE_LEVELS is not consistent with __PGTABLE_{PUD,PMD}_FOLDED"
+#endif
 
+/*
+ * When walking page tables, get the address of the next boundary,
+ * or the end address of the range if that comes earlier.
+ *
+ * Although no vma end wraps to 0, rounded up __boundary may wrap
+ * to 0 throughout, so do the minus in case bad things happen.
+ */
+
+#define pgd_addr_end(addr, end)						\
+({									\
+	unsigned long __boundary = ((addr) + PGDIR_SIZE) & PGDIR_MASK;	\
+	(__boundary -1 > (end) - 1) ? __boundary : (end);		\
+})
+
+#ifndef pud_addr_end
+#define pud_addr_end(addr, end)						\
+({									\
+	unsigned long __boundary = ((addr) + PUD_SIZE) & PUD_MASK;	\
+	(__boundary -1 > (end) - 1) ? __boundary : (end);		\
+})
+#endif
+
+#ifndef pmd_addr_end
+#define pmd_addr_end(addr, end)						\
+({									\
+	unsigned long __boundary = ((addr) + PMD_SIZE) & PMD_MASK;	\
+	(__boundary -1 > (end) - 1) ? __boundary : (end);		\
+})
+#endif
 
 #endif /* _ASM_GENERIC_PGTABLE_H_ */

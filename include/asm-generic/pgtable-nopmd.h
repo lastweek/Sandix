@@ -24,8 +24,8 @@
 #define __PGTABLE_PMD_FOLDED
 
 /*
- * Having the pmd type consist of a pud gets the size right, and allows
- * us to conceptually access the pud entry that this pmd is folded into
+ * Having the PMD type consist of a PUD gets the size right, and allows
+ * us to conceptually access the PUD entry that this PMD is folded into
  * without casting.
  */
 typedef struct {
@@ -39,8 +39,8 @@ typedef struct {
 
 /*
  * The "pud_xxx()" functions here are trivial for a folded two-level
- * setup: the pmd is never bad, and a pmd always exists (as it's folded
- * into the pud entry)
+ * setup: the PMD is never bad, and a PMD always exists (as it's folded
+ * into the PUD entry)
  */
 static inline int pud_none(pud_t pud)		{ return 0; }
 static inline int pud_bad(pud_t pud)		{ return 0; }
@@ -52,7 +52,7 @@ static inline void pud_clear(pud_t *pud)	{ }
 #define pud_populate(mm, pmd, pte)		do { } while (0)
 
 /*
- * pmds are folded into puds so this doesn't get actually called,
+ * PMDs are folded into PUDs so this doesn't get actually called,
  * but the define is needed for a generic inline function.
  */
 #define pud_set(pudptr, pudval) \
@@ -70,13 +70,14 @@ static inline pmd_t *pmd_offset(pud_t *pud, unsigned long address)
 #define pud_page_vaddr(pud)			(pmd_page_vaddr((pmd_t){ pud }))
 
 /*
- * allocating and freeing a pmd is trivial: the 1-entry pmd is
- * inside the pud, so has no extra memory associated with it.
+ * Allocating and freeing a PMD is trivial: the 1-entry PMD is
+ * inside the PUD, so has no extra memory associated with it.
  */
 #define pmd_alloc_one(mm, address)		NULL
 #define pmd_free(mm, x)				do { } while (0)
 #define __pmd_free_tlb(tlb, x, a)		do { } while (0)
 
+/* Used to walk through page table */
 #undef  pmd_addr_end
 #define pmd_addr_end(addr, end)			(end)
 

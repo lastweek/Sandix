@@ -364,7 +364,7 @@ static inline unsigned long pmd_page_vaddr(pmd_t pmd)
  */
 static inline pte_t *pte_offset(pmd_t *pmd, unsigned long address)
 {
-	return (pte_t *)pmd_page_vaddr(*pmd) + pte_index(address);
+	return ((pte_t *)pmd_page_vaddr(*pmd)) + pte_index(address);
 }
 
 /*
@@ -404,7 +404,7 @@ static inline unsigned long pud_page_vaddr(pud_t pud)
  */
 static inline pmd_t *pmd_offset(pud_t *pud, unsigned long address)
 {
-	return (pmd_t *)pud_page_vaddr(*pud) + pmd_index(address);
+	return ((pmd_t *)pud_page_vaddr(*pud)) + pmd_index(address);
 }
 
 static inline int pud_bad(pud_t pud)
@@ -440,7 +440,7 @@ static inline unsigned long pud_index(unsigned long address)
  */
 static inline pud_t *pud_offset(pgd_t *pgd, unsigned long address)
 {
-	return (pud_t *)pgd_page_vaddr(*pgd) + pud_index(address);
+	return ((pud_t *)pgd_page_vaddr(*pgd)) + pud_index(address);
 }
 
 static inline int pgd_bad(pgd_t pgd)
@@ -466,7 +466,8 @@ static inline unsigned long pgd_index(unsigned long address)
 }
 
 /**
- * pgd_offset - Find an entry in the fourth-level page table
+ * pgd_offset() returns a (pgd_t *)
+ * pgd_index() is used get the offset into the pgd page's array of pgd_t's;
  */
 #define pgd_offset(mm, addr)	((mm)->pgd + pgd_index((address)))
 
