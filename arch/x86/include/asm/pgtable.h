@@ -60,16 +60,15 @@
 #ifndef _ASM_X86_PGTABLE_H_
 #define _ASM_X86_PGTABLE_H_
 
-#include <asm/page.h>
 #include <sandix/const.h>
 #include <sandix/types.h>
 
+#include <asm/page.h>
 #include <asm/pgtable_types.h>
-
 #ifdef CONFIG_X86_32
-# include <asm/pgtable_32.h>
+#include <asm/pgtable_32.h>
 #else
-# include <asm/pgtable_64.h>
+#include <asm/pgtable_64.h>
 #endif
 
 #define set_pte(ptep, pte)		native_set_pte(ptep, pte)

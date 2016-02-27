@@ -16,23 +16,12 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/*
- * This file contains the functions and defines necessary 
- * to modify and use the i386 page table tree.
- *
- * The Sandix memory management assumes a three-level page table setup. On
- * the i386, we use that, but "fold" the mid level into the top-level page
- * table, so that we physically have the same two-level page table as the
- * i386 mmu expects.
- */
+#include <asm/fixmap.h>
+#include <asm/pgtable.h>
 
-#ifndef _ASM_X86_PGTABLE_32_H_
-#define _ASM_X86_PGTABLE_32_H_
+#include <sandix/types.h>
 
-#ifdef CONFIG_X86_PAE
-# include <asm/pgtable-3level.h>
-#else
-# include <asm/pgtable-2level.h>
-#endif
+void __set_fixmap(enum fixed_addresses idx, phys_addr_t phys, pgprot_t flags)
+{
 
-#endif /* _ASM_X86_PGTABLE_32_H_ */
+}

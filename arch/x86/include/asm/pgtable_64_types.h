@@ -29,27 +29,25 @@ typedef unsigned long pgprotval_t;
 typedef struct {
 	pteval_t pte;
 } pte_t;
-#endif /* __ASSEMBLY__ */
-
-#define SHARED_KERNEL_PMD	0
+#endif
 
 /*
  * PGDIR_SHIFT determines the size of the area
- * a top-level page table entry can map
+ * a top-level page table entry can map.
  */
 #define PGDIR_SHIFT		39
 #define PTRS_PER_PGD		512
 
 /*
  * PUD_SHIFT determines the size of the area
- * a 3rd-level page table entry can map
+ * a 3rd-level page table entry can map.
  */
 #define PUD_SHIFT		30
 #define PTRS_PER_PUD		512
 
 /*
  * PMD_SHIFT determines the size of the area
- * a middle-level page table entry can map
+ * a middle-level page table entry can map.
  */
 #define PMD_SHIFT		21
 #define PTRS_PER_PMD		512

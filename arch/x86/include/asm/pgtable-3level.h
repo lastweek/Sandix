@@ -16,13 +16,12 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/*
- * Three-level page tables, in PAE mode.
- * TODO
- */
-
 #ifndef _ASM_X86_PGTABLE_3LEVEL_H_
 #define _ASM_X86_PGTABLE_3LEVEL_H_
+
+/*
+ * x86_32 three-level page tables, in PAE mode.
+ */
 
 #ifndef __ASSEMBLY__
 
@@ -37,14 +36,19 @@
 	       __FILE__, __LINE__, &(e), pgd_val(e))
 
 static inline void native_set_pte(pte_t *ptep, pte_t pte)
-{}
+{
+	BUG();
+}
 
 static inline void native_set_pmd(pmd_t *pmdp, pmd_t pmd)
-{}
+{
+	BUG();
+}
 
 static inline void native_set_pud(pud_t *pudp, pud_t pud)
-{}
+{
+	BUG();
+}
 
 #endif /* __ASSEMBLY__ */
-
 #endif /* _ASM_X86_PGTABLE_3LEVEL_H_ */

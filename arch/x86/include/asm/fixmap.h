@@ -21,6 +21,7 @@
 
 #include <asm/page.h>
 #include <asm/apic.h>
+
 #include <sandix/bug.h>
 #include <sandix/threads.h>
 
@@ -92,11 +93,14 @@ enum fixed_addresses {
 #ifdef CONFIG_X86_32
 #define FIXADDR_TOP	((unsigned long)0xfffff000)
 #else
-#define FIXADDR_TOP
+#define FIXADDR_TOP	BUILD_BUG_ON(1)
 #endif
 
 #define FIXADDR_SIZE	(__end_of_permanent_fixed_addresses << PAGE_SHIFT)
 #define FIXADDR_START	(FIXADDR_TOP - FIXADDR_SIZE)
+
+extern void __set_fixmap(enum fixed_addresses idx, phys_addr_t phys,
+			 pgprot_t flags);
 
 #include <asm-generic/fixmap.h>
 

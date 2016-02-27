@@ -54,7 +54,7 @@ static inline unsigned long virt_to_fix(const unsigned long vaddr)
 	addr;						      \
 })
 
-#define set_fixmap_offset(idx, phys) \
+#define set_fixmap_offset(idx, phys)				\
 	__set_fixmap_offset(idx, phys, FIXMAP_PAGE_NORMAL)
 
 #endif /* _ASM_GENERIC_FIXMAP_H_ */
