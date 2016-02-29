@@ -61,6 +61,11 @@ struct resource {
 extern struct resource ioport_resource;
 extern struct resource iomem_resource;
 
+static inline resource_size_t resource_size(const struct resource *res)
+{
+	return res->end - res->start + 1;
+}
+
 int release_resource(struct resource *old);
 int request_resource(struct resource *root, struct resource *new);
 

@@ -578,3 +578,9 @@ Sat Feb 27 16:46:08 CST 2016
 - [+] arch/x86/mm/init_32.c
 - [M] arch/x86/include/asm/pgtable*.h		[D] Add various functions.
 - [M] include/asm-generic/pgtable.h
+
+
+Mon Feb 29 20:08:19 CST 2016
+- [+] arch/x86/include/asm/pgalloc.h
+- [M] arch/x86/mm/ioremap.c
+- [M] lib/vsprintf.c

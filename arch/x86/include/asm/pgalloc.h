@@ -16,17 +16,14 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <asm/fixmap.h>
+#include <asm/page.h>
 #include <asm/pgtable.h>
 
-#include <sandix/types.h>
-#include <sandix/export.h>
-#include <sandix/compiler.h>
+#include <sandix/mm.h>
 
-pteval_t __supported_pte_mask __read_mostly = ~(__PAGE_NX | __PAGE_GLOBAL);
-EXPORT_SYMBOL(__supported_pte_mask);
-
-void find_low_pfn_range(void)
+static inline void pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmd,
+				       pte_t *pte)
 {
-
+	pmd_set(pmd, __pmd(__pa(pte) | __PAGE_TABLE));
 }
+

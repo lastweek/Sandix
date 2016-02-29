@@ -39,10 +39,14 @@
  * WARNING: PAE is not implemented!
  */
 
+extern pgd_t initial_page_table[1024];
+
 #ifdef CONFIG_X86_PAE
 # include <asm/pgtable-3level.h>
 #else
 # include <asm/pgtable-2level.h>
 #endif
+
+void find_low_pfn_range(void);
 
 #endif /* _ASM_X86_PGTABLE_32_H_ */

@@ -84,7 +84,7 @@ ENTRY(startup_32)
 #define PDE_OFFSET	(__PAGE_OFFSET >> 20)
 
 	movl	$pa(__brk_start), %edi		# .brk section that follow .bss
- 	movl	$pa(early_page_dir), %ebx	# Top page directory
+ 	movl	$pa(initial_page_table), %ebx	# Top page directory
 	movl	$PTE_ATTR, %eax
 10:
 	leal	PDE_ATTR(%edi), %ecx		# Create PDE entry
@@ -107,8 +107,8 @@ ENTRY(startup_32)
 	movl	%eax, pa(max_pfn_mapped)	# Store maximum mapped frame
 
 						# Create PDE for fixmap
-	movl	$pa(early_pg_fixmap)+PDE_ATTR, %eax
-	movl	%eax, pa(early_page_dir + 0xffc)
+	movl	$pa(initial_pg_fixmap)+PDE_ATTR, %eax
+	movl	%eax, pa(initial_page_table + 0xffc)
 
 # Set up a IDT with 256 interrupt gates that does nothing.
 # We do NOT load IDT here - that need to be done on each cpu.
@@ -148,7 +148,7 @@ default_entry:
 	pushl	$0
 	popfl					# Clear EFLAGS
 
-	movl	$pa(early_page_dir), %eax
+	movl	$pa(initial_page_table), %eax
 	movl	%eax, %cr3			# Store the page table pointer
 	movl	$CR0_STATE, %eax
 	movl	%eax, %cr0			# Enable paging and etc.
@@ -203,7 +203,7 @@ ENTRY(gdt_descr)
 
 	.section .bss
 	.align PAGE_SIZE
-ENTRY(early_page_dir)
+ENTRY(initial_page_table)
 	.fill	1024,4,0
-ENTRY(early_pg_fixmap)
+ENTRY(initial_pg_fixmap)
 	.fill	1024,4,0

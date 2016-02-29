@@ -1,6 +1,6 @@
 /*
  *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
- *	
+ *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
@@ -20,6 +20,7 @@
 
 #include <asm/byteorder.h>
 
+#include <sandix/io.h>
 #include <sandix/bug.h>
 #include <sandix/page.h>
 #include <sandix/types.h>
@@ -411,6 +412,185 @@ static char *string(char *buf, char *end, const char *s,
 	return buf;
 }
 
+static __noinline_for_stack
+char *resource_string(char *buf, char *end, struct resource *res,
+		      struct printf_spec spec, const char *fmt)
+{
+#ifndef IO_RSRC_PRINTK_SIZE
+#define IO_RSRC_PRINTK_SIZE	6
+#endif
+
+#ifndef MEM_RSRC_PRINTK_SIZE
+#define MEM_RSRC_PRINTK_SIZE	10
+#endif
+	static const struct printf_spec io_spec = {
+		.base = 16,
+		.field_width = IO_RSRC_PRINTK_SIZE,
+		.precision = -1,
+		.flags = SPECIAL | SMALL | ZEROPAD,
+	};
+	static const struct printf_spec mem_spec = {
+		.base = 16,
+		.field_width = MEM_RSRC_PRINTK_SIZE,
+		.precision = -1,
+		.flags = SPECIAL | SMALL | ZEROPAD,
+	};
+	static const struct printf_spec bus_spec = {
+		.base = 16,
+		.field_width = 2,
+		.precision = -1,
+		.flags = SMALL | ZEROPAD,
+	};
+	static const struct printf_spec dec_spec = {
+		.base = 10,
+		.precision = -1,
+		.flags = 0,
+	};
+	static const struct printf_spec str_spec = {
+		.field_width = -1,
+		.precision = 10,
+		.flags = LEFT,
+	};
+	static const struct printf_spec flag_spec = {
+		.base = 16,
+		.precision = -1,
+		.flags = SPECIAL | SMALL,
+	};
+
+	/* 32-bit res (sizeof==4): 10 chars in dec, 10 in hex ("0x" + 8)
+	 * 64-bit res (sizeof==8): 20 chars in dec, 18 in hex ("0x" + 16) */
+#define RSRC_BUF_SIZE		((2 * sizeof(resource_size_t)) + 4)
+#define FLAG_BUF_SIZE		(2 * sizeof(res->flags))
+#define DECODED_BUF_SIZE	sizeof("[mem - 64bit pref window disabled]")
+#define RAW_BUF_SIZE		sizeof("[mem - flags 0x]")
+	char sym[max(2*RSRC_BUF_SIZE + DECODED_BUF_SIZE,
+		     2*RSRC_BUF_SIZE + FLAG_BUF_SIZE + RAW_BUF_SIZE)];
+
+	char *p = sym, *pend = sym + sizeof(sym);
+	int decode = (fmt[0] == 'R') ? 1 : 0;
+	const struct printf_spec *specp;
+
+	*p++ = '[';
+	if (res->flags & IORESOURCE_IO) {
+		p = string(p, pend, "io  ", str_spec);
+		specp = &io_spec;
+	} else if (res->flags & IORESOURCE_MEM) {
+		p = string(p, pend, "mem ", str_spec);
+		specp = &mem_spec;
+	} else if (res->flags & IORESOURCE_IRQ) {
+		p = string(p, pend, "irq ", str_spec);
+		specp = &dec_spec;
+	} else if (res->flags & IORESOURCE_DMA) {
+		p = string(p, pend, "dma ", str_spec);
+		specp = &dec_spec;
+	} else if (res->flags & IORESOURCE_BUS) {
+		p = string(p, pend, "bus ", str_spec);
+		specp = &bus_spec;
+	} else {
+		p = string(p, pend, "??? ", str_spec);
+		specp = &mem_spec;
+		decode = 0;
+	}
+	if (decode && res->flags & IORESOURCE_UNSET) {
+		p = string(p, pend, "size ", str_spec);
+		p = number(p, pend, resource_size(res), *specp);
+	} else {
+		p = number(p, pend, res->start, *specp);
+		if (res->start != res->end) {
+			*p++ = '-';
+			p = number(p, pend, res->end, *specp);
+		}
+	}
+	if (decode) {
+		if (res->flags & IORESOURCE_MEM_64)
+			p = string(p, pend, " 64bit", str_spec);
+		if (res->flags & IORESOURCE_PREFETCH)
+			p = string(p, pend, " pref", str_spec);
+		if (res->flags & IORESOURCE_WINDOW)
+			p = string(p, pend, " window", str_spec);
+		if (res->flags & IORESOURCE_DISABLED)
+			p = string(p, pend, " disabled", str_spec);
+	} else {
+		p = string(p, pend, " flags ", str_spec);
+		p = number(p, pend, res->flags, flag_spec);
+	}
+	*p++ = ']';
+	*p = '\0';
+
+	return string(buf, end, sym, spec);
+}
+
+static __noinline_for_stack
+char *hex_string(char *buf, char *end, u8 *addr, struct printf_spec spec, const char *fmt)
+{
+	int i, len = 1;		/* if we pass '%ph[CDN]', field width remains
+				   negative value, fallback to the default */
+	char separator;
+
+	if (spec.field_width == 0)
+		/* nothing to print */
+		return buf;
+	
+	switch (fmt[1]) {
+	case 'C':
+		separator = ':';
+		break;
+	case 'D':
+		separator = '-';
+		break;
+	case 'N':
+		separator = 0;
+		break;
+	default:
+		separator = ' ';
+		break;
+	}
+
+	if (spec.field_width > 0)
+		len = min_t(int, spec.field_width, 64);
+
+	for (i = 0; i < len; ++i) {
+		if (buf < end)
+			*buf = hex_asc_hi(addr[i]);
+		++buf;
+		if (buf < end)
+			*buf = hex_asc_lo(addr[i]);
+		++buf;
+
+		if (separator && i != len - 1) {
+			if (buf < end)
+				*buf = separator;
+			++buf;
+		}
+	}
+
+	return buf;
+}
+
+static __noinline_for_stack
+char *address_val(char *buf, char *end, const void *addr,
+		  struct printf_spec spec, const char *fmt)
+{
+	unsigned long long num;
+
+	spec.flags |= SPECIAL | SMALL | ZEROPAD;
+	spec.base = 16;
+
+	switch (fmt[1]) {
+	case 'd':
+		num = *(const dma_addr_t *)addr;
+		spec.field_width = sizeof(dma_addr_t) * 2 + 2;
+		break;
+	case 'p':
+	default:
+		num = *(const phys_addr_t *)addr;
+		spec.field_width = sizeof(phys_addr_t) * 2 + 2;
+		break;
+	}
+
+	return number(buf, end, num, spec);
+}
+
 /* TODO */
 static __noinline_for_stack char *pointer(const char *fmt,
 					  char *buf,
@@ -418,7 +598,35 @@ static __noinline_for_stack char *pointer(const char *fmt,
 					  void *ptr,
 					  struct printf_spec spec)
 {
-	return NULL;
+	const int default_width = 2 * sizeof(void *);
+
+	if (!ptr && *fmt != 'K') {
+		/*
+		 * Print (null) with the same width as a pointer so it makes
+		 * tabular output look nice.
+		 */
+		if (spec.field_width == -1)
+			spec.field_width = default_width;
+		return string(buf, end, "(null)", spec);
+	}
+
+	switch (*fmt) {
+	case 'R':
+	case 'r':
+		return resource_string(buf, end, ptr, spec, fmt);
+	case 'h':
+		return hex_string(buf, end, ptr, spec, fmt);
+	case 'a':
+		return address_val(buf, end, ptr, spec, fmt);
+	}
+	spec.flags |= SMALL;
+	if (spec.field_width == -1) {
+		spec.field_width = default_width;
+		spec.flags |= ZEROPAD;
+	}
+	spec.base = 16;
+
+	return number(buf, end, (unsigned long) ptr, spec);
 }
 
 /*

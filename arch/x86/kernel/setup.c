@@ -28,6 +28,7 @@
 #include <asm/page.h>
 #include <asm/e820.h>
 #include <asm/traps.h>
+#include <asm/pgtable.h>
 #include <asm/segment.h>
 #include <asm/sections.h>
 #include <asm/bootparam.h>
@@ -154,8 +155,16 @@ void __init early_arch_setup(void)
 
 void __init arch_setup(void)
 {
+	int i;
 	setup_memory_map();
 	early_cpu_init();
+
+	early_ioremap_init();
+
+	for (i = 0; i < 1024; i++)
+		if (pgd_val(initial_page_table[i]))
+			printk("%d %p\n", i, pgd_val(initial_page_table[i]));
+
 	iomem_resource.end = (1ULL << boot_cpu_info.x86_phys_bits) - 1;
 
 	init_mm.start_code	= (unsigned long)__text_start;
@@ -174,8 +183,12 @@ void __init arch_setup(void)
 
 	max_pfn = e820_end_of_ram_pfn();
 
+#ifdef CONFIG_X86_32
+	/* max_low_pfn get updated here */
+	find_low_pfn_range();
+#endif
 
-
+	
 
 
 #ifdef CONFIG_PCI
