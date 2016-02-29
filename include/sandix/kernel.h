@@ -27,6 +27,7 @@
 #include <sandix/linkage.h>
 #include <sandix/compiler.h>
 #include <sandix/typecheck.h>
+#include <sandix/kern_levels.h>
 
 #define USHRT_MAX		((u16)(~0U))
 #define SHRT_MAX		((s16)(USHRT_MAX>>1))

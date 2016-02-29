@@ -239,13 +239,14 @@ static void __init early_identify_cpu(struct cpuinfo_x86 *c)
 void __init early_cpu_init(void)
 {
 	int i = 0;
+#ifdef CONFIG_PRINT_SUPPORTED_CPUS
 	printk(KERN_INFO "Kernel supported CPUs:\n");
 	while (cpudevs[i++]) {
 		struct cpu_dev *cdev = cpudevs[i - 1];
 		printk(KERN_INFO "  %s %s\n", cdev->cpu_vendor, cdev->cpu_ident);
 	}
+#endif
 	early_identify_cpu(&boot_cpu_info);
-	print_cpu_info(&boot_cpu_info);
 }
 
 void __init cpu_init(void)
@@ -253,6 +254,7 @@ void __init cpu_init(void)
 
 }
 
+__used
 void print_cpu_info(struct cpuinfo_x86 *c)
 {
 	if (c->x86_model_id[0])

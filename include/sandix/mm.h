@@ -25,6 +25,7 @@
 #include <sandix/types.h>
 #include <sandix/atomic.h>
 #include <sandix/spinlock.h>
+#include <sandix/compiler.h>
 
 struct mm_struct;
 
@@ -65,5 +66,7 @@ struct mm_struct {
 extern unsigned long max_low_pfn;
 extern unsigned long min_low_pfn;
 extern unsigned long max_pfn;
+
+void __init mem_init(void);
 
 #endif /* _SANDIX_MM_H_ */

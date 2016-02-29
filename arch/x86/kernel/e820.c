@@ -47,7 +47,6 @@ struct e820map e820_bios;
 #  define MAX_ARCH_PFN	(1ULL << (32 - PAGE_SHIFT))
 # endif
 #else
-   /* X86_64 */
 #  define MAX_ARCH_PFN	(MAXMEM >> PAGE_SHIFT)
 #endif
 
@@ -93,9 +92,6 @@ static unsigned long __init e820_end_pfn(unsigned long limit_pfn)
 
 	if (last_pfn > max_arch_pfn)
 		last_pfn = max_arch_pfn;
-
-	printk(KERN_INFO "e820: last_pfn = %#lx max_arch_pfn = %#lx\n",
-		last_pfn, max_arch_pfn);
 
 	return last_pfn;
 }

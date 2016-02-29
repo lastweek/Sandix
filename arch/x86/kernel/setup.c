@@ -155,15 +155,11 @@ void __init early_arch_setup(void)
 
 void __init arch_setup(void)
 {
-	int i;
 	setup_memory_map();
 	early_cpu_init();
 
 	early_ioremap_init();
 
-	for (i = 0; i < 1024; i++)
-		if (pgd_val(initial_page_table[i]))
-			printk("%d %0#lx\n", i, pgd_val(initial_page_table[i]));
 
 	iomem_resource.end = (1ULL << boot_cpu_info.x86_phys_bits) - 1;
 

@@ -27,7 +27,7 @@
 #define KERN_ALERT	KERN_SOH "1"	/* Action must be taken immediately */
 #define KERN_CRIT	KERN_SOH "2"	/* Critical conditions */
 #define KERN_ERR	KERN_SOH "3"	/* Error conditions */
-#define KERN_WARN	KERN_SOH "4"	/* Warning conditions */
+#define KERN_WARNING	KERN_SOH "4"	/* Warning conditions */
 #define KERN_NOTICE	KERN_SOH "5"	/* Normal but significant condition */
 #define KERN_INFO	KERN_SOH "6"	/* Informational */
 #define KERN_DEBUG	KERN_SOH "7"	/* Debug-level messages */
@@ -37,7 +37,7 @@
 #define KERN_ALERT
 #define KERN_CRIT
 #define KERN_ERR
-#define KERN_WARN
+#define KERN_WARNING
 #define KERN_NOTICE
 #define KERN_INFO
 #define KERN_DEBUG
@@ -59,7 +59,7 @@
 #define LOGLEVEL_ALERT		1	/* Action must be taken immediately */
 #define LOGLEVEL_CRIT		2	/* Critical conditions */
 #define LOGLEVEL_ERR		3	/* Error conditions */
-#define LOGLEVEL_WARN		4	/* Warning conditions */
+#define LOGLEVEL_WARNING	4	/* Warning conditions */
 #define LOGLEVEL_NOTICE		5	/* Normal but significant condition */
 #define LOGLEVEL_INFO		6	/* Informational */
 #define LOGLEVEL_DEBUG		7	/* Debug-level messages */

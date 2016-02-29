@@ -62,8 +62,10 @@ void __init early_ioremap_init(void)
 	memset(bm_pte, 0, sizeof(bm_pte));
 	pmd_populate_kernel(&init_mm, pmd, bm_pte);
 
+#ifdef CONFIG_PRINT_FIXMAP_RANG
 	printk(KERN_INFO "fix_to_virt(FIX_BTMAP_BEGIN): %08lx\n", fix_to_virt(FIX_BTMAP_BEGIN));
 	printk(KERN_INFO "fix_to_virt(FIX_BTMAP_END):   %08lx\n", fix_to_virt(FIX_BTMAP_END));
 	printk(KERN_INFO "FIX_BTMAP_END:       %d\n", FIX_BTMAP_END);
 	printk(KERN_INFO "FIX_BTMAP_BEGIN:     %d\n", FIX_BTMAP_BEGIN);
+#endif
 }

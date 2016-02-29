@@ -17,6 +17,7 @@
 #ifndef _ASM_X86_PAGE_H_
 #define _ASM_X86_PAGE_H_
 
+#include <sandix/pfn.h>
 #include <sandix/const.h>
 #include <sandix/types.h>
 
@@ -41,10 +42,7 @@
 #define PUD_PAGE_SIZE		(_AC(1, UL) << PUD_SHIFT)
 #define PUD_PAGE_MASK		(~(PUD_PAGE_SIZE - 1))
 
-/*
- * Use 1ULL instead of 1UL because of PAE...
- */
-
+/* Use 1ULL instead of 1UL because of PAE... */
 #define __PHYSICAL_MASK		((phys_addr_t)((1ULL << __PHYSICAL_MASK_SHIFT) - 1))
 #define __VIRTUAL_MASK		((1UL << __VIRTUAL_MASK_SHIFT) - 1)
 
@@ -62,7 +60,6 @@
 
 #define __pa(x)			__phys_addr((unsigned long)x)
 #define __pa_symbol(x)		__pa(x)
-
 #define __va(x)			((void *)((unsigned long)(x) + PAGE_OFFSET))
 
 #endif /* _ASM_X86_PAGE_H_ */

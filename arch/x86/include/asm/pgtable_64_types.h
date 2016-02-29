@@ -19,6 +19,8 @@
 #ifndef _ASM_X86_PGTABLE_64_TYPES_H_
 #define _ASM_X86_PGTABLE_64_TYPES_H_
 
+#include <sandix/pfn.h>
+
 #ifndef __ASSEMBLY__
 typedef unsigned long pteval_t;
 typedef unsigned long pmdval_t;
@@ -69,5 +71,6 @@ typedef struct {
 #define VMALLOC_START    _AC(0xffffc90000000000, UL)
 #define VMALLOC_END      _AC(0xffffe8ffffffffff, UL)
 #define VMEMMAP_START	 _AC(0xffffea0000000000, UL)
+#define MAXMEM_PFN	 PFN_DOWN(MAXMEM)
 
 #endif /* _ASM_X86_PGTABLE_32_TYPES_H_ */
