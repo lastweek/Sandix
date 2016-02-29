@@ -533,6 +533,11 @@ static inline void clone_pgd_range(pgd_t *dst, pgd_t *src, int count)
        memcpy(dst, src, count * sizeof(pgd_t));
 }
 
+static inline unsigned long pages_to_mb(unsigned long npg)
+{
+	return npg >> (20 - PAGE_SHIFT);
+}
+
 #include <asm-generic/pgtable.h>
 
 #endif /* _ASM_X86_PGTABLE_H_ */

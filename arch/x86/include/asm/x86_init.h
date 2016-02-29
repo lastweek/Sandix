@@ -19,8 +19,14 @@
 #ifndef _ASM_X86_X86_INIT_H_
 #define _ASM_X86_X86_INIT_H_
 
+/**
+ * struct x86_init_mpparse - platform specific mpparse ops
+ * @find_smp_config:		find the smp configuration
+ * @get_smp_config:		get the smp configuration
+ */
 struct x86_init_mpparse {
-
+	void (*find_smp_config)(void);
+	void (*get_smp_config)(unsigned int early);
 };
 
 struct x86_init_resources {

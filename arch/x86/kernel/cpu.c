@@ -238,8 +238,8 @@ static void __init early_identify_cpu(struct cpuinfo_x86 *c)
  */
 void __init early_cpu_init(void)
 {
-	int i = 0;
 #ifdef CONFIG_PRINT_SUPPORTED_CPUS
+	int i = 0;
 	printk(KERN_INFO "Kernel supported CPUs:\n");
 	while (cpudevs[i++]) {
 		struct cpu_dev *cdev = cpudevs[i - 1];

@@ -22,12 +22,12 @@
 #include <sandix/kernel.h>
 #include <sandix/export.h>
 #include <sandix/bootmem.h>
-#include <sandix/compiler.h>
 #include <sandix/screen_info.h>
 
 #include <asm/page.h>
 #include <asm/e820.h>
 #include <asm/traps.h>
+#include <asm/mpspec.h>
 #include <asm/pgtable.h>
 #include <asm/segment.h>
 #include <asm/sections.h>
@@ -183,9 +183,17 @@ void __init arch_setup(void)
 #ifdef CONFIG_X86_32
 	/* max_low_pfn get updated here */
 	find_low_pfn_range();
+#else
+	if (max_pfn > (1UL << (32 - PAGE_SHIFT)))
+		max_low_pfn = e820_end_of_low_ram_pfn();
+	else
+		max_low_pfn = max_pfn;
+
+	high_memory = (void *)__va(max_pfn * PAGE_SIZE - 1) + 1;
 #endif
 
-	
+	/* find possible boot-time SMP configruation */
+	find_smp_config();
 
 
 #ifndef CONFIG_PCI

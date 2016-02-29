@@ -101,9 +101,7 @@ unsigned long __init e820_end_of_ram_pfn(void)
 	return e820_end_pfn(MAX_ARCH_PFN);
 }
 
-/*
- * Low 1-GB memory
- */
+/* Low 4-GB memory for x86_64 */
 unsigned long __init e820_end_of_low_ram_pfn(void)
 {
 	return e820_end_pfn(1UL << (32 - PAGE_SHIFT));

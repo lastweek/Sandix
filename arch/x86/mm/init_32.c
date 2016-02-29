@@ -27,6 +27,11 @@
 #include <sandix/export.h>
 #include <sandix/bootmem.h>
 
+void *high_memory;
+EXPORT_SYMBOL(high_memory);
+
+unsigned long highstart_pfn, highend_pfn;
+
 pteval_t __supported_pte_mask __read_mostly = ~(__PAGE_NX | __PAGE_GLOBAL);
 EXPORT_SYMBOL(__supported_pte_mask);
 
@@ -66,10 +71,19 @@ void __init find_low_pfn_range(void)
 		max_low_pfn = MAXMEM_PFN;
 		check_highmem_config();
 	}
+
+	printk(KERN_NOTICE "%ldMB LOWMEM available.\n", pages_to_mb(max_low_pfn));
+#ifdef CONFIG_HIGHMEM
+	highstart_pfn = highend_pfn = max_pfn;
+	if (max_pfn > max_low_pfn)
+		highstart_pfn = max_low_pfn;
+	printk(KERN_NOTICE "%ldMB HIGHMEM avaiable.\n", pages_to_mb(highend_pfn-highstart_pfn));
+	high_memory = (void *) __va(highstart_pfn * PAGE_SIZE - 1) + 1;
+#else
+	high_memory = (void *) __va(max_low_pfn * PAGE_SIZE - 1) + 1;
+#endif
 	mem_init();
 }
-
-void * high_memory;
 
 void __init mem_init(void)
 {

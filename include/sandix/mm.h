@@ -67,6 +67,15 @@ extern unsigned long max_low_pfn;
 extern unsigned long min_low_pfn;
 extern unsigned long max_pfn;
 
+/*
+ * A number of key systems in x86 including ioremap() rely on the assumption
+ * that high_memory defines the upper bound on direct map memory, then end
+ * of ZONE_NORMAL.  Under CONFIG_DISCONTIG this means that max_low_pfn and
+ * highstart_pfn must be the same; there must be no gap between ZONE_NORMAL
+ * and ZONE_HIGHMEM.
+ */
+extern void *high_memory;
+
 void __init mem_init(void);
 
 #endif /* _SANDIX_MM_H_ */
