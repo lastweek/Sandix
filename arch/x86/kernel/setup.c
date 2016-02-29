@@ -163,7 +163,7 @@ void __init arch_setup(void)
 
 	for (i = 0; i < 1024; i++)
 		if (pgd_val(initial_page_table[i]))
-			printk("%d %p\n", i, pgd_val(initial_page_table[i]));
+			printk("%d %0#lx\n", i, pgd_val(initial_page_table[i]));
 
 	iomem_resource.end = (1ULL << boot_cpu_info.x86_phys_bits) - 1;
 
@@ -180,7 +180,8 @@ void __init arch_setup(void)
 	code_resource.end	= __pa(__text_end) - 1;
 	data_resource.end	= __pa(__data_end) - 1;
 	bss_resource.end	= __pa(__bss_end) - 1;
-
+	
+	/* find the last usable pfn */
 	max_pfn = e820_end_of_ram_pfn();
 
 #ifdef CONFIG_X86_32
@@ -191,7 +192,7 @@ void __init arch_setup(void)
 	
 
 
-#ifdef CONFIG_PCI
+#ifndef CONFIG_PCI
 	early_dump_pci_devices();
 #endif
 

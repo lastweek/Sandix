@@ -23,10 +23,10 @@
 #include <sandix/kernel.h>
 #include <sandix/string.h>
 #include <sandix/printk.h>
-#include <sandix/compiler.h>
 
 #include <asm/e820.h>
 #include <asm/setup.h>
+#include <asm/pgtable.h>
 #include <asm/bootparam.h>
 
 /*
@@ -40,8 +40,6 @@
 struct e820map e820;
 struct e820map e820_bios;
 
-#define MAXMEM BUG()
-
 #ifdef CONFIG_X86_32
 # ifdef CONFIG_X86_PAE
 #  define MAX_ARCH_PFN	(1ULL << (36 - PAGE_SHIFT))
@@ -49,7 +47,8 @@ struct e820map e820_bios;
 #  define MAX_ARCH_PFN	(1ULL << (32 - PAGE_SHIFT))
 # endif
 #else
-# define MAX_ARCH_PFN	(MAXMEM >> PAGE_SHIFT)
+   /* X86_64 */
+#  define MAX_ARCH_PFN	(MAXMEM >> PAGE_SHIFT)
 #endif
 
 /**

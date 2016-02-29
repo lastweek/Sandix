@@ -16,18 +16,16 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <asm/fixmap.h>
-#include <asm/pgtable.h>
+#ifndef _SANDIX_PFN_H_
+#define _SANDIX_PFN_H_
 
+#ifndef __ASSEMBLY__
 #include <sandix/types.h>
-#include <sandix/export.h>
-#include <sandix/compiler.h>
+#endif
 
-pteval_t __supported_pte_mask __read_mostly = ~(__PAGE_NX | __PAGE_GLOBAL);
-EXPORT_SYMBOL(__supported_pte_mask);
+#define PFN_ALIGN(x)	(((unsigned long)(x) + (PAGE_SIZE - 1)) & PAGE_MASK)
+#define PFN_UP(x)	(((x) + PAGE_SIZE-1) >> PAGE_SHIFT)
+#define PFN_DOWN(x)	((x) >> PAGE_SHIFT)
+#define PFN_PHYS(x)	((phys_addr_t)(x) << PAGE_SHIFT)
 
-/* Determine low and high memory ranges */
-void find_low_pfn_range(void)
-{
-
-}
+#endif /* _SANDIX_PFN_H_ */

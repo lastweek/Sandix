@@ -51,7 +51,7 @@ asmlinkage void __init start_kernel(void)
 	 */
 	early_arch_setup();
 	tty_init();
-	pr_notice("%s", sandix_banner);
+	pr_notice("%s\n", sandix_banner);
 
 	set_task_stack_end_magic(&init_task);
 
