@@ -108,10 +108,11 @@ SECTIONS
 
 	/*
 	 * Because .brk section is used for page tables during
-	 * boot, which means we can have 16 page tables at most.
-	 * 16 page tables can mapping 64M kernel.
+	 * boot, which means now we can have 16 page tables at most.
+	 * 16 page tables can mapping 64M kernel range.
+	 *
 	 * Therefore, assert if kernel virtual address __kend
-	 * exceed 64M upper limit, then we can change .brk size
+	 * exceed 64M upper limit, then we should change .brk size
 	 */
 
 	/* If exp is zero, then exit the linker and print message. */

@@ -586,3 +586,9 @@ Mon Feb 29 20:08:19 CST 2016
 - [+] arch/x86/include/asm/mpspec.h		[D] find smp
 - [M] arch/x86/mm/ioremap.c
 - [M] lib/vsprintf.c				[D] %p
+
+
+Tue Mar  1 08:33:58 CST 2016
+- [+] arch/x86/kernel/mpspec.c
+- [M] arch/x86/mm/init.c			[D] init_mem_mapping
+- [M] arch/x86/kernel/setup.c			[D] arch_setup, some memory thing

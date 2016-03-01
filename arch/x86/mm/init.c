@@ -16,5 +16,13 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <sandix/mm.h>
+#include <asm/page.h>
+#include <asm/pgtable.h>
 
+#include <sandix/mm.h>
+#include <sandix/kernel.h>
+
+void __init init_mem_mapping(void)
+{
+
+}

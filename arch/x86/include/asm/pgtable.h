@@ -538,6 +538,9 @@ static inline unsigned long pages_to_mb(unsigned long npg)
 	return npg >> (20 - PAGE_SHIFT);
 }
 
+/* init memory mapping, in mm/init.c */
+void __init init_mem_mapping(void);
+
 #include <asm-generic/pgtable.h>
 
 #endif /* _ASM_X86_PGTABLE_H_ */

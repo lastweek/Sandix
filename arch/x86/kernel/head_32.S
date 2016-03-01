@@ -14,15 +14,12 @@
 #	with this program; if not, write to the Free Software Foundation, Inc.,
 #	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#
-# Caveat: PAE is not supported now.
-#
-
 #include <asm/page.h>
 #include <asm/segment.h>
 #include <asm/bootparam.h>
-#include <asm/processor-flags.h>
+
 #include <sandix/linkage.h>
+#include <asm/processor-flags.h>
 
 #define pa(X)	((X) - __PAGE_OFFSET)
 
@@ -71,10 +68,11 @@ ENTRY(startup_32)
 # Initialize page directory and page tables. We do NOT know
 # how many page tables we need during build, so we use memory
 # beyond brk to store as many page tables as kernel needs.
-# (For now, brk is 64KB -> 16 page tables -> 64M mapping)
+# (For now, brk is 64KB == 16 page tables == 64M mapping)
 #
 # Mapping are created for virtual address 0(identical mapping)
 # and PAGE_OFFSET(kernel mapping) repectively.
+#
 # PTE_ATTR: PRESENT, READ/WRITE
 # PDE_ATTR: PRESENT, READ/WRITE, DIRTY, ACCESSED
 # PDE_OFFSET: Kernel PDE entry, >> 22, << 2(4 bytes align)

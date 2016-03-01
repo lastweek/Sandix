@@ -155,11 +155,11 @@ void __init early_arch_setup(void)
 
 void __init arch_setup(void)
 {
+	int early_dump_pci = 0;
+
 	setup_memory_map();
 	early_cpu_init();
-
 	early_ioremap_init();
-
 
 	iomem_resource.end = (1ULL << boot_cpu_info.x86_phys_bits) - 1;
 
@@ -177,13 +177,18 @@ void __init arch_setup(void)
 	data_resource.end	= __pa(__data_end) - 1;
 	bss_resource.end	= __pa(__bss_end) - 1;
 	
-	/* find the last usable pfn */
+	/* roundup max_pfn */
 	max_pfn = e820_end_of_ram_pfn();
 
 #ifdef CONFIG_X86_32
+	/* max_pfn_mapped was updated in head */
+	printk(KERN_DEBUG "initial memory mapped: [mem 0x00000000-%#010lx]\n",
+		(max_pfn_mapped<<PAGE_SHIFT) - 1);
+
 	/* max_low_pfn get updated here */
 	find_low_pfn_range();
 #else
+	/* x86_64 does not have lowmem really */
 	if (max_pfn > (1UL << (32 - PAGE_SHIFT)))
 		max_low_pfn = e820_end_of_low_ram_pfn();
 	else
@@ -192,12 +197,15 @@ void __init arch_setup(void)
 	high_memory = (void *)__va(max_pfn * PAGE_SIZE - 1) + 1;
 #endif
 
+	init_mem_mapping();
+
 	/* find possible boot-time SMP configruation */
-	find_smp_config();
+	//find_smp_config();
 
 
-#ifndef CONFIG_PCI
-	early_dump_pci_devices();
+#ifdef CONFIG_PCI
+	if (early_dump_pci)
+		early_dump_pci_devices();
 #endif
 
 	reserve_standard_io_resources();
