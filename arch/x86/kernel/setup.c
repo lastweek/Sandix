@@ -197,6 +197,12 @@ void __init arch_setup(void)
 	high_memory = (void *)__va(max_pfn * PAGE_SIZE - 1) + 1;
 #endif
 
+	/*
+	 * TODO
+	 *
+	 * Pick up here. We are building initial kernel memory mapping.
+	 * Tue Mar  1 13:03:21 CST 2016
+	 */
 	init_mem_mapping();
 
 	/* find possible boot-time SMP configruation */

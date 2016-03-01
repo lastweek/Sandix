@@ -55,11 +55,12 @@
  */
 #define E820_RESERVED_KERN	128
 
-/* Conventional segment start address */
 #define ISA_START_ADDRESS	0xa0000
 #define ISA_END_ADDRESS		0x100000
+
 #define BIOS_BEGIN		0x000a0000
 #define BIOS_END		0x00100000
+
 #define BIOS_ROM_BASE		0xffe00000
 #define BIOS_ROM_END		0xffffffff
 
