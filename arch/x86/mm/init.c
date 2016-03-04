@@ -16,6 +16,10 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ * Continue coding here yizhou!
+ */
+
 #include <asm/e820.h>
 #include <asm/page.h>
 #include <asm/pgtable.h>
