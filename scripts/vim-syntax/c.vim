@@ -105,3 +105,9 @@ syn keyword	cConstant	SIGXCPU
 syn keyword	cConstant	SIGXFSZ
 syn keyword	cConstant	SIGVTALRM
 syn keyword	cConstant	SIGPROF
+
+syn keyword	cLabel		for_each_set_bit
+syn keyword	cLabel		for_each_clear_bit
+syn keyword	cLabel		list_for_each_entry
+syn keyword	cLabel		list_for_each_entry_reverse
+syn keyword	cLabel		list_for_each
