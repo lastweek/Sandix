@@ -1,7 +1,7 @@
 /*
  *	include/sandix/swab.h - API for Byte Swap
  *
- *	Copyright (C) 2015 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015 Yizhou Shan <shan13@purdue.edu>
  *
  *	Normally, GCC builtins are preferred. Then comes the architecture
  *	specific swap functions. Generally speaking, the <asm/swab.h> is
