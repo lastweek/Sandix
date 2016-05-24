@@ -176,7 +176,7 @@ void __init arch_setup(void)
 	code_resource.end	= __pa(__text_end) - 1;
 	data_resource.end	= __pa(__data_end) - 1;
 	bss_resource.end	= __pa(__bss_end) - 1;
-	
+
 	/* roundup max_pfn */
 	max_pfn = e820_end_of_ram_pfn();
 
