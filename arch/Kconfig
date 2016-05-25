@@ -1,6 +1,4 @@
-#
-# ISA Independent Configuration
-#
+menu "General arch-independent setup"
 
 config JUMP_LABEL
        bool "Optimize very unlikely/likely branches"
@@ -194,3 +192,13 @@ config HAVE_CONTEXT_TRACKING
 	  wrapped as well. Irqs are already protected inside
 	  rcu_irq_enter/rcu_irq_exit() but preemption or signal handling on
 	  irq exit still need to be protected.
+
+config DEBUG_SPINLOCK
+	bool "Spinlock debug feature support"
+	---help---
+	  This enables support for debugging spinlocks. If you want to debug
+	  spinlocks, say Y.
+
+	  If you don't know what to do here, say N.
+
+endmenu

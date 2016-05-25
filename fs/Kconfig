@@ -1,0 +1,14 @@
+#
+# Alright, Sandix needs at least one block filesystem and one pseudo proc
+# filesystem. And what about page cache?
+#
+
+menu "File Systems"
+
+menu "Caches"
+endmenu
+
+menu "Pseudo filesystems"
+endmenu
+
+endmenu # File Systems

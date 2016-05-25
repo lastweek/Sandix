@@ -4,7 +4,14 @@
 
 
 Wed May 25 08:59:11 CST 2016
+- [+] kernel/Kconfig.hz
+- [+] kernel/Kconfig.preempt
 - [+] arch/.gitignore
 - [+] init/Kconfig
+- [+] fs/Kconfig
+- [+] fs/Kconfig.binfmt
+- [+] lib/Kconfig
+- [+] net/Kconfig
+- [M] mm/Kconfig
 - [M] arch/Kconfig
 - [M] arch/x86/Kconfig

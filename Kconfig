@@ -1,13 +1,5 @@
 mainmenu "Sandix/$ARCH $KERNELVERSION Kernel Configuration"
 
-config	DEBUG_SPINLOCK
-	bool "Spinlock debug feature support"
-	---help---
-	  This enables support for debugging spinlocks. If you want to debug
-	  spinlocks, say Y.
-
-	  If you don't know what to do here, say N.
-
 config SRCARCH
 	string
 	option env="SRCARCH"
