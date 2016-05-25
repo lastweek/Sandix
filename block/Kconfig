@@ -1,0 +1,50 @@
+menuconfig BLOCK
+       bool "Enable the block layer" if EXPERT
+       default y
+       help
+	 Provide block layer support for the kernel.
+
+	 Disable this option to remove the block layer support from the
+	 kernel. This may be useful for embedded devices.
+
+	 If this option is disabled:
+
+	   - block device files will become unusable
+	   - some filesystems (such as ext3) will become unavailable.
+
+	 Also, SCSI character devices and USB storage will be disabled since
+	 they make use of various block layer definitions and facilities.
+
+	 Say Y here unless you know you really don't want to mount disks and
+	 suchlike.
+
+if BLOCK
+
+config LBDAF
+	bool "Support for large (2TB+) block devices and files"
+	depends on !64BIT
+	default y
+	help
+	  Enable block devices or files of size 2TB and larger.
+
+	  This option is required to support the full capacity of large
+	  (2TB+) block devices, including RAID, disk, Network Block Device,
+	  Logical Volume Manager (LVM) and loopback.
+	
+	  This option also enables support for single files larger than
+	  2TB.
+
+	  The ext4 filesystem requires that this feature be enabled in
+	  order to support filesystems that have the huge_file feature
+	  enabled.  Otherwise, it will refuse to mount in the read-write
+	  mode any filesystems that use the huge_file feature, which is
+	  enabled by default by mke2fs.ext4.
+
+	  The GFS2 filesystem also requires this feature.
+
+	  If unsure, say Y.
+
+source "block/partitions/Kconfig"
+source "block/Kconfig.iosched"
+
+endif

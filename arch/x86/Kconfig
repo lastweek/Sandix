@@ -937,6 +937,8 @@ source "fs/Kconfig.binfmt"
 
 endmenu
 
+source "block/Kconfig"
+
 source "lib/Kconfig"
 
 source "fs/Kconfig"
