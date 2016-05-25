@@ -1,12 +1,10 @@
 #
-#	x86 ISA Configuration
-#
-#	Thanks, linux kernel hackers.
+# ISA Configuration of x86
 #
 
-###
+#
 # Select 32 or 64 bit
-###
+#
 config 64BIT
 	bool "64-bit kernel"
 	---help---
@@ -21,16 +19,16 @@ config X86_64
 	def_bool y
 	depends on 64BIT
 
-##
+#
 # CPU settings
-##
+#
 source "arch/x86/Kconfig.cpu"
 
 source "arch/Kconfig"
 
-###
+#
 # Arch settings
-###
+#
 menu	"Processor type and features"
 
 config X86
@@ -38,12 +36,25 @@ config X86
 	select HAVE_ARCH_JUMP_LABEL
 	select HAVE_EFFICIENT_UNALIGNED_ACCESS
 	select ARCH_USE_BUILTIN_BSWAP
+	select HAVE_CMPXCHG_DOUBLE
+	select HAVE_CMPXCHG_LOCAL
+	select HAVE_CONTEXT_TRACKING		if X86_64
+	select HAVE_NMI
+
+	select HAVE_PERF_EVENTS
+	select HAVE_PERF_EVENTS_NMI
+	select HAVE_PERF_REGS
+	select HAVE_PERF_USER_STACK_DUMP
+
 	select HAVE_KERNEL_BZIP2
 	select HAVE_KERNEL_GZIP
 	select HAVE_KERNEL_LZ4
 	select HAVE_KERNEL_LZMA
 	select HAVE_KERNEL_LZO
 	select HAVE_KERNEL_X
+
+	select HAVE_CC_STACKPROTECTOR
+
 	select X86_FEATURE_NAMES
 
 config OUTPUT_FORMAT
@@ -153,7 +164,7 @@ choice
 config NOHIGHMEM
 	bool "off"
 	---help---
-	  Linux can use up to 64 Gigabytes of physical memory on x86 systems.
+	  Sandix can use up to 64 Gigabytes of physical memory on x86 systems.
 	  However, the address space of 32-bit x86 processors is only 4
 	  Gigabytes large. That means that, if you have a large amount of
 	  physical memory, not all of it can be "permanently mapped" by the
@@ -174,7 +185,7 @@ config NOHIGHMEM
 	  If more than 4 Gigabytes is used then answer "64GB" here. This
 	  selection turns Intel PAE (Physical Address Extension) mode on.
 	  PAE implements 3-level paging on IA32 processors. PAE is fully
-	  supported by Linux, PAE mode is implemented on all recent Intel
+	  supported by Sandix, PAE mode is implemented on all recent Intel
 	  processors (Pentium Pro and better). NOTE: If you say "64GB" here,
 	  then the kernel will not boot on CPUs that don't support PAE!
 
@@ -368,9 +379,9 @@ source "mm/Kconfig"
 
 endmenu
 
-##
+#
 # Misc configurations
-##
+#
 menu	"Misc features"
 
 config SPINLOCK_TICKET
@@ -387,9 +398,9 @@ config SPINLOCK_TICKET
 endmenu
 
 
-##
+#
 # Bus configurations
-##
+#
 menu	"Bus options (PCI etc.)"
 
 config PCI
@@ -409,10 +420,10 @@ choice
 	  On PCI systems, the BIOS can be used to detect the PCI devices and
 	  determine their configuration. However, some old PCI motherboards
 	  have BIOS bugs and may crash if this is done. Also, some embedded
-	  PCI-based systems don't have any BIOS at all. Linux can also try to
+	  PCI-based systems don't have any BIOS at all. Sandix can also try to
 	  detect the PCI hardware directly without using the BIOS.
 
-	  With this option, you can specify how Linux should detect the
+	  With this option, you can specify how Sandix should detect the
 	  PCI devices. If you choose "BIOS", the BIOS will be used,
 	  if you choose "Direct", the BIOS won't be used, and if you
 	  choose "MMConfig", then PCI Express MMCONFIG will be used.

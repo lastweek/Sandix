@@ -395,10 +395,8 @@ static int __init append_e820_map(struct e820entry *biosmap, int nr_map)
 }
 
 /*
- * Sanitize the e820 table from BIOS, and then copy it
- * a safe place: e820_bios.
- *
- * If we have a empty e820 table, we do not fake one, just panic.
+ * Sanitize the e820 table from BIOS, and then copy it a safe place: e820_bios.
+ * If we have an empty e820 table, we do not fake one, just panic.
  */
 void __init setup_memory_map(void)
 {
@@ -408,7 +406,7 @@ void __init setup_memory_map(void)
 
 	if (append_e820_map(boot_params.e820_map, boot_params.e820_nr_entries) < 0)
 		panic("e820 error");
-	
+
 	memcpy(&e820_bios, &e820, sizeof(struct e820map));
 
 	printk(KERN_INFO "e820: BIOS-provided physical RAM map:\n");
