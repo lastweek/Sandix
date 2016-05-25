@@ -8,4 +8,8 @@ config	DEBUG_SPINLOCK
 
 	  If you don't know what to do here, say N.
 
-source "arch/x86/Kconfig"
+config SRCARCH
+	string
+	option env="SRCARCH"
+
+source "arch/$SRCARCH/Kconfig"

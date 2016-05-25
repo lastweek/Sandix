@@ -2,11 +2,10 @@
 # ISA Configuration of x86
 #
 
-#
-# Select 32 or 64 bit
-#
+### Select 32 or 64 bit
 config 64BIT
-	bool "64-bit kernel"
+	bool "64-bit kernel" if ARCH = "x86"
+	default ARCH != "i386"
 	---help---
 	Say yes to build a 64-bit kernel - formerly known as x86_64
 	Say no to build a 32-bit kernel - formely known as i386
@@ -19,18 +18,7 @@ config X86_64
 	def_bool y
 	depends on 64BIT
 
-#
-# CPU settings
-#
-source "arch/x86/Kconfig.cpu"
-
-source "arch/Kconfig"
-
-#
-# Arch settings
-#
-menu	"Processor type and features"
-
+### Arch Settings
 config X86
 	def_bool y
 	select HAVE_ARCH_JUMP_LABEL
@@ -84,11 +72,34 @@ config X86_64_SMP
 	def_bool y
 	depends on X86_64 && SMP
 
+config X86_32_LAZY_GS
+	def_bool y
+	depends on X86_32 && !CC_STACKPROTECTOR
+
+config ARCH_HWEIGHT_CFLAGS
+	string
+	default "-fcall-saved-ecx -fcall-saved-edx" if X86_32
+	default "-fcall-saved-rdi -fcall-saved-rsi -fcall-saved-rdx -fcall-saved-rcx -fcall-saved-r8 -fcall-saved-r9 -fcall-saved-r10 -fcall-saved-r11" if X86_64
+
 config PGTABLE_LEVELS
 	int
 	default 4 if X86_64
 	default 3 if X86_PAE
 	default 2
+
+source "init/Kconfig"
+
+menu	"Processor type and features"
+
+config ZONE_DMA
+	bool "DMA memory allocation support"
+	default y
+	help
+	  DMA memory allocation support allows devices with less than 32-bit
+	  addressing to allocate within the first 16MB of address space.
+	  Disable if no such devices will be used.
+
+	  If unsure, say Y.
 
 config SMP
 	bool "Symmetric multi-processing support"
@@ -375,13 +386,13 @@ config ILLEGAL_POINTER_VALUE
        default 0 if X86_32
        default 0xdead000000000000 if X86_64
 
+source "arch/x86/Kconfig.cpu"
+
+endmenu # Processor type and features
+
 source "mm/Kconfig"
 
-endmenu
-
-#
-# Misc configurations
-#
+### Misc configurations
 menu	"Misc features"
 
 config SPINLOCK_TICKET
@@ -398,9 +409,7 @@ config SPINLOCK_TICKET
 endmenu
 
 
-#
-# Bus configurations
-#
+### Bus configurations
 menu	"Bus options (PCI etc.)"
 
 config PCI
@@ -458,4 +467,4 @@ config PCI_DIRECT
 	def_bool y
 	depends on PCI && (X86_64 || (PCI_GODIRECT || PCI_GOANY || PCI_GOOLPC || PCI_GOMMCONFIG))
 
-endmenu
+endmenu # Bus options
