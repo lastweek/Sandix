@@ -22,6 +22,7 @@
 #include <sandix/kernel.h>
 #include <sandix/export.h>
 #include <sandix/bootmem.h>
+#include <sandix/memblock.h>
 #include <sandix/screen_info.h>
 
 #include <asm/page.h>
@@ -153,6 +154,9 @@ void __init early_arch_setup(void)
 	screen_info = boot_params.screen_info;
 }
 
+/*
+ * setup_arch - architecture-specific boot-time initializations
+ */
 void __init arch_setup(void)
 {
 	int early_dump_pci = 0;

@@ -19,7 +19,10 @@ syn keyword	cInclude	BUG_ON
 syn keyword	cInclude	WARN
 syn keyword	cInclude	WARN_ON
 syn keyword	cInclude	WARN_ON_ONCE
+syn keyword	cInclude	WARN_ONCE
 syn keyword	cInclude	BUILD_BUG_ON
+syn keyword	cInclude	DSNVM_BUG_ON
+syn keyword	cInclude	DSNVM_WARN_ON
 
 syn keyword	cInclude	READ_ONCE
 syn keyword	cInclude	WRITE_ONCE
@@ -47,6 +50,7 @@ syn keyword	cType		__be64	__le64
 syn keyword	cType		atomic_t
 syn keyword	cType		cpumask_t
 syn keyword	cType		spinlock_t
+syn keyword	cType		phys_addr_t
 
 syn keyword	cLabel		asmlinkage
 syn keyword	cLabel		dotraplinkage
@@ -109,5 +113,6 @@ syn keyword	cConstant	SIGPROF
 syn keyword	cLabel		for_each_set_bit
 syn keyword	cLabel		for_each_clear_bit
 syn keyword	cLabel		list_for_each_entry
+syn keyword	cLabel		list_for_each_entry_safe
 syn keyword	cLabel		list_for_each_entry_reverse
 syn keyword	cLabel		list_for_each
