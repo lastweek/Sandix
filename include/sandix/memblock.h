@@ -25,6 +25,10 @@
 
 #define INIT_MEMBLOCK_REGIONS	128
 
+/* Flags for memblock_alloc_base() and __memblock_alloc_base() */
+#define MEMBLOCK_ALLOC_ANYWHERE		(~(phys_addr_t)0)
+#define MEMBLOCK_ALLOC_ACCESSIBLE	0
+
 #define MEMBLOCK_NONE		0x0	/* No special request */
 #define MEMBLOCK_HOTPLUG	0x1	/* hotpluggable region */
 #define MEMBLOCK_MIRROR		0x2	/* mirrored region */
@@ -53,8 +57,20 @@ struct memblock {
 	struct memblock_type	reserved;
 };
 
-/* Flags for memblock_alloc_base() and __memblock_alloc_base() */
-#define MEMBLOCK_ALLOC_ANYWHERE		(~(phys_addr_t)0)
-#define MEMBLOCK_ALLOC_ACCESSIBLE	0
+int memblock_reserve(phys_addr_t base, phys_addr_t size);
+
+#ifdef CONFIG_HAVE_MEMBLOCK_NODE_MAP
+static inline void memblock_set_region_node(struct memblock_region *r, int nid)
+{
+	r->nid = nid;
+}
+static inline int memblock_get_region_node(const struct memblock_region *r)
+{
+	return r->nid;
+}
+#else
+static inline void memblock_set_region_node(struct memblock_region *r, int nid) { }
+static inline int memblock_get_region_node(const struct memblock_region *r) { return 0; }
+#endif
 
 #endif /* _SANDIX_MEMBLOCK_H_ */

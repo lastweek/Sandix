@@ -18,6 +18,7 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <sandix/bug.h>
 #include <sandix/numa.h>
 #include <sandix/kernel.h>
 #include <sandix/memblock.h>
@@ -70,7 +71,26 @@ static inline phys_addr_t memblock_cap_size(phys_addr_t base, phys_addr_t *size)
 int memblock_add_range(struct memblock_type *type, phys_addr_t base,
 		       phys_addr_t size, int nid, unsigned long flags)
 {
+	int idx, nr_new;
+	struct memblock_region *region;
+	phys_addr_t obase = base;
+	phys_addr_t end = base + memblock_cap_size(base, &size);
 
+	if (!size)
+		return 0;
+
+	/* special case for empty array */
+	if (type->regions[0].size == 0) {
+		WARN_ON(type->nr_regions != 1 || type->total_size);
+		type->regions[0].base = base;
+		type->regions[0].size = size;
+		type->regions[0].flags = flags;
+		memblock_set_region_node(&type->regions[0], nid);
+		type->total_size = size;
+		return 0;
+	}
+
+	return 0;
 }
 
 int memblock_reserve(phys_addr_t base, phys_addr_t size)
