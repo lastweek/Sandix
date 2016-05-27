@@ -25,7 +25,12 @@ Thu May 26 10:30:21 CST 2016
 - [+] mm/memblock.c
 - [+] include/sandix/memblock.h
 - [M] arch/x86/kernel/setup.c
-- [M] arch/x86/Kconfig				[D] Add Logical memory blocks support
+- [M] arch/x86/Kconfig				[D] Add Logical memory blocks (memblock) support
 
 
-Update mem***/str*** related infrastructure
+Fri May 27 07:21:48 CST 2016
+- [+] lib/string.c
+- [-] arch/x86/lib/string.c
+- [+] arch/x86/lib/string_32.c
+- [+] arch/x86/lib/string_64.c
+- [M] include/sandix/string.h			[D] Update mem*/str* related infrastructure
