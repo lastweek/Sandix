@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2016 Yizhou Shan <shan13@purdue.edu>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shan13@purdue.edu>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -16,8 +16,9 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifdef CONFIG_X86_32
-# include <asm/string_32.h>
-#else
-# include <asm/string_64.h>
-#endif
+#ifndef _ASM_X86_STRING_64_H_
+#define _ASM_X86_STRING_64_H_
+
+#error "Not implemented"
+
+#endif /* _ASM_X86_STRING_64_H_ */

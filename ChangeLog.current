@@ -29,8 +29,10 @@ Thu May 26 10:30:21 CST 2016
 
 
 Fri May 27 07:21:48 CST 2016
-- [+] lib/string.c
+- [+] lib/string.c				[D] Stupid C string library from Linux :)
+- [-] arch/x86/include/asm/string.h
+- [+] arch/x86/include/asm/string_32.h
+- [+] arch/x86/include/asm/string_64.h		[D] Divide into 32/64
 - [-] arch/x86/lib/string.c
 - [+] arch/x86/lib/string_32.c
-- [+] arch/x86/lib/string_64.c
 - [M] include/sandix/string.h			[D] Update mem*/str* related infrastructure
