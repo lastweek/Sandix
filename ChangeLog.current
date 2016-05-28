@@ -36,3 +36,10 @@ Fri May 27 07:21:48 CST 2016
 - [-] arch/x86/lib/string.c
 - [+] arch/x86/lib/string_32.c
 - [M] include/sandix/string.h			[D] Update mem*/str* related infrastructure
+
+
+Sat May 28 21:07:52 CST 2016
+- [+] arch/x86/include/asm/early_ioremap.h
+- [+] include/asm-generic/early_ioremap.h
+- [+] mm/early_ioremap.c
+- [M] arch/x86/Kconfig				[D] Genetic early_ioremap config and code

@@ -36,6 +36,7 @@
 #include <asm/processor.h>
 #include <asm/pci_early.h>
 #include <asm/descriptor.h>
+#include <asm/early_ioremap.h>
 
 unsigned long max_low_pfn_mapped;
 unsigned long max_pfn_mapped;
