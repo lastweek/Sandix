@@ -57,7 +57,10 @@ struct memblock {
 	struct memblock_type	reserved;
 };
 
+int memblock_add_node(phys_addr_t base, phys_addr_t size, int nid);
+int memblock_add(phys_addr_t base, phys_addr_t size);
 int memblock_reserve(phys_addr_t base, phys_addr_t size);
+int memblock_remove(phys_addr_t base, phys_addr_t size);
 
 #ifdef CONFIG_HAVE_MEMBLOCK_NODE_MAP
 static inline void memblock_set_region_node(struct memblock_region *r, int nid)
@@ -72,5 +75,11 @@ static inline int memblock_get_region_node(const struct memblock_region *r)
 static inline void memblock_set_region_node(struct memblock_region *r, int nid) { }
 static inline int memblock_get_region_node(const struct memblock_region *r) { return 0; }
 #endif
+
+#define for_each_memblock_type(memblock_type, rgn)			\
+	idx = 0;							\
+	rgn = &memblock_type->regions[idx];				\
+	for (idx = 0; idx < memblock_type->nr_regions;			\
+	     idx++,rgn = &memblock_type->regions[idx])
 
 #endif /* _SANDIX_MEMBLOCK_H_ */

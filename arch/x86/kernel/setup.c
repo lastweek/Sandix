@@ -161,6 +161,9 @@ void __init arch_setup(void)
 {
 	int early_dump_pci = 0;
 
+        memblock_reserve(__pa(__kstart),
+		(unsigned long)__bss_end - (unsigned long)__kstart);
+
 	setup_memory_map();
 	early_cpu_init();
 	early_ioremap_init();
