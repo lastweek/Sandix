@@ -222,4 +222,6 @@ void __init arch_setup(void)
 #endif
 
 	reserve_standard_io_resources();
+
+	memblock_dump_all();
 }

@@ -61,6 +61,7 @@ int memblock_add_node(phys_addr_t base, phys_addr_t size, int nid);
 int memblock_add(phys_addr_t base, phys_addr_t size);
 int memblock_reserve(phys_addr_t base, phys_addr_t size);
 int memblock_remove(phys_addr_t base, phys_addr_t size);
+void memblock_dump_all(void);
 
 #ifdef CONFIG_HAVE_MEMBLOCK_NODE_MAP
 static inline void memblock_set_region_node(struct memblock_region *r, int nid)

@@ -353,3 +353,39 @@ int memblock_remove(phys_addr_t base, phys_addr_t size)
 {
 	return memblock_remove_range(&memblock.memory, base, size);
 }
+
+static void memblock_dump(struct memblock_type *type, char *name)
+{
+	unsigned long long base, size;
+	unsigned long flags;
+	int idx;
+	struct memblock_region *rgn;
+
+	pr_info(" %s.nr_regions  = 0x%lx\n", name, type->nr_regions);
+
+	for_each_memblock_type(type, rgn) {
+		char nid_buf[32] = "";
+
+		base = rgn->base;
+		size = rgn->size;
+		flags = rgn->flags;
+#ifdef CONFIG_HAVE_MEMBLOCK_NODE_MAP
+		if (memblock_get_region_node(rgn) != MAX_NR_NODES)
+			snprintf(nid_buf, sizeof(nid_buf), " on node %d",
+				 memblock_get_region_node(rgn));
+#endif
+		pr_info(" %s[%#x]\t[%#016llx-%#016llx], %#llx bytes%s flags: %#lx\n",
+			name, idx, base, base + size - 1, size, nid_buf, flags);
+	}
+}
+
+void memblock_dump_all(void)
+{
+	pr_info("MEMBLOCK configuration:\n");
+	pr_info(" memory size = %#llx reserved size = %#llx\n",
+		(unsigned long long)memblock.memory.total_size,
+		(unsigned long long)memblock.reserved.total_size);
+
+	memblock_dump(&memblock.memory, "memory");
+	memblock_dump(&memblock.reserved, "reserved");
+}
