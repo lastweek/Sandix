@@ -229,23 +229,27 @@ static void __init early_identify_cpu(struct cpuinfo_x86 *c)
 }
 
 /*
- * Do minimum CPU detection early. Fields really needed: vendor, cpuid_level,
- * family, model, mask, cache alignment. The others are not touched to avoid
- * unwanted side effects.
+ * Do minimum CPU detection early.
+ * Fields really needed: vendor, cpuid_level, family, model, mask, cache alignment.
+ * The others are not touched to avoid unwanted side effects.
  *
  * WARNING: this function is only called on the BP.
  * Don't add code here that is supposed to run on all CPUs.
  */
 void __init early_cpu_init(void)
 {
-#ifdef CONFIG_PRINT_SUPPORTED_CPUS
 	int i = 0;
+
+#ifdef CONFIG_PRINT_SUPPORTED_CPUS
 	printk(KERN_INFO "Kernel supported CPUs:\n");
+#endif
+
 	while (cpudevs[i++]) {
+#ifdef CONFIG_PRINT_SUPPORTED_CPUS
 		struct cpu_dev *cdev = cpudevs[i - 1];
 		printk(KERN_INFO "  %s %s\n", cdev->cpu_vendor, cdev->cpu_ident);
-	}
 #endif
+	}
 	early_identify_cpu(&boot_cpu_info);
 }
 

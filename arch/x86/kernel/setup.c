@@ -156,6 +156,8 @@ void __init early_arch_setup(void)
 
 /*
  * setup_arch - architecture-specific boot-time initializations
+ *
+ * Note: On x86_64, fixmaps are ready for use even before this is called.
  */
 void __init arch_setup(void)
 {
@@ -163,6 +165,12 @@ void __init arch_setup(void)
 
         memblock_reserve(__pa(__kstart),
 		(unsigned long)__bss_end - (unsigned long)__kstart);
+
+	/*
+	 * At this point everything still needed from the boot loader
+	 * or BIOS or kernel text should be early reserved or marked not
+	 * RAM in e820. All other memory is free game.
+	 */
 
 	setup_memory_map();
 	early_cpu_init();

@@ -16,6 +16,12 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ * Re-map IO memory to kernel address space so that we can access it.
+ * This is needed for high PCI addresses that aren't mapped in the
+ * 640k-1MB IO memory area on PC's
+ */
+
 #include <asm/fixmap.h>
 #include <asm/pgalloc.h>
 #include <asm/pgtable.h>
@@ -55,6 +61,12 @@ static void __init early_ioremap_setup(void)
 void __init early_ioremap_init(void)
 {
 	pmd_t *pmd;
+
+#ifdef CONFIG_X86_64
+	BUILD_BUG_ON((fix_to_virt(0) + PAGE_SIZE) & ((1 << PMD_SHIFT) - 1));
+#else
+	WARN_ON((fix_to_virt(0) + PAGE_SIZE) & ((1 << PMD_SHIFT) - 1));
+#endif
 
 	early_ioremap_setup();
 
