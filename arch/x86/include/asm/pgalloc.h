@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
+ *	Copyright (C) 2015-2016 Yizhou Shan <shan13@purdue.edu>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -16,9 +16,11 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifndef _ASM_X86_PGALLOC_H_
+#define _ASM_X86_PGALLOC_H_
+
 #include <asm/page.h>
 #include <asm/pgtable.h>
-
 #include <sandix/mm.h>
 
 static inline void pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmd,
@@ -27,3 +29,4 @@ static inline void pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmd,
 	pmd_set(pmd, __pmd(__pa(pte) | __PAGE_TABLE));
 }
 
+#endif /* _ASM_X86_PGALLOC_H_ */

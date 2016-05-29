@@ -43,3 +43,6 @@ Sat May 28 21:07:52 CST 2016
 - [+] include/asm-generic/early_ioremap.h
 - [+] mm/early_ioremap.c
 - [M] arch/x86/Kconfig				[D] Genetic early_ioremap config and code
+
+
+Sun May 29 12:56:32 CST 2016

@@ -53,23 +53,16 @@ void __init early_ioremap_init(void)
 {
 	pmd_t *pmd;
 
-#ifdef CONFIG_X86_64
 	BUILD_BUG_ON((fix_to_virt(0) + PAGE_SIZE) & ((1 << PMD_SHIFT) - 1));
-#else
-	WARN_ON((fix_to_virt(0) + PAGE_SIZE) & ((1 << PMD_SHIFT) - 1));
-#endif
 
 	/*
 	 * The boot-ioremap range spans multiple pmds, for which
 	 * we are not prepared:
 	 */
 #define __FIXADDR_TOP (-PAGE_SIZE)
-	BUILD_BUG_ON((__fix_to_virt(FIX_BTMAP_BEGIN) >> PMD_SHIFT)
-		     != (__fix_to_virt(FIX_BTMAP_END) >> PMD_SHIFT));
+	BUILD_BUG_ON((__fix_to_virt(FIX_BTMAP_BEGIN) >> PMD_SHIFT) !=
+		     (__fix_to_virt(FIX_BTMAP_END) >> PMD_SHIFT));
 #undef __FIXADDR_TOP
-
-	printk("1: %d\n", __fix_to_virt(FIX_BTMAP_BEGIN) >> PMD_SHIFT);
-	printk("2: %d\n", __fix_to_virt(FIX_BTMAP_END) >> PMD_SHIFT);
 
 	/* Generic initialization: */
 	early_ioremap_setup();
@@ -78,7 +71,7 @@ void __init early_ioremap_init(void)
 	memset(bm_pte, 0, sizeof(bm_pte));
 	pmd_populate_kernel(&init_mm, pmd, bm_pte);
 
-#ifdef CONFIG_PRINT_FIXMAP_RANG
+#ifdef CONFIG_PRINT_FIXMAP_RANGE
 	printk(KERN_INFO "fix_to_virt(FIX_BTMAP_BEGIN): %08lx\n", fix_to_virt(FIX_BTMAP_BEGIN));
 	printk(KERN_INFO "fix_to_virt(FIX_BTMAP_END):   %08lx\n", fix_to_virt(FIX_BTMAP_END));
 	printk(KERN_INFO "FIX_BTMAP_END:       %d\n", FIX_BTMAP_END);
