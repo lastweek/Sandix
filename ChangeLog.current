@@ -46,3 +46,6 @@ Sat May 28 21:07:52 CST 2016
 
 
 Sun May 29 12:56:32 CST 2016
+- [+] include/asm-generic/barrier.h
+- [+] arch/x86/include/asm/barrier.h
+- [M] arch/x86/include/asm/pgtable*		[D] Update pgtable related code from linux 4.6

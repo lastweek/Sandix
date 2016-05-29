@@ -17,15 +17,15 @@
  */
 
 /*
- * For VIM hackers, i strongly recommend you add more reserved words to
- * your syntax file. Please consult scripts/vim-syntax
+ * For VIM hackers, i strongly recommend you add more reserved words to your
+ * syntax file. Please consult scripts/vim-syntax/c.vim for details.
  */
 
 #ifndef _SANDIX_COMPILER_H_
 #define _SANDIX_COMPILER_H_
 
 #if defined (__INTEL_COMPILER) || defined (__clang__)
-# error "Please use GCC"
+# error Please use GCC
 #endif
 
 #define GCC_VERSION				\
@@ -36,7 +36,7 @@
 )
 
 #if GCC_VERSION < 30200
-# error "Please upgrade GCC"
+# error Please upgrade GCC
 #endif
 
 #include <sandix/types.h>
@@ -358,5 +358,9 @@ ALWAYS_INLINE void __write_once_size(volatile void *p, void *res, int size)
  */
 #define compiletime_assert(condition, msg)			\
 	_compiletime_assert(condition, msg, __compiletime_assert_, __LINE__)
+
+#define compiletime_assert_atomic_type(t)				\
+	compiletime_assert(__native_word(t),				\
+		"Need native word sized stores/loads for atomicity.")
 
 #endif /* _SANDIX_COMPILER_H_ */
