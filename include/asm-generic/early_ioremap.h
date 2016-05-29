@@ -38,6 +38,7 @@ void early_memunmap(void *addr, unsigned long size);
 void early_ioremap_shutdown(void);
 
 #if defined(CONFIG_GENERIC_EARLY_IOREMAP) && defined(CONFIG_MMU)
+
 /* Arch-specific initialization */
 void early_ioremap_init(void);
 

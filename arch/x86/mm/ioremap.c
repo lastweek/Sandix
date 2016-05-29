@@ -25,16 +25,13 @@
 #include <asm/fixmap.h>
 #include <asm/pgalloc.h>
 #include <asm/pgtable.h>
+#include <asm/early_ioremap.h>
 
 #include <sandix/sched.h>
 #include <sandix/kernel.h>
 #include <sandix/string.h>
 
 static pte_t bm_pte[PAGE_SIZE/sizeof(pte_t)] __aligned(PAGE_SIZE);
-
-static void *prev_map[FIX_BTMAPS_SLOTS] __initdata;
-static unsigned long prev_siz[FIX_BTMAPS_SLOTS] __initdata;
-static unsigned long slot_virt[FIX_BTMAPS_SLOTS] __initdata;
 
 static pmd_t * __init early_ioremap_pmd(unsigned long addr)
 {
@@ -46,15 +43,9 @@ static pmd_t * __init early_ioremap_pmd(unsigned long addr)
 	return pmd;
 }
 
-static void __init early_ioremap_setup(void)
-{
-	int i;
-
-	for (i = 0; i < FIX_BTMAPS_SLOTS; i++)
-		slot_virt[i] = __fix_to_virt(FIX_BTMAP_BEGIN - i * NR_FIX_BTMAPS);
-}
-
-/*
+/**
+ * early_ioremap_init	-	Arch-specific initialization of early_ioremap
+ *
  * early_ioremap() and early_iounmap() are for temporary early
  * boot-time mappings, before the real ioremap() is functional.
  */
@@ -68,6 +59,19 @@ void __init early_ioremap_init(void)
 	WARN_ON((fix_to_virt(0) + PAGE_SIZE) & ((1 << PMD_SHIFT) - 1));
 #endif
 
+	/*
+	 * The boot-ioremap range spans multiple pmds, for which
+	 * we are not prepared:
+	 */
+#define __FIXADDR_TOP (-PAGE_SIZE)
+	BUILD_BUG_ON((__fix_to_virt(FIX_BTMAP_BEGIN) >> PMD_SHIFT)
+		     != (__fix_to_virt(FIX_BTMAP_END) >> PMD_SHIFT));
+#undef __FIXADDR_TOP
+
+	printk("1: %d\n", __fix_to_virt(FIX_BTMAP_BEGIN) >> PMD_SHIFT);
+	printk("2: %d\n", __fix_to_virt(FIX_BTMAP_END) >> PMD_SHIFT);
+
+	/* Generic initialization: */
 	early_ioremap_setup();
 
 	pmd = early_ioremap_pmd(fix_to_virt(FIX_BTMAP_BEGIN));
