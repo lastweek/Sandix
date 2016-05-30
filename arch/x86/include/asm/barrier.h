@@ -39,6 +39,14 @@
 #endif
 #define dma_wmb()	barrier()
 
+/*
+ * In a multiple-processor system, the following ordering principles apply:
+ *  * Writes by a single processor are observed in the same order by all processors
+ *  * Writes from an individual processor are NOT ordered with respect to the writes from other processors
+ *  * Memory ordering obeys causality (memory ordering respects transitive visibility)
+ *  * Any two stores are seen in a consistent order by processors other than those performing the stores
+ *  * Locked instructions have a total order
+ */
 #define __smp_mb()	mb()
 #define __smp_rmb()	dma_rmb()
 #define __smp_wmb()	barrier()
