@@ -1,0 +1,19 @@
+#
+# Mon May 30 09:45:16 CST 2016
+#
+
+# Keywords: Books, Consistency, Coherence
+
+Long time no see baby.
+I'm adding two [barrier] header files yesterday, and it reminds me something
+about cache coherence and memory consistency. Sign, I've read this topic a lot
+times but I still do not get a very good understanding of them.
+
+The reality is that sometimes I do *not* know at where that I should put smp_mb().
+Of course I can mimic Linux, and I want to learn myself.
+
+So I decide to pick up this topic (coherence/consistency) again and read some books
+and papers to try to have a better understanding.
+
+I will re-read computer architecture book first
+and then I will read <<A_Primer_on_Memory_Consistency_and_Coherence>>
