@@ -62,18 +62,18 @@ typedef struct {
  */
 #define PTRS_PER_PTE		512
 
-#define PMD_SIZE	(_AC(1, UL) << PMD_SHIFT)
-#define PMD_MASK	(~(PMD_SIZE - 1))
-#define PUD_SIZE	(_AC(1, UL) << PUD_SHIFT)
-#define PUD_MASK	(~(PUD_SIZE - 1))
-#define PGDIR_SIZE	(_AC(1, UL) << PGDIR_SHIFT)
-#define PGDIR_MASK	(~(PGDIR_SHIFT - 1))
+#define PMD_SIZE		(_AC(1, UL) << PMD_SHIFT)
+#define PMD_MASK		(~(PMD_SIZE - 1))
+#define PUD_SIZE		(_AC(1, UL) << PUD_SHIFT)
+#define PUD_MASK		(~(PUD_SIZE - 1))
+#define PGDIR_SIZE		(_AC(1, UL) << PGDIR_SHIFT)
+#define PGDIR_MASK		(~(PGDIR_SHIFT - 1))
 
 /* See Documentation/x86/x86_64/mm.txt for a description of the memory map. */
-#define MAXMEM		 _AC(__AC(1, UL) << MAX_PHYSMEM_BITS, UL)
-#define VMALLOC_START    _AC(0xffffc90000000000, UL)
-#define VMALLOC_END      _AC(0xffffe8ffffffffff, UL)
-#define VMEMMAP_START	 _AC(0xffffea0000000000, UL)
-#define MAXMEM_PFN	 PFN_DOWN(MAXMEM)
+#define MAXMEM		 	_AC(__AC(1, UL) << MAX_PHYSMEM_BITS, UL)
+#define VMALLOC_START    	_AC(0xffffc90000000000, UL)
+#define VMALLOC_END      	_AC(0xffffe8ffffffffff, UL)
+#define VMEMMAP_START	 	_AC(0xffffea0000000000, UL)
+#define MAXMEM_PFN	 	PFN_DOWN(MAXMEM)
 
 #endif /* _ASM_X86_PGTABLE_32_TYPES_H_ */

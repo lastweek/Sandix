@@ -385,6 +385,15 @@ static int __init __append_e820_map(struct e820entry *biosmap, int nr_map)
 	return 0;
 }
 
+/*
+ * Copy the BIOS e820 map into a safe place.
+ *
+ * Sanity-check it while we're at it..
+ *
+ * If we're lucky and live on a modern system, the setup code
+ * will have given us a memory map that we can use to properly
+ * set up memory.  If we aren't, we'll just PANIC.
+ */
 static int __init append_e820_map(struct e820entry *biosmap, int nr_map)
 {
 	/* Only one memory region (or negative)? Ignore it */
@@ -400,12 +409,16 @@ static int __init append_e820_map(struct e820entry *biosmap, int nr_map)
  */
 void __init setup_memory_map(void)
 {
+	u32 new_nr;
+
+	new_nr = boot_params.e820_nr_entries;
 	sanitize_e820_map(boot_params.e820_map,
 			  ARRAY_SIZE(boot_params.e820_map),
-			  &boot_params.e820_nr_entries);
+			  &new_nr);
+	boot_params.e820_nr_entries = new_nr;
 
 	if (append_e820_map(boot_params.e820_map, boot_params.e820_nr_entries) < 0)
-		panic("e820 error");
+		panic("e820: BIOS provides us *nothing*");
 
 	memcpy(&e820_bios, &e820, sizeof(struct e820map));
 

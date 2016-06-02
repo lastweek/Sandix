@@ -51,7 +51,6 @@ Sun May 29 12:56:32 CST 2016
 - [M] arch/x86/include/asm/pgtable*		[D] Update pgtable related code from linux 4.6
 
 
-
 Thu Jun  2 08:34:41 CST 2016
 - [+] arch/x86/include/asm/cmpxchg_32.h
 - [+] arch/x86/include/asm/cmpxchg_64.h

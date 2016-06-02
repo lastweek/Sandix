@@ -55,8 +55,8 @@ static inline void pgd_clear(pgd_t *pgd)	{ }
  * PUDs are folded into PGDs so this doesn't get actually called,
  * but the define is needed for a generic inline function.
  */
-#define pgd_set(pgdptr, pgdval) \
-	pud_set((pud_t *)(pgdptr), (pud_t) { pgdval })
+#define set_pgd(pgdptr, pgdval) \
+	set_pud((pud_t *)(pgdptr), (pud_t) { pgdval })
 
 static inline pud_t *pud_offset(pgd_t *pgd, unsigned long address)
 {
