@@ -23,8 +23,6 @@
 #ifndef _ASM_X86_ASM_H_
 #define _ASM_X86_ASM_H_
 
-#include <asm/pgtable.h>
-
 #define LOCK_PREFIX "lock; "
 
 static inline void __cpuid(unsigned int *eax, unsigned int *ebx,
@@ -126,10 +124,10 @@ static inline void write_cr3(unsigned long val)
 	);
 }
 
-static inline void load_cr3(pgd_t *pgdir)
-{
-	write_cr3(__pa(pgdir));
-}
+/**
+ * @pgd_t *pgdir
+ */
+#define load_cr3(pgdir)	write_cr3(__pa(pgdir))
 
 static inline void wbinvd(void)
 {
