@@ -36,21 +36,20 @@ typedef union {
 } pte_t;
 #endif
 
+#define SHARED_KERNEL_PMD	0
+
 /*
- * PGDIR_SHIFT determines the size of the area
- * a top-level page table entry can map.
+ * PGDIR_SHIFT determines the size of the area a top-level page table entry can
+ * map.
  */
 #define PGDIR_SHIFT		22
 #define PTRS_PER_PGD		1024
 
 /*
- * The i386 is two-level, so we do not really
- * have any PUD and PMD directory physically.
+ * The i386 is two-level, so we do not really have any PUD and PMD directory
+ * physically.
  */
 
-/*
- * Entries per page directory level
- */
 #define PTRS_PER_PTE		1024
 
 #endif /* _ASM_X86_PGTABLE_2LEVEL_TYPES_H_ */

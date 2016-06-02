@@ -29,16 +29,20 @@
  * virtualization, check it later.
  */
 
+#include <sandix/pfn.h>
 #include <sandix/const.h>
 #include <sandix/types.h>
+#include <sandix/bitops.h>
 #include <sandix/string.h>
 
 #include <asm/page.h>
+#include <asm/barrier.h>
+#include <asm/cmpxchg.h>
+
 #include <asm/pgtable_types.h>
 
-/*
- * Batch 0, type cast helpers.
- */
+struct mm_struct;
+
 #define pgd_val(x)			native_pgd_val(x)
 #define __pgd(x)			native_make_pgd(x)
 
@@ -58,11 +62,6 @@
 #define pgprot_val(x)			((x).pgprot)
 #define __pgprot(x)			((pgprot_t) { (x) })
 
-/*
- * We can not use native_make_pxx() in the following two included files,
- * because 3-level or 2-level configurations do not have these functions.
- * Therefore, we have to define __pxx fisrt, which we will use afterwards.
- */
 #ifdef CONFIG_X86_32
 #include <asm/pgtable_32.h>
 #else
@@ -70,23 +69,24 @@
 #endif
 
 /*
- * Batch 0, set/clear entry helpers.
+ * Batch 1, set/clear entry helpers.
  */
 #ifndef __PGTABLE_PUD_FOLDED
-#define pgd_set(pgdp, pgd)		native_pgd_set(pgdp, pgd)
+#define set_pgd(pgdp, pgd)		native_set_pgd(pgdp, pgd)
 #define pgd_clear(pgd)			native_pgd_clear(pgd)
 #endif
 
 #ifndef __PGTABLE_PMD_FOLDED
-#define pud_set(pudp, pud)		native_pud_set(pudp, pud)
+#define set_pud(pudp, pud)		native_set_pud(pudp, pud)
 #define pud_clear(pud)			native_pud_clear(pud)
 #endif
 
-#define pmd_set(pmdp, pmd)		native_pmd_set(pmdp, pmd)
-#define pmd_clear(pmd)			native_pmd_clear(pmd)
+#define set_pte(ptep, pte)		native_set_pte(ptep, pte)
+#define set_pte_atomic(ptep, pte)	native_set_pte_atomic(ptep, pte)
+#define set_pmd(pmdp, pmd)		native_set_pmd(pmdp, pmd)
 
-#define pte_set(ptep, pte)		native_pte_set(ptep, pte)
-#define pte_clear(addr, ptep)		native_pte_clear(addr, ptep)
+#define pte_clear(addr, ptep)		native_pte_clear(mm, addr, ptep)
+#define pmd_clear(pmd)			native_pmd_clear(pmd)
 
 /*
  * Batch 2, entry flag mask helpers.
@@ -364,6 +364,11 @@ static inline unsigned long pmd_page_vaddr(pmd_t pmd)
 	return (unsigned long)__va(pmd_val(pmd) & pmd_pfn_mask(pmd));
 }
 
+static inline pte_t *pte_offset_kernel(pmd_t *pmd, unsigned long address)
+{
+	return (pte_t *)pmd_page_vaddr(*pmd) + pte_index(address);
+}
+
 /**
  * pte_offset - Find an entry in the first-level page table
  */
@@ -485,6 +490,36 @@ static inline unsigned long pgd_index(unsigned long address)
 #define KERNEL_PGD_BASE		pgd_index(PAGE_OFFSET)
 #define KERNEL_PGD_PTRS		(PTRS_PER_PGD - KERNEL_PGD_BASE)
 
+/* local pte updates need not use xchg for locking */
+static inline pte_t native_local_ptep_get_and_clear(pte_t *ptep)
+{
+	pte_t res = *ptep;
+
+	/* Pure native function needs no input for mm, addr */
+	native_pte_clear(NULL, 0, ptep);
+	return res;
+}
+
+static inline pmd_t native_local_pmdp_get_and_clear(pmd_t *pmdp)
+{
+	pmd_t res = *pmdp;
+
+	native_pmd_clear(pmdp);
+	return res;
+}
+
+#ifndef CONFIG_PARAVIRT
+/*
+ * Rules for using pte_update - it must be called after any PTE update which
+ * has not been done using the set_pte / clear_pte interfaces.  It is used by
+ * shadow mode hypervisors to resynchronize the shadow page tables.  Kernel PTE
+ * updates should either be sets, clears, or set_pte_atomic for P->P
+ * transitions, which means this hook should only be called for user PTEs.
+ * This hook implies a P->P protection or access change has taken place, which
+ * requires a subsequent TLB flush.
+ */
+#define pte_update(mm, addr, ptep)		do { } while (0)
+#endif
 
 /*
  * We only update the dirty/accessed state if we set
@@ -508,14 +543,22 @@ extern int ptep_test_and_clear_young(struct vm_area_struct *vma,
 extern int ptep_clear_flush_young(struct vm_area_struct *vma,
 				  unsigned long address, pte_t *ptep);
 
+#define __HAVE_ARCH_PTEP_GET_AND_CLEAR
+static inline pte_t ptep_get_and_clear(struct mm_struct *mm, unsigned long addr,
+				       pte_t *ptep)
+{
+	pte_t pte = native_ptep_get_and_clear(ptep);
+	pte_update(mm, addr, ptep);
+	return pte;
+}
 
-
-
-
-
-
-
-
+#define __HAVE_ARCH_PTEP_SET_WRPROTECT
+static inline void ptep_set_wrprotect(struct mm_struct *mm,
+				      unsigned long addr, pte_t *ptep)
+{
+	clear_bit(__PAGE_BIT_RW, (unsigned long *)&ptep->pte);
+	pte_update(mm, addr, ptep);
+}
 
 
 /*

@@ -35,17 +35,15 @@
  * (Both circumstances fold PUD into PGD as described above.)
  */
 
-/*
- * WARNING: PAE is not implemented!
- */
-
-extern pgd_t initial_page_table[1024];
+#include <asm/pgtable_32_types.h>
 
 #ifdef CONFIG_X86_PAE
 # include <asm/pgtable-3level.h>
 #else
 # include <asm/pgtable-2level.h>
 #endif
+
+extern pgd_t initial_page_table[1024];
 
 void find_low_pfn_range(void);
 

@@ -26,7 +26,7 @@
 static inline void pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmd,
 				       pte_t *pte)
 {
-	pmd_set(pmd, __pmd(__pa(pte) | __PAGE_TABLE));
+	set_pmd(pmd, __pmd(__pa(pte) | __PAGE_TABLE));
 }
 
 #endif /* _ASM_X86_PGALLOC_H_ */

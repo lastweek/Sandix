@@ -20,19 +20,20 @@
 #define _ASM_X86_PGTABLE_3LEVEL_TYPES_H_
 
 /*
- * Three-level paging is enabled when PAE is enabled in 32-bit x86.
- * PAE paging translates 32-bit linear address to 52-bit physical
- * address. If MAXPHYADDR < 52, bits in the range 51:MAXPHYADDR
- * will be 0 in any physical address used by PAE paging. The
- * MAXPHYADDR depends on each processor. Normally, 36-bit(?).
+ * Three-level paging is enabled when PAE is enabled in 32-bit x86. PAE paging
+ * translates 32-bit linear address to 52-bit physical address. If MAXPHYADDR < 52,
+ * bits in the range 51:MAXPHYADDR will be 0 in any physical address used by PAE
+ * paging. The MAXPHYADDR depends on each processor. Normally, 36-bit(?).
  */
 
 #ifndef __ASSEMBLY__
-typedef unsigned long long pteval_t;
-typedef unsigned long long pmdval_t;
-typedef unsigned long long pudval_t;
-typedef unsigned long long pgdval_t;
-typedef unsigned long long pgprotval_t;
+#include <sandix/types.h>
+
+typedef u64	pteval_t;
+typedef u64	pmdval_t;
+typedef u64	pudval_t;
+typedef u64	pgdval_t;
+typedef u64	pgprotval_t;
 
 typedef union {
 	struct {
@@ -42,28 +43,27 @@ typedef union {
 } pte_t;
 #endif
 
+#define SHARED_KERNEL_PMD	1
+
 /*
- * PGDIR_SHIFT determines the size of the area
- * a top-level page table entry can map.
+ * PGDIR_SHIFT determines the size of the area a top-level page table entry can
+ * map.
  */
 #define PGDIR_SHIFT		30
 #define PTRS_PER_PGD		4
 
 /*
- * x86_32 PAE uses three-level paging, so we do
- * not really have any PUD directory physically.
+ * x86_32 PAE uses three-level paging, so we do not really have any PUD
+ * directory physically.
  */
 
 /*
- * PMD_SHIFT determines the size of the area
- * a middle-level page table entry can map.
+ * PMD_SHIFT determines the size of the area a middle-level page table entry can
+ * map.
  */
 #define PMD_SHIFT		21
 #define PTRS_PER_PMD		512
 
-/*
- * Entries per page directory level
- */
 #define PTRS_PER_PTE		512
 
 #endif /* _ASM_X86_PGTABLE_3LEVEL_TYPES_H_ */

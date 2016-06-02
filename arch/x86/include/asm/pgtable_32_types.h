@@ -19,13 +19,11 @@
 #ifndef _ASM_X86_PGTABLE_32_TYPES_H_
 #define _ASM_X86_PGTABLE_32_TYPES_H_
 
-#include <sandix/pfn.h>
-
 #ifdef CONFIG_X86_PAE
 # include <asm/pgtable-3level-types.h>
 # define PMD_SIZE	(1UL << PMD_SHIFT)
 # define PMD_MASK	(~(PMD_SIZE - 1))
-# else
+#else
 # include <asm/pgtable-2level-types.h>
 #endif
 

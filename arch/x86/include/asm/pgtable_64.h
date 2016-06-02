@@ -16,12 +16,10 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/*
- * WARNING: Not implemented!
- */
-
 #ifndef _ASM_X86_PGTABLE_64_H_
 #define _ASM_X86_PGTABLE_64_H_
+
+#include <asm/pgtable_64_types.h>
 
 #ifndef __ASSEMBLY__
 
@@ -38,50 +36,78 @@
 	pr_err("%s:%d: bad pgd %p(%016lx)\n",		\
 	       __FILE__, __LINE__, &(e), pgd_val(e))
 
-static inline void native_pte_set(pte_t *ptep, pte_t pte)
+static inline void native_pte_clear(struct mm_struct *mm, unsigned long addr,
+				    pte_t *ptep)
+{
+	*ptep = native_make_pte(0);
+}
+
+static inline void native_set_pte(pte_t *ptep, pte_t pte)
 {
 	*ptep = pte;
 }
 
-static inline void native_pte_set_atomic(pte_t *ptep, pte_t pte)
+static inline void native_set_pte_atomic(pte_t *ptep, pte_t pte)
 {
-	native_pte_set(ptep, pte);
+	native_set_pte(ptep, pte);
 }
 
-static inline void native_pte_clear(pte_t *ptep)
-{
-	native_pte_set(ptep, __pte(0));
-}
-
-static inline void native_pmd_set(pmd_t *pmdp, pmd_t pmd)
+static inline void native_set_pmd(pmd_t *pmdp, pmd_t pmd)
 {
 	*pmdp = pmd;
 }
 
 static inline void native_pmd_clear(pmd_t *pmdp)
 {
-	native_pmd_set(pmdp, __pmd(0));
+	native_pmd_set(pmdp, native_make_pmd(0));
 }
 
-static inline void native_pud_set(pud_t *pudp, pud_t pud)
+static inline pte_t native_ptep_get_and_clear(pte_t *xp)
+{
+#ifdef CONFIG_SMP
+	return native_make_pte(xchg(&xp->pte, 0));
+#else
+	/* native_local_ptep_get_and_clear,
+	   but duplicated because of cyclic dependency */
+	pte_t ret = *xp;
+	native_pte_clear(NULL, 0, xp);
+	return ret;
+#endif
+}
+
+static inline pmd_t native_pmdp_get_and_clear(pmd_t *xp)
+{
+#ifdef CONFIG_SMP
+	return native_make_pmd(xchg(&xp->pmd, 0));
+#else
+	/* native_local_pmdp_get_and_clear,
+	   but duplicated because of cyclic dependency */
+	pmd_t ret = *xp;
+	native_pmd_clear(xp);
+	return ret;
+#endif
+}
+
+static inline void native_set_pud(pud_t *pudp, pud_t pud)
 {
 	*pudp = pud;
 }
 
 static inline void native_pud_clear(pud_t *pudp)
 {
-	native_pud_set(pud, __pud(0));
+	native_set_pud(pudp, native_make_pud(0));
 }
 
-static inline void native_pgd_set(pgd_t *pgdp, pgd_t pgd)
+static inline void native_set_pgd(pgd_t *pgdp, pgd_t pgd)
 {
 	*pgdp = pgd;
 }
 
 static inline void native_pgd_clear(pgd_t *pgdp)
 {
-	native_pgd_set(pgdp, __pgd(0));
+	native_set_pgd(pgdp, native_make_pgd(0));
 }
 
 #endif /* __ASSEMBLY__ */
+
 #endif /* _ASM_X86_PGTABLE_64_H_ */

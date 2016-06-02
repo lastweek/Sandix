@@ -19,9 +19,10 @@
 #ifndef _ASM_X86_PGTABLE_64_TYPES_H_
 #define _ASM_X86_PGTABLE_64_TYPES_H_
 
-#include <sandix/pfn.h>
-
 #ifndef __ASSEMBLY__
+/*
+ * These are used to make use of C type-checking.
+ */
 typedef unsigned long pteval_t;
 typedef unsigned long pmdval_t;
 typedef unsigned long pudval_t;
@@ -33,23 +34,25 @@ typedef struct {
 } pte_t;
 #endif
 
+#define SHARED_KERNEL_PMD	0
+
 /*
- * PGDIR_SHIFT determines the size of the area
- * a top-level page table entry can map.
+ * PGDIR_SHIFT determines the size of the area a top-level page table entry can
+ * map.
  */
 #define PGDIR_SHIFT		39
 #define PTRS_PER_PGD		512
 
 /*
- * PUD_SHIFT determines the size of the area
- * a 3rd-level page table entry can map.
+ * PUD_SHIFT determines the size of the area a 3rd-level page table entry can
+ * map.
  */
 #define PUD_SHIFT		30
 #define PTRS_PER_PUD		512
 
 /*
- * PMD_SHIFT determines the size of the area
- * a middle-level page table entry can map.
+ * PMD_SHIFT determines the size of the area a middle-level page table entry
+ * can map.
  */
 #define PMD_SHIFT		21
 #define PTRS_PER_PMD		512
@@ -59,11 +62,11 @@ typedef struct {
  */
 #define PTRS_PER_PTE		512
 
-#define PMD_SIZE	(1UL << PMD_SHIFT)
+#define PMD_SIZE	(_AC(1, UL) << PMD_SHIFT)
 #define PMD_MASK	(~(PMD_SIZE - 1))
-#define PUD_SIZE	(1UL << PUD_SHIFT)
+#define PUD_SIZE	(_AC(1, UL) << PUD_SHIFT)
 #define PUD_MASK	(~(PUD_SIZE - 1))
-#define PGDIR_SIZE	(1UL << PGDIR_SHIFT)
+#define PGDIR_SIZE	(_AC(1, UL) << PGDIR_SHIFT)
 #define PGDIR_MASK	(~(PGDIR_SHIFT - 1))
 
 /* See Documentation/x86/x86_64/mm.txt for a description of the memory map. */
