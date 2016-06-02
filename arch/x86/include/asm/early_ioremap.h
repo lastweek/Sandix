@@ -21,4 +21,6 @@
 
 #include <asm-generic/early_ioremap.h>
 
+bool is_early_ioremap_ptep(pte_t *ptep);
+
 #endif /* _ASM_X86_EARLY_IOREMAP_H_ */

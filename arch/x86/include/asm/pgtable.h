@@ -422,6 +422,9 @@ static inline int pud_bad(pud_t pud)
 	return (pud_flags(pud) & ~__PAGE_USER) != __KERNEL_TABLE
 }
 #endif /* CONFIG_PGTABLE_LEVELS > 2 */
+/*
+ * ELSE those functions are defined in <asm-generic/pgtable-nopmd.h>
+ */
 
 #if CONFIG_PGTABLE_LEVELS > 3
 static inline int pgd_present(pgd_t pgd)
@@ -462,7 +465,10 @@ static inline int pgd_none(pgd_t pgd)
 {
 	return !pgd_val(pgd);
 }
-#endif /* CONFIG_PGTABLE_LEVELS > 3*/
+#endif /* CONFIG_PGTABLE_LEVELS > 3 */
+/*
+ * ELSE those functions are defined in <asm-generic/pgtable-nopud.h>
+ */
 
 /*
  * The pgd page can be thought of an array like this: pgd_t[PTRS_PER_PGD]

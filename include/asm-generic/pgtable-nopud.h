@@ -24,9 +24,9 @@
 #define __PGTABLE_PUD_FOLDED
 
 /*
- * Having the PUD type consist of a PGD gets the size right, and allows
- * us to conceptually access the PGD entry that this PUD is folded into
- * without casting.
+ * Having the PUD type consist of a PGD gets the size right, and allows us to
+ * conceptually access the PGD entry that this PUD is folded into without
+ * casting.
  */
 typedef struct {
 	pgd_t pgd;

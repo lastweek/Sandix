@@ -1,5 +1,5 @@
 ##			SANDIX KERNEL PROJECT
-###	Copyright (C) 2015-2016 Yizhou Shan <shanyizhou@ict.ac.cn>
+###	Copyright (C) 2015-2016 Yizhou Shan <shan13@purdue.edu>
 
 WHAT IS SANDIX?
 
@@ -13,7 +13,7 @@ WHAT IS SANDIX?
 
 WHO IS DEVELOPING SANDIX?
 
-	- Yizhou Shan <shanyizhou@ict.ac.cn>
+	- Yizhou Shan <shan13@purdue.edu>
 	- Architecture Contributors are very welcomed.
 	- For more information, email me. ;)
 	- Personal site: http://qiuqiuxu.com
