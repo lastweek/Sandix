@@ -22,7 +22,44 @@
 #include <asm/sections.h>
 
 #include <sandix/mm.h>
+#include <sandix/export.h>
 #include <sandix/kernel.h>
+
+/*
+ * Tables translating between page_cache_type_t and pte encoding.
+ *
+ * The default values are defined statically as minimal supported mode;
+ * WC and WT fall back to UC-.  pat_init() updates these values to support
+ * more cache modes, WC and WT, when it is safe to do so.  See pat_init()
+ * for the details.  Note, __early_ioremap() used during early boot-time
+ * takes pgprot_t (pte encoding) and does not use these tables.
+ *
+ *   Index into __cachemode2pte_tbl[] is the cachemode.
+ *
+ *   Index into __pte2cachemode_tbl[] are the caching attribute bits of the pte
+ *   (_PAGE_PWT, _PAGE_PCD, _PAGE_PAT) at index bit positions 0, 1, 2.
+ */
+u16 __cachemode2pte_tbl[__PAGE_CACHE_MODE_NUM] = {
+	[__PAGE_CACHE_MODE_WB      ]	= 0          | 0         ,
+	[__PAGE_CACHE_MODE_WC      ]	= 0          | __PAGE_PCD,
+	[__PAGE_CACHE_MODE_UC_MINUS]	= 0          | __PAGE_PCD,
+	[__PAGE_CACHE_MODE_UC      ]	= __PAGE_PWT | __PAGE_PCD,
+	[__PAGE_CACHE_MODE_WT      ]	= 0          | __PAGE_PCD,
+	[__PAGE_CACHE_MODE_WP      ]	= 0          | __PAGE_PCD,
+};
+EXPORT_SYMBOL(__cachemode2pte_tbl);
+
+u8 __pte2cachemode_tbl[8] = {
+	[__pte2cm_idx( 0         | 0          | 0         )] = __PAGE_CACHE_MODE_WB,
+	[__pte2cm_idx(__PAGE_PWT | 0          | 0         )] = __PAGE_CACHE_MODE_UC_MINUS,
+	[__pte2cm_idx( 0         | __PAGE_PCD | 0         )] = __PAGE_CACHE_MODE_UC_MINUS,
+	[__pte2cm_idx(__PAGE_PWT | __PAGE_PCD | 0         )] = __PAGE_CACHE_MODE_UC,
+	[__pte2cm_idx( 0         | 0          | __PAGE_PAT)] = __PAGE_CACHE_MODE_WB,
+	[__pte2cm_idx(__PAGE_PWT | 0          | __PAGE_PAT)] = __PAGE_CACHE_MODE_UC_MINUS,
+	[__pte2cm_idx(0          | __PAGE_PCD | __PAGE_PAT)] = __PAGE_CACHE_MODE_UC_MINUS,
+	[__pte2cm_idx(__PAGE_PWT | __PAGE_PCD | __PAGE_PAT)] = __PAGE_CACHE_MODE_UC,
+};
+EXPORT_SYMBOL(__pte2cachemode_tbl);
 
 unsigned long __init init_memory_mapping(unsigned long start,
 					 unsigned long end)

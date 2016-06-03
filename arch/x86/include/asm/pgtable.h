@@ -59,9 +59,6 @@ struct mm_struct;
 #define pte_val(x)			native_pte_val(x)
 #define __pte(x)			native_make_pte(x)
 
-#define pgprot_val(x)			((x).pgprot)
-#define __pgprot(x)			((pgprot_t) { (x) })
-
 #ifdef CONFIG_X86_32
 #include <asm/pgtable_32.h>
 #else
