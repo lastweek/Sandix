@@ -31,6 +31,9 @@
 #include <asm/descriptor.h>
 #include <asm/processor.h>
 
+enum system_states system_state __read_mostly;
+EXPORT_SYMBOL(system_state);
+
 static void __init boot_cpu_init(void)
 {
 	int cpu = smp_processor_id();

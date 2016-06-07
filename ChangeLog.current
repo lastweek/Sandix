@@ -55,3 +55,8 @@ Thu Jun  2 08:34:41 CST 2016
 - [+] arch/x86/include/asm/cmpxchg_32.h
 - [+] arch/x86/include/asm/cmpxchg_64.h
 - [M] arch/x86/include/asm/cmpxchg.h		[D] Update cmpxchg related code
+
+
+Tue Jun  7 13:19:29 CST 2016
+- [M] include/sandix/kernel.h
+- [M] init/main.c				[D] Add system state variable

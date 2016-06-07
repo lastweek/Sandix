@@ -234,4 +234,13 @@ int vscnprintf(char *buf, size_t size, const char *fmt, va_list args);
 __printf(1, 2) __cold __noreturn
 void panic(const char *fmt, ...);
 
+/* Values used for system_state */
+extern enum system_states {
+	SYSTEM_BOOTING,
+	SYSTEM_RUNNING,
+	SYSTEM_HALT,
+	SYSTEM_POWER_OFF,
+	SYSTEM_RESTART,
+} system_state;
+
 #endif /* _SANDIX_KERNEL_H_ */
