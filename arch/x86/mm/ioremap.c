@@ -25,11 +25,18 @@
 #include <asm/fixmap.h>
 #include <asm/pgalloc.h>
 #include <asm/pgtable.h>
+#include <asm/tlbflush.h>
+#include <asm/cacheflush.h>
 #include <asm/early_ioremap.h>
 
 #include <sandix/sched.h>
 #include <sandix/kernel.h>
 #include <sandix/string.h>
+
+/*
+ * Early ioremap/iounmap related
+ * Used before full paging and ioremap are functional
+ */
 
 static pte_t bm_pte[PAGE_SIZE/sizeof(pte_t)] __aligned(PAGE_SIZE);
 
@@ -51,6 +58,27 @@ static pmd_t * __init early_ioremap_pmd(unsigned long addr)
 	pmd_t *pmd = pmd_offset(pud, addr);
 
 	return pmd;
+}
+
+void __init __early_set_fixmap(enum fixed_addresses idx,
+			       phys_addr_t phys, pgprot_t flags)
+{
+	unsigned long vaddr = __fix_to_virt(idx);
+	pte_t *ptep;
+
+	if (idx >= __end_of_fixed_addresses) {
+		BUG();
+		return;
+	}
+
+	ptep = early_ioremap_pte(vaddr);
+
+	if (pgprot_val(flags))
+		set_pte(ptep, pfn_pte(phys >> PAGE_SHIFT, flags));
+	else
+		pte_clear(&init_mm, vaddr, ptep);
+
+	__flush_tlb_one(vaddr);
 }
 
 /**

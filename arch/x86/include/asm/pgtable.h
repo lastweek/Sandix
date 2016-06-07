@@ -79,10 +79,11 @@ struct mm_struct;
 #endif
 
 #define set_pte(ptep, pte)		native_set_pte(ptep, pte)
+#define set_pte_at(mm, addr, ptep, pte)	native_set_pte_at(mm, addr, ptep, pte)
 #define set_pte_atomic(ptep, pte)	native_set_pte_atomic(ptep, pte)
 #define set_pmd(pmdp, pmd)		native_set_pmd(pmdp, pmd)
 
-#define pte_clear(addr, ptep)		native_pte_clear(mm, addr, ptep)
+#define pte_clear(mm, addr, ptep)	native_pte_clear(mm, addr, ptep)
 #define pmd_clear(pmd)			native_pmd_clear(pmd)
 
 /*
@@ -511,6 +512,12 @@ static inline pmd_t native_local_pmdp_get_and_clear(pmd_t *pmdp)
 	return res;
 }
 
+static inline void native_set_pte_at(struct mm_struct *mm, unsigned long addr,
+				     pte_t *ptep , pte_t pte)
+{
+	native_set_pte(ptep, pte);
+}
+
 #ifndef CONFIG_PARAVIRT
 /*
  * Rules for using pte_update - it must be called after any PTE update which
@@ -586,6 +593,8 @@ static inline unsigned long pages_to_mb(unsigned long npg)
 
 /* init memory mapping, in mm/init.c */
 void __init init_mem_mapping(void);
+
+void set_pte_vaddr(unsigned long vaddr, pte_t pteval);
 
 #include <asm-generic/pgtable.h>
 

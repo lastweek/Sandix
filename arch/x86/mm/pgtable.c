@@ -52,17 +52,14 @@ void __init reserve_top_address(unsigned long reserve)
 
 void __set_fixmap(enum fixed_addresses idx, phys_addr_t phys, pgprot_t flags)
 {
-	unsigned long address;
-	pte_t pte;
-
-	address = __fix_to_virt(idx);
-	pte = pfn_pte(phys >> PAGE_SHIFT, flags);
+	unsigned long address = __fix_to_virt(idx);
+	pte_t pte = pfn_pte(phys >> PAGE_SHIFT, flags);
 
 	if (idx >= __end_of_fixed_addresses) {
 		BUG();
 		return;
 	}
-	//set_pte_vaddr(address, pte);
+	set_pte_vaddr(address, pte);
 	fixmaps_set++;
 }
 
