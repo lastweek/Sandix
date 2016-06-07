@@ -70,6 +70,11 @@
 
 #define DIV_ROUND_UP(n,d)	(((n) + (d) - 1) / (d))
 
+#define __ALIGN_MASK(x, mask)	(((x) + (mask)) & ~(mask))
+#define ALIGN(x, a)		__ALIGN_MASK(x, (typeof(x))(a) - 1)
+#define PTR_ALIGN(p, a)		((typeof(p))ALIGN((unsigned long)(p), (a)))
+#define IS_ALIGNED(x, a)	(((x) & ((typeof(x))(a) - 1)) == 0)
+
 #define ARRAY_SIZE(x)		(sizeof(x) / sizeof((x)[0]))
 
 #define _RET_IP_		(unsigned long)__builtin_return_address(0)

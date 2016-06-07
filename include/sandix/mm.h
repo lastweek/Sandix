@@ -23,9 +23,18 @@
 #include <asm/pgtable.h>
 
 #include <sandix/types.h>
+#include <sandix/kernel.h>
 #include <sandix/atomic.h>
 #include <sandix/spinlock.h>
 #include <sandix/compiler.h>
+
+#define offset_in_page(p)	((unsigned long)(p) & ~PAGE_MASK)
+
+/* to align the pointer to the (next) page boundary */
+#define PAGE_ALIGN(addr)	ALIGN(addr, PAGE_SIZE)
+
+/* test whether an address (unsigned long or pointer) is aligned to PAGE_SIZE */
+#define PAGE_ALIGNED(addr)	IS_ALIGNED((unsigned long)addr, PAGE_SIZE)
 
 struct mm_struct;
 

@@ -1,6 +1,6 @@
 /*
  *	Copyright (C) 2015-2016 Yizhou Shan <shan13@purdue.edu>
- *	
+ *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
@@ -14,7 +14,6 @@
  *	You should have received a copy of the GNU General Public License along
  *	with this program; if not, write to the Free Software Foundation, Inc.,
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
  */
 
 #ifndef _SANDIX_LINKAGE_H_
@@ -22,6 +21,8 @@
 
 /* Pass parameters from stack */
 #define asmlinkage __attribute__((regparm(0)))
+
+#ifdef __ASSEMBLY__
 
 /* GNU AS newline separator */
 #define	ASM_NL	;
@@ -65,5 +66,7 @@
 	.type name, @function ASM_NL \
 	END(name)
 #endif
+
+#endif /* __ASSEMBLY__ */
 
 #endif /* _SANDIX_LINKAGE_H_ */
