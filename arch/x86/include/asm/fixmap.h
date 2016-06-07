@@ -109,8 +109,12 @@ enum fixed_addresses {
 #define FIXADDR_SIZE	(__end_of_permanent_fixed_addresses << PAGE_SHIFT)
 #define FIXADDR_START	(FIXADDR_TOP - FIXADDR_SIZE)
 
-extern void __set_fixmap(enum fixed_addresses idx, phys_addr_t phys,
-			 pgprot_t flags);
+void __set_fixmap(enum fixed_addresses idx, phys_addr_t phys, pgprot_t flags);
+
+void __early_set_fixmap(enum fixed_addresses idx, phys_addr_t phys, pgprot_t flags);
+
+#define __late_set_fixmap(idx, phys, flags) __set_fixmap(idx, phys, flags)
+#define __late_clear_fixmap(idx) __set_fixmap(idx, 0, __pgprot(0))
 
 #include <asm-generic/fixmap.h>
 

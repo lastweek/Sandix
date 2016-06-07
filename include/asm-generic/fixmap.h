@@ -66,16 +66,37 @@ static inline unsigned long virt_to_fix(const unsigned long vaddr)
 #define FIXMAP_PAGE_CLEAR __pgprot(0)
 #endif
 
-#define set_fixmap(idx, phys)	__set_fixmap(idx, phys, FIXMAP_PAGE_NORMAL)
-#define clear_fixmap(idx)	__set_fixmap(idx, 0, FIXMAP_PAGE_CLEAR)
+/*
+ * General set_fixmap_xxx
+ */
+
+#ifndef set_fixmap
+#define set_fixmap(idx, phys) \
+	__set_fixmap(idx, phys, FIXMAP_PAGE_NORMAL)
+#endif
+
+#ifndef clear_fixmap
+#define clear_fixmap(idx) \
+	__set_fixmap(idx, 0, FIXMAP_PAGE_CLEAR)
+#endif
+
+#ifndef set_fixmap_nocache
+#define set_fixmap_nocache(idx, phys) \
+	__set_fixmap(idx, phys, FIXMAP_PAGE_NOCACHE)
+#endif
+
+#ifndef set_fixmap_io
+#define set_fixmap_io(idx, phys) \
+	__set_fixmap(idx, phys, FIXMAP_PAGE_IO)
+#endif
 
 /* Return a pointer with offset calculated */
-#define __set_fixmap_offset(idx, phys, flags)		      \
-({							      \
-	unsigned long addr;				      \
-	__set_fixmap(idx, phys, flags);			      \
-	addr = fix_to_virt(idx) + ((phys) & (PAGE_SIZE - 1)); \
-	addr;						      \
+#define __set_fixmap_offset(idx, phys, flags)			\
+({								\
+	unsigned long addr;					\
+	__set_fixmap(idx, phys, flags);				\
+	addr = fix_to_virt(idx) + ((phys) & (PAGE_SIZE - 1));	\
+	addr;							\
 })
 
 #define set_fixmap_offset(idx, phys)				\
