@@ -18,6 +18,7 @@
 
 #include <asm/fixmap.h>
 #include <asm/pgtable.h>
+#include <asm/tlbflush.h>
 
 #include <sandix/bug.h>
 #include <sandix/sched.h>
@@ -58,5 +59,5 @@ void set_pte_vaddr(unsigned long vaddr, pte_t pteval)
 	 *
 	 * WHY?
 	 */
-	//__flush_tlb_one(vaddr);
+	__flush_tlb_one(vaddr);
 }
