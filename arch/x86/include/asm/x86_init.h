@@ -37,6 +37,10 @@ struct x86_init_irqs {
 
 };
 
+/**
+ * @arch_setup:			OEM specific setup
+ * @banner:			Paravirt OS banner
+ */
 struct x86_init_oem {
 	void (*arch_setup)(void);
 	void (*banner)(void);

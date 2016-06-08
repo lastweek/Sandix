@@ -20,6 +20,12 @@
 
 #include <sandix/compiler.h>
 
+void x86_init_noop(void) { }
+void x86_init_uint_noop(unsigned int unused) { }
+
 struct x86_init_ops x86_init __initdata = {
-	
+	.oem = {
+		.arch_setup		= x86_init_noop,
+		.banner			= x86_init_noop,
+	},
 };
