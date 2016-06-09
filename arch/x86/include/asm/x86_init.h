@@ -29,8 +29,15 @@ struct x86_init_mpparse {
 	void (*get_smp_config)(unsigned int early);
 };
 
+/**
+ * struct x86_init_resources - platform specific resource related ops
+ * @probe_roms:			probe BIOS roms
+ * @reserve_resources:		reserve the standard resources for the platform
+ *
+ */
 struct x86_init_resources {
-
+	void (*probe_roms)(void);
+	void (*reserve_resources)(void);
 };
 
 struct x86_init_irqs {

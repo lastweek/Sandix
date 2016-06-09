@@ -68,5 +68,8 @@ Wed Jun  8 08:39:41 CST 2016
 
 
 Thu Jun  9 10:10:28 CST 2016
+- [+] arch/x86/kernel/x86_init.c
+- [+] arch/x86/kernel/probe_roms.c		[D] In the middle
 - [+] arch/x86/mm/nx.c
 - [M] arch/x86/kernel/setup.c			[D] Add NX (Execute Disable) feature
+- [M] arch/x86/include/asm/setup.h

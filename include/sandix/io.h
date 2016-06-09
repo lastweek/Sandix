@@ -24,11 +24,13 @@
 #include <asm/io.h>
 
 struct resource {
-	resource_size_t start;
-	resource_size_t end;
-	const char *name;
-	unsigned long flags;
-	struct resource *parent, *silbing, *child;
+	resource_size_t		start;
+	resource_size_t		end;
+	const char		*name;
+	unsigned long		flags;
+	struct resource		*parent;
+	struct resource		*silbing;
+	struct resource		*child;
 };
 
 #define IORESOURCE_IO		0x00000100	/* PCI/ISA I/O ports*/

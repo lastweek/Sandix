@@ -10,6 +10,7 @@ obj-y += x86_init.o
 obj-y += process.o process_$(BITS).o
 obj-y += cpu.o cpu_intel.o
 obj-y += mpspec.o
+obj-y += probe_roms.o
 
 # head file
 extra-y += head_$(BITS).o

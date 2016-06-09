@@ -16,6 +16,7 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <asm/setup.h>
 #include <asm/x86_init.h>
 
 #include <sandix/compiler.h>
@@ -24,6 +25,10 @@ void x86_init_noop(void) { }
 void x86_init_uint_noop(unsigned int unused) { }
 
 struct x86_init_ops x86_init __initdata = {
+	.resources = {
+		.probe_roms		= probe_roms,
+	},
+
 	.oem = {
 		.arch_setup		= x86_init_noop,
 		.banner			= x86_init_noop,

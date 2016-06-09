@@ -163,7 +163,7 @@ void __init early_arch_setup(void)
  */
 void __init arch_setup(void)
 {
-	int early_dump_pci = 0;
+	int early_dump_pci = 1;
 
         memblock_reserve(__pa(__kstart),
 		(unsigned long)__bss_end - (unsigned long)__kstart);
@@ -176,7 +176,6 @@ void __init arch_setup(void)
 
 	early_cpu_init();
 	early_ioremap_init();
-	x86_init.oem.arch_setup();
 
 	x86_configure_nx();
 	x86_report_nx();
@@ -197,6 +196,21 @@ void __init arch_setup(void)
 	code_resource.end	= __pa(__text_end) - 1;
 	data_resource.end	= __pa(__data_end) - 1;
 	bss_resource.end	= __pa(__bss_end) - 1;
+
+	x86_init.oem.arch_setup();
+	x86_init.resources.probe_roms();
+
+#ifdef CONFIG_PCI
+	if (early_dump_pci)
+		early_dump_pci_devices();
+#endif
+
+	/*
+	 * TODO:
+	 * Desktop Management Interface (DMI), which scan different hardware
+	 * components within the laptop, desktop or server machines. We need
+	 * to add drivers/firmware/dmi_scan.c to support this.
+	 */
 
 	/* roundup max_pfn */
 	max_pfn = e820_end_of_ram_pfn();
@@ -228,12 +242,6 @@ void __init arch_setup(void)
 
 	/* find possible boot-time SMP configruation */
 	//find_smp_config();
-
-
-#ifdef CONFIG_PCI
-	if (early_dump_pci)
-		early_dump_pci_devices();
-#endif
 
 	reserve_standard_io_resources();
 
