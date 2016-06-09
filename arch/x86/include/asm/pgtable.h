@@ -310,12 +310,12 @@ static inline pmd_t pmd_mkwrite(pmd_t pmd)
 	return pmd_set_flags(pmd, __PAGE_RW);
 }
 
-extern pteval_t __supported_pte_mask;
-
 /*
- * Mask out unsupported bits in a present pgprot.  Non-present pgprots
+ * Mask out unsupported bits in a present pgprot. Non-present pgprots
  * can use those bits for other purposes, so leave them be.
  */
+extern pteval_t __supported_pte_mask;
+
 static inline pgprotval_t massage_pgprot(pgprot_t pgprot)
 {
 	pgprotval_t protval = pgprot_val(pgprot);

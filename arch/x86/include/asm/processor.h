@@ -354,4 +354,7 @@ void __init early_cpu_init(void);
 void __init cpu_init(void);
 void print_cpu_info(struct cpuinfo_x86 *c);
 
+void __init x86_configure_nx(void);
+void __init x86_report_nx(void);
+
 #endif /* _ASM_X86_PROCESSOR_H_ */

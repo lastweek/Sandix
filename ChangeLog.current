@@ -65,3 +65,8 @@ Tue Jun  7 13:19:29 CST 2016
 Wed Jun  8 08:39:41 CST 2016
 - [+] include/asm-generic/tlbflush.h
 - [+] arch/x86/include/asm/tlbflush.h		[D] TLB fLush related functions
+
+
+Thu Jun  9 10:10:28 CST 2016
+- [+] arch/x86/mm/nx.c
+- [M] arch/x86/kernel/setup.c			[D] Add NX (Execute Disable) feature

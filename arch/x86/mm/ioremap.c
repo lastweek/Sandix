@@ -106,7 +106,9 @@ void __init early_ioremap_init(void)
 		     (__fix_to_virt(FIX_BTMAP_END) >> PMD_SHIFT));
 #undef __FIXADDR_TOP
 
-	/* Generic initialization: */
+	/*
+	 * Arch-independent generic setup:
+	 */
 	early_ioremap_setup();
 
 	pmd = early_ioremap_pmd(fix_to_virt(FIX_BTMAP_BEGIN));

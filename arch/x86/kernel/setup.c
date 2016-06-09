@@ -31,6 +31,7 @@
 #include <asm/mpspec.h>
 #include <asm/pgtable.h>
 #include <asm/segment.h>
+#include <asm/x86_init.h>
 #include <asm/sections.h>
 #include <asm/bootparam.h>
 #include <asm/processor.h>
@@ -173,11 +174,15 @@ void __init arch_setup(void)
 	 * RAM in e820. All other memory is free game.
 	 */
 
-	setup_memory_map();
 	early_cpu_init();
 	early_ioremap_init();
+	x86_init.oem.arch_setup();
+
+	x86_configure_nx();
+	x86_report_nx();
 
 	iomem_resource.end = (1ULL << boot_cpu_info.x86_phys_bits) - 1;
+	setup_memory_map();
 
 	init_mm.start_code	= (unsigned long)__text_start;
 	init_mm.start_data	= (unsigned long)__data_start;
