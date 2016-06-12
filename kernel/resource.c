@@ -16,6 +16,11 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ * This file describes PCI IO ports and Memory resource management thing.
+ * Check /proc/iomem and /proc/ioports in Linux for a basic feeling.
+ */
+
 #include <sandix/io.h>
 #include <sandix/errno.h>
 #include <sandix/types.h>

@@ -77,3 +77,4 @@ Thu Jun  9 10:10:28 CST 2016
 
 Sun Jun 12 08:05:22 CST 2016
 - [M] kernel/resource.c
+- [M] arch/x86/kernel/probe_roms.c
