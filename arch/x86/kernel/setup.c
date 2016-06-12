@@ -54,19 +54,19 @@ struct screen_info screen_info;
 EXPORT_SYMBOL(screen_info);
 
 static struct resource code_resource = {
-	.name	= "kernel code",
+	.name	= "Kernel Code",
 	.start	= 0,
 	.end	= 0,
 	.flags	= IORESOURCE_BUSY | IORESOURCE_MEM
 };
 static struct resource data_resource = {
-	.name	= "kernel data",
+	.name	= "Kernel Data",
 	.start	= 0,
 	.end	= 0,
 	.flags	= IORESOURCE_BUSY | IORESOURCE_MEM
 };
 static struct resource bss_resource = {
-	.name	= "kernel bss",
+	.name	= "Kernel Bss",
 	.start	= 0,
 	.end	= 0,
 	.flags	= IORESOURCE_BUSY | IORESOURCE_MEM
@@ -161,6 +161,14 @@ void __init early_arch_setup(void)
  *
  * Note: On x86_64, fixmaps are ready for use even before this is called.
  */
+
+/*
+ * TODO:
+ * Desktop Management Interface (DMI), which scan different hardware
+ * components within the laptop, desktop or server machines. We need
+ * to add drivers/firmware/dmi_scan.c to support this.
+ */
+
 void __init arch_setup(void)
 {
 	int early_dump_pci = 1;
@@ -204,13 +212,6 @@ void __init arch_setup(void)
 	if (early_dump_pci)
 		early_dump_pci_devices();
 #endif
-
-	/*
-	 * TODO:
-	 * Desktop Management Interface (DMI), which scan different hardware
-	 * components within the laptop, desktop or server machines. We need
-	 * to add drivers/firmware/dmi_scan.c to support this.
-	 */
 
 	/* roundup max_pfn */
 	max_pfn = e820_end_of_ram_pfn();
