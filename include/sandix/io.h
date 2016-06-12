@@ -29,7 +29,7 @@ struct resource {
 	const char		*name;
 	unsigned long		flags;
 	struct resource		*parent;
-	struct resource		*silbing;
+	struct resource		*sibling;
 	struct resource		*child;
 };
 
@@ -70,5 +70,10 @@ static inline resource_size_t resource_size(const struct resource *res)
 
 int release_resource(struct resource *old);
 int request_resource(struct resource *root, struct resource *new);
+struct resource *request_resource_conflict(struct resource *root, struct resource *new);
+
+#ifndef IO_SPACE_LIMIT
+#define IO_SPACE_LIMIT	0xffff
+#endif
 
 #endif /* _SANDIX_IO_H_ */

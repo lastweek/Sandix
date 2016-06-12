@@ -152,4 +152,6 @@ BUILD_IO_OPS(b, b, char)
 BUILD_IO_OPS(w, w, short)
 BUILD_IO_OPS(l, , int)
 
+#define IO_SPACE_LIMIT	0xffff
+
 #endif /* _ASM_X86_IO_H_*/
