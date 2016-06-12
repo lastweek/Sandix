@@ -31,7 +31,7 @@
 struct resource ioport_resource  = {
 	.name	= "PCI IO",
 	.start	= 0,
-	.end	= 0,
+	.end	= IO_SPACE_LIMIT,
 	.flags	= IORESOURCE_IO
 };
 EXPORT_SYMBOL(ioport_resource);
@@ -153,3 +153,103 @@ int request_resource(struct resource *root, struct resource *new)
 	return conflict ? -EBUSY : 0;
 }
 EXPORT_SYMBOL(request_resource);
+
+/*
+ * Insert a resource into the resource tree. If successful, return NULL,
+ * otherwise return the conflicting resource (compare to __request_resource())
+ */
+static struct resource * __insert_resource(struct resource *parent,
+					   struct resource *new)
+{
+	struct resource *first, *next;
+
+	for (;; parent = first) {
+		first = __request_resource(parent, new);
+		if (!first)
+			return first;
+
+		if (first == parent)
+			return first;
+		if (WARN_ON(first == new))	/* duplicated insertion */
+			return first;
+
+		if ((first->start > new->start) || (first->end < new->end))
+			break;
+		if ((first->start == new->start) && (first->end == new->end))
+			break;
+	}
+
+	for (next = first; ; next = next->sibling) {
+		/* Partial overlap? Bad, and unfixable */
+		if (next->start < new->start || next->end > new->end)
+			return next;
+		if (!next->sibling)
+			break;
+		if (next->sibling->start > new->end)
+			break;
+	}
+
+	new->parent = parent;
+	new->sibling = next->sibling;
+	new->child = first;
+
+	next->sibling = NULL;
+	for (next = first; next; next = next->sibling)
+		next->parent = new;
+
+	if (parent->child == first) {
+		parent->child = new;
+	} else {
+		next = parent->child;
+		while (next->sibling != first)
+			next = next->sibling;
+		next->sibling = new;
+	}
+	return NULL;
+}
+
+/**
+ * insert_resource_conflict - Inserts resource in the resource tree
+ * @parent: parent of the new resource
+ * @new: new resource to insert
+ *
+ * Returns 0 on success, conflict resource if the resource can't be inserted.
+ *
+ * This function is equivalent to request_resource_conflict when no conflict
+ * happens. If a conflict happens, and the conflicting resources
+ * entirely fit within the range of the new resource, then the new
+ * resource is inserted and the conflicting resources become children of
+ * the new resource.
+ *
+ * This function is intended for producers of resources, such as FW modules
+ * and bus drivers.
+ */
+struct resource *insert_resource_conflict(struct resource *parent,
+					  struct resource *new)
+{
+	struct resource *conflict;
+
+	spin_lock(&resource_lock);
+	conflict = __insert_resource(parent, new);
+	spin_unlock(&resource_lock);
+	return conflict;
+}
+
+/**
+ * insert_resource - Inserts a resource in the resource tree
+ * @parent: parent of the new resource
+ * @new: new resource to insert
+ *
+ * Returns 0 on success, -EBUSY if the resource can't be inserted.
+ *
+ * This function is intended for producers of resources, such as FW modules
+ * and bus drivers.
+ */
+int insert_resource(struct resource *parent, struct resource *new)
+{
+	struct resource *conflict;
+
+	conflict = insert_resource_conflict(parent, new);
+	return conflict ? -EBUSY : 0;
+}
+EXPORT_SYMBOL(insert_resource);

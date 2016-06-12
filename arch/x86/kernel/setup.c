@@ -164,6 +164,7 @@ void __init early_arch_setup(void)
 
 /*
  * TODO:
+ * 1)
  * Desktop Management Interface (DMI), which scan different hardware
  * components within the laptop, desktop or server machines. We need
  * to add drivers/firmware/dmi_scan.c to support this.
@@ -199,11 +200,15 @@ void __init arch_setup(void)
 	init_mm.brk		= (unsigned long)__brk_limit;
 
 	code_resource.start	= __pa(__text_start);
-	data_resource.start	= __pa(__data_start);
-	bss_resource.start	= __pa(__bss_start);
 	code_resource.end	= __pa(__text_end) - 1;
+	data_resource.start	= __pa(__data_start);
 	data_resource.end	= __pa(__data_end) - 1;
+	bss_resource.start	= __pa(__bss_start);
 	bss_resource.end	= __pa(__bss_end) - 1;
+
+	insert_resource(&iomem_resource, &code_resource);
+	insert_resource(&iomem_resource, &data_resource);
+	insert_resource(&iomem_resource, &bss_resource);
 
 	x86_init.oem.arch_setup();
 	x86_init.resources.probe_roms();
