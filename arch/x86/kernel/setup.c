@@ -162,7 +162,31 @@ void __init reserve_standard_io_resources(void)
 		BUG_ON(!!request_resource(&ioport_resource, &standard_io_resources[i]));
 }
 
-static void __init reserve_brk(void)
+void * __init extend_brk(unsigned long size, unsigned long align)
+{
+	unsigned long mask = align - 1;
+	void *ret;
+
+	/* brk is closed */
+	BUG_ON(_brk_start == 0);
+
+	/* align must be 2-order aligned */
+	BUG_ON(align & mask);
+
+	_brk_end = (_brk_end + mask) & ~mask;
+
+	/* use a larger brk if possible */
+	BUG_ON((char *)(_brk_end + size) > __brk_limit);
+
+	ret = (void *)_brk_end;
+	_brk_end += size;
+
+	memset(ret, 0, size);
+
+	return ret;
+}
+
+static void __init memblock_reserve_brk(void)
 {
 	if (_brk_end > _brk_start)
 		memblock_reserve(__pa(_brk_start),
@@ -266,6 +290,21 @@ void __init arch_setup(void)
 	 */
 	find_smp_config();
 
+	/*
+	 * Need to conclude brk, before memblock_x86_fill(). It could use
+	 * memblock_find_in_range, could overlap with brk area.
+	 *
+	 * Note that no extend_brk is allowed to use afterwards.
+	 */
+	memblock_reserve_brk();
+
+	/*
+	 * Add all E820_RAM into logical memblocks,
+	 * and dump all memory+reserved memblocks.
+	 */
+	memblock_x86_fill();
+	memblock_dump_all();
+
 	/* max_pfn_mapped was updated in head */
 	printk(KERN_DEBUG "initial memory mapped: [mem 0x00000000-%#010lx]\n",
 		(max_pfn_mapped<<PAGE_SHIFT) - 1);
@@ -279,6 +318,4 @@ void __init arch_setup(void)
 	init_mem_mapping();
 
 	reserve_standard_io_resources();
-
-	memblock_dump_all();
 }

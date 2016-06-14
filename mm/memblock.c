@@ -389,3 +389,28 @@ void memblock_dump_all(void)
 	memblock_dump(&memblock.memory, "memory");
 	memblock_dump(&memblock.reserved, "reserved");
 }
+
+void memblock_trim_memory(phys_addr_t align)
+{
+	phys_addr_t start, end, orig_start, orig_end;
+	struct memblock_region *r;
+
+	for_each_memblock(memory, r) {
+		orig_start = r->base;
+		orig_end = r->base + r->size;
+		start = round_up(orig_start, align);
+		end = round_down(orig_end, align);
+
+		if (start == orig_start && end == orig_end)
+			continue;
+
+		if (start < end) {
+			r->base = start;
+			r->size = end - start;
+		} else {
+			memblock_remove_region(&memblock.memory,
+					       r - memblock.memory.regions);
+			r--;
+		}
+	}
+}

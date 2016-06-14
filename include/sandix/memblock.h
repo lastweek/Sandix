@@ -61,6 +61,7 @@ int memblock_add_node(phys_addr_t base, phys_addr_t size, int nid);
 int memblock_add(phys_addr_t base, phys_addr_t size);
 int memblock_reserve(phys_addr_t base, phys_addr_t size);
 int memblock_remove(phys_addr_t base, phys_addr_t size);
+void memblock_trim_memory(phys_addr_t align);
 void memblock_dump_all(void);
 
 #ifdef CONFIG_HAVE_MEMBLOCK_NODE_MAP
@@ -76,6 +77,11 @@ static inline int memblock_get_region_node(const struct memblock_region *r)
 static inline void memblock_set_region_node(struct memblock_region *r, int nid) { }
 static inline int memblock_get_region_node(const struct memblock_region *r) { return 0; }
 #endif
+
+#define for_each_memblock(memblock_type, r)						\
+	for (r = memblock.memblock_type.regions;					\
+	     r < (memblock.memblock_type.regions + memblock.memblock_type.nr_regions);	\
+	     r++)
 
 #define for_each_memblock_type(memblock_type, rgn)			\
 	idx = 0;							\

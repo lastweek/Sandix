@@ -23,6 +23,7 @@
 #include <sandix/kernel.h>
 #include <sandix/string.h>
 #include <sandix/printk.h>
+#include <sandix/memblock.h>
 
 #include <asm/e820.h>
 #include <asm/setup.h>
@@ -424,4 +425,27 @@ void __init setup_memory_map(void)
 
 	printk(KERN_INFO "e820: BIOS-provided physical RAM map:\n");
 	e820_print_map("BIOS-e820");
+}
+
+void __init memblock_x86_fill(void)
+{
+	int i;
+	unsigned long long end;
+
+	for (i = 0; i < e820.nr_entries; i++) {
+		struct e820entry *ei = &e820.map[i];
+
+		end = ei->addr + ei->size;
+		/* this will filter > 4GB DRAM in 32-bit NONPAE kernel */
+		if (end != (resource_size_t)end)
+			continue;
+
+		if (ei->type != E820_RAM)
+			continue;
+
+		memblock_add(ei->addr, ei->size);
+	}
+
+	/* throw away partial pages */
+	memblock_trim_memory(PAGE_SIZE);
 }

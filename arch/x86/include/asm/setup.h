@@ -30,6 +30,10 @@ void __init early_arch_setup(void);
 /* The real architecture setup */
 void __init arch_setup(void);
 
+/* For simplicity, reserve legacy 1MB */
 void __init probe_roms(void);
+
+/* Allocate space in brk area */
+void * __init extend_brk(unsigned long size, unsigned long align);
 
 #endif /* _ASM_X86_SETUP_H_ */
