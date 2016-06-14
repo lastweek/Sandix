@@ -39,11 +39,23 @@
 #include <asm/descriptor.h>
 #include <asm/early_ioremap.h>
 
+/*
+ * max_low_pfn_mapped: highest direct mapped pfn under 4GB
+ * max_pfn_mapped:     highest direct mapped pfn over 4GB
+ *
+ * The direct mapping only covers E820_RAM regions, so the ranges and gaps are
+ * represented by pfn_mapped
+ */
 unsigned long max_low_pfn_mapped;
 unsigned long max_pfn_mapped;
 
-unsigned long brk_start = (unsigned long)__brk_start;
-unsigned long brk_end = (unsigned long)__brk_start;
+/*
+ * _brk_end equals to _brk_start at first place, which means no brk is allocated.
+ * The first portion of __brk area is used by intial page tables. Other code
+ * will allocate brk via extend_brk. However, remember, we do have a _brk_limit!
+ */
+unsigned long _brk_start = (unsigned long)__brk_start;
+unsigned long _brk_end = (unsigned long)__brk_start;
 
 /* Machine parameters obtained from BIOS */
 struct boot_params boot_params;
@@ -150,6 +162,19 @@ void __init reserve_standard_io_resources(void)
 		BUG_ON(!!request_resource(&ioport_resource, &standard_io_resources[i]));
 }
 
+static void __init reserve_brk(void)
+{
+	if (_brk_end > _brk_start)
+		memblock_reserve(__pa(_brk_start),
+				 _brk_end - _brk_start);
+
+	/*
+	 * Mark brk area as locked down and no longer taking
+	 * any new allocations.
+	 */
+	_brk_start = 0;
+}
+
 /* Prepare screen first */
 void __init early_arch_setup(void)
 {
@@ -197,7 +222,7 @@ void __init arch_setup(void)
 	init_mm.start_brk	= (unsigned long)__brk_start;
 	init_mm.end_code	= (unsigned long)__text_end;
 	init_mm.end_data	= (unsigned long)__data_end;
-	init_mm.brk		= (unsigned long)__brk_limit;
+	init_mm.brk		= _brk_end;
 
 	code_resource.start	= __pa(__text_start);
 	code_resource.end	= __pa(__text_end) - 1;
@@ -218,18 +243,16 @@ void __init arch_setup(void)
 		early_dump_pci_devices();
 #endif
 
-	/* roundup max_pfn */
+	/*
+	 * partially used pages are not usable - thus
+	 * we are rounding upwards:
+	 */
 	max_pfn = e820_end_of_ram_pfn();
 
 #ifdef CONFIG_X86_32
-	/* max_pfn_mapped was updated in head */
-	printk(KERN_DEBUG "initial memory mapped: [mem 0x00000000-%#010lx]\n",
-		(max_pfn_mapped<<PAGE_SHIFT) - 1);
-
 	/* max_low_pfn get updated here */
 	find_low_pfn_range();
 #else
-	/* x86_64 does not have lowmem really */
 	if (max_pfn > (1UL << (32 - PAGE_SHIFT)))
 		max_low_pfn = e820_end_of_low_ram_pfn();
 	else
@@ -239,15 +262,21 @@ void __init arch_setup(void)
 #endif
 
 	/*
+	 * Find and reserve possible boot-time SMP configuration:
+	 */
+	find_smp_config();
+
+	/* max_pfn_mapped was updated in head */
+	printk(KERN_DEBUG "initial memory mapped: [mem 0x00000000-%#010lx]\n",
+		(max_pfn_mapped<<PAGE_SHIFT) - 1);
+
+	/*
 	 * TODO
 	 *
 	 * Pick up here. We are building initial kernel memory mapping.
 	 * Tue Mar  1 13:03:21 CST 2016
 	 */
 	init_mem_mapping();
-
-	/* find possible boot-time SMP configruation */
-	//find_smp_config();
 
 	reserve_standard_io_resources();
 

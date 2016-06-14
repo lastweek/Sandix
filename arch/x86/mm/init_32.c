@@ -60,10 +60,12 @@ static void __init check_highmem_config(void)
 /* Determine low and high memory ranges */
 void __init find_low_pfn_range(void)
 {
-	if (max_pfn <= MAXMEM_PFN)
-		/* All of RAM fits into low memory */
+	if (max_pfn <= MAXMEM_PFN) {
+		/*
+		 * All of RAM fits into low memory
+		 */
 		max_low_pfn = max_pfn;
-	else {
+	} else {
 		/*
 		 * We have more RAM than fits into low memory,
 		 * try to put it into high memory.

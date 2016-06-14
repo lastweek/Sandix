@@ -100,7 +100,7 @@ ENTRY(startup_32)
 	jb	10b				# page table automatically.
 
 	addl	$__PAGE_OFFSET, %edi
-	movl	%edi, pa(brk_end)		# Store page table upper limit
+	movl	%edi, pa(_brk_end)		# Store page table upper limit
 	shrl	$12, %eax
 	movl	%eax, pa(max_pfn_mapped)	# Store maximum mapped frame
 

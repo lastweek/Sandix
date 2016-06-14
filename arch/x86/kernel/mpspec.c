@@ -17,3 +17,15 @@
  */
 
 #include <sandix/kernel.h>
+
+#include <asm/mpspec.h>
+
+void __init default_get_smp_config(unsigned int early)
+{
+
+}
+
+void __init default_find_smp_config(void)
+{
+
+}

@@ -17,6 +17,7 @@
  */
 
 #include <asm/setup.h>
+#include <asm/mpspec.h>
 #include <asm/x86_init.h>
 
 #include <sandix/compiler.h>
@@ -27,6 +28,11 @@ void x86_init_uint_noop(unsigned int unused) { }
 struct x86_init_ops x86_init __initdata = {
 	.resources = {
 		.probe_roms		= probe_roms,
+	},
+
+	.mpparse = {
+		.find_smp_config	= default_find_smp_config,
+		.get_smp_config		= default_get_smp_config,
 	},
 
 	.oem = {

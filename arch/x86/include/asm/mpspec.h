@@ -21,6 +21,9 @@
 
 #include <asm/x86_init.h>
 
+void __init default_get_smp_config(unsigned int early);
+void __init default_find_smp_config(void);
+
 static inline void get_smp_config(void)
 {
 	x86_init.mpparse.get_smp_config(0);

@@ -163,7 +163,7 @@ static struct resource * __insert_resource(struct resource *parent,
 {
 	struct resource *first, *next;
 
-	for (;; parent = first) {
+	for ( ; ; parent = first) {
 		first = __request_resource(parent, new);
 		if (!first)
 			return first;

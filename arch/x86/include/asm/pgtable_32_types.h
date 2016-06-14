@@ -57,6 +57,11 @@
 #endif
 
 #define __VMALLOC_RESERVE	(128 << 20)
+
+/*
+ * MAXMEM is the maximum memory that could be used as LOWMEM (differ from x86-64).
+ * If max_pfn < MAXMEM_PFN, that means all memory can fit into LOWMEM.
+ */
 #define MAXMEM			(VMALLOC_END - PAGE_OFFSET - __VMALLOC_RESERVE)
 #define MAXMEM_PFN		PFN_DOWN(MAXMEM)
 
