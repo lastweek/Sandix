@@ -82,6 +82,4 @@ void __init init_mem_mapping(void)
 
 	/* the ISA range is always mapped regardless of memory holes */
 	init_memory_mapping(0, ISA_END_ADDRESS);
-
-
 }

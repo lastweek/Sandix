@@ -217,6 +217,9 @@ void __init early_arch_setup(void)
  * Desktop Management Interface (DMI), which scan different hardware
  * components within the laptop, desktop or server machines. We need
  * to add drivers/firmware/dmi_scan.c to support this.
+ *
+ * 2)
+ * Implement find_smp_config(), which is mpspec.c that parse mp table.
  */
 
 void __init arch_setup(void)
@@ -305,16 +308,11 @@ void __init arch_setup(void)
 	memblock_x86_fill();
 	memblock_dump_all();
 
-	/* max_pfn_mapped was updated in head */
+#ifdef CONFIG_X86_32
 	printk(KERN_DEBUG "initial memory mapped: [mem 0x00000000-%#010lx]\n",
 		(max_pfn_mapped<<PAGE_SHIFT) - 1);
+#endif
 
-	/*
-	 * TODO
-	 *
-	 * Pick up here. We are building initial kernel memory mapping.
-	 * Tue Mar  1 13:03:21 CST 2016
-	 */
 	init_mem_mapping();
 
 	reserve_standard_io_resources();
