@@ -203,7 +203,8 @@ enum page_cache_mode {
 #define __S111	PAGE_SHARED_EXEC
 
 /*
- * Early identity mapping, check head.S
+ * Early identity mapping. Used by head.S and early init_mem_mapping
+ * to establish identity mapping.
  */
 #ifdef CONFIG_X86_32
 #define PTE_IDENT_ATTR	 0x003		/* PRESENT+RW */
@@ -363,5 +364,7 @@ enum pg_level {
 	PG_LEVEL_1G,
 	PG_LEVEL_NUM
 };
+
+void update_page_count(int level, unsigned long pages);
 
 #endif /* _ASM_X86_PGTABLE_TYPES_H_ */

@@ -18,6 +18,7 @@
 
 #include <asm/e820.h>
 #include <asm/page.h>
+#include <asm/setup.h>
 #include <asm/pgtable.h>
 #include <asm/sections.h>
 
@@ -65,6 +66,52 @@ u8 __pte2cachemode_tbl[8] = {
 	[__pte2cm_idx(__PAGE_PWT | __PAGE_PCD | __PAGE_PAT)] = __PAGE_CACHE_MODE_UC,
 };
 EXPORT_SYMBOL(__pte2cachemode_tbl);
+
+/*
+ * Early page table buffers, reserved from brk
+ * 3 4k pages for initial PMD_SIZE
+ * 3 4k pages for 0-ISA_END_ADDRESS
+ */
+#define INIT_PGT_BUF_SIZE	(6 * PAGE_SIZE)
+static unsigned long __initdata pgt_buf_start;
+static unsigned long __initdata pgt_buf_end;
+static unsigned long __initdata pgt_buf_top;
+
+void __init early_alloc_pgt_buf(void)
+{
+	unsigned long tables = INIT_PGT_BUF_SIZE;
+	phys_addr_t base;
+
+	base = __pa(extend_brk(tables, PAGE_SIZE));
+
+	pgt_buf_start = base >> PAGE_SHIFT;
+	pgt_buf_end = pgt_buf_start;
+	pgt_buf_top = pgt_buf_start + (tables >> PAGE_SHIFT);
+}
+
+void * __init alloc_low_pages(unsigned long num)
+{
+	unsigned long pfn;
+	int i;
+
+	if ((pgt_buf_end + num) > pgt_buf_top)
+		panic("alloc_low_pages: too many pages");
+	else {
+		pfn = pgt_buf_end;
+		pgt_buf_end += num;
+		pr_debug("BRK [%#010lx, %#010lx] PGTABLE\n",
+			pfn << PAGE_SHIFT, (pgt_buf_end << PAGE_SHIFT) - 1);
+	}
+
+	for (i = 0; i < num; i++) {
+		void *adr;
+
+		adr = __va((pfn + i) << PAGE_SHIFT);
+		memset(adr, 0, PAGE_SIZE);
+	}
+
+	return __va(pfn << PAGE_SHIFT);
+}
 
 #ifdef CONFIG_X86_32
 #define NR_MR_RANGE	3

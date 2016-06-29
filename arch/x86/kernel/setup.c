@@ -293,6 +293,8 @@ void __init arch_setup(void)
 	 */
 	find_smp_config();
 
+	early_alloc_pgt_buf();
+
 	/*
 	 * Need to conclude brk, before memblock_x86_fill(). It could use
 	 * memblock_find_in_range, could overlap with brk area.

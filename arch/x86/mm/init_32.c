@@ -28,6 +28,8 @@
 #include <sandix/export.h>
 #include <sandix/bootmem.h>
 
+#include "mm_internal.h"
+
 void *high_memory;
 EXPORT_SYMBOL(high_memory);
 
@@ -127,7 +129,7 @@ void __init mem_init(void)
 /*
  * Creates a middle page table and puts a pointer to it in the given global
  * directory entry. This only returns the gdt entry in non-PAE compilation
- * mode, since the middle layer is folded.
+ * mode, since the middle layer is folded:
  */
 static pmd_t * __init one_md_table_init(pgd_t *pgd)
 {
@@ -136,14 +138,15 @@ static pmd_t * __init one_md_table_init(pgd_t *pgd)
 
 #ifdef CONFIG_X86_PAE
 	if (!(pgd_val(*pgd) & __PAGE_PRESENT)) {
-		/*
-		 * Alloc one pmd page
-		 */
+		pmd_table = (pmd *)alloc_low_page();
+		set_pgd(pgd, __pgd(__pa(pmd_table) | __PAGE_PRESENT));
+		pud = pud_offset(pgd, 0);
+		BUG_ON(pmd_table != pmd_offset(pud, 0));
 	}
-#endif
-
+#else
 	pud = pud_offset(pgd, 0);
 	pmd_table = pmd_offset(pud, 0);
+#endif
 
 	return pmd_table;
 }
@@ -155,7 +158,9 @@ static pmd_t * __init one_md_table_init(pgd_t *pgd)
 static pte_t * __init one_page_table_init(pmd_t *pmd)
 {
 	if (!(pmd_val(*pmd) & __PAGE_PRESENT)) {
-		panic("haha?");
+		pte_t *page_table = (pte_t *)alloc_low_page();
+		set_pmd(pmd, __pmd(__pa(page_table) | __PAGE_TABLE));
+		BUG_ON(page_table != pte_offset_kernel(pmd, 0));
 	}
 	return pte_offset_kernel(pmd, 0);
 }
@@ -183,7 +188,7 @@ unsigned long __init kernel_physical_mapping_init(unsigned long start,
 	pgd_t *pgd;
 	pmd_t *pmd;
 	pte_t *pte;
-	int pgd_idx, pmd_idx, pte_ofs;
+	int pgd_idx, pmd_idx, pte_idx;
 	unsigned int pages_2m, pages_4k;
 
 	use_pse = page_size_mask == (1 << PG_LEVEL_2M);
@@ -218,6 +223,9 @@ repeat:
 	for (; pgd_idx < PTRS_PER_PGD; pgd++, pgd_idx++) {
 		pmd = one_md_table_init(pgd);
 
+		if (pfn >= end_pfn)
+			continue;
+
 #ifdef CONFIG_X86_PAE
 		pmd_idx = pmd_index((pfn << PAGE_SHIFT) + PAGE_OFFSET);
 		pmd += pmd_idx;
@@ -237,13 +245,17 @@ repeat:
 			}
 
 			pte = one_page_table_init(pmd);
-			pte_ofs = pte_index((pfn << PAGE_SHIFT) + PAGE_OFFSET);
-			pte += pte_ofs;
+			pte_idx = pte_index((pfn << PAGE_SHIFT) + PAGE_OFFSET);
+			pte += pte_idx;
 
-			for (; pte_ofs < PTRS_PER_PTE && pfn < end_pfn;
-			       pte++, pfn++, pte_ofs++, addr += PAGE_SIZE) {
-				pgprot_t prot = PAGE_KERNEL;
+			for (; pte_idx < PTRS_PER_PTE && pfn < end_pfn;
+			       pte++, pfn++, pte_idx++, addr += PAGE_SIZE) {
+				/*
+				 * First pass will use the same initial
+				 * identity mapping attribute:
+				 */
 				pgprot_t init_prot = __pgprot(PTE_IDENT_ATTR);
+				pgprot_t prot = PAGE_KERNEL;
 
 				if (is_kernel_text(addr))
 					prot = PAGE_KERNEL_EXEC;
@@ -263,8 +275,8 @@ repeat:
 		 * update direct mapping page count only in the first
 		 * iteration.
 		 */
-		//update_page_count(PG_LEVEL_2M, pages_2m);
-		//update_page_count(PG_LEVEL_4K, pages_4k);
+		update_page_count(PG_LEVEL_2M, pages_2m);
+		update_page_count(PG_LEVEL_4K, pages_4k);
 
 		/*
 		 * local global flush tlb, which will flush the previous

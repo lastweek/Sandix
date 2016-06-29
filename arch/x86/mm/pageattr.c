@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015-2016 Yizhou Shan <shan13@purdue.edu>
+ *	Copyright (C) 2016 Yizhou Shan <shan13@purdue.edu>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -16,13 +16,15 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-void * __init alloc_low_pages(unsigned long num);
+#include <asm/pgtable.h>
 
-static inline void *alloc_low_page(void)
+#include <sandix/bug.h>
+#include <sandix/kernel.h>
+
+static unsigned long direct_page_counts[PG_LEVEL_NUM];
+
+void update_page_count(int level, unsigned long pages)
 {
-	return alloc_low_pages(1);
+	BUG_ON(level >= PG_LEVEL_NUM);
+	direct_page_counts[level] += pages;
 }
-
-unsigned long kernel_physical_mapping_init(unsigned long start,
-					   unsigned long end,
-					   unsigned long page_size_mask);
