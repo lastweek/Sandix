@@ -25,6 +25,14 @@
 
 #define INIT_MEMBLOCK_REGIONS	128
 
+/* Definition of memblock flags. */
+enum {
+	MEMBLOCK_NONE		= 0x0,	/* No special request */
+	MEMBLOCK_HOTPLUG	= 0x1,	/* hotpluggable region */
+	MEMBLOCK_MIRROR		= 0x2,	/* mirrored region */
+	MEMBLOCK_NOMAP		= 0x4,	/* don't add to kernel direct mapping */
+};
+
 /* Flags for memblock_alloc_base() and __memblock_alloc_base() */
 #define MEMBLOCK_ALLOC_ANYWHERE		(~(phys_addr_t)0)
 #define MEMBLOCK_ALLOC_ACCESSIBLE	0
@@ -64,6 +72,39 @@ int memblock_remove(phys_addr_t base, phys_addr_t size);
 void memblock_trim_memory(phys_addr_t align);
 void memblock_dump_all(void);
 
+phys_addr_t __init memblock_find_in_range_node(phys_addr_t size,
+					       phys_addr_t align,
+					       phys_addr_t start, phys_addr_t end,
+					       int nid, unsigned long flags);
+
+phys_addr_t __init memblock_find_in_range(phys_addr_t start, phys_addr_t end,
+					  phys_addr_t size, phys_addr_t align);
+
+static inline bool memblock_bottom_up(void)
+{
+	return false;
+}
+
+static inline bool movable_node_is_enabled(void)
+{
+	return false;
+}
+
+static inline bool memblock_is_hotpluggable(struct memblock_region *m)
+{
+	return m->flags & MEMBLOCK_HOTPLUG;
+}
+
+static inline bool memblock_is_mirror(struct memblock_region *m)
+{
+	return m->flags & MEMBLOCK_MIRROR;
+}
+
+static inline bool memblock_is_nomap(struct memblock_region *m)
+{
+	return m->flags & MEMBLOCK_NOMAP;
+}
+
 #ifdef CONFIG_HAVE_MEMBLOCK_NODE_MAP
 static inline void memblock_set_region_node(struct memblock_region *r, int nid)
 {
@@ -77,6 +118,27 @@ static inline int memblock_get_region_node(const struct memblock_region *r)
 static inline void memblock_set_region_node(struct memblock_region *r, int nid) { }
 static inline int memblock_get_region_node(const struct memblock_region *r) { return 0; }
 #endif
+
+#ifdef CONFIG_HAVE_MEMBLOCK_NODE_MAP
+int memblock_search_pfn_nid(unsigned long pfn, unsigned long *start_pfn,
+			    unsigned long  *end_pfn);
+void __next_mem_pfn_range(int *idx, int nid, unsigned long *out_start_pfn,
+			  unsigned long *out_end_pfn, int *out_nid);
+
+/**
+ * for_each_mem_pfn_range - early memory pfn range iterator
+ * @i: an integer used as loop variable
+ * @nid: node selector, %MAX_NUMNODES for all nodes
+ * @p_start: ptr to ulong for start pfn of the range, can be %NULL
+ * @p_end: ptr to ulong for end pfn of the range, can be %NULL
+ * @p_nid: ptr to int for nid of the range, can be %NULL
+ *
+ * Walks over configured memory ranges.
+ */
+#define for_each_mem_pfn_range(i, nid, p_start, p_end, p_nid)		\
+	for (i = -1, __next_mem_pfn_range(&i, nid, p_start, p_end, p_nid); \
+	     i >= 0; __next_mem_pfn_range(&i, nid, p_start, p_end, p_nid))
+#endif /* CONFIG_HAVE_MEMBLOCK_NODE_MAP */
 
 #define for_each_memblock(memblock_type, r)						\
 	for (r = memblock.memblock_type.regions;					\

@@ -45,7 +45,7 @@ int printk(const char *fmt, ...);
 #define pr_err(fmt, ...)					\
 	printk(KERN_ERR pr_fmt(fmt), ##__VA_ARGS__)
 #define pr_warn(fmt, ...)					\
-	printk(KERN_WARN pr_fmt(fmt), ##__VA_ARGS__)
+	printk(KERN_WARNING pr_fmt(fmt), ##__VA_ARGS__)
 #define pr_notice(fmt, ...)					\
 	printk(KERN_NOTICE pr_fmt(fmt), ##__VA_ARGS__)
 #define pr_info(fmt, ...)					\

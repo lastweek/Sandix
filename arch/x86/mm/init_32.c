@@ -181,7 +181,7 @@ unsigned long __init kernel_physical_mapping_init(unsigned long start,
 						  unsigned long end,
 						  unsigned long page_size_mask)
 {
-	unsigned long last_map_addr = end;
+	unsigned long last_map_vaddr = end;
 	unsigned long start_pfn, end_pfn, pfn;
 	int use_pse, mapping_iter;
 	pgd_t *pgd_base = initial_page_table;
@@ -242,6 +242,30 @@ repeat:
 			 * normal page tables:
 			 */
 			if (use_pse) {
+				unsigned int addr2;
+				/*
+				 * First pass will use the same initial
+				 * identity mapping attribute + _PAGE_PSE:
+				 */
+				pgprot_t init_prot = __pgprot(PTE_IDENT_ATTR | __PAGE_PSE);
+				pgprot_t prot = PAGE_KERNEL_LARGE;
+
+				pfn &= PMD_MASK >> PAGE_SHIFT;
+				addr2 = (pfn + PTRS_PER_PTE-1) * PAGE_SIZE +
+					PAGE_OFFSET + PAGE_SIZE-1;
+
+				if (is_kernel_text(addr) ||
+				    is_kernel_text(addr2))
+					prot = PAGE_KERNEL_LARGE_EXEC;
+
+				pages_2m++;
+				if (mapping_iter == 1)
+					set_pmd(pmd, pfn_pmd(pfn, init_prot));
+				else
+					set_pmd(pmd, pfn_pmd(pfn, prot));
+
+				pfn += PTRS_PER_PTE;
+				continue;
 			}
 
 			pte = one_page_table_init(pmd);
@@ -263,7 +287,7 @@ repeat:
 				pages_4k++;
 				if (mapping_iter == 1) {
 					set_pte(pte, pfn_pte(pfn, init_prot));
-					last_map_addr = (pfn < PAGE_SHIFT) + PAGE_OFFSET;
+					last_map_vaddr = (pfn < PAGE_SHIFT) + PAGE_OFFSET;
 				} else {
 					set_pte(pte, pfn_pte(pfn, prot));
 				}
@@ -290,5 +314,5 @@ repeat:
 		mapping_iter = 2;
 		goto repeat;
 	}
-	return last_map_addr;
+	return last_map_vaddr;
 }

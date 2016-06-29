@@ -29,4 +29,6 @@
 
 #define MAX_NR_NODES	(1 << NODES_SHIFT)
 
+#define NUMA_NO_NODE	(-1)
+
 #endif /* _SANDIX_NUMA_H_ */

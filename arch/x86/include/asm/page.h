@@ -62,4 +62,9 @@
 #define __pa_symbol(x)		__pa(x)
 #define __va(x)			((void *)((unsigned long)(x) + PAGE_OFFSET))
 
+#ifndef __ASSEMBLY__
+extern unsigned long max_low_pfn_mapped;
+extern unsigned long max_pfn_mapped;
+#endif
+
 #endif /* _ASM_X86_PAGE_H_ */
