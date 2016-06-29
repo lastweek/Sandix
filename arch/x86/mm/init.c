@@ -21,6 +21,7 @@
 #include <asm/setup.h>
 #include <asm/pgtable.h>
 #include <asm/sections.h>
+#include <asm/tlbflush.h>
 
 #include <sandix/mm.h>
 #include <sandix/pfn.h>
@@ -28,6 +29,7 @@
 #include <sandix/export.h>
 #include <sandix/kernel.h>
 #include <sandix/printk.h>
+#include <sandix/string.h>
 #include <sandix/kconfig.h>
 #include <sandix/memblock.h>
 
@@ -524,4 +526,16 @@ void __init init_mem_mapping(void)
 	} else {
 		memory_map_top_down(ISA_END_ADDRESS, end);
 	}
+
+#ifdef CONFIG_X86_64
+	if (max_pfn > max_low_pfn) {
+		/* can we preseve max_low_pfn ?*/
+		max_low_pfn = max_pfn;
+	}
+#else
+	early_ioremap_page_table_range_init();
+#endif
+
+	load_cr3(initial_page_table);
+	__flush_tlb_all();
 }

@@ -596,6 +596,8 @@ void __init early_alloc_pgt_buf(void);
 
 void set_pte_vaddr(unsigned long vaddr, pte_t pteval);
 
+void __init early_ioremap_page_table_range_init(void);
+
 #include <asm-generic/pgtable.h>
 
 #endif /* _ASM_X86_PGTABLE_H_ */
