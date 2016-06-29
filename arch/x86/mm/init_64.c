@@ -16,17 +16,23 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef _SANDIX_PFN_H_
-#define _SANDIX_PFN_H_
+#include <asm/page.h>
+#include <asm/fixmap.h>
+#include <asm/pgtable.h>
+#include <asm/sections.h>
 
-#ifndef __ASSEMBLY__
+#include <sandix/mm.h>
 #include <sandix/types.h>
-#endif
+#include <sandix/kernel.h>
+#include <sandix/export.h>
+#include <sandix/bootmem.h>
 
-#define PFN_ALIGN(x)	(((unsigned long)(x) + (PAGE_SIZE - 1)) & PAGE_MASK)
-#define PFN_UP(x)	(((x) + PAGE_SIZE-1) >> PAGE_SHIFT)
-#define PFN_DOWN(x)	((x) >> PAGE_SHIFT)
-#define PFN_PHYS(x)	((phys_addr_t)(x) << PAGE_SHIFT)
-#define PHYS_PFN(x)	((unsigned long)((x) >> PAGE_SHIFT))
-
-#endif /* _SANDIX_PFN_H_ */
+/*
+ * This maps the physical memory to kernel virtual address space, a total of
+ * max_low_pfn pages, by creating page tables starting from address PAGE_OFFSET:
+ */
+unsigned long __init kernel_physical_mapping_init(unsigned long start,
+						  unsigned long end,
+						  unsigned long page_size_mask)
+{
+}

@@ -20,6 +20,7 @@
 #include <asm/fixmap.h>
 #include <asm/pgtable.h>
 #include <asm/sections.h>
+#include <asm/tlbflush.h>
 
 #include <sandix/mm.h>
 #include <sandix/types.h>
@@ -121,4 +122,161 @@ void __init mem_init(void)
 		(unsigned long)&__text_start, (unsigned long)&__text_end,
 		((unsigned long)&__text_end - (unsigned long)&__text_start) >> 10);
 
+}
+
+/*
+ * Creates a middle page table and puts a pointer to it in the given global
+ * directory entry. This only returns the gdt entry in non-PAE compilation
+ * mode, since the middle layer is folded.
+ */
+static pmd_t * __init one_md_table_init(pgd_t *pgd)
+{
+	pud_t *pud;
+	pmd_t *pmd_table;
+
+#ifdef CONFIG_X86_PAE
+	if (!(pgd_val(*pgd) & __PAGE_PRESENT)) {
+		/*
+		 * Alloc one pmd page
+		 */
+	}
+#endif
+
+	pud = pud_offset(pgd, 0);
+	pmd_table = pmd_offset(pud, 0);
+
+	return pmd_table;
+}
+
+/*
+ * Create a page table and puts a pointer to it in the given middle page
+ * directory entry:
+ */
+static pte_t * __init one_page_table_init(pmd_t *pmd)
+{
+	if (!(pmd_val(*pmd) & __PAGE_PRESENT)) {
+		panic("haha?");
+	}
+	return pte_offset_kernel(pmd, 0);
+}
+
+static inline int is_kernel_text(unsigned long addr)
+{
+	if (addr >= (unsigned long)__text_start &&
+	    addr <= (unsigned long)__init_end)
+		return 1;
+	return 0;
+}
+
+/*
+ * This maps the physical memory to kernel virtual address space, a total of
+ * max_low_pfn pages, by creating page tables starting from address PAGE_OFFSET:
+ */
+unsigned long __init kernel_physical_mapping_init(unsigned long start,
+						  unsigned long end,
+						  unsigned long page_size_mask)
+{
+	unsigned long last_map_addr = end;
+	unsigned long start_pfn, end_pfn, pfn;
+	int use_pse, mapping_iter;
+	pgd_t *pgd_base = initial_page_table;
+	pgd_t *pgd;
+	pmd_t *pmd;
+	pte_t *pte;
+	int pgd_idx, pmd_idx, pte_ofs;
+	unsigned int pages_2m, pages_4k;
+
+	use_pse = page_size_mask == (1 << PG_LEVEL_2M);
+	if (!cpu_has_pse)
+		use_pse = 0;
+
+	start_pfn = start >> PAGE_SHIFT;
+	end_pfn = start >> PAGE_SHIFT;
+
+	/*
+	 * First iteration will setup identity mapping using large/small pages
+	 * based on use_pse, with other attributes same as set by
+	 * the early code in head_32.S
+	 *
+	 * Second iteration will setup the appropriate attributes (NX, GLOBAL..)
+	 * as desired for the kernel identity mapping.
+	 *
+	 * This two pass mechanism conforms to the TLB app note which says:
+	 *
+	 *     "Software should not write to a paging-structure entry in a way
+	 *      that would change, for any linear address, both the page size
+	 *      and either the page frame or attributes."
+	 */
+	mapping_iter = 1;
+
+repeat:
+	pages_2m = pages_4k = 0;
+	pfn = start_pfn;
+	pgd_idx = pgd_index((pfn << PAGE_SHIFT) + PAGE_OFFSET);
+	pgd = pgd_base + pgd_idx;
+
+	for (; pgd_idx < PTRS_PER_PGD; pgd++, pgd_idx++) {
+		pmd = one_md_table_init(pgd);
+
+#ifdef CONFIG_X86_PAE
+		pmd_idx = pmd_index((pfn << PAGE_SHIFT) + PAGE_OFFSET);
+		pmd += pmd_idx;
+#else
+		pmd_idx = 0;
+#endif
+
+		for (; pmd_idx < PTRS_PER_PMD && pfn < end_pfn;
+		       pmd++, pmd_idx++) {
+			unsigned int addr = pfn * PAGE_SIZE + PAGE_OFFSET;
+
+			/*
+			 * Map with big pages if possible, otherwise create
+			 * normal page tables:
+			 */
+			if (use_pse) {
+			}
+
+			pte = one_page_table_init(pmd);
+			pte_ofs = pte_index((pfn << PAGE_SHIFT) + PAGE_OFFSET);
+			pte += pte_ofs;
+
+			for (; pte_ofs < PTRS_PER_PTE && pfn < end_pfn;
+			       pte++, pfn++, pte_ofs++, addr += PAGE_SIZE) {
+				pgprot_t prot = PAGE_KERNEL;
+				pgprot_t init_prot = __pgprot(PTE_IDENT_ATTR);
+
+				if (is_kernel_text(addr))
+					prot = PAGE_KERNEL_EXEC;
+			
+				pages_4k++;
+				if (mapping_iter == 1) {
+					set_pte(pte, pfn_pte(pfn, init_prot));
+					last_map_addr = (pfn < PAGE_SHIFT) + PAGE_OFFSET;
+				} else {
+					set_pte(pte, pfn_pte(pfn, prot));
+				}
+			}
+		}
+	}
+	if (mapping_iter == 1) {
+		/*
+		 * update direct mapping page count only in the first
+		 * iteration.
+		 */
+		//update_page_count(PG_LEVEL_2M, pages_2m);
+		//update_page_count(PG_LEVEL_4K, pages_4k);
+
+		/*
+		 * local global flush tlb, which will flush the previous
+		 * mappings present in both small and large page TLB's.
+		 */
+		__flush_tlb_all();
+
+		/*
+		 * Second iteration will set the actual desired PTE attributes.
+		 */
+		mapping_iter = 2;
+		goto repeat;
+	}
+	return last_map_addr;
 }

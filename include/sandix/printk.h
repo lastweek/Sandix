@@ -33,7 +33,7 @@ asmlinkage __printf(1, 2)
 int printk(const char *fmt, ...);
 
 #ifndef pr_fmt
-# define pr_fmt(fmt) fmt
+#define pr_fmt(fmt) fmt
 #endif
 
 #define pr_emerg(fmt, ...)					\
@@ -50,6 +50,8 @@ int printk(const char *fmt, ...);
 	printk(KERN_NOTICE pr_fmt(fmt), ##__VA_ARGS__)
 #define pr_info(fmt, ...)					\
 	printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
+#define pr_debug(fmt, ...)					\
+	printk(KERN_DEBUG pr_fmt(fmt), ##__VA_ARGS__)
 
 /*
  * printk_once pr_xxx_once: print message only once
