@@ -65,6 +65,8 @@ struct memblock {
 	struct memblock_type	reserved;
 };
 
+extern struct memblock memblock;
+
 int memblock_add_node(phys_addr_t base, phys_addr_t size, int nid);
 int memblock_add(phys_addr_t base, phys_addr_t size);
 int memblock_reserve(phys_addr_t base, phys_addr_t size);
@@ -122,8 +124,12 @@ static inline int memblock_get_region_node(const struct memblock_region *r) { re
 #ifdef CONFIG_HAVE_MEMBLOCK_NODE_MAP
 int memblock_search_pfn_nid(unsigned long pfn, unsigned long *start_pfn,
 			    unsigned long  *end_pfn);
+
 void __next_mem_pfn_range(int *idx, int nid, unsigned long *out_start_pfn,
 			  unsigned long *out_end_pfn, int *out_nid);
+
+int __init memblock_set_node(phys_addr_t base, phys_addr_t size,
+			     struct memblock_type *type, int nid);
 
 /**
  * for_each_mem_pfn_range - early memory pfn range iterator
@@ -150,5 +156,79 @@ void __next_mem_pfn_range(int *idx, int nid, unsigned long *out_start_pfn,
 	rgn = &memblock_type->regions[idx];				\
 	for (idx = 0; idx < memblock_type->nr_regions;			\
 	     idx++,rgn = &memblock_type->regions[idx])
+
+/**
+ * for_each_mem_range - iterate through memblock areas from type_a and not
+ * included in type_b. Or just type_a if type_b is NULL.
+ * @i: u64 used as loop variable
+ * @type_a: ptr to memblock_type to iterate
+ * @type_b: ptr to memblock_type which excludes from the iteration
+ * @nid: node selector, %NUMA_NO_NODE for all nodes
+ * @flags: pick from blocks based on memory attributes
+ * @p_start: ptr to phys_addr_t for start address of the range, can be %NULL
+ * @p_end: ptr to phys_addr_t for end address of the range, can be %NULL
+ * @p_nid: ptr to int for nid of the range, can be %NULL
+ */
+#define for_each_mem_range(i, type_a, type_b, nid, flags,		\
+			   p_start, p_end, p_nid)			\
+	for (i = 0, __next_mem_range(&i, nid, flags, type_a, type_b,	\
+				     p_start, p_end, p_nid);		\
+	     i != (u64)ULLONG_MAX;					\
+	     __next_mem_range(&i, nid, flags, type_a, type_b,		\
+			      p_start, p_end, p_nid))
+
+/**
+ * for_each_mem_range_rev - reverse iterate through memblock areas from
+ * type_a and not included in type_b. Or just type_a if type_b is NULL.
+ * @i: u64 used as loop variable
+ * @type_a: ptr to memblock_type to iterate
+ * @type_b: ptr to memblock_type which excludes from the iteration
+ * @nid: node selector, %NUMA_NO_NODE for all nodes
+ * @flags: pick from blocks based on memory attributes
+ * @p_start: ptr to phys_addr_t for start address of the range, can be %NULL
+ * @p_end: ptr to phys_addr_t for end address of the range, can be %NULL
+ * @p_nid: ptr to int for nid of the range, can be %NULL
+ */
+#define for_each_mem_range_rev(i, type_a, type_b, nid, flags,		\
+			       p_start, p_end, p_nid)			\
+	for (i = (u64)ULLONG_MAX,					\
+		     __next_mem_range_rev(&i, nid, flags, type_a, type_b,\
+					 p_start, p_end, p_nid);	\
+	     i != (u64)ULLONG_MAX;					\
+	     __next_mem_range_rev(&i, nid, flags, type_a, type_b,	\
+				  p_start, p_end, p_nid))
+
+/**
+ * for_each_free_mem_range - iterate through free memblock areas
+ * @i: u64 used as loop variable
+ * @nid: node selector, %NUMA_NO_NODE for all nodes
+ * @flags: pick from blocks based on memory attributes
+ * @p_start: ptr to phys_addr_t for start address of the range, can be %NULL
+ * @p_end: ptr to phys_addr_t for end address of the range, can be %NULL
+ * @p_nid: ptr to int for nid of the range, can be %NULL
+ *
+ * Walks over free (memory && !reserved) areas of memblock.  Available as
+ * soon as memblock is initialized.
+ */
+#define for_each_free_mem_range(i, nid, flags, p_start, p_end, p_nid)	\
+	for_each_mem_range(i, &memblock.memory, &memblock.reserved,	\
+			   nid, flags, p_start, p_end, p_nid)
+
+/**
+ * for_each_free_mem_range_reverse - rev-iterate through free memblock areas
+ * @i: u64 used as loop variable
+ * @nid: node selector, %NUMA_NO_NODE for all nodes
+ * @flags: pick from blocks based on memory attributes
+ * @p_start: ptr to phys_addr_t for start address of the range, can be %NULL
+ * @p_end: ptr to phys_addr_t for end address of the range, can be %NULL
+ * @p_nid: ptr to int for nid of the range, can be %NULL
+ *
+ * Walks over free (memory && !reserved) areas of memblock in reverse
+ * order.  Available as soon as memblock is initialized.
+ */
+#define for_each_free_mem_range_reverse(i, nid, flags, p_start, p_end,	\
+					p_nid)				\
+	for_each_mem_range_rev(i, &memblock.memory, &memblock.reserved,	\
+			       nid, flags, p_start, p_end, p_nid)
 
 #endif /* _SANDIX_MEMBLOCK_H_ */

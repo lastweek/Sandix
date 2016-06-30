@@ -327,7 +327,7 @@ void __init arch_setup(void)
 	 * NOTE: On x86-32, only from this point on, fixmaps are ready for use.
 	 */
 
-	//init_mem_init();
+	init_mem_init();
 
 	reserve_standard_io_resources();
 }

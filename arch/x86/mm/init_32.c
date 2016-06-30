@@ -28,6 +28,7 @@
 #include <sandix/kernel.h>
 #include <sandix/export.h>
 #include <sandix/bootmem.h>
+#include <sandix/memblock.h>
 
 #include "mm_internal.h"
 
@@ -78,23 +79,43 @@ void __init find_low_pfn_range(void)
 		check_highmem_config();
 	}
 
-	printk(KERN_NOTICE "%ldMB LOWMEM available.\n", pages_to_mb(max_low_pfn));
+	/* XXX: RemoveMe */
+	mem_init();
+}
+
+void __init setup_bootmem_allocator(void)
+{
+	pr_info("  mapped low ram: 0 - %#lx\n", max_pfn_mapped<<PAGE_SHIFT);
+	pr_info("  low ram: 0 - %#lx\n", max_low_pfn<<PAGE_SHIFT);
+}
+
+/*
+ * init_mem initialization without NUMA
+ */
+#ifndef CONFIG_NUMA
+void __init init_mem_init(void)
+{
 #ifdef CONFIG_HIGHMEM
 	highstart_pfn = highend_pfn = max_pfn;
 	if (max_pfn > max_low_pfn)
 		highstart_pfn = max_low_pfn;
-	printk(KERN_NOTICE "%ldMB HIGHMEM avaiable.\n", pages_to_mb(highend_pfn-highstart_pfn));
+	pr_info("%ldMB HIGHMEM avaiable.\n",
+		pages_to_mb(highend_pfn-highstart_pfn));
 	high_memory = (void *) __va(highstart_pfn * PAGE_SIZE - 1) + 1;
 #else
 	high_memory = (void *) __va(max_low_pfn * PAGE_SIZE - 1) + 1;
 #endif
-	mem_init();
+	pr_info("%ldMB LOWMEM available.\n",
+		pages_to_mb(max_low_pfn));
+
+	memblock_set_node(0, (phys_addr_t)ULLONG_MAX, &memblock.memory, 0);
+
+	setup_bootmem_allocator();
 }
+#endif
 
 void __init mem_init(void)
 {
-	high_memory = (void *)__va(max_low_pfn * PAGE_SIZE -1) + 1;
-
 	printk(KERN_INFO
 		"virtual kernel memory layout:\n"
 		"    fixmap  : 0x%08lx - 0x%08lx   (%4ld kB)\n"
