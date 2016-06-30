@@ -74,3 +74,10 @@ unsigned long __init kernel_physical_mapping_init(unsigned long start,
 
 	return last_map_addr;
 }
+
+#ifndef CONFIG_NUMA
+void __init init_mem_init(void)
+{
+
+}
+#endif
