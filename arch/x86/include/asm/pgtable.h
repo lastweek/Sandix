@@ -591,7 +591,9 @@ static inline unsigned long pages_to_mb(unsigned long npg)
 	return npg >> (20 - PAGE_SHIFT);
 }
 
+/* Well... */
 void __init init_mem_mapping(void);
+void __init init_mem_init(void);
 void __init early_alloc_pgt_buf(void);
 
 void set_pte_vaddr(unsigned long vaddr, pte_t pteval);

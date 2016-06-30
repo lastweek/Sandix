@@ -102,6 +102,28 @@ static inline void write_cr0(unsigned long val)
 	);
 }
 
+static inline unsigned long read_cr2(void)
+{
+	unsigned long val;
+	asm volatile (
+		"mov %%cr2,%0\n\t"
+		: "=r" (val)
+		:
+		: "memory"
+	);
+	return val;
+}
+
+static inline void write_cr2(unsigned long val)
+{
+	asm volatile (
+		"mov %0,%%cr2"
+		:
+		: "r" (val)
+		: "memory"
+	);
+}
+
 static inline unsigned long read_cr3(void)
 {
 	unsigned long val;

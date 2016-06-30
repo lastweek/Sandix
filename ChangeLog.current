@@ -89,3 +89,9 @@ Tue Jun 28 09:19:35 CST 2016
 
 Wed Jun 29 14:04:20 CST 2016
 - [+] arch/x86/mm/pageattr.c
+- [M] mm/memblock.c
+
+
+Thu Jun 30 09:45:05 CST 2016
+- [M] arch/x86/mm/fault.c
+- [M] arch/x86/mm/init*.c			[D] Finish init_mem_mapping() I guess

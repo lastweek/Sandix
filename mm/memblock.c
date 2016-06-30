@@ -29,8 +29,10 @@
 #include <sandix/kernel.h>
 #include <sandix/memblock.h>
 
-#define MEMBLOCK_DEBUG
-
+/*
+ * Turn this on will generate a lot of messages by early page table
+ * reserve requests.
+ */
 #ifdef MEMBLOCK_DEBUG
 #define memblock_dbg(fmt...)	pr_info(fmt)
 #else

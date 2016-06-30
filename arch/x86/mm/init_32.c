@@ -182,7 +182,7 @@ unsigned long __init kernel_physical_mapping_init(unsigned long start,
 						  unsigned long end,
 						  unsigned long page_size_mask)
 {
-	unsigned long last_map_vaddr = end;
+	unsigned long last_map_paddr = end;
 	unsigned long start_pfn, end_pfn, pfn;
 	int use_pse, mapping_iter;
 	pgd_t *pgd_base = initial_page_table;
@@ -197,7 +197,7 @@ unsigned long __init kernel_physical_mapping_init(unsigned long start,
 		use_pse = 0;
 
 	start_pfn = start >> PAGE_SHIFT;
-	end_pfn = start >> PAGE_SHIFT;
+	end_pfn = end >> PAGE_SHIFT;
 
 	/*
 	 * First iteration will setup identity mapping using large/small pages
@@ -288,7 +288,7 @@ repeat:
 				pages_4k++;
 				if (mapping_iter == 1) {
 					set_pte(pte, pfn_pte(pfn, init_prot));
-					last_map_vaddr = (pfn < PAGE_SHIFT) + PAGE_OFFSET;
+					last_map_paddr = (pfn << PAGE_SHIFT) + PAGE_SIZE;
 				} else {
 					set_pte(pte, pfn_pte(pfn, prot));
 				}
@@ -315,7 +315,7 @@ repeat:
 		mapping_iter = 2;
 		goto repeat;
 	}
-	return last_map_vaddr;
+	return last_map_paddr;
 }
 
 static unsigned long __init page_table_range_init_count(unsigned long start,

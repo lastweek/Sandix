@@ -22,6 +22,7 @@
 #include <asm/pgtable.h>
 #include <asm/sections.h>
 #include <asm/tlbflush.h>
+#include <asm/cpufeature.h>
 
 #include <sandix/mm.h>
 #include <sandix/pfn.h>
@@ -71,17 +72,44 @@ u8 __pte2cachemode_tbl[8] = {
 };
 EXPORT_SYMBOL(__pte2cachemode_tbl);
 
-static unsigned long min_pfn_mapped;
+static unsigned int page_size_mask;
+
+static void __init probe_page_size_mask(void)
+{
+	if (cpu_has_pse) {
+		/* need to write cr4 to enable PSE */
+		pr_info("PSE is available\n");
+		page_size_mask |= 1 << PG_LEVEL_2M;
+	}
+
+	if (cpu_has_pge)
+		__supported_pte_mask |= __PAGE_GLOBAL;
+	else
+		__supported_pte_mask &= ~__PAGE_GLOBAL;
+
+	if (cpu_has_gbpages) {
+		pr_info("GB Pages is available\n");
+		page_size_mask |= 1 << PG_LEVEL_1G;
+	}
+}
 
 /*
- * Early page table buffers, reserved from brk
- * 3 4k pages for initial PMD_SIZE
- * 3 4k pages for 0-ISA_END_ADDRESS
+ * Early page table buffers, reserved from BRK:
+ *    3 4k pages for initial PMD_SIZE
+ *    3 4k pages for 0-ISA_END_ADDRESS
+ *
+ * But please notice that no matter how many pages we reserve, it will
+ * not possible to reserve so many page tables. So new pages must be
+ * allocated from already direct mapped pages (see alloc_low_pages()).
  */
 #define INIT_PGT_BUF_SIZE	(6 * PAGE_SIZE)
 static unsigned long __initdata pgt_buf_start;
 static unsigned long __initdata pgt_buf_end;
 static unsigned long __initdata pgt_buf_top;
+
+static bool __initdata can_use_brk_pgt = true;
+
+static unsigned long min_pfn_mapped;
 
 void __init early_alloc_pgt_buf(void)
 {
@@ -95,14 +123,34 @@ void __init early_alloc_pgt_buf(void)
 	pgt_buf_top = pgt_buf_start + (tables >> PAGE_SHIFT);
 }
 
+/**
+ * alloc_low_pages
+ * @num: number of pages to allocate
+ *
+ * The big FAT note is: pages returned are already directly mapped.
+ * Since those pages are used as page tables for now.
+ */
 void * __init alloc_low_pages(unsigned long num)
 {
 	unsigned long pfn;
 	int i;
 
-	if ((pgt_buf_end + num) > pgt_buf_top)
-		panic("alloc_low_pages: too many pages");
-	else {
+	if ((pgt_buf_end + num) > pgt_buf_top || !can_use_brk_pgt) {
+		unsigned long ret;
+
+		if (min_pfn_mapped >= max_pfn_mapped)
+			panic("OOM: min_pfn_mapped: %lu, max_pfn_mapped: %lu",
+				min_pfn_mapped, max_pfn_mapped);
+
+		ret = memblock_find_in_range(min_pfn_mapped << PAGE_SHIFT,
+					     max_pfn_mapped << PAGE_SHIFT,
+					     PAGE_SIZE * num, PAGE_SIZE);
+		if (!ret)
+			panic("fail to alloc memory");
+
+		memblock_reserve(ret, PAGE_SIZE * num);
+		pfn = ret >> PAGE_SHIFT;
+	} else {
 		pfn = pgt_buf_end;
 		pgt_buf_end += num;
 		pr_debug("BRK [%#010lx, %#010lx] PGTABLE\n",
@@ -110,15 +158,22 @@ void * __init alloc_low_pages(unsigned long num)
 	}
 
 	for (i = 0; i < num; i++) {
-		void *adr;
+		void *address;
 
-		adr = __va((pfn + i) << PAGE_SHIFT);
-		memset(adr, 0, PAGE_SIZE);
+		address = __va((pfn + i) << PAGE_SHIFT);
+		memset(address, 0, PAGE_SIZE);
 	}
 
 	return __va(pfn << PAGE_SHIFT);
 }
 
+/*
+ * Memory Ranges is used to contain different page types, e.g. 4KB, 2MB, 1GB
+ * Kernel should use GB mapping if possible since this will be more efficient.
+ * (It reminds to read some TLB, MMU, OS related papers, by the way).
+ *
+ * Again, for now, Sandix use 4KB only.
+ */
 #ifdef CONFIG_X86_32
 #define NR_MR_RANGE	3
 #else
@@ -130,8 +185,6 @@ struct map_range {
 	unsigned long end;
 	unsigned int page_size_mask;
 };
-
-static unsigned int page_size_mask;
 
 static const char *page_size_string(struct map_range *mr)
 {
@@ -329,6 +382,7 @@ unsigned long __init init_memory_mapping(unsigned long start,
 						   mr[i].page_size_mask);
 	}
 
+	/* Update max_pfn_mapped */
 	add_pfn_range_mapped(start >> PAGE_SHIFT,  ret >> PAGE_SHIFT);
 
 	return ret >> PAGE_SHIFT;
@@ -363,8 +417,17 @@ static unsigned long __init init_range_memory_mapping(
 		if (start >= end)
 			continue;
 
+		/*
+		 * if it is overlapping with brk pgt, we need to
+		 * alloc pgt buf from memblock instead.
+		 */
+		can_use_brk_pgt = max(start, (u64)pgt_buf_end<<PAGE_SHIFT)
+				 >= min(end, (u64)pgt_buf_top<<PAGE_SHIFT);
+
 		init_memory_mapping(start, end);
 		mapped_ram_size += end - start;
+
+		can_use_brk_pgt = true;
 	}
 
 	return mapped_ram_size;
@@ -492,10 +555,7 @@ void __init init_mem_mapping(void)
 {
 	unsigned long end;
 
-	if (cpu_has_pse)
-		pr_info("PSE is enabled\n");
-	else
-		pr_info("PSE is disabled\n");
+	probe_page_size_mask();
 
 #ifdef CONFIG_X86_32
 	end = max_low_pfn << PAGE_SHIFT;

@@ -220,6 +220,9 @@ void __init early_arch_setup(void)
  *
  * 2)
  * Implement find_smp_config(), which is mpspec.c that parse mp table.
+ *
+ * 3)
+ * Parse ACPI tables if possible...
  */
 
 void __init arch_setup(void)
@@ -305,17 +308,26 @@ void __init arch_setup(void)
 
 	/*
 	 * Add all E820_RAM into logical memblocks,
-	 * and dump all memory+reserved memblocks.
+	 * and dump all memory+reserved memblocks later
 	 */
 	memblock_x86_fill();
-	memblock_dump_all();
 
 #ifdef CONFIG_X86_32
 	printk(KERN_DEBUG "initial memory mapped: [mem 0x00000000-%#010lx]\n",
 		(max_pfn_mapped<<PAGE_SHIFT) - 1);
 #endif
 
+	/*
+	 * Establish kernel identity mapping:
+	 */
 	init_mem_mapping();
+	memblock_dump_all();
+
+	/*
+	 * NOTE: On x86-32, only from this point on, fixmaps are ready for use.
+	 */
+
+	//init_mem_init();
 
 	reserve_standard_io_resources();
 }
