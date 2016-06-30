@@ -20,6 +20,7 @@
 #include <asm/fixmap.h>
 #include <asm/pgtable.h>
 #include <asm/sections.h>
+#include <asm/tlbflush.h>
 
 #include <sandix/mm.h>
 #include <sandix/types.h>
@@ -35,4 +36,41 @@ unsigned long __init kernel_physical_mapping_init(unsigned long start,
 						  unsigned long end,
 						  unsigned long page_size_mask)
 {
+	bool pgd_changed = false;
+	unsigned long next, last_map_addr = end;
+	unsigned long addr;
+
+	start = (unsigned long)__va(start);
+	end = (unsigned long)__va(end);
+	addr = start;
+
+	for (; start < end; start = next) {
+		pgd_t *pgd = pgd_offset_k(start);
+		pud_t *pud;
+
+		next = (start & PGDIR_MASK) + PGDIR_SIZE;
+
+		if (pgd_val(*pgd)) {
+			pud = (pud_t *)pgd_page_vaddr(*pgd);
+			last_map_addr = phys_pud_init(pud, __pa(start),
+						 __pa(end), page_size_mask);
+			continue;
+		}
+
+		pud = alloc_low_page();
+		last_map_addr = phys_pud_init(pud, __pa(start), __pa(end),
+						 page_size_mask);
+
+		spin_lock(&init_mm.page_table_lock);
+		pgd_populate(&init_mm, pgd, pud);
+		spin_unlock(&init_mm.page_table_lock);
+		pgd_changed = true;
+	}
+
+	if (pgd_changed)
+		sync_global_pgds(addr, end - 1, 0);
+
+	__flush_tlb_all();
+
+	return last_map_addr;
 }
