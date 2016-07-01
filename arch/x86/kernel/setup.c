@@ -329,5 +329,7 @@ void __init arch_setup(void)
 
 	init_mem_init();
 
+	x86_init.paging.pagetable_init();
+
 	reserve_standard_io_resources();
 }

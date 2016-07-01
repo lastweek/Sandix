@@ -81,3 +81,13 @@ void __init init_mem_init(void)
 
 }
 #endif
+
+void __init paging_init(void)
+{
+
+}
+
+void __init native_pagetable_init(void)
+{
+
+}

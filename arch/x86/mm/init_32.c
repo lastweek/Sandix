@@ -78,9 +78,6 @@ void __init find_low_pfn_range(void)
 		max_low_pfn = MAXMEM_PFN;
 		check_highmem_config();
 	}
-
-	/* XXX: RemoveMe */
-	mem_init();
 }
 
 void __init setup_bootmem_allocator(void)
@@ -111,6 +108,9 @@ void __init init_mem_init(void)
 	memblock_set_node(0, (phys_addr_t)ULLONG_MAX, &memblock.memory, 0);
 
 	setup_bootmem_allocator();
+
+	/* XXX: RemoveMe */
+	mem_init();
 }
 #endif
 
@@ -483,4 +483,75 @@ void __init early_ioremap_page_table_range_init(void)
 	end = (FIXADDR_TOP + PMD_SIZE - 1) & PMD_MASK;
 	page_table_range_init(vaddr, end, pgd_base);
 	early_ioremap_reset();
+}
+
+#ifdef CONFIG_HIGHMEM
+static void __init permanent_kmaps_init(void)
+{
+	pgd_t *base = initial_page_table;
+}
+#else
+static inline void permanent_kmaps_init(void) { }
+#endif
+
+/*
+ * This function sets up the page tables. Note that the lowmem identidy
+ * mapping is already mapped by head.S and init_mem_mapping().
+ *
+ * This function also unmaps the page at virtual kernel address 0, so that we
+ * can trap those pesky NULL-reference errors in the kernel.
+ */
+void __init paging_init(void)
+{
+	/* pkmap */
+	permanent_kmaps_init();
+}
+
+void __init native_pagetable_init(void)
+{
+	unsigned long va, pfn;
+	pgd_t *pgd, *base = initial_page_table;
+	pud_t *pud;
+	pmd_t *pmd;
+	pte_t *pte;
+
+	/*
+	 * Remove any mappings which extend past the end of physical memory from
+	 * the boot time page table.
+	 *
+	 * In virtual address space, we should have at least two pages from
+	 * VMALLOC_END to pkmap or fixmap according to VMALLOC_END definition. And
+	 * max_low_pfn is set to VMALLOC_END physical address. If initial memory
+	 * mapping is doing right job, we should have pte used near max_low_pfn or one
+	 * pmd is not present.
+	 */
+	for (pfn = max_low_pfn; pfn < 1<<(32-PAGE_SHIFT); pfn++) {
+		va = PAGE_OFFSET + (pfn<<PAGE_SHIFT);
+		pgd = base + pgd_index(va);
+		if (!pgd_present(*pgd))
+			break;
+
+		pud = pud_offset(pgd, va);
+		pmd = pmd_offset(pud, va);
+		if (!pmd_present(*pmd))
+			break;
+
+		/* should not be large page here */
+		if (pmd_large(*pmd)) {
+			pr_warn("try to clear pte for ram above max_low_pfn: pfn: %lu pmd: %p pmd phys: %lx, "
+				"but pmd is big page and is not using pte !\n", pfn, pmd, __pa(pmd));
+			BUG_ON(1);
+		}
+
+		pte = pte_offset_kernel(pmd, va);
+		if (!pte_present(*pte))
+			break;
+
+		pr_debug("clearing pte for ram above max_low_pfn: "
+			 "pfn: %lx pmd: %p pmd phys: %lx pte: %p pte phys: %lx\n",
+			pfn, pmd, __pa(pmd), pte, __pa(pte));
+		pte_clear(NULL, va, pte);
+	}
+
+	paging_init();
 }

@@ -53,6 +53,14 @@ struct x86_init_oem {
 	void (*banner)(void);
 };
 
+
+/**
+ * struct x86_init_paging - platform specific paging functions
+ * @pagetable_init:	platform specific paging initialization call to setup
+ *			the kernel pagetables and prepare accessors functions.
+ *			Callback must call paging_init(). Called once after the
+ *			direct mapping for phys memory is available.
+ */
 struct x86_init_paging {
 	void (*pagetable_init)(void);
 };

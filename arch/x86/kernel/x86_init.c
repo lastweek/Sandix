@@ -18,6 +18,7 @@
 
 #include <asm/setup.h>
 #include <asm/mpspec.h>
+#include <asm/pgtable.h>
 #include <asm/x86_init.h>
 
 #include <sandix/compiler.h>
@@ -38,5 +39,9 @@ struct x86_init_ops x86_init __initdata = {
 	.oem = {
 		.arch_setup		= x86_init_noop,
 		.banner			= x86_init_noop,
+	},
+
+	.paging = {
+		.pagetable_init		= native_pagetable_init,
 	},
 };

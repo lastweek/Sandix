@@ -212,6 +212,11 @@ static inline int pmd_accessed(pmd_t pmd)
 	return pmd_flags(pmd) & __PAGE_ACCESSED;
 }
 
+static inline int pmd_large(pmd_t pmd)
+{
+	return pmd_flags(pmd) & __PAGE_PSE;
+}
+
 /* Get Page Frame Number */
 static inline unsigned long pte_pfn(pte_t pte)
 {
@@ -599,6 +604,14 @@ void __init early_alloc_pgt_buf(void);
 void set_pte_vaddr(unsigned long vaddr, pte_t pteval);
 
 void __init early_ioremap_page_table_range_init(void);
+
+void __init paging_init(void);
+
+#ifdef CONFIG_X86_32
+void __init native_pagetable_init(void);
+#else
+#define native_pagetable_init        paging_init
+#endif
 
 #include <asm-generic/pgtable.h>
 
