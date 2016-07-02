@@ -96,3 +96,8 @@ Thu Jun 30 09:45:05 CST 2016
 - [M] arch/x86/mm/fault.c
 - [M] arch/x86/mm/init*.c			[D] Finish init_mem_mapping() I guess
 - [+] arch/x86/mm/numa*.c			[D] Created for init_mem_init() baby
+
+
+Sat Jul  2 08:37:08 CST 2016
+- [+] mm/page_alloc.c
+- [+] mm/highmem.c

@@ -485,14 +485,51 @@ void __init early_ioremap_page_table_range_init(void)
 	early_ioremap_reset();
 }
 
+pte_t *pkmap_pte;
+
 #ifdef CONFIG_HIGHMEM
-static void __init permanent_kmaps_init(void)
+static void __init permanent_kmap_init(void)
 {
-	pgd_t *base = initial_page_table;
+	unsigned long vaddr;
+	pgd_t *pgd, *base = initial_page_table;
+	pud_t *pud;
+	pmd_t *pmd;
+	pte_t *pte;
+
+	vaddr = PKMAP_BASE;
+	page_table_range_init(vaddr, vaddr + PAGE_SIZE * LAST_PKMAP, base);
+
+	pgd = base + pgd_index(vaddr);
+	pud = pud_offset(pgd, vaddr);
+	pmd = pmd_offset(pud, vaddr);
+	pte = pte_offset_kernel(pmd, vaddr);
+
+	/* Save PKMAP PTE for HIGHMEM handling */
+	pkmap_pte = pte;
 }
 #else
-static inline void permanent_kmaps_init(void) { }
+static inline void permanent_kmap_init(void) { }
 #endif
+
+pte_t *kmap_pte;
+
+static void __init kmap_init(void)
+{
+	unsigned long kmap_vstart;
+	pgd_t *pgd, *base = initial_page_table;
+	pud_t *pud;
+	pmd_t *pmd;
+	pte_t *pte;
+
+	kmap_vstart = fix_to_virt(FIX_KMAP_BEGIN);
+	pgd = base + pgd_index(kmap_vstart);
+	pud = pud_offset(pgd, kmap_vstart);
+	pmd = pmd_offset(pud, kmap_vstart);
+	pte = pte_offset_kernel(pmd, kmap_vstart);
+
+	/* Save KMAP PTE */
+	kmap_pte = pte;
+}
 
 /*
  * This function sets up the page tables. Note that the lowmem identidy
@@ -503,8 +540,15 @@ static inline void permanent_kmaps_init(void) { }
  */
 void __init paging_init(void)
 {
-	/* pkmap */
-	permanent_kmaps_init();
+	permanent_kmap_init();
+	__flush_tlb_all();
+	kmap_init();
+
+	/*
+	 * Note that: at this point the bootmem allocator is fully available
+	 */
+
+	
 }
 
 void __init native_pagetable_init(void)
@@ -538,8 +582,10 @@ void __init native_pagetable_init(void)
 
 		/* should not be large page here */
 		if (pmd_large(*pmd)) {
-			pr_warn("try to clear pte for ram above max_low_pfn: pfn: %lu pmd: %p pmd phys: %lx, "
-				"but pmd is big page and is not using pte !\n", pfn, pmd, __pa(pmd));
+			pr_warn("Try to clear pte for RAM above max_low_pfn: "
+				"pfn: %lu pmd: %p pmd phys: %lx, "
+				"BUT pmd is big page and is not using pte !\n",
+				pfn, pmd, __pa(pmd));
 			BUG_ON(1);
 		}
 
@@ -547,7 +593,7 @@ void __init native_pagetable_init(void)
 		if (!pte_present(*pte))
 			break;
 
-		pr_debug("clearing pte for ram above max_low_pfn: "
+		pr_debug("Clearing pte for RAM above max_low_pfn: "
 			 "pfn: %lx pmd: %p pmd phys: %lx pte: %p pte phys: %lx\n",
 			pfn, pmd, __pa(pmd), pte, __pa(pte));
 		pte_clear(NULL, va, pte);
