@@ -1,0 +1,15 @@
+#
+# This list is used by git-shortlog to fix a few botched name translations
+# in the git archive, either because the author's full name was messed up
+# and/or not always written the same way, making contributions from the
+# same person appearing not to be so or badly displayed.
+#
+# repo-abbrev: /pub/scm/linux/kernel/git/
+#
+
+Yizhou Shan <shan13@purdue.edu>
+
+Yizhou Shan <shanyizhou@ict.ac.cn>
+Yizhou Shan <553997109@qq.com>
+Yizhou Shan <shanyizhou@syzwhat.local>
+Yizhou Shan <lastweek@danyizhous-MacBook-Pro.local>
