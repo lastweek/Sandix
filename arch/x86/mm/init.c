@@ -16,6 +16,7 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <asm/dma.h>
 #include <asm/e820.h>
 #include <asm/page.h>
 #include <asm/setup.h>
@@ -25,6 +26,7 @@
 #include <asm/cpufeature.h>
 
 #include <sandix/mm.h>
+#include <sandix/mm_zone.h>
 #include <sandix/pfn.h>
 #include <sandix/numa.h>
 #include <sandix/export.h>
@@ -35,6 +37,15 @@
 #include <sandix/memblock.h>
 
 #include "mm_internal.h"
+
+/*
+ * The single pg_data_t for non-NUMA configured kernel.
+ * The array list of pg_data_t is used only if NUMA or DISCONTIGMEM enabled.
+ */
+#ifndef CONFIG_NEED_MULTIPLE_NODE
+struct pglist_data contiguous_page_data; 
+EXPORT_SYMBOL(contiguous_page_data);
+#endif
 
 /*
  * Tables translating between page_cache_type_t and pte encoding.
@@ -369,7 +380,7 @@ unsigned long __init init_memory_mapping(unsigned long start,
 	int nr_range, i;
 	unsigned long ret = 0;
 
-	pr_debug("init_mmeory_mapping: [mem %#010lx-%#010lx]\n",
+	pr_debug("init_memory_mapping: [mem %#010lx-%#010lx]\n",
 		start, end - 1);
 
 	memset(mr, 0, sizeof(mr));
@@ -598,4 +609,28 @@ void __init init_mem_mapping(void)
 
 	load_cr3(initial_page_table);
 	__flush_tlb_all();
+}
+
+void __init zone_init(void)
+{
+	unsigned long zone_max_pfns[__MAX_NR_ZONES];
+
+	memset(zone_max_pfns, 0, sizeof(zone_max_pfns));
+
+#ifdef CONFIG_ZONE_DMA
+	zone_max_pfns[ZONE_DMA]		= min(MAX_DMA_PFN, max_low_pfn);
+#endif
+
+#ifdef CONFIG_ZONE_DMA32
+	zone_max_pfns[ZONE_DMA32]	= min(MAX_DMA32_PFN, max_low_pfn);
+#endif
+
+	zone_max_pfns[ZONE_NORMAL]	= max_low_pfn;
+
+#ifdef CONFIG_HIGHMEM
+	zone_max_pfns[ZONE_HIGHMEM]	= max_pfn;
+#endif
+	pr_info("max_pfn: %lu, %#lx\n", max_pfn, max_pfn<<PAGE_SHIFT);
+
+	free_area_init_nodes(zone_max_pfns);
 }

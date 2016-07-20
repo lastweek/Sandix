@@ -52,6 +52,8 @@ int printk(const char *fmt, ...);
 	printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
 #define pr_debug(fmt, ...)					\
 	printk(KERN_DEBUG pr_fmt(fmt), ##__VA_ARGS__)
+#define pr_cont(fmt,...)					\
+	printk(KERN_CONT pr_fmt(fmt), ##__VA_ARGS__)
 
 /*
  * printk_once pr_xxx_once: print message only once

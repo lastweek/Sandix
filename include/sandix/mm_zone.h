@@ -19,10 +19,25 @@
 #ifndef _SANDIX_MM_ZONE_H_
 #define _SANDIX_MM_ZONE_H_
 
+#include <sandix/numa.h>
 #include <sandix/list.h>
 #include <sandix/kernel.h>
+#include <sandix/spinlock.h>
 
-#define MAX_ORDER	11
+#include <asm-generic/memory_model.h>
+
+#define MAX_ORDER		11
+#define MAX_ORDER_NR_PAGES	(1 << (MAX_ORDER - 1))
+
+enum MIGRATE_TYPES {
+	MIGRATE_UNMOVABLE,
+	MIGRATE_MOVABLE,
+	MIGRATE_RECLAIMABLE,
+	MIGRATE_PCPTYPES,	/* nr of types on the pcp lists */
+	MIGRATE_HIGHATOMIC = MIGRATE_PCPTYPES,
+
+	__MAX_NR_MIGRATE_TYPES
+};
 
 /*
  * Note from Understanding the Linux Kernel:
@@ -92,12 +107,304 @@ enum ZONE_TYPE {
 	 */
 	ZONE_DEVICE,
 #endif
+
 	__MAX_NR_ZONES
 };
 
-struct zone {
+enum ZONE_FLAGS {
+	ZONE_RECLAIM_LOCKED,		/* prevents concurrent reclaim */
+	ZONE_OOM_LOCKED,		/* zone is in OOM killer zonelist */
+	ZONE_CONGESTED,			/* zone has many dirty pages backed by
+					 * a congested BDI
+					 */
+	ZONE_DIRTY,			/* reclaim scanning has recently found
+					 * many dirty file pages at the tail
+					 * of the LRU.
+					 */
+	ZONE_WRITEBACK,			/* reclaim scanning has recently found
+					 * many pages under writeback
+					 */
+	ZONE_FAIR_DEPLETED,		/* fair zone policy batch depleted */
 
+	__MAX_NR_ZONE_FLAGS
 };
+
+enum ZONE_WATERMARKS {
+	WATERMARK_MIN,
+	WATERMARK_LOW,
+	WATERMARK_HIGH,
+
+	__MAX_NR_WATERMARK
+};
+
+#define min_watermark_pages(z)	(z->watermark[WATERMARK_MIN])
+#define low_watermark_pages(z)	(z->watermark[WATERMARK_LOW])
+#define high_watermark_pages(z)	(z->watermark[WATERMARK_HIGH])
+
+struct free_area {
+	struct list_head	free_list[__MAX_NR_MIGRATE_TYPES];
+	unsigned long		nr_free;
+};
+
+struct pglist_data;
+
+struct zone {
+	/*
+	 * zone watermarks, access with *_watermark_pages(z) macros
+	 */
+	unsigned long		watermark[__MAX_NR_WATERMARK];
+
+#ifdef CONFIG_NUMA
+	int			node;
+#endif
+
+	/*
+	 * The target ration of ACTIVE_ANON to INACTIVE_ANON pages on
+	 * this zone's LRU. Maintained by the pageout code.
+	 */
+	unsigned int		inactive_ratio;
+
+	/*
+	 * The Memory Node:
+	 */
+	struct pglist_data	*zone_pgdata;
+
+	/*
+	 * This is a per-zone reserve of pages that are not available
+	 * to userspace allocations.
+	 */
+	unsigned long		totalreserve_pages;
+
+#ifndef CONFIG_SPARSEMEM
+	/*
+	 * Flags for a pageblock_nr_pages block. See pageblock-flags.h.
+	 * In SPARSEMEM, this map is stored in struct mem_section
+	 */
+	unsigned long		*pageblock_flags;
+#endif
+
+	/*
+	 * zone_start_pfn == zone_start_paddr >> PAGE_SHIFT
+	 *
+	 * spanned_pages is the total pages spanned by the zone, including
+	 * holes, which is calculated as:
+	 * 	spanned_pages = zone_end_pfn - zone_start_pfn;
+	 *
+	 * present_pages is physical pages existing within the zone, which
+	 * is calculated as:
+	 *	present_pages = spanned_pages - absent_pages(pages in holes);
+	 *
+	 * managed_pages is present pages managed by the buddy system, which
+	 * is calculated as (reserved_pages includes pages allocated by the
+	 * bootmem allocator):
+	 *	managed_pages = present_pages - reserved_pages;
+	 *
+	 * So present_pages may be used by memory hotplug or memory power
+	 * management logic to figure out unmanaged pages by checking
+	 * (present_pages - managed_pages). And managed_pages should be used
+	 * by page allocator and vm scanner to calculate all kinds of watermarks
+	 * and thresholds.
+	 *
+	 * Locking rules:
+	 *
+	 * zone_start_pfn and spanned_pages are protected by span_seqlock.
+	 * It is a seqlock because it has to be read outside of zone->lock,
+	 * and it is done in the main allocator path.  But, it is written
+	 * quite infrequently.
+	 *
+	 * The span_seq lock is declared along with zone->lock because it is
+	 * frequently read in proximity to zone->lock.  It's good to
+	 * give them a chance of being in the same cacheline.
+	 *
+	 * Write access to present_pages at runtime should be protected by
+	 * mem_hotplug_begin/end(). Any reader who can't tolerant drift of
+	 * present_pages should get_online_mems() to get a stable value.
+	 *
+	 * Read access to managed_pages should be safe because it's unsigned
+	 * long. Write access to zone->managed_pages and totalram_pages are
+	 * protected by managed_page_count_lock at runtime. Idealy only
+	 * adjust_managed_page_count() should be used instead of directly
+	 * touching zone->managed_pages and totalram_pages.
+	 */
+	unsigned long		zone_start_pfn;
+	unsigned long		managed_pages;
+	unsigned long		spanned_pages;
+	unsigned long		present_pages;
+
+	const char		*name;
+
+#ifdef CONFIG_MEMORY_HOTPLUG
+	seqlock_t		span_seqlock;
+#endif
+
+	/*
+	 * This field identifies the blocks of free page frames in the zone
+	 */
+	struct free_area	free_area[MAX_ORDER];
+
+	/*
+	 * zone flags, see ZONE_FLAGS above
+	 */
+	unsigned long		flags;
+
+	/*
+	 * Write-intensive fields used from the page allocator
+	 */
+	spinlock_t		lock;
+
+} __cacheline_aligned;
+
+/**
+ * zone_end_pfn		-	Return the last pfn this zone spans
+ * @zone: zone in question
+ * @return: the end pfn
+ */
+static inline unsigned long zone_end_pfn(const struct zone *zone)
+{
+	return zone->zone_start_pfn + zone->spanned_pages;
+}
+
+/**
+ * zone_spans_pfn	-	Check if pfn belongs to a zone
+ * @zone: zone in question
+ * @pfn: the pfn to check
+ *
+ * Returns TRUE if this @pfn is spanned by this @zone
+ */
+static inline bool zone_spans_pfn(const struct zone *zone, unsigned long pfn)
+{
+	return zone->zone_start_pfn <= pfn && pfn < zone_end_pfn(zone);
+}
+
+static inline bool zone_is_initialized(struct zone *zone)
+{
+	return true;
+}
+
+static inline bool zone_is_empty(const struct zone *zone)
+{
+	return zone->spanned_pages == 0;
+}
+
+/* Maximum number of zones on a zonelist */
+#define MAX_ZONES_PER_ZONELIST	(MAX_NR_NODES * __MAX_NR_ZONES)
+
+enum {
+	ZONELIST_FALLBACK,	/* zonelist with fallback */
+#ifdef CONFIG_NUMA
+	/*
+	 * The NUMA zonelists are doubled because we need zonelists that
+	 * restrict the allocations to a single node for __GFP_THISNODE.
+	 */
+	ZONELIST_NOFALLBACK,	/* zonelist without fallback (__GFP_THISNODE) */
+#endif
+
+	__MAX_NR_ZONELISTS
+};
+
+/*
+ * This struct contains information about a zone in a zonelist. It is stored
+ * here to avoid dereferences into large structures and lookups of tables
+ */
+struct zoneref {
+	struct zone *zone;	/* Pointer to actual zone */
+	int zone_idx;		/* zone_idx(zoneref->zone) */
+};
+
+/*
+ * One allocation request operates on a zonelist. A zonelist
+ * is a list of zones, the first one is the 'goal' of the
+ * allocation, the other zones are fallback zones, in decreasing
+ * priority.
+ *
+ * To speed the reading of the zonelist, the zonerefs contain the zone index
+ * of the entry being read. Helper functions to access information given
+ * a struct zoneref are
+ *
+ * zonelist_zone()	- Return the struct zone * for an entry in _zonerefs
+ * zonelist_zone_idx()	- Return the index of the zone for an entry
+ * zonelist_node_idx()	- Return the index of the node for an entry
+ */
+struct zonelist {
+	struct zoneref _zonerefs[MAX_ZONES_PER_ZONELIST + 1];
+};
+
+/*
+ * The array of struct pages.
+ *
+ * For discontigmem use pgdata->node_mem_map
+ * For sparsemem use mem_section.
+ */
+#ifdef CONFIG_FLATMEM
+extern struct page *mem_map;
+#endif
+
+/*
+ * The pg_data_t structure is used in machines with CONFIG_DISCONTIGMEM
+ * (mostly NUMA machines?) to denote a higher-level memory zone than the
+ * zone denotes.
+ *
+ * On NUMA machines, each NUMA node would have a pg_data_t to describe
+ * it's memory layout.
+ *
+ * Memory statistics and page replacement data structures are maintained on a
+ * per-zone basis.
+ */
+typedef struct pglist_data {
+	struct zone		node_zones[__MAX_NR_ZONES];
+	struct zonelist		node_zonelists[__MAX_NR_ZONELISTS];
+	int			nr_zones;
+
+#ifdef CONFIG_FLAT_NODE_MEM_MAP /* means !SPARSEMEM */
+	struct page		*node_mem_map;
+#endif
+
+	/*
+	 * node_present_pages is size of the memory node,
+	 * excluding holes (in page frames)
+	 *
+	 * node_spanned_pages is size of the node,
+	 * including holes (in page frames)
+	 */
+	unsigned long		node_start_pfn;
+	unsigned long		node_present_pages;
+	unsigned long		node_spanned_pages;
+
+	int			node_id;
+} pg_data_t;
+
+static inline unsigned long pgdata_end_pfn(pg_data_t *pgdata)
+{
+	return pgdata->node_start_pfn + pgdata->node_spanned_pages;
+}
+
+static inline bool pgdata_is_empty(pg_data_t *pgdata)
+{
+	return !pgdata->node_start_pfn && !pgdata->node_spanned_pages;
+}
+
+static inline int zond_id(const struct zone *zone)
+{
+	struct pglist_data *pgdata = zone->zone_pgdata;
+
+	return zone - pgdata->node_zones;
+}
+
+/*
+ * If NUMA is configured into kernel, then all pg_data_t descriptors
+ * are arranged into an array, which is defined in arch/~/mm/numa.c
+ * and declared in <asm/mm_zone.h>
+ *
+ * Otherwise, a single pg_data_t is used, which is defined
+ * in arch/~/mm/init.c and declared here.
+ */
+#ifndef CONFIG_NEED_MULTIPLE_NODES
+extern pg_data_t contiguous_page_data;
+#define NODE_DATA(nid)		(&contiguous_page_data)
+#define NODE_MEM_MAP(nid)	mem_map
+#else
+#include <asm/mm_zone.h>
+#endif /* CONFIG_NEED_MULTIPLE_NODES */
 
 #ifdef CONFIG_HAVE_MEMORY_PRESENT
 void memory_present(int nid, unsigned long start, unsigned long end);

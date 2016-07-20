@@ -23,6 +23,7 @@
 #include <asm/tlbflush.h>
 
 #include <sandix/mm.h>
+#include <sandix/mm_zone.h>
 #include <sandix/types.h>
 #include <sandix/kernel.h>
 #include <sandix/export.h>
@@ -84,10 +85,11 @@ void __init init_mem_init(void)
 
 void __init paging_init(void)
 {
-
+	sparse_memory_present_with_active_regions(MAX_NR_NODES);
+	zone_init();
 }
 
 void __init native_pagetable_init(void)
 {
-
+	paging_init();
 }

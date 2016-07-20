@@ -16,15 +16,18 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-void * __init alloc_low_pages(unsigned long num);
+#include <sandix/mm.h>
+#include <sandix/bootmem.h>
 
-static inline void *alloc_low_page(void)
-{
-	return alloc_low_pages(1);
-}
+unsigned long max_low_pfn;
+unsigned long min_low_pfn;
+unsigned long max_pfn;
 
-unsigned long kernel_physical_mapping_init(unsigned long start,
-					   unsigned long end,
-					   unsigned long page_size_mask);
-
-void __init zone_init(void);
+/*
+ * This is the bootmem.c in Linux, which uses bitmap to allocate pages in the
+ * very early initialization stage. It should be noted that Linux's implementation
+ * of bitmap allocation is more efficient than my DSNVM one...
+ *
+ * Anyway, I did not plan to write this code, just use bootmem_memblk to serve
+ * the bootmem requests, and this is the default setting of Linux x86.
+ */

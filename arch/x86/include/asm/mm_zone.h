@@ -16,15 +16,8 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-void * __init alloc_low_pages(unsigned long num);
-
-static inline void *alloc_low_page(void)
-{
-	return alloc_low_pages(1);
-}
-
-unsigned long kernel_physical_mapping_init(unsigned long start,
-					   unsigned long end,
-					   unsigned long page_size_mask);
-
-void __init zone_init(void);
+#ifdef CONFIG_X86_32
+# include "mm_zone_32.h"
+#else
+# include "mm_zone_64.h"
+#endif

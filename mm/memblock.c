@@ -1,7 +1,7 @@
 /*
  *	Logical Memory Blocks
  *
- *	Copyright (C) 2015-2016 Yizhou Shan <shan13@purdue.edu>
+ *	Copyright (C) 2016 Yizhou Shan <shan13@purdue.edu>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -43,6 +43,7 @@ static struct memblock_region memblock_memory_init_regions[INIT_MEMBLOCK_REGIONS
 static struct memblock_region memblock_reserved_init_regions[INIT_MEMBLOCK_REGIONS];
 
 struct memblock memblock = {
+	/* Honestly, I do not know why */
 	.is_bottom_up		= false,
 	.current_limit		= MEMBLOCK_ALLOC_ANYWHERE,
 
@@ -55,13 +56,28 @@ struct memblock memblock = {
 	.reserved.max		= INIT_MEMBLOCK_REGIONS,
 };
 
+unsigned long choose_memblock_flags(void)
+{
+	return MEMBLOCK_NONE;
+}
+
+void memblock_set_current_limit(phys_addr_t limit)
+{
+	memblock.current_limit = limit;
+}
+
+phys_addr_t memblock_get_current_limit(void)
+{
+	return memblock.current_limit;
+}
+
 static inline phys_addr_t memblock_cap_size(phys_addr_t base, phys_addr_t *size)
 {
 	return *size = min(*size, (phys_addr_t)ULLONG_MAX - base);
 }
 
 /**
- * __next__mem_range - next function for for_each_free_mem_range() etc.
+ * __next_mem_range - next function for for_each_free_mem_range() etc.
  * @idx: pointer to u64 loop variable
  * @nid: node selector, %NUMA_NO_NODE for all nodes
  * @flags: pick from blocks based on memory attributes
@@ -96,8 +112,8 @@ static void __init __next_mem_range(u64 *idx, int nid, ulong flags,
 	int idx_b = *idx >> 32;
 
 	if (WARN_ONCE(nid == MAX_NR_NODES,
-	"Usage of MAX_NR_NODES is deprecated. Use NUMA_NO_NODE instead\n"))
-		nid = NUMA_NO_NODE;
+	    "Usage of MAX_NR_NODES is deprecated. Use NUMA_NO_NODE instead\n"))
+	    nid = NUMA_NO_NODE;
 
 	for (; idx_a < type_a->nr_regions; idx_a++) {
 		struct memblock_region *m = &type_a->regions[idx_a];
@@ -204,8 +220,9 @@ static void __init __next_mem_range_rev(u64 *idx, int nid, ulong flags,
 	int idx_a = *idx & 0xffffffff;
 	int idx_b = *idx >> 32;
 
-	if (WARN_ONCE(nid == MAX_NR_NODES, "Usage of MAX_NR_NODES is deprecated. Use NUMA_NO_NODE instead\n"))
-		nid = NUMA_NO_NODE;
+	if (WARN_ONCE(nid == MAX_NR_NODES,
+	    "Usage of MAX_NR_NODES is deprecated. Use NUMA_NO_NODE instead\n"))
+	    nid = NUMA_NO_NODE;
 
 	if (*idx == (u64)ULLONG_MAX) {
 		idx_a = type_a->nr_regions - 1;
@@ -757,7 +774,22 @@ static int memblock_remove_range(struct memblock_type *type,
 
 int memblock_remove(phys_addr_t base, phys_addr_t size)
 {
+	memblock_dbg("   memblock_remove: [%#016llx-%#016llx] %pF\n",
+		     (unsigned long long)base,
+		     (unsigned long long)base + size - 1,
+		     (void *)_RET_IP_);
+
 	return memblock_remove_range(&memblock.memory, base, size);
+}
+
+int memblock_free(phys_addr_t base, phys_addr_t size)
+{
+	memblock_dbg("   memblock_free: [%#016llx-%#016llx] %pF\n",
+		     (unsigned long long)base,
+		     (unsigned long long)base + size - 1,
+		     (void *)_RET_IP_);
+
+	return memblock_remove_range(&memblock.reserved, base, size);
 }
 
 static void memblock_dump(struct memblock_type *type, char *name)

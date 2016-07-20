@@ -173,12 +173,20 @@ default_entry:
 	call	start_kernel
 
 bad_sig:
-# Simple message
-# Show a red 'B' after '@'
+#
+# Print @Bad_Sig at the right-top of the screen, if the entire kernel
+# image is not loaded into memory. This is pretty useful when I wrote
+# bootloader myself...
+#
 	movl	$0xb8002, %ebx
 	movw	$0x0442, (%ebx)
 	movw	$0x0461, 2(%ebx)
 	movw	$0x0464, 4(%ebx)
+	movw	$0x045f, 6(%ebx)
+	movw	$0x0453, 8(%ebx)
+	movw	$0x0469, 10(%ebx)
+	movw	$0x0467, 12(%ebx)
+
 1:	hlt
 	hlt
 	jmp 1b

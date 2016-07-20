@@ -24,6 +24,8 @@
 #include <asm/early_ioremap.h>
 
 #include <sandix/mm.h>
+#include <sandix/mm_zone.h>
+#include <sandix/numa.h>
 #include <sandix/types.h>
 #include <sandix/kernel.h>
 #include <sandix/export.h>
@@ -541,14 +543,19 @@ static void __init kmap_init(void)
 void __init paging_init(void)
 {
 	permanent_kmap_init();
+
 	__flush_tlb_all();
+
 	kmap_init();
 
 	/*
 	 * Note that: at this point the bootmem allocator is fully available
 	 */
 
-	
+	sparse_memory_present_with_active_regions(MAX_NR_NODES);
+	sparse_init();
+
+	zone_init();
 }
 
 void __init native_pagetable_init(void)

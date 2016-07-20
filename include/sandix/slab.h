@@ -32,4 +32,22 @@ static __always_inline void kfree(void *ptr)
 
 }
 
+/*
+ * State of the slab allocator.
+ *
+ * This is used to describe the states of the allocator during bootup.
+ * Allocators use this to gradually bootstrap themselves. Most allocators
+ * have the problem that the structures used for managing slab caches are
+ * allocated from slab caches themselves.
+ */
+enum SLAB_STATES {
+	SLAB_DOWN,			/* No slab functionality yet */
+	SLAB_PARTIAL,			/* SLUB: kmem_cache_node available */
+	SLAB_PARTIAL_NODE,		/* SLAB: kmalloc size for node struct available */
+	SLAB_UP,			/* Slab caches usable but not all extras yet */
+	SLAB_FULL			/* Everything is working */
+};
+
+bool slab_is_available(void);
+
 #endif /* _SANDIX_SLAB_H_ */

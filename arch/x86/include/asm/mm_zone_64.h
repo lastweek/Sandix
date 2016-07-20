@@ -16,15 +16,16 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-void * __init alloc_low_pages(unsigned long num);
+#ifndef _ASM_X86_MM_ZONE_64_H_
+#define _ASM_X86_MM_ZONE_64_H_
 
-static inline void *alloc_low_page(void)
-{
-	return alloc_low_pages(1);
-}
+#ifdef CONFIG_NUMA
 
-unsigned long kernel_physical_mapping_init(unsigned long start,
-					   unsigned long end,
-					   unsigned long page_size_mask);
+/* Defined in mm/numa.c */
+extern pg_dat_t *node_data[];
 
-void __init zone_init(void);
+#define NODE_DATA(nid)		(node_data[nid])
+
+#endif /* CONFIG_NUMA */
+
+#endif /* _ASM_X86_MM_ZONE_64_H_ */

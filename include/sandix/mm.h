@@ -25,8 +25,8 @@
 #include <sandix/types.h>
 #include <sandix/kernel.h>
 #include <sandix/atomic.h>
+#include <sandix/mm_zone.h>
 #include <sandix/spinlock.h>
-#include <sandix/compiler.h>
 
 #define offset_in_page(p)	((unsigned long)(p) & ~PAGE_MASK)
 
@@ -86,5 +86,36 @@ extern unsigned long max_pfn;
 extern void *high_memory;
 
 void __init mem_init(void);
+void __init sparse_memory_present_with_active_regions(int nid);
+
+#ifdef CONFIG_HAVE_MEMBLOCK_NODE_MAP
+/*
+ * With CONFIG_HAVE_MEMBLOCK_NODE_MAP set, an architecture may initialise its
+ * zones, allocate the backing mem_map and account for memory holes in a more
+ * architecture independent manner. This is a substitute for creating the
+ * zone_sizes[] and zholes_size[] arrays and passing them to
+ * free_area_init_node()
+ *
+ * An architecture is expected to register range of page frames backed by
+ * physical memory with memblock_add[_node]() before calling
+ * free_area_init_nodes() passing in the PFN each zone ends at. At a basic
+ * usage, an architecture is expected to do something like
+ *
+ * unsigned long max_zone_pfns[MAX_NR_ZONES] = {max_dma, max_normal_pfn,
+ * 							 max_highmem_pfn};
+ * for_each_valid_physical_page_range()
+ * 	memblock_add_node(base, size, nid)
+ * free_area_init_nodes(max_zone_pfns);
+ *
+ * free_bootmem_with_active_regions() calls free_bootmem_node() for each
+ * registered physical page range.  Similarly
+ * sparse_memory_present_with_active_regions() calls memory_present() for
+ * each range when SPARSEMEM is enabled.
+ *
+ * See mm/page_alloc.c for more information on each function exposed by
+ * CONFIG_HAVE_MEMBLOCK_NODE_MAP.
+ */
+void __init free_area_init_nodes(unsigned long *zone_max_pfns);
+#endif /* CONFIG_HAVE_MEMBLOCK_NODE_MAP */
 
 #endif /* _SANDIX_MM_H_ */

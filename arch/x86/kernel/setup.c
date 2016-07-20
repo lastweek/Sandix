@@ -321,6 +321,12 @@ void __init arch_setup(void)
 	 * Establish kernel identity mapping:
 	 */
 	init_mem_mapping();
+
+	/*
+	 * Set current.limit to the max mapped physical address,
+	 * and then dump all mem+reserved memblock info:
+	 */
+	memblock_set_current_limit((phys_addr_t)(max_pfn_mapped << PAGE_SHIFT));
 	memblock_dump_all();
 
 	/*

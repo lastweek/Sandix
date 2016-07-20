@@ -16,15 +16,11 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-void * __init alloc_low_pages(unsigned long num);
+#include <sandix/slab.h>
 
-static inline void *alloc_low_page(void)
+enum SLAB_STATES slab_state;
+
+bool slab_is_available(void)
 {
-	return alloc_low_pages(1);
+	return slab_state >= SLAB_UP;
 }
-
-unsigned long kernel_physical_mapping_init(unsigned long start,
-					   unsigned long end,
-					   unsigned long page_size_mask);
-
-void __init zone_init(void);

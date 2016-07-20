@@ -67,10 +67,14 @@ struct memblock {
 
 extern struct memblock memblock;
 
+unsigned long choose_memblock_flags(void);
+void memblock_set_current_limit(phys_addr_t limit);
+phys_addr_t memblock_get_current_limit(void);
 int memblock_add_node(phys_addr_t base, phys_addr_t size, int nid);
 int memblock_add(phys_addr_t base, phys_addr_t size);
 int memblock_reserve(phys_addr_t base, phys_addr_t size);
 int memblock_remove(phys_addr_t base, phys_addr_t size);
+int memblock_free(phys_addr_t base, phys_addr_t size);
 void memblock_trim_memory(phys_addr_t align);
 void memblock_dump_all(void);
 
@@ -134,7 +138,7 @@ int __init memblock_set_node(phys_addr_t base, phys_addr_t size,
 /**
  * for_each_mem_pfn_range - early memory pfn range iterator
  * @i: an integer used as loop variable
- * @nid: node selector, %MAX_NUMNODES for all nodes
+ * @nid: node selector, %MAX_NR_NODES for all nodes
  * @p_start: ptr to ulong for start pfn of the range, can be %NULL
  * @p_end: ptr to ulong for end pfn of the range, can be %NULL
  * @p_nid: ptr to int for nid of the range, can be %NULL

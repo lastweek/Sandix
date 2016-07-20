@@ -16,15 +16,7 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-void * __init alloc_low_pages(unsigned long num);
+#ifndef _SANDIX_WAIT_H_
+#define _SANDIX_WAIT_H_
 
-static inline void *alloc_low_page(void)
-{
-	return alloc_low_pages(1);
-}
-
-unsigned long kernel_physical_mapping_init(unsigned long start,
-					   unsigned long end,
-					   unsigned long page_size_mask);
-
-void __init zone_init(void);
+#endif /* _SANDIX_WAIT_H_ */

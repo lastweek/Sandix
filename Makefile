@@ -461,8 +461,7 @@ ifeq ($(dot-config),1)
 -include include/config/auto.conf.cmd
 
 # To avoid any implicit rule
-include/config/auto.conf.cmd: ;
-$(KCONFIG_CONFIG): ;
+$(KCONFIG_CONFIG) include/config/auto.conf.cmd: ;
 
 # It is important to know how Makefiles are remade and how 'include'
 # directive works. Here are some words form GNU Make Manual:
@@ -499,10 +498,7 @@ include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
 	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
 
 else
-
-# read in config? XXX Seems wrong
 -include include/config/auto.conf
-
 # Dummy target needed, since it is used as prerequisite.
 include/config/auto.conf: ;
 endif # !$(dot-config)

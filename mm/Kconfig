@@ -143,7 +143,7 @@ config HAVE_GENERIC_RCU_GUP
 config ARCH_DISCARD_MEMBLOCK
 	bool
 
-config NO_BOOTMEM
+config BITMAP_BOOTMEM
 	bool
 
 config MEMORY_ISOLATION

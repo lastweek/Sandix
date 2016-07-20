@@ -1,5 +1,5 @@
 /*
- *	Copyright (C) 2015-2016 Yizhou Shan <shan13@purdue.edu>
+ *	Copyright (C) 2016 Yizhou Shan <shan13@purdue.edu>
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -18,8 +18,12 @@
 
 #include <sandix/mm.h>
 #include <sandix/page.h>
-#include <sandix/types.h>
+#include <sandix/export.h>
 
-unsigned long max_low_pfn;
-unsigned long min_low_pfn;
-unsigned long max_pfn;
+#ifdef CONFIG_FLATMEM
+unsigned long max_mapnr;
+struct page *mem_map;
+
+EXPORT_SYMBOL(max_mapnr);
+EXPORT_SYMBOL(mem_map);
+#endif

@@ -62,12 +62,16 @@ SECTIONS
 		/* __read_mostly */
 		. = ALIGN(L1_CACHE_BYTES);
 		*(.data..read_mostly)
+		. = ALIGN(L1_CACHE_BYTES);
 
+		. = ALIGN(L1_CACHE_BYTES);
 		*(.data)
+		. = ALIGN(L1_CACHE_BYTES);
 
 		/* WARN_ONCE etc.*/
 		. = ALIGN(L1_CACHE_BYTES);
 		*(.data..unlikely)
+		. = ALIGN(L1_CACHE_BYTES);
 
 		__data_end = .;
 	}
