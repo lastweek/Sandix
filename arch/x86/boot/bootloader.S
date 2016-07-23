@@ -26,15 +26,25 @@ SETUPSEG	= 0x9000	# Setup Image Segment.
 SYSSEG		= 0x1000	# System Image Segment.
 SETUP_OFFSET	= 512		# Offset of entry point in setup
 
+#define Bytes_For_Stack		512
+#define ESP_VALUE		(512 + Bytes_For_Stack)
+
+#define MSG(x)		movw $x, %si; call message
+#define ERR(x)		movw $x, %si; jmp error_message
+
 	.code16
 
 	.text
 	.globl start
 
 start:
-	ljmp	$BOOTSEG, $start2
+# We are not safe here, so disable interrupts
+	cli
 
-start2:
+# Normalize [cs:ip] to [0x07c0:_start]
+	ljmp	$BOOTSEG, $_start
+
+_start:
 
 # Segements are as follows: %cs = %ds = %ss = BOOTSEG
 # %es = %fs = SETUPSEG, %gs is not used.
@@ -47,11 +57,12 @@ start2:
 	movw	%ax, %es
 	cld
 
-# Set a reasonable stack. Arbitrary value behind bootloader.
-# %sp = 512(Bootloader size) + 8(Needed room for stack)
+# Set a reasonable stack.
 # Use movl to clear upper 16-bit portion of %esp
+	movl	$ESP_VALUE, %esp
 
-	movl	$520, %esp
+# We are safe again
+	sti
 
 # Get Disk Geometry Parameters.
 # In CHS scheme, Cylinder and Head start from 0, Sector start form 1,
@@ -220,41 +231,39 @@ loop:
 # in that case, we need another round!
 
 bs_copy:
-	cld
 	movl	sys_size, %ecx
 	shll	$2, %ecx
-	
-	movw	$SYSSEG, %ax			# %ds:%esi points to
-	movw	%ax, %ds			# 0x10000
-	xorl	%esi, %esi
-	
-	movw	$0xffff, %ax			# %es:%edi points to
-	movw	%ax, %es			# 0x100000
-	movl	$0x10, %edi
 
+# Obsolete: As I said above, this mechanism can only move 0xffef bytes.
+# This is fine at my initial development, since the kernel image is small.
+# But oneday, the kernel image exceeds 64KB, so the kernel_sig check fails
+# at head_32.S (many thanks!). Then I have to find a solution to this.
+#
+# I use the address prefix 0x67 and use %ds:%esi and %ds:%edi to store address.
+# This will work just like 32-bit model! This is cool and simple.
+#
+# BUT the CAVEAT is: I do not know whether all recent Intel CPUs can do this.
+#
+#	movw	$SYSSEG, %ax			# %ds:%si points to
+#	movw	%ax, %ds			# 0x10000
+#	xorl	%esi, %esi
+#
+#	movw	$0xffff, %ax			# %es:%di points to
+#	movw	%ax, %es			# 0x100000
+#	movl	$0x10, %edi
+
+	xorw	%ax, %ax
+	movw	%ax, %ds
+	movw	%ax, %es
+	movl	$0x10000, %esi
+	movl	$0x100000, %edi
+
+	cld
 	rep
-	movsl
+	.byte 0x67				# The address prefix
+	movsl					# including operand prefix
 
 	ljmp	$SETUPSEG, $SETUP_OFFSET
-	
-bs_fail:
-	movw	$bs_msg, %si
-bs_loop:
-	lodsb
-	andb	%al, %al
-	jz	bs_die
-	movb	$0xe, %ah
-	movw	$7, %bx
-	int	$0x10
-	jmp	bs_loop
-bs_die:
-	xorw	%ax, %ax
-	int	$0x16
-	int	$0x19
-bs_msg:
-	.ascii "Fail to load Sandix.\r\n\n"
-	.ascii "Press any key to reboot..."
-	.byte 0
 
 	.align 4
 # Some variables for disk operation
@@ -266,6 +275,41 @@ cylinder:	.word 0				# Current cylinder(not used)
 sremain:	.word 0				# Sectors remained to read
 sys_size:	.long 0				# sys_size of system image
 boot_drive:	.byte 0				# Boot drive number
+
+bs_fail:
+	ERR(fail_to_load_sandix)
+
+error_message:
+	call	message
+general_error:
+	MSG(general_error_string)
+
+	xorw	%ax, %ax
+	int	$0x16
+	int	$0x19
+
+fail_to_load_sandix:	.asciz "Fail to load Sandix..."
+general_error_string:	.asciz " Press any key to reboot\n\r"
+
+##
+# Use BIOS "int 10H Function 0Eh" to write character in teletype mode
+# %ah = 0xe	%al = character
+# %bh = page	%bl = foreground color (graphics modes)
+#
+# WARNING: trashes %si, %ax, and %bx
+1:
+	movw	$0x0001, %bx
+	movb	$0xe, %ah
+	int	$0x10
+message:
+	lodsb
+	cmpb	$0, %al
+	jne	1b
+	ret
+
+#
+# Seriously, make sure the loader is < 512 bytes, this is MBR.
+#
 
 	.org 510
 bootflag:	.word 0xAA55
