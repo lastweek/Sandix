@@ -31,8 +31,9 @@
 # define __BITOPS_LONG_SHIFT 5
 #elif BITS_PER_LONG == 64
 # define __BITOPS_LONG_SHIFT 6
+#else
+# error "Unexpected BITS_PER_LONG"
 #endif
-
 
 /*
  * These have to be done with inline assembly: that way the bit-setting
@@ -59,12 +60,32 @@
  * Note that @nr may be almost arbitrarily large; this function is not
  * restricted to acting on a single-word quantity.
  */
-static inline void set_bit(int nr, volatile unsigned long * addr)
+static __always_inline void set_bit(int nr, volatile unsigned long * addr)
 {
 	asm volatile (
 		LOCK_PREFIX "btsl %1,%0"
-		:"+m" (ADDR)
-		:"Ir" (nr)
+		: "+m" (ADDR)
+		: "Ir" (nr)
+		: "memory"
+	);
+}
+
+/**
+ * __set_bit - Set a bit in memory
+ * @nr: the bit to set
+ * @addr: the address to start counting from
+ *
+ * Unlike set_bit(), this function is non-atomic and may be reordered.
+ * If it's called on the same region of memory simultaneously, the effect
+ * may be that only one operation succeeds.
+ */
+static __always_inline void __set_bit(long nr, volatile unsigned long *addr)
+{
+	asm volatile (
+		"bts %1,%0"
+		: "+m" ADDR
+		: "Ir" (nr)
+		: "memory"
 	);
 }
 
@@ -85,6 +106,47 @@ static inline void clear_bit(int nr, volatile unsigned long * addr)
 		:"+m" (ADDR)
 		:"Ir" (nr)
 	);
+}
+
+/*
+ * clear_bit_unlock - Clears a bit in memory
+ * @nr: Bit to clear
+ * @addr: Address to start counting from
+ *
+ * clear_bit() is atomic and implies release semantics before the memory
+ * operation. It can be used for an unlock.
+ */
+static __always_inline void clear_bit_unlock(long nr, volatile unsigned long *addr)
+{
+	barrier();
+	clear_bit(nr, addr);
+}
+
+static __always_inline void __clear_bit(long nr, volatile unsigned long *addr)
+{
+	asm volatile (
+		"btr %1,%0"
+		: "+m" ADDR
+		: "Ir" (nr)
+	);
+}
+
+/*
+ * __clear_bit_unlock - Clears a bit in memory
+ * @nr: Bit to clear
+ * @addr: Address to start counting from
+ *
+ * __clear_bit() is non-atomic and implies release semantics before the memory
+ * operation. It can be used for an unlock if no other CPUs can concurrently
+ * modify other bits in the word.
+ *
+ * No memory barrier is required here, because x86 cannot reorder stores past
+ * older loads. Same principle as spin_unlock.
+ */
+static __always_inline void __clear_bit_unlock(long nr, volatile unsigned long *addr)
+{
+	barrier();
+	__clear_bit(nr, addr);
 }
 
 /**
