@@ -21,6 +21,7 @@
 #ifndef _SANDIX_MEMBLOCK_H_
 #define _SANDIX_MEMBLOCK_H_
 
+#include <sandix/numa.h>
 #include <sandix/types.h>
 
 #define INIT_MEMBLOCK_REGIONS	128
@@ -234,5 +235,25 @@ int __init memblock_set_node(phys_addr_t base, phys_addr_t size,
 					p_nid)				\
 	for_each_mem_range_rev(i, &memblock.memory, &memblock.reserved,	\
 			       nid, flags, p_start, p_end, p_nid)
+
+/* Use memblock to allocate bootmem */
+#ifndef CONFIG_BITMAP_BOOTMEM
+
+void * __init memblock_virt_alloc_try_nid_nopanic(
+				phys_addr_t size, phys_addr_t align,
+				phys_addr_t min_addr, phys_addr_t max_addr,
+				int nid);
+
+static inline void *memblock_virt_alloc_nopanic(phys_addr_t size, phys_addr_t align)
+{
+	return memblock_virt_alloc_try_nid_nopanic(size, align, 0, 0, NUMA_NO_NODE);
+}
+
+static inline void *memblock_virt_alloc_node_nopanic(phys_addr_t size, int nid)
+{
+	return memblock_virt_alloc_try_nid_nopanic(size, 0, 0, 0, nid);
+}
+
+#endif /* CONFIG_BITMAP_BOOTMEM */
 
 #endif /* _SANDIX_MEMBLOCK_H_ */
