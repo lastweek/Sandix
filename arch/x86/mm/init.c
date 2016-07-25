@@ -43,7 +43,7 @@
  * The array list of pg_data_t is used only if NUMA or DISCONTIGMEM enabled.
  */
 #ifndef CONFIG_NEED_MULTIPLE_NODE
-struct pglist_data contiguous_page_data; 
+struct pglist_data contiguous_page_data __read_mostly;
 EXPORT_SYMBOL(contiguous_page_data);
 #endif
 

@@ -251,6 +251,7 @@ void __init early_cpu_init(void)
 #endif
 	}
 	early_identify_cpu(&boot_cpu_info);
+	print_cpu_info(&boot_cpu_info);
 }
 
 void __init cpu_init(void)

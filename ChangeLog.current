@@ -128,3 +128,11 @@ Wed Jul 20 10:31:17 CST 2016
 - [+] mm/bootmem_bitmap.c
 - [+] mm/memory.c				[D] add mem_map for flatmem
 - [M] include/sandix/bootmem.h
+
+
+Thu Jul 21 10:44:11 CST 2016
+- [+] include/sandix/page-flags.h
+- [+] include/sandix/page-gfp.h
+- [+] include/sandix/mm_types.h
+
+

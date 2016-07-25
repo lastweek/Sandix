@@ -66,6 +66,10 @@ static char * const zone_names[__MAX_NR_ZONES] = {
 #endif
 };
 
+static unsigned long nr_kernel_pages;
+static unsigned long nr_all_pages;
+static unsigned long dma_reserve;
+
 static unsigned long __initdata arch_zone_lowest_possible_pfn[__MAX_NR_ZONES];
 static unsigned long __initdata arch_zone_highest_possible_pfn[__MAX_NR_ZONES];
 static unsigned long __initdata zone_movable_pfn[MAX_NR_NODES];
@@ -294,6 +298,85 @@ void __init get_pfn_range_for_nid(unsigned int nid, unsigned long *start_pfn,
 		*start_pfn = 0;
 }
 
+static inline int IS_HIGHMEM_IDX(enum ZONE_TYPE idx)
+{
+#ifdef CONFIG_HIGHMEM
+	return idx == ZONE_HIGHMEM;
+#else
+	return 0;
+#endif
+}
+
+/*
+ * Set up the zone data structures:
+ *   - mark all pages reserved
+ *   - mark all memory queues empty
+ *   - clear the memory bitmaps
+ *
+ * NOTE: pgdata should get zeroed by caller.
+ */
+static void __init free_area_init_core(struct pglist_data *pgdata)
+{
+	int i;
+
+	for (i = 0; i < __MAX_NR_ZONES; i++) {
+		struct zone *zone = pgdata->node_zones + i;
+		unsigned long memmap_pages;
+		unsigned long size, realsize, freesize;
+
+		size = zone->spanned_pages;
+		realsize = freesize = zone->present_pages;
+
+		/*
+		 * Adjust freesize so that it accounts for how much memory
+		 * is used by this zone for memmap. This affects the watermark
+		 * and per-cpu initialisations
+		 */
+		memmap_pages = PAGE_ALIGN(zone->spanned_pages * sizeof(struct page)) >> PAGE_SHIFT;
+		if (!IS_HIGHMEM_IDX(i)){
+			if (freesize >= memmap_pages) {
+				freesize -= memmap_pages;
+				if (memmap_pages)
+					pr_debug( "  %s zone: %lu pages used for memmap\n",
+						zone_names[i], memmap_pages);
+			} else {
+				pr_warn("  %s zone: %lu pages exceeds freesize %lu\n",
+					zone_names[i], memmap_pages, freesize);
+			}
+		}
+
+		/* Account for reserved pages */
+		if (i == 0 && freesize > dma_reserve) {
+			freesize -= dma_reserve;
+			pr_debug("  %s zone: %lu pages reserved\n",
+				zone_names[0], dma_reserve);
+		}
+
+		if (!IS_HIGHMEM_IDX(i))
+			nr_kernel_pages += freesize;
+		/* Charge for highmem memmap if there are enough kernel pages */
+		else if (nr_kernel_pages > memmap_pages * 2)
+			nr_kernel_pages -= memmap_pages;
+		nr_all_pages += freesize;
+
+		/*
+		 * Set an approximate value for lowmem here, it will be adjusted
+		 * when the bootmem allocator frees pages into the buddy system.
+		 * And all highmem pages will be managed by the buddy system.
+		 */
+		zone->managed_pages = IS_HIGHMEM_IDX(i) ? realsize : freesize;
+#ifdef CONFIG_NUMA
+		zone->node = pgdata->node_id;
+#endif
+		zone->name = zone_names[i];
+		zone->zone_pgdata = pgdata;
+
+		/*
+		 * TODO: Not finished
+		 */
+	}
+}
+
 /*
  * Allocate mem_map array for memory node
  */
@@ -301,6 +384,7 @@ static void __init alloc_node_mem_map(struct pglist_data *pgdata)
 {
 	unsigned long __maybe_unused start = 0;
 	unsigned long __maybe_unused offset = 0;
+	unsigned long __maybe_unused size = 0;
 
 	if (!pgdata->node_spanned_pages)
 		return;
@@ -319,18 +403,21 @@ static void __init alloc_node_mem_map(struct pglist_data *pgdata)
 	offset = pgdata->node_start_pfn - start;
 
 	if (!pgdata->node_mem_map) {
-		unsigned long size, end;
+		unsigned long end;
 		struct page *map;
 
 		end = pgdata_end_pfn(pgdata);
 		end = ALIGN(end, MAX_ORDER_NR_PAGES);
 		size = (end - start) * sizeof(struct page);
 
-		//TODO
-		//map = memblock_virt_alloc_node_nopanic(size, pgdata->node_id);
+		map = memblock_virt_alloc_node_nopanic(size, pgdata->node_id);
 
 		pgdata->node_mem_map = map + offset;
 	}
+
+	pr_debug("%s: node %d, pgdata %#08lx, node_mem_map %#08lx (%lu pages)\n",
+		__func__, pgdata->node_id, (unsigned long)pgdata,
+		(unsigned long)pgdata->node_mem_map, (unsigned long)(size >> PAGE_SHIFT));
 
 #ifndef CONFIG_NEED_MULTIPLE_NODES
 	/*
@@ -376,13 +463,13 @@ void __init free_area_init_node(int nid, unsigned long *zones_size,
 	calculate_node_totalpages(pgdata, start_pfn, end_pfn,
 				  zones_size, zholes_size);
 
+	/*
+	 * Allocate the so-called mem_map of struct page, if we are
+	 * configured as FLATMEM or DISCONTIGMEM
+	 */
 	alloc_node_mem_map(pgdata);
 
-#ifdef CONFIG_FLAT_NODE_MEM_MAP /* means !SPARSEMEM */
-	pr_debug("%s: node %d, pgdata %08lx, node_mem_map %08lx\n",
-		__func__, nid, (unsigned long)pgdata,
-		(unsigned long)pgdata->node_mem_map);
-#endif
+	free_area_init_core(pgdata);
 }
 
 /**

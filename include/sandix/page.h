@@ -21,23 +21,4 @@
 
 #include <asm/page.h>
 
-#include <sandix/types.h>
-#include <sandix/atomic.h>
-
-enum SANDIX_PAGE_FLAGS {
-	PG_present,
-	PG_xxxx
-};
-
-/*
- * Each physical page in the system has a struct page
- * associated with it to keep track of whatever it is
- * we are using the page for at the moment.
- */
-struct page {
-	unsigned long flag;
-	atomic_t count;
-	void *virtual;
-};
-
 #endif /* _SANDIX_PAGE_H_*/

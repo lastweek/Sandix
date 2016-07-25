@@ -47,5 +47,7 @@
 # define MAX_PHYSMEM_BITS	46
 #endif
 
+#define SECTIONS_SHIFT		(MAX_PHYSMEM_BITS - SECTION_SIZE_BITS)
+
 #endif /* CONFIG_SPARSEMEM */
 #endif /* _ASM_X86_SPARSEMEM_H_ */

@@ -140,6 +140,9 @@ typedef u64 phys_addr_t;
 typedef u32 phys_addr_t;
 #endif
 
+/* Get Free Pages, typedef is evil */
+typedef unsigned int gfp_t;
+
 typedef phys_addr_t resource_size_t;
 
 #ifdef CONFIG_64BIT
