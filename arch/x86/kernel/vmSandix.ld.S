@@ -76,6 +76,19 @@ SECTIONS
 		__data_end = .;
 	}
 
+	/*
+	 * APIC Drivers, check <asm/apic.h> for details.
+	 */
+	. = ALIGN(8);
+	.apicdrivers : {
+		__apicdrivers = .;
+		*(.apicdrivers);
+		__apicdrivers_end = .;
+	}
+
+	/*
+	 * __init __initdata section
+	 */
 	. = ALIGN(PAGE_SIZE);
 	.init : {
 		__init_start = .;
@@ -84,6 +97,10 @@ SECTIONS
 		__init_end = .;
 	}
 
+	/*
+	 * System Image Signature
+	 * Checked by head_$(BITS).S to see if the entire image was loaded.
+	 */
 	. = ALIGN(4);
 	.signature : {
 		kernel_sig = .;

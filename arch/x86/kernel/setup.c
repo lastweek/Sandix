@@ -27,6 +27,7 @@
 
 #include <asm/page.h>
 #include <asm/e820.h>
+#include <asm/apic.h>
 #include <asm/traps.h>
 #include <asm/mpspec.h>
 #include <asm/pgtable.h>
@@ -336,6 +337,8 @@ void __init arch_setup(void)
 	init_mem_init();
 
 	x86_init.paging.pagetable_init();
+
+	generic_apic_probe();
 
 	reserve_standard_io_resources();
 }
