@@ -16,9 +16,9 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <asm/apic.h>
+#include <sandix/cpu.h>
 
-void apic_init_mappings(void)
+void prefill_possible_map(void)
 {
 
 }

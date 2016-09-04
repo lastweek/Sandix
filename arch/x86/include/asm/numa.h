@@ -16,9 +16,13 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <asm/apic.h>
+#ifndef _ASM_X86_NUMA_H_
+#define _ASM_X86_NUMA_H_
 
-void apic_init_mappings(void)
-{
+#ifdef CONFIG_NUMA
+void __init init_cpu_to_node(void);
+#else
+static inline void init_cpu_to_node(void);
+#endif
 
-}
+#endif /* _ASM_X86_NUMA_H_ */

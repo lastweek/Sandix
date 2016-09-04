@@ -140,3 +140,10 @@ Tue Jul 26 11:22:39 CST 2016
 - [+] arch/x86/kernel/apic/
 - [+] arch/x86/include/asm/apic.h
 - [M] arch/x86/kernel/vmSandix.ld.S		[D] add __apicdriver section handling
+
+
+Sat Sep  3 21:39:35 EDT 2016
+- [+] arch/x86/include/asm/numa.h
+- [+] arch/x86/include/asm/cpu.h
+- [+] arch/x86/kernel/smpboot.c
+- [+] arch/x86/kernel/apic/io_apic.c

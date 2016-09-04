@@ -16,9 +16,13 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <asm/apic.h>
+#ifndef _ASM_X86_CPU_H_
+#define _ASM_X86_CPU_H_
 
-void apic_init_mappings(void)
-{
+#ifdef CONFIG_SMP
+void prefill_possible_map(void);
+#else
+static inline void prefill_possible_map(void) { }
+#endif
 
-}
+#endif /* _ASM_X86_CPU_H_ */

@@ -25,6 +25,7 @@
 #include <sandix/memblock.h>
 #include <sandix/screen_info.h>
 
+#include <asm/cpu.h>
 #include <asm/page.h>
 #include <asm/e820.h>
 #include <asm/apic.h>
@@ -338,7 +339,11 @@ void __init arch_setup(void)
 
 	x86_init.paging.pagetable_init();
 
+	/* TODO SMP */
 	generic_apic_probe();
+	prefill_possible_map();
+	apic_init_mappings();
+	io_apic_init_mappings();
 
 	reserve_standard_io_resources();
 }

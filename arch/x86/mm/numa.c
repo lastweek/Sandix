@@ -23,3 +23,8 @@
 
 struct pglist_data *node_data[MAX_NR_NODES] __read_mostly;
 EXPORT_SYMBOL(node_data);
+
+void __init init_cpu_to_node(void)
+{
+
+}

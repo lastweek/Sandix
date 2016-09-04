@@ -18,7 +18,7 @@
 
 #include <asm/apic.h>
 
-void apic_init_mappings(void)
+void io_apic_init_mappings(void)
 {
 
 }
