@@ -44,6 +44,7 @@
 #include <sandix/bitops.h>
 #include <sandix/compiler.h>
 
+#include <asm/tss.h>
 #include <asm/segment.h>
 #include <asm/irq_vectors.h>
 
@@ -201,6 +202,11 @@ static inline void store_idt(struct desc_ptr *dtr)
 	asm volatile("sidt %0":"=m" (*dtr));
 }
 
+static inline void load_TR_desc(void)
+{
+	asm volatile("ltr %w0"::"q" (GDT_ENTRY_KERNEL_TSS * 8));
+}
+
 #ifdef CONFIG_X86_32
 static inline void pack_gate(gate_desc *gate, unsigned char type,
 			     unsigned long base, unsigned int dpl,
@@ -236,6 +242,44 @@ static inline void pack_descriptor(struct desc_struct *desc, unsigned long base,
 		  (limit & 0x000f0000) | ((type & 0xff) << 8) |
 		  ((flags & 0xf) << 20);
 	desc->p = 1;
+}
+
+static inline void set_tssldt_descriptor(void *d, unsigned long addr, unsigned type, unsigned size)
+{
+#ifdef CONFIG_X86_64
+	struct ldttss_desc64 *desc = d;
+
+	memset(desc, 0, sizeof(*desc));
+
+	desc->limit0		= size & 0xFFFF;
+	desc->base0		= PTR_LOW(addr);
+	desc->base1		= PTR_MIDDLE(addr) & 0xFF;
+	desc->type		= type;
+	desc->p			= 1;
+	desc->limit1		= (size >> 16) & 0xF;
+	desc->base2		= (PTR_MIDDLE(addr) >> 8) & 0xFF;
+	desc->base3		= PTR_HIGH(addr);
+#else
+	pack_descriptor((struct desc_struct *)d, addr, size, 0x80 | type, 0);
+#endif
+}
+
+static inline void set_tss_desc(void *addr)
+{
+	struct desc_struct *gdt = gdt_table;
+	tss_desc tss;
+
+	/*
+	 * sizeof(unsigned long) coming from an extra "long" at the end
+	 * of the iobitmap. See tss_struct definition in processor.h
+	 *
+	 * -1? seg base+limit should be pointing to the address of the
+	 * last valid byte
+	 */
+	set_tssldt_descriptor(&tss, (unsigned long)addr, DESC_TSS,
+			      IO_BITMAP_OFFSET + IO_BITMAP_BYTES +
+			      sizeof(unsigned long) - 1);
+	write_gdt_entry(gdt, GDT_ENTRY_KERNEL_TSS, &tss, DESC_TSS);
 }
 
 /*

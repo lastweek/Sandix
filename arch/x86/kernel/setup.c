@@ -139,24 +139,6 @@ static struct resource standard_io_resources[] = { {
 	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
 } };
 
-struct desc_struct gdt_table[GDT_ENTRIES] __aligned(8) =
-{
-	/* Present, DPL=0, Execute/Read */
-	/* Present, DPL=0, Read/Write */
-	/* Present, DPL=3, Execute/Read */
-	/* Present, DPL=3, Read/Write */
-	[GDT_ENTRY_KERNEL_CS]		= GDT_ENTRY_INIT(0xc09a, 0, 0xfffff),
-	[GDT_ENTRY_KERNEL_DS]		= GDT_ENTRY_INIT(0xc092, 0, 0xfffff),
-	
-	[GDT_ENTRY_USER_CS]		= GDT_ENTRY_INIT(0xc0fa, 0, 0xfffff),
-	[GDT_ENTRY_USER_DS]		= GDT_ENTRY_INIT(0xc0f2, 0, 0xfffff),
-
-	[GDT_ENTRY_KERNEL_TSS]		= GDT_ENTRY_INIT(0xc092, 0, 0),
-	[GDT_ENTRY_KERNEL_PERCPU]	= GDT_ENTRY_INIT(0xc092, 0, 0xfffff),
-};
-
-struct desc_struct idt_table[IDT_ENTRIES] __aligned(8);
-
 void __init reserve_standard_io_resources(void)
 {
 	int i;
@@ -344,6 +326,11 @@ void __init arch_setup(void)
 	prefill_possible_map();
 	apic_init_mappings();
 	io_apic_init_mappings();
+
+	/*
+	 * Setup TSS etc for this bootstrap CPU:
+	 */
+	cpu_init();
 
 	reserve_standard_io_resources();
 }

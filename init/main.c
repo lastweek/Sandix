@@ -68,7 +68,7 @@ asmlinkage void __init start_kernel(void)
 	trap_init();
 
 	asm (
-		//"movl 0xf77fdfff, %eax\n\t"	/* #PF */
+		"movl 0xf77fdff0, %eax\n\t"	/* #PF */
 		"movl $0x1, %eax\n\t"
 		//"int $0x80"
 	);

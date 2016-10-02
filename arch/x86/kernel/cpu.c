@@ -16,16 +16,56 @@
  *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <asm/asm.h>
-#include <asm/processor.h>
-#include <asm/cpufeature.h>
+/*
+ * CPU specific initialization and manipulation.
+ */
 
+#include <sandix/sched.h>
 #include <sandix/ctype.h>
-#include <sandix/types.h>
 #include <sandix/string.h>
 #include <sandix/export.h>
 #include <sandix/kernel.h>
-#include <sandix/printk.h>
+
+#include <asm/asm.h>
+#include <asm/processor.h>
+#include <asm/cpufeature.h>
+#include <asm/descriptor.h>
+
+/* TSS Segment */
+struct tss_struct cpu_tss = {
+	.x86_tss = {
+		.sp0 = TOP_OF_INIT_STACK,
+#ifdef CONFIG_X86_32
+		.ss0 = __KERNEL_DS,
+		.ss1 = __KERNEL_CS,
+		.io_bitmap_base = INVALID_IO_BITMAP_OFFSET,
+#endif
+	},
+#ifdef CONFIG_X86_32
+	.io_bitmap = {
+		[0 ... IO_BITMAP_LONGS] = ~0,
+	},
+#endif
+#ifdef CONFIG_X86_32
+	.SYSENTER_stack_canary  = STACK_END_MAGIC,
+#endif
+};
+
+struct desc_struct gdt_table[GDT_ENTRIES] __aligned(8) = {
+	/* Present, DPL=0, Execute/Read */
+	/* Present, DPL=0, Read/Write */
+	/* Present, DPL=3, Execute/Read */
+	/* Present, DPL=3, Read/Write */
+	[GDT_ENTRY_KERNEL_CS]		= GDT_ENTRY_INIT(0xc09a, 0, 0xfffff),
+	[GDT_ENTRY_KERNEL_DS]		= GDT_ENTRY_INIT(0xc092, 0, 0xfffff),
+	
+	[GDT_ENTRY_USER_CS]		= GDT_ENTRY_INIT(0xc0fa, 0, 0xfffff),
+	[GDT_ENTRY_USER_DS]		= GDT_ENTRY_INIT(0xc0f2, 0, 0xfffff),
+
+	[GDT_ENTRY_KERNEL_PERCPU]	= GDT_ENTRY_INIT(0xc092, 0, 0xfffff),
+};
+
+struct desc_struct idt_table[IDT_ENTRIES] __aligned(8);
 
 struct cpuinfo_x86 boot_cpu_info __read_mostly;
 EXPORT_SYMBOL(boot_cpu_info);
@@ -254,10 +294,38 @@ void __init early_cpu_init(void)
 	print_cpu_info(&boot_cpu_info);
 }
 
+/*
+ * cpu_init() initializes state that is per-CPU. Some data is already
+ * initialized (naturally) in the bootstrap process, such as the GDT
+ * and IDT. We reload them nevertheless, this function acts as a
+ * 'CPU state barrier', nothing should get across.
+ * A lot of state is already set up in PDA init for 64 bit
+ */
+#ifdef CONFIG_X86_32
 void __init cpu_init(void)
 {
+	int cpu;
+	struct tss_struct *tss;
 
+	cpu = 0;
+	tss = &cpu_tss;
+
+	pr_info("Initializing CPU#%d\n", cpu);
+
+	/*
+	 * Load TSS into GDT table:
+	 */
+	set_tss_desc(tss);
+	load_TR_desc();
+
+	tss->x86_tss.io_bitmap_base = offsetof(struct tss_struct, io_bitmap);
 }
+#else
+void __init cpu_init(void)
+{
+	BUG();
+}
+#endif
 
 __used
 void print_cpu_info(struct cpuinfo_x86 *c)

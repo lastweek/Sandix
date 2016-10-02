@@ -47,6 +47,10 @@ struct pt_regs {
 	unsigned long flags;
 	unsigned long sp;
 	unsigned long ss;
+
+	/*
+	 * Top of the stack page
+	 */
 };
 #else
 struct pt_regs {
@@ -89,7 +93,7 @@ struct pt_regs {
 	unsigned long ss;
 
 	/*
-	 * top of stack page
+	 * Top of stack page
 	 */
 };
 #endif
