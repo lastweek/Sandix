@@ -147,3 +147,8 @@ Sat Sep  3 21:39:35 EDT 2016
 - [+] arch/x86/include/asm/cpu.h
 - [+] arch/x86/kernel/smpboot.c
 - [+] arch/x86/kernel/apic/io_apic.c
+
+
+Sun Oct  2 16:58:36 EDT 2016
+[+] arch/x86/include/asm/tss.h
+[M] arch/x86/kernel/cpu.c
