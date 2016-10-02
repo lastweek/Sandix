@@ -60,6 +60,9 @@ asmlinkage void __init start_kernel(void)
 
 	boot_cpu_init();
 
+	/*
+	 * Do most of the specific initialization:
+	 */
 	arch_setup();
 
 	trap_init();
