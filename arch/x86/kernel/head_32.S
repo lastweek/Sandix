@@ -4,21 +4,12 @@
 #	it under the terms of the GNU General Public License as published by
 #	the Free Software Foundation; either version 2 of the License, or
 #	(at your option) any later version.
-#
-#	This program is distributed in the hope that it will be useful,
-#	but WITHOUT ANY WARRANTY; without even the implied warranty of
-#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#	GNU General Public License for more details.
-#
-#	You should have received a copy of the GNU General Public License along
-#	with this program; if not, write to the Free Software Foundation, Inc.,
-#	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+#include <sandix/linkage.h>
 
 #include <asm/page.h>
 #include <asm/segment.h>
 #include <asm/bootparam.h>
-
-#include <sandix/linkage.h>
 #include <asm/processor-flags.h>
 
 #define pa(X)	((X) - __PAGE_OFFSET)
@@ -38,6 +29,10 @@ ENTRY(startup_32)
 # Quick check if entire image is loaded
 	cmpl	$0x5a5aaa55, pa(kernel_sig)
 	jne	bad_sig
+
+# Using the stack of init_task
+	movl	pa(stack_start), %eax
+	leal	-__PAGE_OFFSET(%eax), %esp
 
 # Reload segment registers. We have done this before,
 # but we do it again here just for safey.
@@ -199,6 +194,10 @@ ENDPROC(ignore_int)
 
 	.section .data
 	.align 4
+# The top of the init_task's stack
+ENTRY(stack_start)
+	.long	init_thread_union+THREAD_SIZE
+
 ENTRY(idt_descr)
 	.word	IDT_ENTRIES*8-1
 	.long	pa(idt_table)

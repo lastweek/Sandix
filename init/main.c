@@ -5,15 +5,6 @@
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
  *	(at your option) any later version.
- *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
- *
- *	You should have received a copy of the GNU General Public License along
- *	with this program; if not, write to the Free Software Foundation, Inc.,
- *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <sandix/bug.h>
@@ -28,7 +19,6 @@
 
 #include <asm/traps.h>
 #include <asm/setup.h>
-#include <asm/descriptor.h>
 #include <asm/processor.h>
 
 enum system_states system_state __read_mostly;
@@ -44,6 +34,10 @@ static void __init boot_cpu_init(void)
 	set_cpu_active(cpu, true);
 }
 
+/*
+ * Note that:
+ * We are still using the stack of init_task, which was setup by head.
+ */
 asmlinkage void __init start_kernel(void)
 {
 	local_irq_disable();
