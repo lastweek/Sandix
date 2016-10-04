@@ -5,15 +5,6 @@
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
  *	(at your option) any later version.
- *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
- *
- *	You should have received a copy of the GNU General Public License along
- *	with this program; if not, write to the Free Software Foundation, Inc.,
- *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifndef _SANDIX_SCHED_H_
@@ -116,7 +107,7 @@ struct tlbflush_unmap_batch {
 	 * Each bit set is a CPU that potentially has a TLB entry for one of
 	 * the PFNs being flushed. See set_tlb_ubc_flush_pending().
 	 */
-	//struct cpumask cpumask;
+	struct cpumask cpumask;
 
 	/* True if any bit in cpumask is set */
 	bool flush_required;
@@ -129,9 +120,13 @@ struct tlbflush_unmap_batch {
 	bool writable;
 };
 
+#define TASK_COMM_LEN	32
+
 struct task_struct {
 	/* -1 unrunnable, 0 runnable, >0 stopped */
 	volatile long state;
+
+	char comm[TASK_COMM_LEN];
 
 	/* kernel mode stack */
 	void *stack;
@@ -150,7 +145,7 @@ struct task_struct {
 	int prio, static_prio, normal_prio;
 	unsigned int policy;
 	int nr_cpus_allowed;
-	//cpumask_t cpus_allowed;
+	cpumask_t cpus_allowed;
 
 	struct list_head tasks;
 

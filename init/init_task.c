@@ -20,6 +20,7 @@
 #define INIT_TASK(task)							\
 {									\
 	.state		= 0,						\
+	.comm		= "swapper",					\
 	.stack		= &init_thread_info,				\
 	.usage		= ATOMIC_INIT(2),				\
 	.flags		= PF_KTHREAD,					\
@@ -31,6 +32,7 @@
 	.tasks		= LIST_HEAD_INIT(task.tasks),			\
 	.mm		= NULL,						\
 	.active_mm	= &init_mm,					\
+	.pid		= 0,						\
 	.alloc_lock	= __SPIN_LOCK_UNLOCKED(task.alloc_lock),	\
 	.real_parent	= &task,					\
 	.parent		= &task,					\

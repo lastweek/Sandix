@@ -5,15 +5,6 @@
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation; either version 2 of the License, or
  *	(at your option) any later version.
- *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
- *
- *	You should have received a copy of the GNU General Public License along
- *	with this program; if not, write to the Free Software Foundation, Inc.,
- *	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include <asm/asm.h>
@@ -22,6 +13,8 @@
 #include <asm/processor.h>
 
 #include <sandix/mm.h>
+#include <sandix/smp.h>
+#include <sandix/sched.h>
 #include <sandix/kernel.h>
 #include <sandix/ptrace.h>
 #include <sandix/kdebug.h>
@@ -83,6 +76,7 @@ dotraplinkage void do_page_fault(struct pt_regs *regs, long error_code)
 	__do_page_fault(regs, error_code, address);
 
 	printk("BUG: unable to handle kernel paging request at %#lx\n", address);
+	printk("CPU: %d PID: %u Comm: %s\n", smp_processor_id(), current->pid, current->comm);
 	show_regs(regs);
 	panic("panic at #PF");
 }
