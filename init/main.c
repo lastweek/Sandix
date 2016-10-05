@@ -11,8 +11,8 @@
 #include <sandix/smp.h>
 #include <sandix/tty.h>
 #include <sandix/cpu.h>
+#include <sandix/irq.h>
 #include <sandix/sched.h>
-#include <sandix/types.h>
 #include <sandix/kernel.h>
 #include <sandix/printk.h>
 #include <sandix/irqflags.h>
@@ -58,8 +58,8 @@ asmlinkage void __init start_kernel(void)
 	 * Do most of the specific initialization:
 	 */
 	arch_setup();
-
 	trap_init();
+	IRQ_init();
 
 	asm (
 		"movl 0xf77fdff0, %eax\n\t"	/* #PF */

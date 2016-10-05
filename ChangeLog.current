@@ -7,3 +7,8 @@ Sun Oct  2 16:58:36 EDT 2016
 - [M] arch/x86/kernel/cpu.c
 
 - [M] arch/x86/kernel/head_32.S			[M] Use the stack of init_task
+
+
+Tue Oct  4 17:09:07 EDT 2016
+- [+] kernel/irq.h
+- [M] include/sandox/irq.h			[D] Add Interrupt ReQuest generic code

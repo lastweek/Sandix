@@ -8,3 +8,4 @@ obj-y += sched.o
 obj-y += cpu.o
 obj-y += smp.o
 obj-y += resource.o
+obj-y += irq.o
