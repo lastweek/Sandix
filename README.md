@@ -1,3 +1,8 @@
+I'm not developing this project anymore. Instead, now I'm coding another
+kernel project from scratch for Wuklab. I spent a lof of time in Sandix,
+and suffered enormous pain alone. But I love it, I learned a lot, truly.
+Thank you and good bye.
+
 ##			SANDIX KERNEL PROJECT
 ###	Copyright (C) 2015-2016 Yizhou Shan <shan13@purdue.edu>
 
